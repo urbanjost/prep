@@ -1,0 +1,29 @@
+# TOML file for fpm as described at https://github.com/fortran-lang/fpm/blob/master/manifest-reference.md
+name = "pref"
+version = "1.0.0"
+license = "MIT"
+author = "John Urban"
+maintainer = "urbanjost@comcast.net"
+copyright = "2020 John Urban"
+description = "Fortran pre-processor"
+
+#[library]
+#source-dir="src"
+
+[[executable]]
+name="pref"
+source-dir="app"
+main="pref.f90"
+
+[dependencies.M_kracken95]
+
+git = "https://github.com/urbanjost/M_kracken95.git"
+rev = "ae6f13956a0f58b02f4ba03a1a19396fa1eb527a"
+
+[dependencies.M_io]
+git = "https://github.com/urbanjost/M_io.git"
+rev = "8cb8bec193e8fd617a9c614df4908f83f32911e6"
+
+[dependencies.M_strings]
+git = "https://github.com/urbanjost/M_strings.git"
+rev = "ca5b7613a3660506600f00a7a6a834ac0bf50c7c"
