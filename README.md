@@ -62,3 +62,7 @@ Fortran compiler and WWW access. It was tested with
 
 ## HOMEPAGE
 https://github.com/urbanjost/pref.git
+
+## CHANGELOG
+
+   [CHANGELOG](CHANGELOG.md)

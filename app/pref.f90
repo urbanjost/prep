@@ -334,7 +334,7 @@ end subroutine define
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
 FUNCTION GetDateTimeStr() RESULT(s)                   !@(#)GetDateTimeStr(3f): Function to write date and time into returned screen
-! pref_DATE="00:39  5 Nov 2013"
+! PREF_DATE="00:39  5 Nov 2013"
 ! -----------------------------------------------------------------
 ! PURPOSE - Return a string with the current date and time
    CHARACTER(LEN=*),PARAMETER         :: MONTH='JanFebMarAprMayJunJulAugSepOctNovDec'
@@ -355,19 +355,19 @@ subroutine printenv(opts)                                  !@(#)printenv(3f): pr
    integer                      ::  ilength
 !-----------------------------------------------------------------------------------------------------------------------------------
    select case(opts)                                                          ! process directive based on variable name
-   case('pref_DATE')
-      write(G_outline,'("      pref_DATE=""",a,"""")')GetDateTimeStr()
+   case('PREF_DATE')
+      write(G_outline,'("      PREF_DATE=""",a,"""")')GetDateTimeStr()
       call write_out(G_outline)
 
-   case('pref_FILE')
+   case('PREF_FILE')
       ! assumes filename does not have " characters
-      write(G_outline,'("      pref_FILE=""",a,"""")')trim(G_file_dictionary(G_iocount)%filename)
+      write(G_outline,'("      PREF_FILE=""",a,"""")')trim(G_file_dictionary(G_iocount)%filename)
       call write_out(G_outline)
-   case('pref_LINE')
+   case('PREF_LINE')
       ! assumes want this as a string and not a number
-      !write(G_outline,'("      pref_LINE=""",i11,"""")')G_file_dictionary(G_iocount)%line_number
+      !write(G_outline,'("      PREF_LINE=""",i11,"""")')G_file_dictionary(G_iocount)%line_number
       !call write_out(G_outline)
-      write(G_outline,'("      pref_LINE=",i11)')G_file_dictionary(G_iocount)%line_number  ! assumes want this as a number
+      write(G_outline,'("      PREF_LINE=",i11)')G_file_dictionary(G_iocount)%line_number  ! assumes want this as a number
       call write_out(G_outline)
    case('')
       call stop_pref('*prefprintenv* ERROR(m) - NO VARIABLE NAME ON "PRINTENV":'//trim(G_SOURCE))
@@ -1440,7 +1440,7 @@ end subroutine stop
 subroutine print_comment_block() !@(#)print_comment_block(3f): format comment block to file in document directory and output
    character(len=:),allocatable :: filename
    character(len=1024)          :: varvalue
-   character(len=*),parameter   :: varname='pref_DOCUMENT_DIR'
+   character(len=*),parameter   :: varname='PREF_DOCUMENT_DIR'
    integer                      :: ios,iend,istatus,ilength
 
    if(.not.allocated(G_MAN))then
@@ -1889,7 +1889,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '         [-o output_file]                                                       ',&
 '         [-system]                                                              ',&
 '         [-verbose]                                                             ',&
-'         [-prefix character_ADE]                                                ',&
+'         [-prefix character_ADE or character]                                   ',&
 '         [-keeptabs]                                                            ',&
 '         [-noenv]                                                               ',&
 '         [-width n]                                                             ',&
@@ -2103,12 +2103,12 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   Special predefined variable names are:                                       ',&
 '                                                                                ',&
 '     Variable Name      Output                                                  ',&
-'     pref_DATE  ......  pref_DATE="12:58 14Jun2013"                             ',&
+'     PREF_DATE  ......  PREF_DATE="12:58 14Jun2013"                             ',&
 '     Where code is assumed to have defined pref_DATE as CHARACTER(LEN=15)       ',&
-'     pref_FILE  ......  pref_FILE="current filename"                            ',&
+'     PREF_FILE  ......  PREF_FILE="current filename"                            ',&
 '     Where code is assumed to have defined pref_FILE as CHARACTER(LEN=1024)     ',&
-'     pref_LINE  ......  pref_LINE=    nnnnnn                                    ',&
-'     Where code is assumed to have defined pref_LINE as INTEGER                 ',&
+'     PREF_LINE  ......  PREf_LINE=    nnnnnn                                    ',&
+'     Where code is assumed to have defined PREF_LINE as INTEGER                 ',&
 '                                                                                ',&
 '   This example shows one way how an environment variable can be turned         ',&
 '   into a write statement                                                       ',&
@@ -2148,8 +2148,8 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   So the text can easily be processed by other utilities such as markdown(1)   ',&
 '   or txt2man(1) to produce man(1) pages and HTML documents the file can be     ',&
-'   written as-is to $pref_DOCUMENT_DIR/doc/NAME with the -file parameter. If the',&
-'   environment variable $pref_DOCUMENT_DIR is not set the option is ignored.    ',&
+'   written as-is to $PREF_DOCUMENT_DIR/doc/NAME with the -file parameter. If the',&
+'   environment variable $PREF_DOCUMENT_DIR is not set the option is ignored.    ',&
 '                                                                                ',&
 '                                                                                ',&
 '   $SHOW                                                                        ',&
@@ -2280,7 +2280,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 'Major cpp(1) features not present in pref:                                      ',&
 '                                                                                ',&
 '   There are no predefined preprocessor symbols. Use a directive input file     ',&
-'   instead. The predefined variables such as pref_DATE can be used as a         ',&
+'   instead. The predefined variables such as PREF_DATE can be used as a         ',&
 '   substitute in some cases.                                                    ',&
 '                                                                                ',&
 '   This program does not provide string (macro) substitution in output          ',&
@@ -2338,7 +2338,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   >$ENDIF                                                                      ',&
 '   >$!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',&
 '   >$! generate help_usage() procedure (and file to run thru txt2man(1) or other',&
-'   >$! filters to make man(1) page if $pref_DOCUMENT_DIR is set).               ',&
+'   >$! filters to make man(1) page if $PREF_DOCUMENT_DIR is set).               ',&
 '   >$!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',&
 '   >$BLOCK HELP -file conditional_compile.man                                   ',&
 '   >NAME                                                                        ',&
@@ -2556,7 +2556,7 @@ implicit none
       & '
 !-----------------------------------------------------------------------------------------------------------------------------------
                                                                         ! allow formatting comments for particular post-processors
-   call get_environment_variable('pref_COMMENT_STYLE',G_comment_style)  ! get environment variable for -comment switch
+   call get_environment_variable('PREF_COMMENT_STYLE',G_comment_style)  ! get environment variable for -comment switch
    if(G_comment_style.eq.'')G_comment_style='default'                   ! if environment variable not set set default
    call substitute(cmd,'COMMENT',trim(G_comment_style))                 ! change command line to have correct default
                                                                         ! this would actually allow any parameter after number
