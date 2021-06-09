@@ -59,3 +59,6 @@ Fortran compiler and WWW access. It was tested with
    # if you placed the program in a directory in your command path you are ready to go!
    pref --help
 ```
+
+## HOMEPAGE
+https://github.com/urbanjost/pref.git
