@@ -2,9 +2,9 @@
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
 !  @(#)pref: FORTRAN pre-processor
-!  Fortran preprocessor originally based on public-domain FPP pre-processor from Lahey Fortran Code Repository 
+!  Fortran preprocessor originally based on public-domain FPP pre-processor from Lahey Fortran Code Repository
 !     http://www.lahey.com/code.htm
-!  Extensively rewritten since under a MIT License. 
+!  Extensively rewritten since under a MIT License.
 !  John S. Urban ; last updated 20131031
 !  John S. Urban ; last updated 20201219
 !===================================================================================================================================
@@ -72,7 +72,7 @@ use M_strings,   only : nospace, v2s, substitute, upper, lower, isalpha, split, 
    character(len=G_line_length),public  :: G_inc_files(50)
    character(len=:),allocatable,save    :: G_MAN
    logical,save                         :: G_MAN_COLLECT=.false.
-   character(len=:),allocatable,save    :: G_STORE_NAME       
+   character(len=:),allocatable,save    :: G_STORE_NAME
    logical,save                         :: G_MAN_PRINT=.false.
    character(len=:),allocatable         :: G_MAN_FILE
    character(len=10)                    :: G_MAN_FILE_POSITION='ASIS      '
@@ -1880,7 +1880,7 @@ if(l_help)then
 help_text=[ CHARACTER(LEN=128) :: &
 'NAME                                                                            ',&
 '   pref(1) - [DEVELOPER] pre-process FORTRAN source files                       ',&
-'   (LICENSE:PD)                                                                 ',&
+'   (LICENSE:MIT)                                                                ',&
 '                                                                                ',&
 'SYNOPSIS                                                                        ',&
 '   pref  [[-D] define_list]                                                     ',&
