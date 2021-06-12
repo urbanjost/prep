@@ -1,12 +1,13 @@
-# pref - A simple Fortran pre-processor written in Fortran
+# prep(1)
+## A Fortran pre-processor written in Fortran
 ---
 ## ( __subject to change on a whim!__)
 ---
 In general pre-processing should be minimalized but is still
 generally a "necessary evil" .
 
-As documented in the [pref](https://urbanjost.github.io/pref/pref.1.html)
-man-page (re-formatted as HTML) `pref`(Preprocessor for Fortran) is a basic
+As documented in the [prep](https://urbanjost.github.io/prep/prep.1.html)
+man-page (re-formatted as HTML) `prep` is a basic
 pre-processor primarily designed for use with Fortran. It does not support
 macros but is quite capable of supporting conditional compilation for
 general platform-specific issues.
@@ -16,14 +17,14 @@ easy to modify as needed and to use portably wherever modern Fortran
 compilers are found (and in particular where other utilities from `m4`
 to `cpp` are not).
 
-`pref`(1) is not a drop-in replacement for `cpp` or `fpp` but serves
+`prep`(1) is not a drop-in replacement for `cpp` or `fpp` but serves
 many of the same purposes.
 
 A major use beyond conditional compilation is support for maintaining
 documentation in the body of the source code in a variety of formats
 via the __BLOCK__ directive.
 
-Note that `pref(1)` is a simplified but much more portable  version of
+Note that `prep(1)` is a simplified but much more portable  version of
 `ufpp(1)` provided primarily to see what interest is garnered and whether
 further development is warranted.
 
@@ -41,13 +42,13 @@ Fortran compiler and WWW access. It was tested with
 ```bash
    # ACCESSING
 
-   # go to where you want to create the `pref` directory
+   # go to where you want to create the `prep` directory
    mkdir github
    cd github
    # get a clone of the repository
-   git clone https://github.com/urbanjost/pref.git
+   git clone https://github.com/urbanjost/prep.git
    # enter the repository directory
-   cd pref
+   cd prep
 
    # BUILDING AND INSTALLING
 
@@ -57,11 +58,11 @@ Fortran compiler and WWW access. It was tested with
    # TRY IT
 
    # if you placed the program in a directory in your command path you are ready to go!
-   pref --help
+   prep --help
 ```
 
 ## HOMEPAGE
-https://github.com/urbanjost/pref.git
+https://github.com/urbanjost/prep.git
 
 ## CHANGELOG
 

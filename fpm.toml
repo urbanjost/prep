@@ -1,5 +1,5 @@
 # TOML file for fpm as described at https://github.com/fortran-lang/fpm/blob/master/manifest-reference.md
-name = "pref"
+name = "prep"
 version = "1.0.0"
 license = "MIT"
 author = "John Urban"
@@ -11,9 +11,9 @@ description = "Fortran pre-processor"
 #source-dir="src"
 
 [[executable]]
-name="pref"
+name="prep"
 source-dir="app"
-main="pref.f90"
+main="prep.f90"
 
 [dependencies.M_kracken95]
 
