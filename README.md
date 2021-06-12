@@ -4,7 +4,7 @@
 ## ( __subject to change on a whim!__)
 ---
 ## DOCUMENTATION
- + [manpages](https://urbanjost.github.io/prep.1.html) reformatted as HTML.
+ + [manpages](https://urbanjost.github.io/prep/prep.1.html) reformatted as HTML.
 
 ## DESCRIPTION
 In general pre-processing should be minimalized but is still
