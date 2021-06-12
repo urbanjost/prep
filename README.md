@@ -3,14 +3,16 @@
 ---
 ## ( __subject to change on a whim!__)
 ---
-In general pre-processing should be minimalized but is still
-generally a "necessary evil" .
+## DOCUMENTATION
+ + [manpages](https://urbanjost.github.io/prep/prep.1.html) reformatted as HTML.
 
-As documented in the [prep](https://urbanjost.github.io/prep/prep.1.html)
-man-page (re-formatted as HTML) `prep` is a basic
-pre-processor primarily designed for use with Fortran. It does not support
-macros but is quite capable of supporting conditional compilation for
-general platform-specific issues.
+## DESCRIPTION
+In general pre-processing should be minimalized but is still
+generally a "necessary evil".
+
+`prep(1)` is a basic pre-processor primarily designed for use with
+Fortran. It does not support macros but is quite capable of supporting
+conditional compilation for general platform-specific issues.
 
 It is written in Fortran so those in the Fortran community may find it
 easy to modify as needed and to use portably wherever modern Fortran
@@ -24,7 +26,7 @@ A major use beyond conditional compilation is support for maintaining
 documentation in the body of the source code in a variety of formats
 via the __BLOCK__ directive.
 
-Note that `prep(1)` is a simplified but much more portable  version of
+Note that `prep(1)` is a simplified but much more portable version of
 `ufpp(1)` provided primarily to see what interest is garnered and whether
 further development is warranted.
 
@@ -36,8 +38,9 @@ read this far!
 To build it requires `git`, `fpm`(Fortran Package Manager), a modern
 Fortran compiler and WWW access. It was tested with
 
-   + GNU Fortran (GCC) 8.3.1 20191121 
-   + ifort (IFORT) 19.1.3.304 20200925
+   + GNU Fortran (GCC) 8.3.1  on 20191121 
+   + GNU Fortran 9.3.0        on 20210612
+   + ifort (IFORT) 19.1.3.304 on 20200925
 
 ```bash
    # ACCESSING
