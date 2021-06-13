@@ -2495,7 +2495,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   > $BLOCK VERSION                                                             ',&
 '   > DESCRIPTION: example program showing conditional compilation with prep(1)  ',&
 '   > PROGRAM:     conditional_compile                                           ',&
-'   > VERSION:     1.0, 20160703                                                 ',&
+'   > VERSION:     1.0.0, 20160703                                               ',&
 '   > AUTHOR:      John S. Urban                                                 ',&
 '   > $BLOCK END                                                                 ',&
 '   > $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',&
@@ -2563,7 +2563,8 @@ help_text=[ CHARACTER(LEN=128) :: &
 '@(#)PROGRAM:        prep(1f)>',&
 '@(#)DESCRIPTION:    Fortran Pre-processor>',&
 !'@(#)VERSION:        4.0: 20170502>',&
-'@(#)VERSION:        5.0: 20201219>',&
+!'@(#)VERSION:        5.0: 20201219>',&
+'@(#)VERSION:        6.0: 20210613>',&
 '@(#)AUTHOR:         John S. Urban>',&
 '@(#)HOME PAGE       https://github.com/urbanjost/prep.git/>',&
 '']
