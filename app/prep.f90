@@ -387,28 +387,37 @@ end subroutine define
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-function GetDateTimeStr() result(s)         !@(#) GetDateTimeStr(3f): Function to write date and time into returned string
-! PREP_DATE="00:39  5 Nov 2013"
-! -----------------------------------------------------------------
+function getdate(name) result(s)         !@(#) getdate(3f): Function to write date and time into returned string
+character(len=*),optional :: name
+
 ! PURPOSE - Return a string with the current date and time
-   character(len=*),parameter         :: month='JanFebMarAprMayJunJulAugSepOctNovDec'
-   character(len=*),parameter         :: fmt = '(I2.2,A1,I2.2,I3,1X,A3,1x,I4)'
-   character(len=17)                  :: s
-   integer,dimension(8)               :: v
-!-------------------------------------------------------------------
+character(len=*),parameter         :: month='JanFebMarAprMayJunJulAugSepOctNovDec'
+character(len=*),parameter         :: fmt = '(I2.2,A1,I2.2,I3,1X,A3,1x,I4)'
+character(len=*),parameter         :: cdate = '(A3,1X,I2.2,1X,I4.4)'
+character(len=:),allocatable       :: s          
+character(len=80)                  :: line
+integer,dimension(8)               :: v
+character(len=10) :: name_
+
    call date_and_time(values=v)
-   write(s,fmt) v(5), ':', v(6), v(3), month(3*v(2)-2:3*v(2)), v(1)
-end function GetDateTimeStr
-!===================================================================================================================================
-!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
-!===================================================================================================================================
-function date()
-character(len=28) :: date
-integer           :: v(8)
-   call date_and_time(values=v)
-   write(date,'(i4.4,"-",i2.2,"-",i2.2," ",i2.2,":",i2.2,":",i2.2," UTC",sp,i0)')&
-   & v(1),v(2),v(3),v(5),v(6),v(7),v(4)
-end function date
+   name_='prep'
+   if(present(name))name_=name
+   select case(lower(name_))
+   case('prep') ! PREP_DATE="00:39  5 Nov 2013"
+   write(line,fmt) v(5), ':', v(6), v(3), month(3*v(2)-2:3*v(2)), v(1)
+   case('date')
+   write(line,'(i4.4,"-",i2.2,"-",i2.2)') v(1),v(2),v(3)
+   case('cdate')
+   write(line,cdate) month(3*v(2)-2:3*v(2)), v(3), v(1)
+   case('long')
+   write(line,'(i4.4,"-",i2.2,"-",i2.2," ",i2.2,":",i2.2,":",i2.2," UTC",sp,i0)') v(1),v(2),v(3),v(5),v(6),v(7),v(4)
+   case('time')
+   write(line,'(i2.2,":",i2.2,":",i2.2)') v(5),v(6),v(7)
+   case default
+   write(line,'(i4.4,"-",i2.2,"-",i2.2," ",i2.2,":",i2.2,":",i2.2," UTC",sp,i0)') v(1),v(2),v(3),v(5),v(6),v(7),v(4)
+   end select
+   s=trim(line)
+end function getdate
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
@@ -420,7 +429,7 @@ subroutine printenv(opts)                                  !@(#)printenv(3f): pr
 !-----------------------------------------------------------------------------------------------------------------------------------
    select case(opts)                                                          ! process directive based on variable name
    case('PREP_DATE')
-      write(G_outline,'("      PREP_DATE=""",a,"""")')GetDateTimeStr()
+      write(G_outline,'("      PREP_DATE=""",a,"""")')getdate()
       call write_out(G_outline)
 
    case('PREP_FILE')
@@ -1367,7 +1376,7 @@ character(len=*),intent(in) :: opts
    elseif(G_outtype.eq.'variable')then     ! if in 'variable' mode wrap up the variable
       write(G_iout,'(a)')"'']"
    elseif(G_outtype.eq.'version')then  ! if in 'version' mode wrap up the routine
-      write(G_iout,'("''@(#)COMPILED:       ",a,"'',&")') date()//'>'
+      write(G_iout,'("''@(#)COMPILED:       ",a,"'',&")') getdate('long')//'>'
       write(G_iout,'(a)')"'']"
       write(G_iout,'(a)')"   WRITE(*,'(a)')(trim(help_text(i)(5:len_trim(help_text(i))-1)),i=1,size(help_text))"
       !*!write(G_iout,'(a)')'   write(*,*)"COMPILER VERSION=",COMPILER_VERSION()'
@@ -1691,7 +1700,7 @@ character(len=*),intent(in)   :: msg
    write(G_iout,'("! CONDITIONAL_NESTING_LEVEL....... ",i0)')G_nestl              ! write nesting level
    write(G_iout,'("! G_WRITE (general processing).... ",l0)')G_write              ! non-if/else/endif directives processed
    write(G_iout,'("! G_LLWRITE (write input lines)... ",l0)')G_llwrite            ! non-if/else/endif directives processed
-   write(G_iout,'("! DATE............................ ",a)')GetDateTimeStr()      ! current time stamp
+   write(G_iout,'("! DATE............................ ",a)')getdate()             ! current time stamp
    call write_arguments()
    write(G_iout,'(a)')'! VARIABLES:'
    do i=1,G_numdef                                                                ! print variable dictionary
@@ -2219,6 +2228,11 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   Note expansion of a line may cause it to be longer than allowed by some      ',&
 '   compilers. Automatic breaking into continuation lines does not occur.        ',&
 '                                                                                ',&
+'   IF A $SET DIRECTIVE HAS BEEN DEFINED the "standard" preprocessor values      ',&
+'   __FILE__, __LINE__, __DATE__, and __TIME__ are also available. The time      ',&
+'   data refers to the time of processing, not the current time nor the time     ',&
+'   of compilation or loading.                                                   ',&
+'                                                                                ',&
 '   $PRINTENV name                                                               ',&
 '                                                                                ',&
 '   If the name of an uppercase environment variable is given the value          ',&
@@ -2500,20 +2514,29 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 ' MIXING BLOCK AND PRINTENV                                                      ',&
 '                                                                                ',&
-'   This example shows one way how an environment variable can be turned         ',&
-'   into a write statement                                                       ',&
+'  This example shows one way how an environment variable can be turned          ',&
+'  into a write statement                                                        ',&
 '                                                                                ',&
-'     $block write                                                               ',&
-'     $ifdef HOME                                                                ',&
-'     $printenv HOME                                                             ',&
-'     $else                                                                      ',&
-'        HOME not defined                                                        ',&
-'     $endif                                                                     ',&
-'     $block end                                                                 ',&
+'   > $block write                                                               ',&
+'   > $ifdef HOME                                                                ',&
+'   > $printenv HOME                                                             ',&
+'   > $else                                                                      ',&
+'   >    HOME not defined                                                        ',&
+'   > $endif                                                                     ',&
+'   > $block end                                                                 ',&
 '                                                                                ',&
 '   Sample output                                                                ',&
 '                                                                                ',&
 '     write(io,''(a)'')''/home/urbanjs/V600''                                    ',&
+'                                                                                ',&
+' SET USAGE                                                                      ',&
+'                                                                                ',&
+'   > $set author  William Shakespeare                                           ',&
+'   > write(*,*)''By ${AUTHOR}''                                                   ',&
+'   > write(*,*)''File ${__FILE__}''                                               ',&
+'   > write(*,*)''Line ${__LINE__}''                                               ',&
+'   > write(*,*)''Date ${__DATE__}''                                               ',&
+'   > write(*,*)''Time ${__TIME__}''                                               ',&
 '                                                                                ',&
 'AUTHOR                                                                          ',&
 '   John S. Urban                                                                ',&
@@ -2740,6 +2763,14 @@ character(len=*)              :: line
 character(len=:),allocatable  :: temp,search
 integer,parameter             :: toomany=1000
 integer                       :: i, j
+character(len=4096)           :: scratch
+
+write(scratch,'(i0)')G_file_dictionary(G_iocount)%line_number
+call set('__LINE__ ' // scratch)
+
+call set('__FILE__ ' // G_file_dictionary(G_iocount)%filename )
+call set('__TIME__ ' // getdate('time'))
+call set('__DATE__ ' // getdate('cdate'))
 temp=trim(line)
 do i=1,toomany
    do j=1,size(keywords)
