@@ -1569,11 +1569,9 @@ end subroutine print_comment_block
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
 subroutine format_g_man()
-   character(len=:),allocatable   :: array_bug(:) ! output array of tokens
    character(len=:),allocatable   :: array(:) ! output array of tokens
    integer                        :: ios
    integer                        :: i
-   integer                        :: ibug
    ALL: block
       WRITEIT: block
 !-----------------------------------------------------------------------------------------------------------------------------------
@@ -1581,10 +1579,7 @@ subroutine format_g_man()
 !-----------------------------------------------------------------------------------------------------------------------------------
          case('doxygen')                 ! convert plain text to doxygen comment blocks with some automatic markdown highlights
             if(len(G_MAN).gt.1)then      ! the way the string is built it starts with a newline
-               CALL split(G_MAN,array_bug,delimiters=new_line('N'),nulls='return') ! parse string to an array parsing on delimiters
-               ibug=len(array_bug)+6 !*! nvfortran bug
-               array=[character(len=ibug) :: array_bug] !*! pad with trailing spaces
-               deallocate(array_bug)
+               CALL split(G_MAN,array,delimiters=new_line('N'),nulls='return') ! parse string to an array parsing on delimiters
                do i=1,size(array)        ! lines starting with a letter and all uppercase letters is prefixed with "##"
                   if( upper(array(i)).eq.array(i) .and. isalpha(array(i)(1:1)).and.lower(array(i)).ne.array(i))then
                      array(i)='##'//trim(array(i))
@@ -1611,10 +1606,7 @@ subroutine format_g_man()
 !-----------------------------------------------------------------------------------------------------------------------------------
          case('ford')                    ! convert plain text to doxygen comment blocks with some automatic markdown highlights
             if(len(G_MAN).gt.1)then      ! the way the string is built it starts with a newline
-               CALL split(G_MAN,array_bug,delimiters=new_line('N'),nulls='return') ! parse string to an array parsing on delimiters
-               ibug=len(array_bug)+6 !*! nvfortran bug
-               array=[character(len=ibug) :: array_bug] !*! pad with trailing spaces
-               deallocate(array_bug)
+               CALL split(G_MAN,array,delimiters=new_line('N'),nulls='return') ! parse string to an array parsing on delimiters
                do i=1,size(array)        ! lines starting with a letter and all uppercase letters is prefixed with "##"
                   if( upper(array(i)).eq.array(i) .and. isalpha(array(i)(1:1)).and.lower(array(i)).ne.array(i))then
                      array(i)='## '//trim(array(i))
@@ -1776,6 +1768,7 @@ integer,intent(in)                       :: iunit
       call stderr(message)
       call stop_prep("*prep* ERROR(ae) - FAILED OPEN OF INPUT FILE("//v2s(iunit)//"):"//trim(line))
    else
+      rewind(unit=iunit)
       G_iocount=G_iocount+1
       if(G_iocount.gt.size(G_file_dictionary))then
          call stop_prep('*prep* ERROR(ad) - INPUT FILE NESTING TOO DEEP:'//trim(G_source))
