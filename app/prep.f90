@@ -114,6 +114,7 @@ use M_list,      only : insert, locate, replace, remove
    character(len=:),allocatable   :: values(:)
    integer,allocatable            :: counts(:)
 
+
    contains
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -163,6 +164,7 @@ subroutine cond()       !@(#)cond(3f): process conditional directive assumed to 
       select case(VERB)
       case('  ')                                                      ! entire line is a comment
       case('DEFINE');           call define(upopts,1)                 ! only process DEFINE if not skipping data lines
+      case('REDEFINE');         call define(upopts,0)                 ! only process DEFINE if not skipping data lines
       case('UNDEF','UNDEFINE'); call undef(upopts)                    ! only process UNDEF if not skipping data lines
       case('INCLUDE');          call include(options,50+G_iocount)    ! Filenames can be case sensitive
       case('OUTPUT');           call output_case(options)             ! Filenames can be case sensitive
@@ -182,7 +184,7 @@ subroutine cond()       !@(#)cond(3f): process conditional directive assumed to 
    select case(VERB)                                                  ! process logical flow control even if G_write is false
 
    case('DEFINE','INCLUDE','PRINTENV','SHOW','STOP','QUIT')
-   case('SYSTEM','UNDEF','UNDEFINE','MESSAGE')
+   case('SYSTEM','UNDEF','UNDEFINE','MESSAGE','REDEFINE')
    case('OUTPUT','IDENT','@(#)','BLOCK')
    case('PARCEL','POST','SET')
    case(' ')
@@ -351,7 +353,7 @@ integer,intent(in)             :: ireset                    ! 0= can redefine va
 !-----------------------------------------------------------------------------------------------------------------------------------
    istore=0
    if (G_numdef.ne.0) then                                  ! test for redefinition of defined name
-      do j=1,G_numdef-1
+      do j=1,G_numdef  
          if (opts(:iname).eq.G_defvar(j)) then
             istore=j
             if(ireset.ne.0)then                             ! fail if redefinitions are not allowed on this call
@@ -1963,7 +1965,7 @@ subroutine defines()       !@(#)defines(3f): use expressions on command line to 
    ! break command argument prep_oo into single words
    call delim(adjustl(trim(in_define1)//' '//trim(in_define2))//' '//trim(sget('prep_D')),array,n,icount,ibegin,iterm,ilen,dlim)
    do i=1,icount
-      G_source='$define '//trim(array(i))
+      G_source='$redefine '//trim(array(i))
       call cond() ! convert variable name into a "$define variablename" directive and process it
    enddo
 !-----------------------------------------------------------------------------------------------------------------------------------
@@ -2384,6 +2386,12 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   be included in the source if "inc" has been previously defined. This is      ',&
 '   useful for setting up a default inclusion.                                   ',&
 '                                                                                ',&
+'   Predefined values are                                                        ',&
+'                                                                                ',&
+'    UNKNOWN = 0 LINUX   = 1 MACOS   = 2 WINDOWS = 3                             ',&
+'    CYGWIN  = 4 SOLARIS = 5 FREEBSD = 6 OPENBSD = 7                             ',&
+'    In addition OS is set to what the program guesses the system type is.       ',&
+'                                                                                ',&
 '   $MESSAGE WARNING message                                                     ',&
 '                                                                                ',&
 '   Write message to stderr                                                      ',&
@@ -2788,6 +2796,83 @@ end subroutine expand_variables
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
+!> Determine the OS type by guessing
+subroutine get_os_type()
+!!
+!! At first, the environment variable `OS` is checked, which is usually
+!! found on Windows. Then, `OSTYPE` is read in and compared with common
+!! names. If this fails too, check the existence of files that can be
+!! found on specific system types only.
+!!
+!! Returns OS_UNKNOWN if the operating system cannot be determined.
+!!
+!! calling POSIX or C routines would be far better, M_system::like system_uname(3f)
+!! but trying to use portable Fortran.  If assume compiled by certain compilers could
+!! use their extensions as well. Most have a uname(3f) function.
+!!
+integer, parameter :: OS_UNKNOWN = 0
+integer, parameter :: OS_LINUX   = 1
+integer, parameter :: OS_MACOS   = 2
+integer, parameter :: OS_WINDOWS = 3
+integer, parameter :: OS_CYGWIN  = 4
+integer, parameter :: OS_SOLARIS = 5
+integer, parameter :: OS_FREEBSD = 6
+integer, parameter :: OS_OPENBSD = 7
+character(len=32) :: val
+integer           :: length, rc, r
+logical           :: file_exists
+character(len=80) :: scratch
+
+   call define('UNKNOWN=0', 0) 
+   call define('LINUX=1', 0) 
+   call define('MACOS=2', 0) 
+   call define('WINDOWS=3', 0) 
+   call define('CYGWIN=4', 0) 
+   call define('SOLARIS=5', 0) 
+   call define('FREEBSD=6', 0) 
+   call define('OPENBSD=7', 0) 
+
+   r = OS_UNKNOWN
+   ! Check environment variable `OS`.
+   call get_environment_variable('OS', val, length, rc)
+   if (rc == 0 .and. length > 0 .and. index(val, 'Windows_NT') > 0) then
+       r = OS_WINDOWS
+   else
+      ! Check environment variable `OSTYPE`.
+      call get_environment_variable('OSTYPE', val, length, rc)
+      if (rc == 0 .and. length > 0) then 
+          if (index(val, 'linux') > 0) then      ! Linux
+              r = OS_LINUX
+          elseif (index(val, 'darwin') > 0) then ! macOS
+              r = OS_MACOS
+          elseif (index(val, 'win') > 0 .or. index(val, 'msys') > 0) then ! Windows, MSYS, MinGW, Git Bash
+              r = OS_WINDOWS
+          elseif (index(val, 'cygwin') > 0) then ! Cygwin
+              r = OS_CYGWIN
+          elseif (index(val, 'SunOS') > 0 .or. index(val, 'solaris') > 0) then ! Solaris, OpenIndiana, ...
+              r = OS_SOLARIS
+          elseif (index(val, 'FreeBSD') > 0 .or. index(val, 'freebsd') > 0) then ! FreeBSD
+              r = OS_FREEBSD
+          elseif (index(val, 'OpenBSD') > 0 .or. index(val, 'openbsd') > 0) then ! OpenBSD
+              r = OS_OPENBSD
+          endif
+      endif
+   endif
+   if(r.eq.OS_UNKNOWN)then
+      inquire (file='/etc/os-release', exist=file_exists) ! Linux
+      if (file_exists) r = OS_LINUX
+      inquire (file='/usr/bin/sw_vers', exist=file_exists) ! macOS
+      if (file_exists) r = OS_MACOS
+      inquire (file='/bin/freebsd-version', exist=file_exists) ! FreeBSD
+      if (file_exists) r = OS_FREEBSD
+   endif
+   scratch=' '
+   write(scratch,'("OS=",i0)')r
+   call define(scratch,0)
+end subroutine get_os_type
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!===================================================================================================================================
 end module M_fpp
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -2878,6 +2963,7 @@ logical                       :: isscratch
    G_comment_style=lower(sget('prep_comment'))             ! allow formatting comments for particular post-processors
    G_system_on = lget('prep_system')                       ! allow system commands on $SYSTEM directives
 !-----------------------------------------------------------------------------------------------------------------------------------
+   call get_os_type()
    call defines()                                          ! define named variables declared on the command line
    call includes()                                         ! define include directories supplies on command line
    call opens()                                            ! convert input filenames into $include directives

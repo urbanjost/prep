@@ -5,6 +5,15 @@ what's new in the `prep` project. It is a curated, chronologically ordered
 list of notable changes including`records of change such as bug fixes,
 new features, changes, and relevant notifications.
 
+**2021-06-13**  John S. Urban<https://github.com/urbanjost>
+
+### :green_circle: ADD:
+
+  + Try to guess value for predefined variable OS, and if a $SET directive
+    has been entered create string values for "here document" expansion so
+    that ${__FILE__}, ${__LINE__}, ${__DATE__}, ${__TIME__} strings will
+    be predefined.
+---
 ---
 **2021-06-12**  John S. Urban<https://github.com/urbanjost>
 
