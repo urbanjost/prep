@@ -18,16 +18,16 @@
 [-I \fIinclude_directories\fP]
 [-i \fBinput_file\fP(s)]
 [-o \fIoutput_file\fP]
-[-system]
-[-verbose]
-[-prefix character|ADE]
-[-keeptabs]
-[-noenv]
-[-width \fIn\fP]
+[-\fB-system\fP]
+[-\fB-verbose\fP]
+[-\fB-prefix\fP character|ADE]
+[-\fB-keeptabs\fP]
+[-\fB-noenv\fP]
+[-\fB-width\fP \fIn\fP]
 [-d ignore|remove|blank]
-[-comment default|doxygen|ford|none]
-[-version]
-[-help]
+[-\fB-comment\fP default|doxygen|ford|none]
+[-\fB-version\fP]
+[-\fB-help\fP]
 .fam T
 .fi
 .SH OPTIONS
@@ -48,41 +48,41 @@ The default output file is stdout.
 The directories to search for files specified on
 $INCLUDE directives.
 .TP
-.B \fB-prefix\fP ADE|letter
+.B \fB--prefix\fP ADE|letter
 The default directive prefix character is "$".
 Alternatives may be specified by providing an
 ASCII Decimal Equivalent (Common values are 37=%
 42=* 35=# 36=$ 64=@). If the value is not numeric
 it is assumed to be a literal character.
 .TP
-.B \fB-help\fP
+.B \fB--help\fP
 Display documentation and exit.
 .TP
-.B \fB-verbose\fP
+.B \fB--verbose\fP
 All commands on a $SYSTEM directive are echoed
 to stderr with a + prefix. Text following the
 string "@(#)" is printed to stderr similar to
 the Unix command \fBwhat\fP(1) but is otherwise
 treated as other text input.
 .TP
-.B \fB-noenv\fP
+.B \fB--noenv\fP
 The $IFDEF and $IFNDEF directives test for an
 internal \fBprep\fP(1) variable and then an
 environment variable by default. This option
 turns off testing for environment variables.
 .TP
-.B \fB-system\fP
+.B \fB--system\fP
 Allow system commands on $SYSTEM directives to
 be executed.
 .TP
-.B \fB-keeptabs\fP
+.B \fB--keeptabs\fP
 By default tab characters are expanded assuming
 a stop has been set every eight columns; and
 trailing carriage-return characters are removed.
 Use this flag to prevent this processing from
 occurring.
 .TP
-.B \fB-comment\fP
+.B \fB--comment\fP
 try to style comments generated in $BLOCK blocks
 for other utilities such as doxygen. Default is to
 prefix lines with '! '. Allowed keywords are
@@ -98,10 +98,10 @@ used to support the optional compilation of
 "debug" code by many Fortran compilers when
 compiling fixed-format Fortran source.
 .TP
-.B \fB-version\fP
+.B \fB--version\fP
 Display version and exit
 .TP
-.B \fB-width\fP \fIn\fP
+.B \fB--width\fP \fIn\fP
 Maximum line length of the output file. Default
 is 1024. Typically used to trim fixed-format
 FORTRAN code that contains comments or "ident"
@@ -120,6 +120,7 @@ The syntax for the control lines is as follows:
 .fam C
      $DEFINE   variable_name[=expression]                 [! comment ]
      $UNDEFINE variable_name                              [! comment ]
+
      $IF       {LOGICAL or INTEGER expression}            [! comment ]
       or
      $IFDEF    {variable_name}                            [! comment ]
@@ -131,19 +132,22 @@ The syntax for the control lines is as follows:
      [$ELSE                                               [! comment ]
                { sequence of source statements}]
      $ENDIF                                               [! comment ]
+
      $PARCEL   [name]                                     [! comment ]
      $POST     name                                       [! comment ]
+     $SET      name  string
      $OUTPUT   filename  [-append]                        [! comment ]
      $INCLUDE  filename                                   [! comment ]
      $BLOCK    [comment|null|write|help|version]|
                [variable [-varname NAME]]
                [-file NAME [-append]]                     [! comment ]
+
      $PRINTENV predefined_name|environment_variable_name  [! comment ]
-     $SHOW                                                [! comment ]
      $SYSTEM system_command                               [! comment ]
      $IDENT    metadata                                   [! comment ]
      $@(#)     metadata                                   [! comment ]
      $MESSAGE  message_to_stderr
+     $SHOW                                                [! comment ]
      $STOP {stop_value}                                   [! comment ]
 
 .fam T
@@ -214,7 +218,7 @@ if a variable name is defined or not. Essentially, these are equivalent:
 
 .fam T
 .fi
-except that environment variables are tested as well if the \fB-noenv\fP option
+except that environment variables are tested as well if the \fB--noenv\fP option
 is not specified.
 .PP
 $IDENT metadata [-language fortran|c|shell]
@@ -232,16 +236,37 @@ Writes a line using SCCS-metadata format of the following forms:
 .fi
 This string is generally included for use with the \fBwhat\fP(1) command.
 .PP
-The default language is fortran. Depending on your compiler, the
+The default language is fortran. Depending on your compiler and the
 optimization level used when compiling, these strings may or may not
 remain in the object files and executables created.
 .PP
 Do not use the characters double-quote, greater-than, backslash (">\\)
-in the metadata; do not use strings starting with " -" either.
+in the metadata to remain compatible with SCCS metadata syntax.
+Do not use strings starting with " -" either.
 .PP
 $INCLUDE filename
 .PP
 Nested read of specified input file. Fifty (50) nesting levels are allowed.
+.PP
+$PARCEL [name]
+.PP
+The lines between a "$PARCEL name" and "$PARCEL" block are written WITHOUT
+expanding directives to a scratch file that can then be read in much like
+a named file can be with $INCLUDE with the $POST directive.
+.PP
+$POST name
+.PP
+Read in the scratch file created by the $PARCEL directive. Combined with
+$SET directives this allows you to replay a section of input and replace
+strings as a simple templating technique.
+.PP
+$SET name string
+.PP
+If a $SET directive defines a name \fBprep\fP(1) enters expansion mode. In this
+mode anywhere the string "${NAME}" is encountered in subsequent output it
+is replaced by "string". Comments should not be used on a $SET directive.
+Note expansion of a line may cause it to be longer than allowed by some
+compilers. Automatic breaking into continuation lines does not occur.
 .PP
 $PRINTENV name
 .PP
@@ -297,8 +322,8 @@ Special predefined variable names are:
 [-file NAME [-append]]
 or
 .TP
-.B $BLOCK VARIABLE \fB-varname\fP NAME
-[-file NAME]
+.B $BLOCK VARIABLE \fB--varname\fP NAME
+[-\fB-file\fP NAME]
 .PP
 .nf
 .fam C
@@ -311,7 +336,7 @@ or
                  prefixing lines with @(#) for use with the what(1) command.
       NULL:      Do not write into current output file
       VARIABLE:  write as a text variable. The name may be defined using the
-                 -varname switch. Default name is "textblock".
+                 --varname switch. Default name is "textblock".
       END:       End block of specially processed text
 
 .fam T
@@ -345,20 +370,20 @@ Example:
     $stop
 
     !======================================================================
-    ! *prep* CURRENT STATE
-    ! *prep*    TOTAL LINES READ \.\.\..........          2
-    ! *prep*    CONDITIONAL_NESTING_LEVEL\.\.\..   0
-    ! *prep*    DATE\.\.\....................... 11:18 21Jun2013
-    ! *prep*    ARGUMENTS \.\.\................. A=10 B C D -o paper
-    ! *prep* VARIABLES:
-    ! *prep*    ! A                               !          10
-    ! *prep*    ! B                               !           1
-    ! *prep*    ! C                               !           1
-    ! *prep*    ! D                               !           1
-    ! *prep*    ! Z                               !          22
-    ! *prep* OPEN FILES:
-    ! *prep*    ! ---- ! UNIT ! LINE NUMBER ! FILENAME
-    ! *prep*    !    1 !    5 !           2 !
+    !  CURRENT STATE
+    !     TOTAL LINES READ \.\.\..........          2
+    !     CONDITIONAL_NESTING_LEVEL\.\.\..   0
+    !     DATE\.\.\....................... 11:18 21Jun2013
+    !     ARGUMENTS \.\.\................. A=10 B C D -o paper
+    !  VARIABLES:
+    !     ! A                               !          10
+    !     ! B                               !           1
+    !     ! C                               !           1
+    !     ! D                               !           1
+    !     ! Z                               !          22
+    !  OPEN FILES:
+    !     ! ---- ! UNIT ! LINE NUMBER ! FILENAME
+    !     !    1 !    5 !           2 !
     !======================================================================
 
 .fam T
@@ -442,7 +467,7 @@ Write message to stderr
 $IF constructs can be nested up to 20 levels deep. Note that using
 more than two levels typically makes input files less readable.
 .PP
-$BLOCK END is required after a $BLOCK or \fB-file\fP FILENAME is not written.
+$BLOCK END is required after a $BLOCK or \fB--file\fP FILENAME is not written.
 .PP
 Nesting of $BLOCK sections not allowed.
 .PP
@@ -522,7 +547,7 @@ Basic conditionals:
    >program conditional_compile
    >   use M_kracken95, only : kracken, lget
    >   ! use M_kracken95 module to crack command line arguments
-   >   call kracken("cmd","-help .false. -version .false.")
+   >   call kracken("cmd","--help .false. --version .false.")
    >   ! call routine generated by $BLOCK HELP
    >   call help_usage(lget("cmd_help"))
    >   ! call routine generated by $BLOCK VERSION
@@ -547,7 +572,7 @@ Basic conditionals:
    >$! generate help_usage() procedure (and file to run thru txt2man(1) or other
    >$! filters to make man(1) page if $PREP_DOCUMENT_DIR is set).
    >$!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-   >$BLOCK HELP -file conditional_compile.man
+   >$BLOCK HELP --file conditional_compile.man
    >NAME
    >    conditional_compile - basic example for prep(1) pre-processor.
    >SYNOPSIS

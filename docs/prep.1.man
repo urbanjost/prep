@@ -7,16 +7,16 @@ SYNOPSIS
          [-I include_directories]
          [-i input_file(s)]
          [-o output_file]
-         [-system]
-         [-verbose]
-         [-prefix character|ADE]
-         [-keeptabs]
-         [-noenv]
-         [-width n]
+         [--system]
+         [--verbose]
+         [--prefix character|ADE]
+         [--keeptabs]
+         [--noenv]
+         [--width n]
          [-d ignore|remove|blank]
-         [-comment default|doxygen|ford|none]
-         [-version]
-         [-help]
+         [--comment default|doxygen|ford|none]
+         [--version]
+         [--help]
 OPTIONS
    define_list, -D define_list  An optional space-delimited list of expressions
                                 used to define variables before file processing
@@ -26,31 +26,31 @@ OPTIONS
    -o output_file               The default output file is stdout.
    -I include_directories       The directories to search for files specified on
                                 $INCLUDE directives.
-   -prefix ADE|letter  The default directive prefix character is "$".
-                       Alternatives may be specified by providing an
-                       ASCII Decimal Equivalent (Common values are 37=%
-                       42=* 35=# 36=$ 64=@). If the value is not numeric
-                       it is assumed to be a literal character.
+   --prefix ADE|letter  The default directive prefix character is "$".
+                        Alternatives may be specified by providing an
+                        ASCII Decimal Equivalent (Common values are 37=%
+                        42=* 35=# 36=$ 64=@). If the value is not numeric
+                        it is assumed to be a literal character.
 
-   -help            Display documentation and exit.
-   -verbose         All commands on a $SYSTEM directive are echoed
+   --help           Display documentation and exit.
+   --verbose        All commands on a $SYSTEM directive are echoed
                     to stderr with a + prefix. Text following the
                     string "@(#)" is printed to stderr similar to
                     the Unix command what(1) but is otherwise
                     treated as other text input.
 
-   -noenv           The $IFDEF and $IFNDEF directives test for an
+   --noenv          The $IFDEF and $IFNDEF directives test for an
                     internal prep(1) variable and then an
                     environment variable by default. This option
                     turns off testing for environment variables.
-   -system          Allow system commands on $SYSTEM directives to
+   --system         Allow system commands on $SYSTEM directives to
                     be executed.
-   -keeptabs        By default tab characters are expanded assuming
+   --keeptabs       By default tab characters are expanded assuming
                     a stop has been set every eight columns; and
                     trailing carriage-return characters are removed.
                     Use this flag to prevent this processing from
                     occurring.
-   -comment         try to style comments generated in $BLOCK blocks
+   --comment        try to style comments generated in $BLOCK blocks
                     for other utilities such as doxygen. Default is to
                     prefix lines with '! '. Allowed keywords are
                     currently "default", "doxygen","none","ford".
@@ -62,8 +62,8 @@ OPTIONS
                            used to support the optional compilation of
                            "debug" code by many Fortran compilers when
                            compiling fixed-format Fortran source.
-   -version         Display version and exit
-   -width n         Maximum line length of the output file. Default
+   --version        Display version and exit
+   --width n        Maximum line length of the output file. Default
                     is 1024. Typically used to trim fixed-format
                     FORTRAN code that contains comments or "ident"
                     labels past column 72 when compiling
@@ -79,6 +79,7 @@ DEFINITION
 
      $DEFINE   variable_name[=expression]                 [! comment ]
      $UNDEFINE variable_name                              [! comment ]
+
      $IF       {LOGICAL or INTEGER expression}            [! comment ]
       or
      $IFDEF    {variable_name}                            [! comment ]
@@ -90,19 +91,22 @@ DEFINITION
      [$ELSE                                               [! comment ]
                { sequence of source statements}]
      $ENDIF                                               [! comment ]
+
      $PARCEL   [name]                                     [! comment ]
      $POST     name                                       [! comment ]
+     $SET      name  string
      $OUTPUT   filename  [-append]                        [! comment ]
      $INCLUDE  filename                                   [! comment ]
      $BLOCK    [comment|null|write|help|version]|
                [variable [-varname NAME]]
                [-file NAME [-append]]                     [! comment ]
+
      $PRINTENV predefined_name|environment_variable_name  [! comment ]
-     $SHOW                                                [! comment ]
      $SYSTEM system_command                               [! comment ]
      $IDENT    metadata                                   [! comment ]
      $@(#)     metadata                                   [! comment ]
      $MESSAGE  message_to_stderr
+     $SHOW                                                [! comment ]
      $STOP {stop_value}                                   [! comment ]
 
    Compiler directives are specified by a "$" in column one, followed by a
@@ -159,7 +163,7 @@ DEFINITION
      $IFDEF varname  ==> $IF DEFINED(varname)
      $IFNDEF varname ==> $IF .NOT. DEFINED(varname)
 
-   except that environment variables are tested as well if the -noenv option
+   except that environment variables are tested as well if the --noenv option
    is not specified.
 
    $IDENT metadata [-language fortran|c|shell]
@@ -173,16 +177,37 @@ DEFINITION
 
    This string is generally included for use with the what(1) command.
 
-   The default language is fortran. Depending on your compiler, the
+   The default language is fortran. Depending on your compiler and the
    optimization level used when compiling, these strings may or may not
    remain in the object files and executables created.
 
    Do not use the characters double-quote, greater-than, backslash (">\)
-   in the metadata; do not use strings starting with " -" either.
+   in the metadata to remain compatible with SCCS metadata syntax.
+   Do not use strings starting with " -" either.
 
    $INCLUDE filename
 
    Nested read of specified input file. Fifty (50) nesting levels are allowed.
+
+   $PARCEL [name]
+
+   The lines between a "$PARCEL name" and "$PARCEL" block are written WITHOUT
+   expanding directives to a scratch file that can then be read in much like
+   a named file can be with $INCLUDE with the $POST directive.
+
+   $POST name
+
+   Read in the scratch file created by the $PARCEL directive. Combined with
+   $SET directives this allows you to replay a section of input and replace
+   strings as a simple templating technique.
+
+   $SET name string
+
+   If a $SET directive defines a name prep(1) enters expansion mode. In this
+   mode anywhere the string "${NAME}" is encountered in subsequent output it
+   is replaced by "string". Comments should not be used on a $SET directive.
+   Note expansion of a line may cause it to be longer than allowed by some
+   compilers. Automatic breaking into continuation lines does not occur.
 
    $PRINTENV name
 
@@ -217,7 +242,7 @@ DEFINITION
 
    $BLOCK [comment|null|write|help|version  [-file NAME [-append]]
      or
-   $BLOCK VARIABLE -varname NAME  [-file NAME]
+   $BLOCK VARIABLE --varname NAME  [--file NAME]
 
       COMMENT:   write text prefixed by an exclamation and a space
       WRITE:     write text as Fortran WRITE(3f) statements
@@ -228,7 +253,7 @@ DEFINITION
                  prefixing lines with @(#) for use with the what(1) command.
       NULL:      Do not write into current output file
       VARIABLE:  write as a text variable. The name may be defined using the
-                 -varname switch. Default name is "textblock".
+                 --varname switch. Default name is "textblock".
       END:       End block of specially processed text
 
    If the "-file NAME" option is present the *unaltered* text is written to
@@ -257,20 +282,20 @@ DEFINITION
     $stop
 
     !======================================================================
-    ! *prep* CURRENT STATE
-    ! *prep*    TOTAL LINES READ ............          2
-    ! *prep*    CONDITIONAL_NESTING_LEVEL....   0
-    ! *prep*    DATE......................... 11:18 21Jun2013
-    ! *prep*    ARGUMENTS ................... A=10 B C D -o paper
-    ! *prep* VARIABLES:
-    ! *prep*    ! A                               !          10
-    ! *prep*    ! B                               !           1
-    ! *prep*    ! C                               !           1
-    ! *prep*    ! D                               !           1
-    ! *prep*    ! Z                               !          22
-    ! *prep* OPEN FILES:
-    ! *prep*    ! ---- ! UNIT ! LINE NUMBER ! FILENAME
-    ! *prep*    !    1 !    5 !           2 !
+    !  CURRENT STATE
+    !     TOTAL LINES READ ............          2
+    !     CONDITIONAL_NESTING_LEVEL....   0
+    !     DATE......................... 11:18 21Jun2013
+    !     ARGUMENTS ................... A=10 B C D -o paper
+    !  VARIABLES:
+    !     ! A                               !          10
+    !     ! B                               !           1
+    !     ! C                               !           1
+    !     ! D                               !           1
+    !     ! Z                               !          22
+    !  OPEN FILES:
+    !     ! ---- ! UNIT ! LINE NUMBER ! FILENAME
+    !     !    1 !    5 !           2 !
     !======================================================================
 
    $STOP stop_value
@@ -345,7 +370,7 @@ LIMITATIONS
    $IF constructs can be nested up to 20 levels deep. Note that using
    more than two levels typically makes input files less readable.
 
-   $BLOCK END is required after a $BLOCK or -file FILENAME is not written.
+   $BLOCK END is required after a $BLOCK or --file FILENAME is not written.
 
    Nesting of $BLOCK sections not allowed.
 
@@ -399,7 +424,7 @@ EXAMPLES
    >program conditional_compile
    >   use M_kracken95, only : kracken, lget
    >   ! use M_kracken95 module to crack command line arguments
-   >   call kracken("cmd","-help .false. -version .false.")
+   >   call kracken("cmd","--help .false. --version .false.")
    >   ! call routine generated by $BLOCK HELP
    >   call help_usage(lget("cmd_help"))
    >   ! call routine generated by $BLOCK VERSION
@@ -424,7 +449,7 @@ EXAMPLES
    >$! generate help_usage() procedure (and file to run thru txt2man(1) or other
    >$! filters to make man(1) page if $PREP_DOCUMENT_DIR is set).
    >$!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-   >$BLOCK HELP -file conditional_compile.man
+   >$BLOCK HELP --file conditional_compile.man
    >NAME
    >    conditional_compile - basic example for prep(1) pre-processor.
    >SYNOPSIS

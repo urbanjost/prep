@@ -81,16 +81,16 @@ a.existingWikiWord[title]{ //border: 1px dashed #BBB; }
 [-I <I>include_directories</I>]
 [-i <B>input_file</B>(s)]
 [-o <I>output_file</I>]
-[-system]
-[-verbose]
-[-prefix character|ADE]
-[-keeptabs]
-[-noenv]
-[-width <I>n</I>]
+[-<B>-system</B>]
+[-<B>-verbose</B>]
+[-<B>-prefix</B> character|ADE]
+[-<B>-keeptabs</B>]
+[-<B>-noenv</B>]
+[-<B>-width</B> <I>n</I>]
 [-d ignore|remove|blank]
-[-comment default|doxygen|ford|none]
-[-version]
-[-help]
+[-<B>-comment</B> default|doxygen|ford|none]
+[-<B>-version</B>]
+[-<B>-help</B>]
 </TD></TR>
 <TR></TR></TABLE></BLOCKQUOTE>
 <A name=2>
@@ -121,7 +121,7 @@ The directories to search for files specified on
 $INCLUDE directives.
 </TD></TR>
 <TR valign=top><TD colspan=2>
-<B></B><B>-prefix</B> ADE|letter </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+<B></B><B>--prefix</B> ADE|letter </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
 The default directive prefix character is "$".
 Alternatives may be specified by providing an
 ASCII Decimal Equivalent (Common values are 37=%
@@ -129,31 +129,31 @@ ASCII Decimal Equivalent (Common values are 37=%
 it is assumed to be a literal character.
 </TD></TR>
 <TR valign=top><TD width=6% nowrap>
-<B></B><B>-help</B> </TD><TD valign=bottom>
+<B></B><B>--help</B> </TD><TD valign=bottom>
 Display documentation and exit.
 </TD></TR>
 <TR valign=top><TD colspan=2>
-<B></B><B>-verbose</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+<B></B><B>--verbose</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
 All commands on a $SYSTEM directive are echoed
 to stderr with a + prefix. Text following the
 string "@(#)" is printed to stderr similar to
 the Unix command <B>what</B>(1) but is otherwise
 treated as other text input.
 </TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B></B><B>-noenv</B> </TD><TD valign=bottom>
+<TR valign=top><TD colspan=2>
+<B></B><B>--noenv</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
 The $IFDEF and $IFNDEF directives test for an
 internal <B>prep</B>(1) variable and then an
 environment variable by default. This option
 turns off testing for environment variables.
 </TD></TR>
 <TR valign=top><TD colspan=2>
-<B></B><B>-system</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+<B></B><B>--system</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
 Allow system commands on $SYSTEM directives to
 be executed.
 </TD></TR>
 <TR valign=top><TD colspan=2>
-<B></B><B>-keeptabs</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+<B></B><B>--keeptabs</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
 By default tab characters are expanded assuming
 a stop has been set every eight columns; and
 trailing carriage-return characters are removed.
@@ -161,7 +161,7 @@ Use this flag to prevent this processing from
 occurring.
 </TD></TR>
 <TR valign=top><TD colspan=2>
-<B></B><B>-comment</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+<B></B><B>--comment</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
 try to style comments generated in $BLOCK blocks
 for other utilities such as doxygen. Default is to
 prefix lines with &#146;! &#146;. Allowed keywords are
@@ -179,11 +179,11 @@ used to support the optional compilation of
 compiling fixed-format Fortran source.
 </TD></TR>
 <TR valign=top><TD colspan=2>
-<B></B><B>-version</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+<B></B><B>--version</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
 Display version and exit
 </TD></TR>
 <TR valign=top><TD colspan=2>
-<B></B><B>-width</B> <I>n</I> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+<B></B><B>--width</B> <I>n</I> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
 Maximum line length of the output file. Default
 is 1024. Typically used to trim fixed-format
 FORTRAN code that contains comments or "ident"
@@ -208,6 +208,7 @@ The syntax for the control lines is as follows:
 <PRE>
      $DEFINE   variable_name[=expression]                 [! comment ]
      $UNDEFINE variable_name                              [! comment ]
+<P>
      $IF       {LOGICAL or INTEGER expression}            [! comment ]
       or
      $IFDEF    {variable_name}                            [! comment ]
@@ -219,19 +220,22 @@ The syntax for the control lines is as follows:
      [$ELSE                                               [! comment ]
                { sequence of source statements}]
      $ENDIF                                               [! comment ]
+<P>
      $PARCEL   [name]                                     [! comment ]
      $POST     name                                       [! comment ]
+     $SET      name  string
      $OUTPUT   filename  [-append]                        [! comment ]
      $INCLUDE  filename                                   [! comment ]
      $BLOCK    [comment|null|write|help|version]|
                [variable [-varname NAME]]
                [-file NAME [-append]]                     [! comment ]
+<P>
      $PRINTENV predefined_name|environment_variable_name  [! comment ]
-     $SHOW                                                [! comment ]
      $SYSTEM system_command                               [! comment ]
      $IDENT    metadata                                   [! comment ]
      $@(#)     metadata                                   [! comment ]
      $MESSAGE  message_to_stderr
+     $SHOW                                                [! comment ]
      $STOP {stop_value}                                   [! comment ]
 <P>
 </PRE>
@@ -300,7 +304,7 @@ if a variable name is defined or not. Essentially, these are equivalent:
      $IFNDEF varname ==&gt; $IF .NOT. DEFINED(varname)
 <P>
 </PRE>
-except that environment variables are tested as well if the <B>-noenv</B> option
+except that environment variables are tested as well if the <B>--noenv</B> option
 is not specified.
 <P>
 $IDENT metadata [-language fortran|c|shell]
@@ -316,16 +320,37 @@ Writes a line using SCCS-metadata format of the following forms:
 </PRE>
 This string is generally included for use with the <B>what</B>(1) command.
 <P>
-The default language is fortran. Depending on your compiler, the
+The default language is fortran. Depending on your compiler and the
 optimization level used when compiling, these strings may or may not
 remain in the object files and executables created.
 <P>
 Do not use the characters double-quote, greater-than, backslash ("&gt;\)
-in the metadata; do not use strings starting with " -" either.
+in the metadata to remain compatible with SCCS metadata syntax.
+Do not use strings starting with " -" either.
 <P>
 $INCLUDE filename
 <P>
 Nested read of specified input file. Fifty (50) nesting levels are allowed.
+<P>
+$PARCEL [name]
+<P>
+The lines between a "$PARCEL name" and "$PARCEL" block are written WITHOUT
+expanding directives to a scratch file that can then be read in much like
+a named file can be with $INCLUDE with the $POST directive.
+<P>
+$POST name
+<P>
+Read in the scratch file created by the $PARCEL directive. Combined with
+$SET directives this allows you to replay a section of input and replace
+strings as a simple templating technique.
+<P>
+$SET name string
+<P>
+If a $SET directive defines a name <B>prep</B>(1) enters expansion mode. In this
+mode anywhere the string "${NAME}" is encountered in subsequent output it
+is replaced by "string". Comments should not be used on a $SET directive.
+Note expansion of a line may cause it to be longer than allowed by some
+compilers. Automatic breaking into continuation lines does not occur.
 <P>
 $PRINTENV name
 <P>
@@ -373,8 +398,8 @@ Special predefined variable names are:
 or
 </TD></TR>
 <TR valign=top><TD colspan=2>
-<B>$BLOCK VARIABLE </B><B>-varname</B> NAME </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-[-file NAME]
+<B>$BLOCK VARIABLE </B><B>--varname</B> NAME </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+[-<B>-file</B> NAME]
 </TD></TR>
 <TR><TD colspan=2>
 <PRE>
@@ -387,7 +412,7 @@ or
                  prefixing lines with @(#) for use with the what(1) command.
       NULL:      Do not write into current output file
       VARIABLE:  write as a text variable. The name may be defined using the
-                 -varname switch. Default name is "textblock".
+                 --varname switch. Default name is "textblock".
       END:       End block of specially processed text
 <P>
 </PRE>
@@ -421,20 +446,20 @@ Example:
     $stop
 <P>
     !======================================================================
-    ! *prep* CURRENT STATE
-    ! *prep*    TOTAL LINES READ &#46;&#46;&#46;.........          2
-    ! *prep*    CONDITIONAL_NESTING_LEVEL&#46;&#46;&#46;.   0
-    ! *prep*    DATE&#46;&#46;&#46;...................... 11:18 21Jun2013
-    ! *prep*    ARGUMENTS &#46;&#46;&#46;................ A=10 B C D -o paper
-    ! *prep* VARIABLES:
-    ! *prep*    ! A                               !          10
-    ! *prep*    ! B                               !           1
-    ! *prep*    ! C                               !           1
-    ! *prep*    ! D                               !           1
-    ! *prep*    ! Z                               !          22
-    ! *prep* OPEN FILES:
-    ! *prep*    ! ---- ! UNIT ! LINE NUMBER ! FILENAME
-    ! *prep*    !    1 !    5 !           2 !
+    !  CURRENT STATE
+    !     TOTAL LINES READ &#46;&#46;&#46;.........          2
+    !     CONDITIONAL_NESTING_LEVEL&#46;&#46;&#46;.   0
+    !     DATE&#46;&#46;&#46;...................... 11:18 21Jun2013
+    !     ARGUMENTS &#46;&#46;&#46;................ A=10 B C D -o paper
+    !  VARIABLES:
+    !     ! A                               !          10
+    !     ! B                               !           1
+    !     ! C                               !           1
+    !     ! D                               !           1
+    !     ! Z                               !          22
+    !  OPEN FILES:
+    !     ! ---- ! UNIT ! LINE NUMBER ! FILENAME
+    !     !    1 !    5 !           2 !
     !======================================================================
 <P>
 </PRE>
@@ -519,7 +544,7 @@ Write message to stderr
 $IF constructs can be nested up to 20 levels deep. Note that using
 more than two levels typically makes input files less readable.
 <P>
-$BLOCK END is required after a $BLOCK or <B>-file</B> FILENAME is not written.
+$BLOCK END is required after a $BLOCK or <B>--file</B> FILENAME is not written.
 <P>
 Nesting of $BLOCK sections not allowed.
 <P>
@@ -630,7 +655,7 @@ Basic conditionals:
    &gt;program conditional_compile
    &gt;   use M_kracken95, only : kracken, lget
    &gt;   ! use M_kracken95 module to crack command line arguments
-   &gt;   call kracken("cmd","-help .false. -version .false.")
+   &gt;   call kracken("cmd","--help .false. --version .false.")
    &gt;   ! call routine generated by $BLOCK HELP
    &gt;   call help_usage(lget("cmd_help"))
    &gt;   ! call routine generated by $BLOCK VERSION
@@ -655,7 +680,7 @@ Basic conditionals:
    &gt;$! generate help_usage() procedure (and file to run thru txt2man(1) or other
    &gt;$! filters to make man(1) page if $PREP_DOCUMENT_DIR is set).
    &gt;$!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-   &gt;$BLOCK HELP -file conditional_compile.man
+   &gt;$BLOCK HELP --file conditional_compile.man
    &gt;NAME
    &gt;    conditional_compile - basic example for prep(1) pre-processor.
    &gt;SYNOPSIS
@@ -730,7 +755,7 @@ John S. Urban
 <P>
 </BLOCKQUOTE>
 <P><HR>
-<TABLE width=100%><TR> <TD width=33%><I></I></TD> <TD width=33% align=center>untitled ()</TD> <TD align=right width=33%><I>June 12, 2021</I></TD> </TR></TABLE><FONT SIZE=-1>Generated by <A HREF="http://www.squarebox.co.uk/download/manServer.shtml">manServer 1.08</A> from prep.1 using man macros.</FONT>
+<TABLE width=100%><TR> <TD width=33%><I></I></TD> <TD width=33% align=center>untitled ()</TD> <TD align=right width=33%><I>June 12, 2021</I></TD> </TR></TABLE><FONT SIZE=-1>Generated by <A HREF="http://www.squarebox.co.uk/download/manServer.shtml">manServer 1.08</A> from docs/prep.1 using man macros.</FONT>
 <br><br><center><img src="images/prep.1.gif"></center>
 </div>
 </div>

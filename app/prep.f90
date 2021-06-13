@@ -13,6 +13,7 @@
 !      M_kracken95  Fortran module for parsing command line arguments.
 !      M_strings    Fortran CHARACTER string manipulations
 !      M_io         Fortran file I/O routines
+!      M_list       Basic list lookup and maintenance
 !===================================================================================================================================
 !  Next if any interest ...
 !     o cpp-compatible or fpp-compatible for simple directives, excluding macro expansion.
@@ -21,9 +22,12 @@
 !     o comment and/or change original integer expression parser? M_calculator or M_matrix is MUCH more powerful
 !     o Miss features of ufpp like access to process output with $FILTER SHELL
 !       Allowing sections to be input to a system process so other tools are integrated makes input very system-dependent
-!     o maybe add something like wordexp(3c) with command expansion only if --system?
 !     o PARCEL/POST and $INSERT definition of command line blocks, and invocation of the blocks with substitution
-!     o That is, allow here-document substition and regular expression substitution in blocks and reuse of blocks like PARCEL
+!       should allow environment variables as well as those set on $SET.                                         
+!       Perhaps $SET --name value --name value --name value would be a better syntax or process quoting and all A=xxx B=xxxx ...?
+!       That is, allow here-document substition and regular expression substitution in blocks and reuse of blocks like wordexp(3c) 
+!       maybe add something like wordexp(3c) with command expansion only if --system?
+!     o a $FOR statement for looping?                                                                                        
 !     o use Unicode to specify filenames
 !     o UNTIL feature
 !     o add automatic warning on lines that exceed specified width
@@ -177,8 +181,8 @@ subroutine cond()       !@(#)cond(3f): process conditional directive assumed to 
    select case(VERB)                                                  ! process logical flow control even if G_write is false
 
    case('DEFINE','INCLUDE','PRINTENV','SHOW','STOP')
-   case('SYSTEM','UNDEF','UNDEFINE','MESSAGE','WARNING')
-   case('HELP','OUTPUT','ERROR','IDENT','@(#)','BLOCK')
+   case('SYSTEM','UNDEF','UNDEFINE','MESSAGE')
+   case('OUTPUT','IDENT','@(#)','BLOCK')
    case('PARCEL','POST','SET')
    case(' ')
 
@@ -231,7 +235,7 @@ subroutine output_case(opts)                             !@(#)output_case(3f): p
    character(len=G_line_length)  :: filename             ! filename on $OUTPUT command
    character(len=20)             :: position
    integer                       :: ios
-      call dissect2('output','-oo -append .false.',opts)  ! parse options and inline comment on input line
+      call dissect2('output','-oo --append .false.',opts)  ! parse options and inline comment on input line
       filename=sget('output_oo')
       select case(filename)
       case('@')
@@ -290,7 +294,7 @@ subroutine ident(opts)                                 !@(#)ident(3f): process $
    character(len=:),allocatable  :: text
    integer,save                  :: ident_count=1
 
-   call dissect2('ident','-oo -language fortran',opts)  ! parse options and inline comment on input line
+   call dissect2('ident','-oo --language fortran',opts)  ! parse options and inline comment on input line
    text=trim(sget('ident_oo'))
    lang=sget('ident_language')
 
@@ -1355,7 +1359,7 @@ character(len=*),intent(in) :: opts
    if(G_outtype.eq.'help')then  ! if in 'help' mode wrap up the routine
       write(G_iout,'(a)')"'']"
       write(G_iout,'(a)')"   WRITE(*,'(a)')(trim(help_text(i)),i=1,size(help_text))"
-      write(G_iout,'(a)')"   stop ! if -help was specified, stop"
+      write(G_iout,'(a)')"   stop ! if --help was specified, stop"
       write(G_iout,'(a)')"endif"
       write(G_iout,'(a)')"end subroutine help_usage"
       write(G_iout,'("!",a)')repeat('-',131)
@@ -1367,16 +1371,16 @@ character(len=*),intent(in) :: opts
       write(G_iout,'(a)')"   WRITE(*,'(a)')(trim(help_text(i)(5:len_trim(help_text(i))-1)),i=1,size(help_text))"
       !*!write(G_iout,'(a)')'   write(*,*)"COMPILER VERSION=",COMPILER_VERSION()'
       !*!write(G_iout,'(a)')'   write(*,*)"COMPILER OPTIONS=",COMPILER_OPTIONS()'
-      write(G_iout,'(a)')"   stop ! if -version was specified, stop"
+      write(G_iout,'(a)')"   stop ! if --version was specified, stop"
       write(G_iout,'(a)')"endif"
       write(G_iout,'(a)')"end subroutine help_version"
       write(G_iout,'("!",a)')repeat('-',131)
    endif
 !-----------------------------------------------------------------------------------------------------------------------------------
-   call dissect2('block','-oo -file -varname textblock -append .false.',opts) ! parse options on input line
+   call dissect2('block','--oo --file --varname textblock --append .false.',opts) ! parse options on input line
 
-   ! if a previous command has opened a -file FILENAME flush it, because a new one is being opened or this is an END command
-   ! and if a -file FILENAME has been selected open it
+   ! if a previous command has opened a --file FILENAME flush it, because a new one is being opened or this is an END command
+   ! and if a --file FILENAME has been selected open it
    call print_comment_block()
 !-----------------------------------------------------------------------------------------------------------------------------------
    ! now can start new section
@@ -1510,7 +1514,7 @@ subroutine print_comment_block() !@(#)print_comment_block(3f): format comment bl
    case default; call stop_prep('ERROR(prep:print_comment_block) - UNEXPECTED STATUS VALUE '//v2s(istatus)//':'//trim(varname))
    end select
 
-   if(ilength.ne.0.and.G_MAN.ne.''.and.G_MAN_FILE.ne.' ')then ! if $BLOCK ... -file FILE is present generate file in directory/doc
+   if(ilength.ne.0.and.G_MAN.ne.''.and.G_MAN_FILE.ne.' ')then ! if $BLOCK ... --file FILE is present generate file in directory/doc
       filename=trim(varvalue)//'/doc/'
 
       iend=len_trim(varvalue)
@@ -1681,32 +1685,38 @@ character(len=*),intent(in)   :: msg
    write(G_iout,'(a)')'!==============================================================================='
    write(G_iout,'(a)')'! '//trim(msg)
 
-   write(G_iout,'(a)')'! *prep* CURRENT STATE'
-   write(G_iout,'("! *prep*    TOTAL LINES READ ........... ",i11)')G_io_total_lines    ! write number of lines read
-   write(G_iout,'("! *prep*    CONDITIONAL_NESTING_LEVEL... ",i4)')G_nestl              ! write nesting level
-   write(G_iout,'("! *prep*    G_WRITE (general processing) ",l4)')G_write              ! non-if/else/endif directives processed
-   write(G_iout,'("! *prep*    G_LLWRITE (write input lines)",l4)')G_llwrite            ! non-if/else/endif directives processed
-   write(G_iout,'("! *prep*    DATE........................ ",a)')GetDateTimeStr()      ! current time stamp
+   write(G_iout,'(a)')'! CURRENT STATE OF PREP(1):'
+   write(G_iout,'("! TOTAL LINES READ ............... ",i0)')G_io_total_lines     ! write number of lines read
+   write(G_iout,'("! CONDITIONAL_NESTING_LEVEL....... ",i0)')G_nestl              ! write nesting level
+   write(G_iout,'("! G_WRITE (general processing).... ",l0)')G_write              ! non-if/else/endif directives processed
+   write(G_iout,'("! G_LLWRITE (write input lines)... ",l0)')G_llwrite            ! non-if/else/endif directives processed
+   write(G_iout,'("! DATE............................ ",a)')GetDateTimeStr()      ! current time stamp
    call write_arguments()
-   write(G_iout,'(a)')'! *prep* VARIABLES:'
-   do i=1,G_numdef                                                                      ! print variable dictionary
-      write(G_iout,'("! *prep*    ! ",a," ! ",a)')G_defvar(i),G_defval(i)               ! write variable and corresponding value
+   write(G_iout,'(a)')'! VARIABLES:'
+   do i=1,G_numdef                                                                ! print variable dictionary
+      write(G_iout,'("! ",a," ! ",a)')G_defvar(i),G_defval(i)                     ! write variable and corresponding value
    enddo
 
-   write(G_iout,'(a)')'! *prep* OPEN FILES:'
-   write(G_iout,'(a)')'! *prep*    ! ---- ! UNIT ! LINE NUMBER ! FILENAME'
-   do i=1,G_iocount                                                                     ! print file dictionary
+   write(G_iout,'(a)')'! OPEN FILES:'
+   write(G_iout,'(a)')'!     ! ---- ! UNIT ! LINE NUMBER ! FILENAME'
+   do i=1,G_iocount                                                               ! print file dictionary
       ! write table of files
-      write(G_iout,'("! *prep*    ! ",i4," ! ",i4," ! ",i11," ! ",a)')i,  &
+      write(G_iout,'("!     ! ",i4," ! ",i4," ! ",i11," ! ",a)')i,  &
       &  G_file_dictionary(i)%unit_number,    &
       &  G_file_dictionary(i)%line_number,    &
       &  trim(G_file_dictionary(i)%filename )
    enddo
 
-   write(G_iout,'(a)')'! *prep* INCLUDE DIRECTORIES:'
+   write(G_iout,'(a)')'! INCLUDE DIRECTORIES:'
    do i=1,G_inc_count
       write(G_iout,'("! ",a)') trim(G_inc_files(i))
    enddo
+
+   if(size(keywords).gt.0)then
+      write(G_iout,'(a)')'! SET STRINGS:'
+      write(*,*)'>>>',size(keywords)
+      write(*,'(*("!",a,"==>","[",a,"]",/))')(trim(keywords(i)),values(i)(:counts(i)),i=1,size(keywords))
+   endif
 
    write(G_iout,'(a)')'!==============================================================================='
 end subroutine debug_state
@@ -1721,7 +1731,7 @@ subroutine write_arguments() ! @(#)write_arguments(3f): return all command argum
    integer                      :: icount           !  count of number of arguments available
    character(len=255)           :: value            !  store individual arguments one at a time
 !-----------------------------------------------------------------------------------------------------------------------------------
-   write(G_iout,'(a)',advance='no')'! *prep*    ARGUMENTS .................. '
+   write(G_iout,'(a)',advance='no')'! ARGUMENTS ...................... '
    icount=command_argument_count()                  ! intrinsic gets number of arguments
    do i=1,icount
       call get_command_argument(i,value,ilength,istatus)
@@ -1927,7 +1937,14 @@ subroutine defines()       !@(#)defines(3f): use expressions on command line to 
    character(len=G_line_length)          :: in_define1=''           ! variable definition from environment variable
    character(len=G_line_length)          :: in_define2=''           ! variable definition from environment variable and command
    integer                               :: i
-!-----------------------------------------------------------------------------------------------------------------------------------
+
+   if(allocated(keywords))deallocate(keywords)
+   if(allocated(values))deallocate(values)
+   if(allocated(counts))deallocate(counts)
+   allocate(character(len=0) :: keywords(0))
+   allocate(character(len=0) :: values(0))
+   allocate(counts(0))
+
    in_define1=sget('_prep_oo')
    in_define2=sget('prep_oo')
    if(in_define1.ne.''.and.in_define2.eq.in_define1)then            ! if duplicates remove one
@@ -1983,16 +2000,16 @@ help_text=[ CHARACTER(LEN=128) :: &
 '         [-I include_directories]                                               ',&
 '         [-i input_file(s)]                                                     ',&
 '         [-o output_file]                                                       ',&
-'         [-system]                                                              ',&
-'         [-verbose]                                                             ',&
-'         [-prefix character|ADE]                                                ',&
-'         [-keeptabs]                                                            ',&
-'         [-noenv]                                                               ',&
-'         [-width n]                                                             ',&
+'         [--system]                                                             ',&
+'         [--verbose]                                                            ',&
+'         [--prefix character|ADE]                                               ',&
+'         [--keeptabs]                                                           ',&
+'         [--noenv]                                                              ',&
+'         [--width n]                                                            ',&
 '         [-d ignore|remove|blank]                                               ',&
-'         [-comment default|doxygen|ford|none]                                   ',&
-'         [-version]                                                             ',&
-'         [-help]                                                                ',&
+'         [--comment default|doxygen|ford|none]                                  ',&
+'         [--version]                                                            ',&
+'         [--help]                                                               ',&
 'OPTIONS                                                                         ',&
 '   define_list, -D define_list  An optional space-delimited list of expressions ',&
 '                                used to define variables before file processing ',&
@@ -2002,31 +2019,31 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   -o output_file               The default output file is stdout.              ',&
 '   -I include_directories       The directories to search for files specified on',&
 '                                $INCLUDE directives.                            ',&
-'   -prefix ADE|letter  The default directive prefix character is "$".           ',&
-'                       Alternatives may be specified by providing an            ',&
-'                       ASCII Decimal Equivalent (Common values are 37=%         ',&
-'                       42=* 35=# 36=$ 64=@). If the value is not numeric        ',&
-'                       it is assumed to be a literal character.                 ',&
+'   --prefix ADE|letter  The default directive prefix character is "$".          ',&
+'                        Alternatives may be specified by providing an           ',&
+'                        ASCII Decimal Equivalent (Common values are 37=%        ',&
+'                        42=* 35=# 36=$ 64=@). If the value is not numeric       ',&
+'                        it is assumed to be a literal character.                ',&
 '                                                                                ',&
-'   -help            Display documentation and exit.                             ',&
-'   -verbose         All commands on a $SYSTEM directive are echoed              ',&
+'   --help           Display documentation and exit.                             ',&
+'   --verbose        All commands on a $SYSTEM directive are echoed              ',&
 '                    to stderr with a + prefix. Text following the               ',&
 '                    string "@(#)" is printed to stderr similar to               ',&
 '                    the Unix command what(1) but is otherwise                   ',&
 '                    treated as other text input.                                ',&
 '                                                                                ',&
-'   -noenv           The $IFDEF and $IFNDEF directives test for an               ',&
+'   --noenv          The $IFDEF and $IFNDEF directives test for an               ',&
 '                    internal prep(1) variable and then an                       ',&
 '                    environment variable by default. This option                ',&
 '                    turns off testing for environment variables.                ',&
-'   -system          Allow system commands on $SYSTEM directives to              ',&
+'   --system         Allow system commands on $SYSTEM directives to              ',&
 '                    be executed.                                                ',&
-'   -keeptabs        By default tab characters are expanded assuming             ',&
+'   --keeptabs       By default tab characters are expanded assuming             ',&
 '                    a stop has been set every eight columns; and                ',&
 '                    trailing carriage-return characters are removed.            ',&
 '                    Use this flag to prevent this processing from               ',&
 '                    occurring.                                                  ',&
-'   -comment         try to style comments generated in $BLOCK blocks            ',&
+'   --comment        try to style comments generated in $BLOCK blocks            ',&
 '                    for other utilities such as doxygen. Default is to          ',&
 '                    prefix lines with ''! ''. Allowed keywords are              ',&
 '                    currently "default", "doxygen","none","ford".               ',&
@@ -2038,8 +2055,8 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                           used to support the optional compilation of          ',&
 '                           "debug" code by many Fortran compilers when          ',&
 '                           compiling fixed-format Fortran source.               ',&
-'   -version         Display version and exit                                    ',&
-'   -width n         Maximum line length of the output file. Default             ',&
+'   --version        Display version and exit                                    ',&
+'   --width n        Maximum line length of the output file. Default             ',&
 '                    is 1024. Typically used to trim fixed-format                ',&
 '                    FORTRAN code that contains comments or "ident"              ',&
 '                    labels past column 72 when compiling                        ',&
@@ -2055,6 +2072,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '     $DEFINE   variable_name[=expression]                 [! comment ]          ',&
 '     $UNDEFINE variable_name                              [! comment ]          ',&
+'                                                                                ',&
 '     $IF       {LOGICAL or INTEGER expression}            [! comment ]          ',&
 '      or                                                                        ',&
 '     $IFDEF    {variable_name}                            [! comment ]          ',&
@@ -2066,19 +2084,22 @@ help_text=[ CHARACTER(LEN=128) :: &
 '     [$ELSE                                               [! comment ]          ',&
 '               { sequence of source statements}]                                ',&
 '     $ENDIF                                               [! comment ]          ',&
+'                                                                                ',&
 '     $PARCEL   [name]                                     [! comment ]          ',&
 '     $POST     name                                       [! comment ]          ',&
+'     $SET      name  string                                                     ',&
 '     $OUTPUT   filename  [-append]                        [! comment ]          ',&
 '     $INCLUDE  filename                                   [! comment ]          ',&
 '     $BLOCK    [comment|null|write|help|version]|                               ',&
 '               [variable [-varname NAME]]                                       ',&
 '               [-file NAME [-append]]                     [! comment ]          ',&
+'                                                                                ',&
 '     $PRINTENV predefined_name|environment_variable_name  [! comment ]          ',&
-'     $SHOW                                                [! comment ]          ',&
 '     $SYSTEM system_command                               [! comment ]          ',&
 '     $IDENT    metadata                                   [! comment ]          ',&
 '     $@(#)     metadata                                   [! comment ]          ',&
 '     $MESSAGE  message_to_stderr                                                ',&
+'     $SHOW                                                [! comment ]          ',&
 '     $STOP {stop_value}                                   [! comment ]          ',&
 '                                                                                ',&
 '   Compiler directives are specified by a "$" in column one, followed by a      ',&
@@ -2135,7 +2156,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '     $IFDEF varname  ==> $IF DEFINED(varname)                                   ',&
 '     $IFNDEF varname ==> $IF .NOT. DEFINED(varname)                             ',&
 '                                                                                ',&
-'   except that environment variables are tested as well if the -noenv option    ',&
+'   except that environment variables are tested as well if the --noenv option   ',&
 '   is not specified.                                                            ',&
 '                                                                                ',&
 '   $IDENT metadata [-language fortran|c|shell]                                  ',&
@@ -2173,11 +2194,13 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   $SET directives this allows you to replay a section of input and replace     ',&
 '   strings as a simple templating technique.                                    ',&
 '                                                                                ',&
-'   $SET name "string"                                                           ',&
+'   $SET name string                                                             ',&
 '                                                                                ',&
 '   If a $SET directive defines a name prep(1) enters expansion mode. In this    ',&
 '   mode anywhere the string "${NAME}" is encountered in subsequent output it    ',&
-'   is replaced by "string".                .                                    ',&
+'   is replaced by "string". Comments should not be used on a $SET directive.    ',&
+'   Note expansion of a line may cause it to be longer than allowed by some      ',&
+'   compilers. Automatic breaking into continuation lines does not occur.        ',&
 '                                                                                ',&
 '   $PRINTENV name                                                               ',&
 '                                                                                ',&
@@ -2212,7 +2235,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   $BLOCK [comment|null|write|help|version  [-file NAME [-append]]              ',&
 '     or                                                                         ',&
-'   $BLOCK VARIABLE -varname NAME  [-file NAME]                                  ',&
+'   $BLOCK VARIABLE --varname NAME  [--file NAME]                                ',&
 '                                                                                ',&
 '      COMMENT:   write text prefixed by an exclamation and a space              ',&
 '      WRITE:     write text as Fortran WRITE(3f) statements                     ',&
@@ -2223,7 +2246,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                 prefixing lines with @(#) for use with the what(1) command.    ',&
 '      NULL:      Do not write into current output file                          ',&
 '      VARIABLE:  write as a text variable. The name may be defined using the    ',&
-'                 -varname switch. Default name is "textblock".                  ',&
+'                 --varname switch. Default name is "textblock".                 ',&
 '      END:       End block of specially processed text                          ',&
 '                                                                                ',&
 '   If the "-file NAME" option is present the *unaltered* text is written to     ',&
@@ -2252,20 +2275,20 @@ help_text=[ CHARACTER(LEN=128) :: &
 '    $stop                                                                       ',&
 '                                                                                ',&
 '    !======================================================================     ',&
-'    ! *prep* CURRENT STATE                                                      ',&
-'    ! *prep*    TOTAL LINES READ ............          2                        ',&
-'    ! *prep*    CONDITIONAL_NESTING_LEVEL....   0                               ',&
-'    ! *prep*    DATE......................... 11:18 21Jun2013                   ',&
-'    ! *prep*    ARGUMENTS ................... A=10 B C D -o paper               ',&
-'    ! *prep* VARIABLES:                                                         ',&
-'    ! *prep*    ! A                               !          10                 ',&
-'    ! *prep*    ! B                               !           1                 ',&
-'    ! *prep*    ! C                               !           1                 ',&
-'    ! *prep*    ! D                               !           1                 ',&
-'    ! *prep*    ! Z                               !          22                 ',&
-'    ! *prep* OPEN FILES:                                                        ',&
-'    ! *prep*    ! ---- ! UNIT ! LINE NUMBER ! FILENAME                          ',&
-'    ! *prep*    !    1 !    5 !           2 !                                   ',&
+'    !  CURRENT STATE                                                            ',&
+'    !     TOTAL LINES READ ............          2                              ',&
+'    !     CONDITIONAL_NESTING_LEVEL....   0                                     ',&
+'    !     DATE......................... 11:18 21Jun2013                         ',&
+'    !     ARGUMENTS ................... A=10 B C D -o paper                     ',&
+'    !  VARIABLES:                                                               ',&
+'    !     ! A                               !          10                       ',&
+'    !     ! B                               !           1                       ',&
+'    !     ! C                               !           1                       ',&
+'    !     ! D                               !           1                       ',&
+'    !     ! Z                               !          22                       ',&
+'    !  OPEN FILES:                                                              ',&
+'    !     ! ---- ! UNIT ! LINE NUMBER ! FILENAME                                ',&
+'    !     !    1 !    5 !           2 !                                         ',&
 '    !======================================================================     ',&
 '                                                                                ',&
 '   $STOP stop_value                                                             ',&
@@ -2340,7 +2363,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   $IF constructs can be nested up to 20 levels deep. Note that using           ',&
 '   more than two levels typically makes input files less readable.              ',&
 '                                                                                ',&
-'   $BLOCK END is required after a $BLOCK or -file FILENAME is not written.      ',&
+'   $BLOCK END is required after a $BLOCK or --file FILENAME is not written.     ',&
 '                                                                                ',&
 '   Nesting of $BLOCK sections not allowed.                                      ',&
 '                                                                                ',&
@@ -2394,7 +2417,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   >program conditional_compile                                                 ',&
 '   >   use M_kracken95, only : kracken, lget                                    ',&
 '   >   ! use M_kracken95 module to crack command line arguments                 ',&
-'   >   call kracken("cmd","-help .false. -version .false.")                     ',&
+'   >   call kracken("cmd","--help .false. --version .false.")                   ',&
 '   >   ! call routine generated by $BLOCK HELP                                  ',&
 '   >   call help_usage(lget("cmd_help"))                                        ',&
 '   >   ! call routine generated by $BLOCK VERSION                               ',&
@@ -2419,7 +2442,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   >$! generate help_usage() procedure (and file to run thru txt2man(1) or other',&
 '   >$! filters to make man(1) page if $PREP_DOCUMENT_DIR is set).               ',&
 '   >$!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',&
-'   >$BLOCK HELP -file conditional_compile.man                                   ',&
+'   >$BLOCK HELP --file conditional_compile.man                                  ',&
 '   >NAME                                                                        ',&
 '   >    conditional_compile - basic example for prep(1) pre-processor.          ',&
 '   >SYNOPSIS                                                                    ',&
@@ -2467,7 +2490,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   MIT                                                                          ',&
 '']
    WRITE(*,'(a)')(trim(help_text(i)),i=1,size(help_text))
-   stop ! if -help was specified, stop
+   stop ! if --help was specified, stop
 endif
 end subroutine help_usage
 !-----------------------------------------------------------------------------------------------------------------------------------
@@ -2490,7 +2513,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '@(#)HOME PAGE       https://github.com/urbanjost/prep.git/>',&
 '']
    WRITE(*,'(a)')(trim(help_text(i)(5:len_trim(help_text(i))-1)),i=1,size(help_text))
-   stop ! if -version was specified, stop
+   stop ! if --version was specified, stop
 endif
 end subroutine help_version
 !===================================================================================================================================
@@ -2616,7 +2639,10 @@ integer                      :: i
   name=upper(line(:iend))
   if(name.eq.'')then
     ! show array
-    write(*,'(*(a,"!==>","[",a,"]",/))')(trim(keywords(i)),values(i)(:counts(i)),i=1,size(keywords))
+    if(size(keywords).gt.0)then
+       write(*,*)'>>>',size(keywords)
+       write(*,'(*("!",a,"==>","[",a,"]",/))')(trim(keywords(i)),values(i)(:counts(i)),i=1,size(keywords))
+    endif
   else
      val=line(min(iend+1,len(line)):)
     ! insert and replace entries
@@ -2730,16 +2756,16 @@ character(len=1024)          :: cmd=' &
    & -D                          &
    & -I                          &
    & -o                          &
-   & -prefix            36       &
-   & -keeptabs          .false.  &
+   & --prefix           36       &
+   & --keeptabs         .false.  &
    & -d                 ignore   &
-   & -help              .false.  &
-   & -verbose           .false.  &
-   & -system            .false.  &
-   & -version           .false.  &
-   & -noenv             .false.  &
-   & -comment           COMMENT  &
-   & -width             1024     &
+   & --help             .false.  &
+   & --verbose          .false.  &
+   & --system           .false.  &
+   & --version          .false.  &
+   & --noenv            .false.  &
+   & --comment          COMMENT  &
+   & --width            1024     &
    & '
 logical                       :: isscratch
 !-----------------------------------------------------------------------------------------------------------------------------------
