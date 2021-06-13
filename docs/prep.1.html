@@ -788,18 +788,21 @@ into a write statement
     <H4>&nbsp; &nbsp; SET USAGE</H4>
 </A>
 <BLOCKQUOTE>
+Note values are case-sensitive by variable names are not, and there are
+pre-defined values for input file, line in input file, date and time that
+are NOT ACTIVE until at least one $SET directive is processed. That is,
+unset a $SET directive is processed no ${NAME} expansion occurs.
 <P>
-<TABLE cellpadding=3>
-<TR valign=top><TD colspan=2>
-<B>&gt; $set author</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-William Shakespeare
-&gt; <B>write</B>(*,*)&#146;By ${AUTHOR}&#146;
-&gt; <B>write</B>(*,*)&#146;File ${FILE}&#146;
-&gt; <B>write</B>(*,*)&#146;Line ${LINE}&#146;
-&gt; <B>write</B>(*,*)&#146;Date ${DATE}&#146;
-&gt; <B>write</B>(*,*)&#146;Time ${TIME}&#146;
-</TD></TR>
-<TR></TR></TABLE></BLOCKQUOTE>
+<PRE>
+   &gt; $set author  William Shakespeare
+   &gt; write(*,*)&#146;By ${AUTHOR}&#146;
+   &gt; write(*,*)&#146;File ${FILE}&#146;
+   &gt; write(*,*)&#146;Line ${LINE}&#146;
+   &gt; write(*,*)&#146;Date ${DATE}&#146;
+   &gt; write(*,*)&#146;Time ${TIME}&#146;
+<P>
+</PRE>
+</BLOCKQUOTE>
 <A name=8>
 
      <H3>AUTHOR</H3>

@@ -2543,6 +2543,10 @@ help_text=[ CHARACTER(LEN=128) :: &
 '     write(io,''(a)'')''/home/urbanjs/V600''                                    ',&
 '                                                                                ',&
 ' SET USAGE                                                                      ',&
+'  Note values are case-sensitive by variable names are not, and there are       ',&
+'  pre-defined values for input file, line in input file, date and time that     ',&
+'  are NOT ACTIVE until at least one $SET directive is processed. That is,       ',&
+'  unset a $SET directive is processed no ${NAME} expansion occurs.              ',&
 '                                                                                ',&
 '   > $set author  William Shakespeare                                           ',&
 '   > write(*,*)''By ${AUTHOR}''                                                 ',&
