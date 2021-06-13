@@ -225,6 +225,11 @@ OPTIONS
    Note expansion of a line may cause it to be longer than allowed by some
    compilers. Automatic breaking into continuation lines does not occur.
 
+   IF A $SET DIRECTIVE HAS BEEN DEFINED the "standard" preprocessor values
+   __FILE__, __LINE__, __DATE__, and __TIME__ are also available. The time
+   data refers to the time of processing, not the current time nor the time
+   of compilation or loading.
+
    $PRINTENV name
 
    If the name of an uppercase environment variable is given the value
@@ -376,6 +381,12 @@ OPTIONS
    be included in the source if "inc" has been previously defined. This is
    useful for setting up a default inclusion.
 
+   Predefined values are
+
+    UNKNOWN = 0 LINUX   = 1 MACOS   = 2 WINDOWS = 3
+    CYGWIN  = 4 SOLARIS = 5 FREEBSD = 6 OPENBSD = 7
+    In addition OS is set to what the program guesses the system type is.
+
    $MESSAGE WARNING message
 
    Write message to stderr
@@ -487,7 +498,7 @@ EXAMPLES
    > $BLOCK VERSION
    > DESCRIPTION: example program showing conditional compilation with prep(1)
    > PROGRAM:     conditional_compile
-   > VERSION:     1.0, 20160703
+   > VERSION:     1.0.0, 20160703
    > AUTHOR:      John S. Urban
    > $BLOCK END
    > $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -506,20 +517,29 @@ EXAMPLES
 
  MIXING BLOCK AND PRINTENV
 
-   This example shows one way how an environment variable can be turned
-   into a write statement
+  This example shows one way how an environment variable can be turned
+  into a write statement
 
-     $block write
-     $ifdef HOME
-     $printenv HOME
-     $else
-        HOME not defined
-     $endif
-     $block end
+   > $block write
+   > $ifdef HOME
+   > $printenv HOME
+   > $else
+   >    HOME not defined
+   > $endif
+   > $block end
 
    Sample output
 
      write(io,'(a)')'/home/urbanjs/V600'
+
+ SET USAGE
+
+   > $set author  William Shakespeare
+   > write(*,*)'By ${AUTHOR}'
+   > write(*,*)'File ${__FILE__}'
+   > write(*,*)'Line ${__LINE__}'
+   > write(*,*)'Date ${__DATE__}'
+   > write(*,*)'Time ${__TIME__}'
 
 AUTHOR
    John S. Urban

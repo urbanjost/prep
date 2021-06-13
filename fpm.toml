@@ -1,6 +1,6 @@
 # TOML file for fpm as described at https://github.com/fortran-lang/fpm/blob/master/manifest-reference.md
 name = "prep"
-version = "1.0.1"
+version = "6.0.0"
 license = "MIT"
 author = "John Urban"
 maintainer = "urbanjost@comcast.net"

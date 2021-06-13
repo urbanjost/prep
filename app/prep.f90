@@ -2033,6 +2033,11 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   also be used for generating documentation files. INTEGER or LOGICAL          ',&
 '   expressions may be used to select output lines.                              ',&
 '                                                                                ',&
+'   The suggested suffix for Fortran input files is ".ff" for code files unless  ',&
+'   they contain $SYSTEM directives in which case ".FF" is preferred. $INCLUDE   ',&
+'   files should use ".ffinc" and ".FFINC" if they include prep(1) directives.   ',&
+'   This naming convention is not required.                                      ',&
+'                                                                                ',&
 '   The syntax for the directive lines is as follows:                            ',&
 '                                                                                ',&
 '     $DEFINE   variable_name[=expression]                 [! comment ]          ',&
@@ -2570,9 +2575,9 @@ help_text=[ CHARACTER(LEN=128) :: &
 '@(#)PRODUCT:        GPF (General Purpose Fortran) utilities and examples>',&
 '@(#)PROGRAM:        prep(1f)>',&
 '@(#)DESCRIPTION:    Fortran Pre-processor>',&
-!'@(#)VERSION:        4.0: 20170502>',&
-!'@(#)VERSION:        5.0: 20201219>',&
-'@(#)VERSION:        6.0: 20210613>',&
+!'@(#)VERSION:        4.0.0: 20170502>',&
+!'@(#)VERSION:        5.0.0: 20201219>',&
+'@(#)VERSION:        6.0.0: 20210613>',&
 '@(#)AUTHOR:         John S. Urban>',&
 '@(#)HOME PAGE       https://github.com/urbanjost/prep.git/>',&
 '']

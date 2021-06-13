@@ -287,6 +287,11 @@ is replaced by "string". Comments should not be used on a $SET directive.
 Note expansion of a line may cause it to be longer than allowed by some
 compilers. Automatic breaking into continuation lines does not occur.
 .PP
+IF A $SET DIRECTIVE HAS BEEN DEFINED the "standard" preprocessor values
+__FILE__, __LINE__, __DATE__, and __TIME__ are also available. The time
+data refers to the time of processing, not the current time nor the time
+of compilation or loading.
+.PP
 $PRINTENV name
 .PP
 If the name of an uppercase environment variable is given the value
@@ -476,6 +481,16 @@ The file, "comm.inc" will be INCLUDEd in the source if the parameter,
 be included in the source if "inc" has been previously defined. This is
 useful for setting up a default inclusion.
 .PP
+Predefined values are
+.PP
+.nf
+.fam C
+    UNKNOWN = 0 LINUX   = 1 MACOS   = 2 WINDOWS = 3
+    CYGWIN  = 4 SOLARIS = 5 FREEBSD = 6 OPENBSD = 7
+    In addition OS is set to what the program guesses the system type is.
+
+.fam T
+.fi
 $MESSAGE WARNING message
 .PP
 Write message to stderr
@@ -618,7 +633,7 @@ Creating a \fBhelp_version\fP(3f) subroutine
    > $BLOCK VERSION
    > DESCRIPTION: example program showing conditional compilation with prep(1)
    > PROGRAM:     conditional_compile
-   > VERSION:     1.0, 20160703
+   > VERSION:     1.0.0, 20160703
    > AUTHOR:      John S. Urban
    > $BLOCK END
    > $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -648,24 +663,32 @@ into a write statement
 .PP
 .nf
 .fam C
-     $block write
-     $ifdef HOME
-     $printenv HOME
-     $else
-        HOME not defined
-     $endif
-     $block end
+   > $block write
+   > $ifdef HOME
+   > $printenv HOME
+   > $else
+   >    HOME not defined
+   > $endif
+   > $block end
 
-.fam T
-.fi
-Sample output
-.PP
+   Sample output
+
 .nf
 .fam C
      write(io,'(a)')'/home/urbanjs/V600'
 
 .fam T
 .fi
+.SS SET USAGE
+
+.TP
+.B > $set author
+William Shakespeare
+> \fBwrite\fP(*,*)'By ${AUTHOR}'
+> \fBwrite\fP(*,*)'File ${__FILE__}'
+> \fBwrite\fP(*,*)'Line ${__LINE__}'
+> \fBwrite\fP(*,*)'Date ${__DATE__}'
+> \fBwrite\fP(*,*)'Time ${__TIME__}'
 .SH AUTHOR
 John S. Urban
 .SH LICENSE

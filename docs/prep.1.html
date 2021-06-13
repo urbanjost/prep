@@ -65,10 +65,11 @@ a.existingWikiWord[title]{ //border: 1px dashed #BBB; }
 <A HREF=#4>Limitations</A><BR>
 <A HREF=#5>Examples</A><BR>
 &nbsp; &nbsp; &nbsp;<A HREF=#6>Mixing Block And Printenv</A><BR>
-<A HREF=#7>Author</A><BR>
-<A HREF=#8>License</A><BR>
+&nbsp; &nbsp; &nbsp;<A HREF=#7>Set Usage</A><BR>
+<A HREF=#8>Author</A><BR>
+<A HREF=#9>License</A><BR>
 </BLOCKQUOTE>
-<A name=9>
+<A name=10>
 
      <H3>SYNOPSIS</H3>
 
@@ -369,6 +370,11 @@ is replaced by "string". Comments should not be used on a $SET directive.
 Note expansion of a line may cause it to be longer than allowed by some
 compilers. Automatic breaking into continuation lines does not occur.
 <P>
+IF A $SET DIRECTIVE HAS BEEN DEFINED the "standard" preprocessor values
+__FILE__, __LINE__, __DATE__, and __TIME__ are also available. The time
+data refers to the time of processing, not the current time nor the time
+of compilation or loading.
+<P>
 $PRINTENV name
 <P>
 If the name of an uppercase environment variable is given the value
@@ -543,6 +549,14 @@ The file, "comm.inc" will be INCLUDEd in the source if the parameter,
 be included in the source if "inc" has been previously defined. This is
 useful for setting up a default inclusion.
 <P>
+Predefined values are
+<P>
+<PRE>
+    UNKNOWN = 0 LINUX   = 1 MACOS   = 2 WINDOWS = 3
+    CYGWIN  = 4 SOLARIS = 5 FREEBSD = 6 OPENBSD = 7
+    In addition OS is set to what the program guesses the system type is.
+<P>
+</PRE>
 $MESSAGE WARNING message
 <P>
 Write message to stderr
@@ -719,7 +733,7 @@ Creating a <B>help_version</B>(3f) subroutine
    &gt; $BLOCK VERSION
    &gt; DESCRIPTION: example program showing conditional compilation with prep(1)
    &gt; PROGRAM:     conditional_compile
-   &gt; VERSION:     1.0, 20160703
+   &gt; VERSION:     1.0.0, 20160703
    &gt; AUTHOR:      John S. Urban
    &gt; $BLOCK END
    &gt; $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -750,23 +764,38 @@ This example shows one way how an environment variable can be turned
 into a write statement
 <P>
 <PRE>
-     $block write
-     $ifdef HOME
-     $printenv HOME
-     $else
-        HOME not defined
-     $endif
-     $block end
+   &gt; $block write
+   &gt; $ifdef HOME
+   &gt; $printenv HOME
+   &gt; $else
+   &gt;    HOME not defined
+   &gt; $endif
+   &gt; $block end
 <P>
-</PRE>
-Sample output
+   Sample output
 <P>
-<PRE>
      write(io,&#146;(a)&#146;)&#146;/home/urbanjs/V600&#146;
 <P>
 </PRE>
 </BLOCKQUOTE>
 <A name=7>
+
+    <H4>&nbsp; &nbsp; SET USAGE</H4>
+</A>
+<BLOCKQUOTE>
+<P>
+<TABLE cellpadding=3>
+<TR valign=top><TD colspan=2>
+<B>&gt; $set author</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+William Shakespeare
+&gt; <B>write</B>(*,*)&#146;By ${AUTHOR}&#146;
+&gt; <B>write</B>(*,*)&#146;File ${__FILE__}&#146;
+&gt; <B>write</B>(*,*)&#146;Line ${__LINE__}&#146;
+&gt; <B>write</B>(*,*)&#146;Date ${__DATE__}&#146;
+&gt; <B>write</B>(*,*)&#146;Time ${__TIME__}&#146;
+</TD></TR>
+<TR></TR></TABLE></BLOCKQUOTE>
+<A name=8>
 
      <H3>AUTHOR</H3>
 
@@ -774,7 +803,7 @@ Sample output
 <BLOCKQUOTE>
 John S. Urban
 </BLOCKQUOTE>
-<A name=8>
+<A name=9>
 
      <H3>LICENSE</H3>
 
