@@ -1,6 +1,6 @@
 $set author  William Shakespeare      
 write(*,*)'By ${AUTHOR}'             
-write(*,*)'File ${__FILE__}'        
-write(*,*)'Line ${__LINE__}'       
-write(*,*)'Date ${__DATE__}'      
-write(*,*)'Time ${__TIME__}'     
+write(*,*)'File ${FILE}'        
+write(*,*)'Line ${LINE}'       
+write(*,*)'Date ${DATE}'      
+write(*,*)'Time ${TIME}'     

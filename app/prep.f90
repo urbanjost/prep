@@ -2236,7 +2236,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   compilers. Automatic breaking into continuation lines does not occur.        ',&
 '                                                                                ',&
 '   IF A $SET DIRECTIVE HAS BEEN DEFINED the "standard" preprocessor values      ',&
-'   __FILE__, __LINE__, __DATE__, and __TIME__ are also available. The time      ',&
+'   ${FILE}, ${LINE}, ${DATE}, and ${TIME} are also available. The time          ',&
 '   data refers to the time of processing, not the current time nor the time     ',&
 '   of compilation or loading.                                                   ',&
 '                                                                                ',&
@@ -2545,11 +2545,11 @@ help_text=[ CHARACTER(LEN=128) :: &
 ' SET USAGE                                                                      ',&
 '                                                                                ',&
 '   > $set author  William Shakespeare                                           ',&
-'   > write(*,*)''By ${AUTHOR}''                                                   ',&
-'   > write(*,*)''File ${__FILE__}''                                               ',&
-'   > write(*,*)''Line ${__LINE__}''                                               ',&
-'   > write(*,*)''Date ${__DATE__}''                                               ',&
-'   > write(*,*)''Time ${__TIME__}''                                               ',&
+'   > write(*,*)''By ${AUTHOR}''                                                 ',&
+'   > write(*,*)''File ${FILE}''                                                 ',&
+'   > write(*,*)''Line ${LINE}''                                                 ',&
+'   > write(*,*)''Date ${DATE}''                                                 ',&
+'   > write(*,*)''Time ${TIME}''                                                 ',&
 '                                                                                ',&
 'AUTHOR                                                                          ',&
 '   John S. Urban                                                                ',&
@@ -2785,6 +2785,12 @@ call set('__LINE__ ' // scratch)
 call set('__FILE__ ' // G_file_dictionary(G_iocount)%filename )
 call set('__TIME__ ' // getdate('time'))
 call set('__DATE__ ' // getdate('cdate'))
+
+call set('LINE ' // scratch)
+
+call set('FILE ' // G_file_dictionary(G_iocount)%filename )
+call set('TIME ' // getdate('time'))
+call set('DATE ' // getdate('cdate'))
 temp=trim(line)
 do i=1,toomany
    do j=1,size(keywords)

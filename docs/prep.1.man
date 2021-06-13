@@ -28,6 +28,11 @@ DESCRIPTION
    also be used for generating documentation files. INTEGER or LOGICAL
    expressions may be used to select output lines.
 
+   The suggested suffix for Fortran input files is ".ff" for code files unless
+   they contain $SYSTEM directives in which case ".FF" is preferred. $INCLUDE
+   files should use ".ffinc" and ".FFINC" if they include prep(1) directives.
+   This naming convention is not required.
+
    The syntax for the directive lines is as follows:
 
      $DEFINE   variable_name[=expression]                 [! comment ]
@@ -226,7 +231,7 @@ OPTIONS
    compilers. Automatic breaking into continuation lines does not occur.
 
    IF A $SET DIRECTIVE HAS BEEN DEFINED the "standard" preprocessor values
-   __FILE__, __LINE__, __DATE__, and __TIME__ are also available. The time
+   ${FILE}, ${LINE}, ${DATE}, and ${TIME} are also available. The time
    data refers to the time of processing, not the current time nor the time
    of compilation or loading.
 
@@ -536,10 +541,10 @@ EXAMPLES
 
    > $set author  William Shakespeare
    > write(*,*)'By ${AUTHOR}'
-   > write(*,*)'File ${__FILE__}'
-   > write(*,*)'Line ${__LINE__}'
-   > write(*,*)'Date ${__DATE__}'
-   > write(*,*)'Time ${__TIME__}'
+   > write(*,*)'File ${FILE}'
+   > write(*,*)'Line ${LINE}'
+   > write(*,*)'Date ${DATE}'
+   > write(*,*)'Time ${TIME}'
 
 AUTHOR
    John S. Urban

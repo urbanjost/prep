@@ -110,6 +110,11 @@ converted to Fortran comments or CHARACTER variable definitions which may
 also be used for generating documentation files. INTEGER or LOGICAL
 expressions may be used to select output lines.
 <P>
+The suggested suffix for Fortran input files is ".ff" for code files unless
+they contain $SYSTEM directives in which case ".FF" is preferred. $INCLUDE
+files should use ".ffinc" and ".FFINC" if they include <B>prep</B>(1) directives.
+This naming convention is not required.
+<P>
 The syntax for the directive lines is as follows:
 <P>
 <PRE>
@@ -371,7 +376,7 @@ Note expansion of a line may cause it to be longer than allowed by some
 compilers. Automatic breaking into continuation lines does not occur.
 <P>
 IF A $SET DIRECTIVE HAS BEEN DEFINED the "standard" preprocessor values
-__FILE__, __LINE__, __DATE__, and __TIME__ are also available. The time
+${FILE}, ${LINE}, ${DATE}, and ${TIME} are also available. The time
 data refers to the time of processing, not the current time nor the time
 of compilation or loading.
 <P>
@@ -789,10 +794,10 @@ into a write statement
 <B>&gt; $set author</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
 William Shakespeare
 &gt; <B>write</B>(*,*)&#146;By ${AUTHOR}&#146;
-&gt; <B>write</B>(*,*)&#146;File ${__FILE__}&#146;
-&gt; <B>write</B>(*,*)&#146;Line ${__LINE__}&#146;
-&gt; <B>write</B>(*,*)&#146;Date ${__DATE__}&#146;
-&gt; <B>write</B>(*,*)&#146;Time ${__TIME__}&#146;
+&gt; <B>write</B>(*,*)&#146;File ${FILE}&#146;
+&gt; <B>write</B>(*,*)&#146;Line ${LINE}&#146;
+&gt; <B>write</B>(*,*)&#146;Date ${DATE}&#146;
+&gt; <B>write</B>(*,*)&#146;Time ${TIME}&#146;
 </TD></TR>
 <TR></TR></TABLE></BLOCKQUOTE>
 <A name=8>
