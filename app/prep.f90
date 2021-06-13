@@ -28,6 +28,7 @@
 !     o UNTIL feature
 !     o add automatic warning on lines that exceed specified width
 !     o preset something defining OS type
+!     o expand ${NAME} using environment variables and strings set with $SET
 !===================================================================================================================================
 ! removed powerful ability to use shell output
 !===================================================================================================================================
@@ -35,7 +36,8 @@ module M_fpp                                                             !@(#)M_
 USE ISO_FORTRAN_ENV, ONLY : ERROR_UNIT, OUTPUT_UNIT                      ! access computing environment ; Standard: Fortran 2003
 use M_io,        only : slurp, get_tmp, dirname
 use M_kracken95, only : sget, dissect, lget                              ! load command argument parsing module
-use M_strings,   only : nospace, v2s, substitute, upper, lower, isalpha, split, delim
+use M_strings,   only : nospace, v2s, substitute, upper, lower, isalpha, split, delim, str_replace=>replace
+use M_list,      only : insert, locate, replace, remove
    implicit none
 
    logical,save                         :: debug=.false.
@@ -67,6 +69,7 @@ use M_strings,   only : nospace, v2s, substitute, upper, lower, isalpha, split, 
    type(parcel_stack),public            ::  G_parcel_dictionary(500)
 
    logical,save,public                  :: G_asis=.false.
+   logical,save,public                  :: G_expand=.false.
    integer,public                       :: G_iocount=0
    integer,public                       :: G_parcelcount=0
    integer,public                       :: G_io_total_lines=0
@@ -102,6 +105,10 @@ use M_strings,   only : nospace, v2s, substitute, upper, lower, isalpha, split, 
 
    integer,public                       :: G_comment_count=0
    character(len=10),public             :: G_comment_style=' '
+
+   character(len=:),allocatable   :: keywords(:)
+   character(len=:),allocatable   :: values(:)
+   integer,allocatable            :: counts(:)
 
    contains
 !===================================================================================================================================
@@ -155,11 +162,11 @@ subroutine cond()       !@(#)cond(3f): process conditional directive assumed to 
       case('UNDEF','UNDEFINE'); call undef(upopts)                    ! only process UNDEF if not skipping data lines
       case('INCLUDE');          call include(options,50+G_iocount)    ! Filenames can be case sensitive
       case('OUTPUT');           call output_case(options)             ! Filenames can be case sensitive
-      case('PARCEL');           call parcel_case(options)
-      case('POST');             call post(options)
+      case('PARCEL');           call parcel_case(upopts)
+      case('POST');             call post(upopts)
+      case('SET');              call set(options)
       case('BLOCK');            call document(options)
       case('PRINTENV');         call printenv(upopts)
-      case('SET');              call printenv(upopts)
       case('IDENT','@(#)');     call ident(options)
       case('SHOW') ;            call debug_state(options)
       case('SYSTEM');           call exe()
@@ -172,7 +179,7 @@ subroutine cond()       !@(#)cond(3f): process conditional directive assumed to 
    case('DEFINE','INCLUDE','PRINTENV','SHOW','STOP')
    case('SYSTEM','UNDEF','UNDEFINE','MESSAGE','WARNING')
    case('HELP','OUTPUT','ERROR','IDENT','@(#)','BLOCK')
-   case('PARCEL','POST')
+   case('PARCEL','POST','SET')
    case(' ')
 
    case('ELSE','ELSEIF');  call else(verb,upopts,noelse,eb)
@@ -2142,16 +2149,35 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   This string is generally included for use with the what(1) command.          ',&
 '                                                                                ',&
-'   The default language is fortran. Depending on your compiler, the             ',&
+'   The default language is fortran. Depending on your compiler and the          ',&
 '   optimization level used when compiling, these strings may or may not         ',&
 '   remain in the object files and executables created.                          ',&
 '                                                                                ',&
 '   Do not use the characters double-quote, greater-than, backslash (">\)        ',&
-'   in the metadata; do not use strings starting with " -" either.               ',&
+'   in the metadata to remain compatible with SCCS metadata syntax.              ',&
+'   Do not use strings starting with " -" either.                                ',&
 '                                                                                ',&
 '   $INCLUDE filename                                                            ',&
 '                                                                                ',&
 '   Nested read of specified input file. Fifty (50) nesting levels are allowed.  ',&
+'                                                                                ',&
+'   $PARCEL [name]                                                               ',&
+'                                                                                ',&
+'   The lines between a "$PARCEL name" and "$PARCEL" block are written WITHOUT   ',&
+'   expanding directives to a scratch file that can then be read in much like    ',&
+'   a named file can be with $INCLUDE with the $POST directive.                  ',&
+'                                                                                ',&
+'   $POST name                                                                   ',&
+'                                                                                ',&
+'   Read in the scratch file created by the $PARCEL directive. Combined with     ',&
+'   $SET directives this allows you to replay a section of input and replace     ',&
+'   strings as a simple templating technique.                                    ',&
+'                                                                                ',&
+'   $SET name "string"                                                           ',&
+'                                                                                ',&
+'   If a $SET directive defines a name prep(1) enters expansion mode. In this    ',&
+'   mode anywhere the string "${NAME}" is encountered in subsequent output it    ',&
+'   is replaced by "string".                .                                    ',&
 '                                                                                ',&
 '   $PRINTENV name                                                               ',&
 '                                                                                ',&
@@ -2573,6 +2599,105 @@ end subroutine dissect2
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
+subroutine set(line)
+character(len=*),intent(in)  :: line
+character(len=:),allocatable :: vals
+character(len=:),allocatable :: name
+character(len=:),allocatable :: val
+integer                      :: iend
+integer                      :: i
+! create a dictionary with character keywords, values, and value lengths
+! using the routines for maintaining a list
+
+  G_expand=.true.
+
+  call dissect2('set','-oo' ,line) ! parse options on input line
+  iend=index(line//' ',' ')
+  name=upper(line(:iend))
+  if(name.eq.'')then
+    ! show array
+    write(*,'(*(a,"!==>","[",a,"]",/))')(trim(keywords(i)),values(i)(:counts(i)),i=1,size(keywords))
+  else
+     val=line(min(iend+1,len(line)):)
+    ! insert and replace entries
+    call update(name,val)
+    ! remove some entries
+    !call update('a')
+    ! get some values
+    !write(*,*)'get b=>',get('b')
+  endif
+
+contains
+subroutine update(key,valin)
+character(len=*),intent(in)           :: key
+character(len=*),intent(in),optional  :: valin
+integer                               :: place
+integer                               :: ilen
+character(len=:),allocatable          :: val
+if(present(valin))then
+   val=valin
+   ilen=len_trim(val)
+   ! find where string is or should be
+   call locate(keywords,key,place)
+   ! if string was not found insert it
+   if(place.lt.1)then 
+      call insert(keywords,key,iabs(place))
+      call insert(values,val,iabs(place))
+      call insert(counts,ilen,iabs(place))
+   else
+      call replace(values,val,place)
+      call replace(counts,ilen,place)
+   endif
+else
+   call locate(keywords,key,place)
+   if(place.gt.0)then
+      call remove(keywords,place)
+      call remove(values,place)
+      call remove(counts,place)
+   endif
+endif
+end subroutine update
+function get(key) result(valout)
+character(len=*),intent(in)   :: key
+character(len=:),allocatable  :: valout
+integer                       :: place
+   ! find where string is or should be
+   call locate(keywords,key,place)
+   if(place.lt.1)then 
+      valout=''
+   else
+      valout=values(place)(:counts(place))
+   endif
+end function get
+end subroutine set
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!===================================================================================================================================
+subroutine expand_variables(line)
+! @(#) brute force variable substitution. maybe add something like wordexp(3c) with command expansion only if --system?
+! this is just to try the concept. Either use wordexp or an equivalent to replicate "here document" processing.
+! note no automatic continuation of the line if it extends past allowed length, which for Fortran is currently 132 for free-format
+! the way this is written it would do recursive substitution and does not know when there is just not a match
+character(len=*)              :: line
+character(len=:),allocatable  :: temp,search
+integer,parameter             :: toomany=1000
+integer                       :: i, j
+temp=trim(line)
+do i=1,toomany
+   do j=1,size(keywords)
+      if(index(temp,'${').ne.0)then
+         search='${'//trim(keywords(j))//'}'
+         temp=str_replace(temp,search,values(j)(:counts(j)),ignorecase=.true.)
+      else
+         exit
+      endif
+   enddo
+enddo
+line=temp
+end subroutine expand_variables
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!===================================================================================================================================
 end module M_fpp
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -2678,6 +2803,10 @@ logical                       :: isscratch
          call notabs(line,G_source,ilast)                  ! expand tab characters and trim trailing ctrl-M from DOS files
       endif
       !-----------------------------------------------------
+      if(G_expand)then
+         call expand_variables(G_source)
+      endif
+      !-----------------------------------------------------
       select case (line(1:1))                              ! special processing for lines starting with 'd' or 'D'
       case ('d','D')
          select case(letterd(1:1))
@@ -2693,7 +2822,7 @@ logical                       :: isscratch
          end select
       end select
       !-----------------------------------------------------
-      if (line(1:1).eq.prefix) then                        ! prefix must be in column 1 for conditional compile directive
+      if (line(1:1).eq.prefix.and.line(2:2).ne.'{') then   ! prefix must be in column 1 for conditional compile directive
          call cond()                                       ! process directive
       elseif (G_write) then                                ! if last conditional was true then write line
          call write_out(trim(G_source))                    ! write data line

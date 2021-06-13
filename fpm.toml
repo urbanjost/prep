@@ -1,6 +1,6 @@
 # TOML file for fpm as described at https://github.com/fortran-lang/fpm/blob/master/manifest-reference.md
 name = "prep"
-version = "1.0.0"
+version = "1.0.1"
 license = "MIT"
 author = "John Urban"
 maintainer = "urbanjost@comcast.net"
@@ -26,4 +26,8 @@ rev = "8cb8bec193e8fd617a9c614df4908f83f32911e6"
 
 [dependencies.M_strings]
 git = "https://github.com/urbanjost/M_strings.git"
-rev = "ca5b7613a3660506600f00a7a6a834ac0bf50c7c"
+rev = "92d818feb45238b1fa943a1af6186ebcbe7dc1de"
+
+[dependencies.M_list]
+git = "https://github.com/urbanjost/M_list.git"
+rev = "bc1feab833f5559def2d27e4fb999a838d99dd10"

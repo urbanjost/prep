@@ -6,6 +6,14 @@ list of notable changes including`records of change such as bug fixes,
 new features, changes, and relevant notifications.
 
 ---
+**2021-06-12**  John S. Urban<https://github.com/urbanjost>
+
+### :green_circle: ADD:
+
+  + Added $PARCEL, $POST, and $SET which allows for basic templating
+    as a prototype for allowing expansion using POSIX shell syntax
+    like a "here document".
+---
 **2021-06-08**  John S. Urban<https://github.com/urbanjost>
 
 ### :green_circle: ADD:
