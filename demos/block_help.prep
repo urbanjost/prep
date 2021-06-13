@@ -1,0 +1,49 @@
+$BLOCK NULL
+
+  If you want to write a free-format document as a routine that can be
+  called by your program and optionally also write that text to a file
+  possibly for further postprocessing you can use the $BLOCK HELP
+  directive and use $SYSTEM to do the processing.  
+
+  So on GNU/Linux and Unix machines this would make the output 
+  directories and write the help into the doc/ directory and call a
+  postprocessor that converts the text to a man-page (see txt2man(1))
+  and place the same help text into a self-contained subroutine that
+  can be called by the program and the only thing you have to do is 
+  change the free-format text block in your source file.
+
+    env PREP_DOCUMENT_DIR=`pwd` prep -i block.prep -system
+
+$BLOCK
+
+$! if the document directory is defined make sure it and the doc/ directory exists
+$IFDEF PREP_DOCUMENT_DIR
+$   SYSTEM mkdir -p $PREP_DOCUMENT_DIR/doc
+$ENDIF
+
+$!
+$! write the manpage as a subroutine for use by the program and as a text file
+$! for post-processing via txt2man (as an example -- could be tex, html, txt, ...).
+$!
+$!
+$BLOCK HELP --file conditional_compile.3.man
+NAME
+    conditional_compile(3f) - basic example for prep(1) pre-processor.
+
+SYNOPSIS
+    conditional_example [--help] [--version]
+
+DESCRIPTION
+   This is a basic example program showing how documentation can be used
+   to generate program help text
+
+OPTIONS
+   --help     display this help and exit
+   --version  output version information and exit
+$BLOCK END
+
+$! convert the help text from a flat text file to a roff file using txt2man(1)
+$IFDEF PREP_DOCUMENT_DIR
+$   SYSTEM mkdir -p man/man3                                                                        
+$   SYSTEM txt2man $PREP_DOCUMENT_DIR/doc/conditional_compile.3.man >man/man3/conditional_compile.3
+$ENDIF

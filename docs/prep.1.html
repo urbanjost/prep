@@ -60,8 +60,8 @@ a.existingWikiWord[title]{ //border: 1px dashed #BBB; }
 <A name=contents></A><H3>CONTENTS</H3></A>
 <BLOCKQUOTE>
 <A HREF=#1>Synopsis</A><BR>
-<A HREF=#2>Options</A><BR>
-<A HREF=#3>Definition</A><BR>
+<A HREF=#2>Description</A><BR>
+<A HREF=#3>Options</A><BR>
 <A HREF=#4>Limitations</A><BR>
 <A HREF=#5>Examples</A><BR>
 &nbsp; &nbsp; &nbsp;<A HREF=#6>Mixing Block And Printenv</A><BR>
@@ -94,6 +94,74 @@ a.existingWikiWord[title]{ //border: 1px dashed #BBB; }
 </TD></TR>
 <TR></TR></TABLE></BLOCKQUOTE>
 <A name=2>
+
+     <H3>DESCRIPTION</H3>
+
+</A>
+<BLOCKQUOTE>
+<P>
+By default the stand-alone pre-processor <B>prep</B>(1) will interpret lines with
+"$" in column one, and will output no such lines. Other input is
+conditionally written to the output file based on the directives encountered
+in the input. It does not support macros but does support string
+substitution and the inclusion of free-format text blocks that may be
+converted to Fortran comments or CHARACTER variable definitions which may
+also be used for generating documentation files. INTEGER or LOGICAL
+expressions may be used to select output lines.
+<P>
+The syntax for the directive lines is as follows:
+<P>
+<PRE>
+     $DEFINE   variable_name[=expression]                 [! comment ]
+     $UNDEFINE variable_name                              [! comment ]
+<P>
+     $IF       {LOGICAL or INTEGER expression}            [! comment ]
+      or
+     $IFDEF    {variable_name}                            [! comment ]
+      or
+     $IFNDEF   {variable_name}                            [! comment ]
+               { sequence of source statements}
+     [$ELSEIF  {LOGICAL or INTEGER expression}            [! comment ]
+               { sequence of source statements}]
+     [$ELSE                                               [! comment ]
+               { sequence of source statements}]
+     $ENDIF                                               [! comment ]
+<P>
+     $PARCEL   [name]                                     [! comment ]
+     $POST     name                                       [! comment ]
+     $SET      name  string
+     $INCLUDE  filename                                   [! comment ]
+     $OUTPUT   filename  [-append]                        [! comment ]
+     $BLOCK    [comment|null|write|help|version]|
+               [variable [-varname NAME]]
+               [-file NAME [-append]]                     [! comment ]
+<P>
+     $PRINTENV predefined_name|environment_variable_name  [! comment ]
+     $SYSTEM system_command                               [! comment ]
+     $IDENT    metadata                                   [! comment ]
+     $@(#)     metadata                                   [! comment ]
+     $MESSAGE  message_to_stderr
+     $SHOW                                                [! comment ]
+     $STOP {stop_value}                                   [! comment ]
+<P>
+</PRE>
+Compiler directives are specified by a "$" in column one, followed by a
+keyword.
+<P>
+An exclamation character on a valid directive begins an in-line comment
+that is terminated by an end-of-line.
+<P>
+Any LOGICAL expression composed of integer constants, parameters
+and operators, is valid. Operators are
+<P>
+<PRE>
+     .NOT.  .AND.  .OR.  .EQV.  .NEQV.  .EQ.  .NE.  .GE.
+     .GT.   .LE.   .LT.  +      -       *     /     (
+     )      **
+<P>
+</PRE>
+</BLOCKQUOTE>
+<A name=3>
 
      <H3>OPTIONS</H3>
 
@@ -191,70 +259,6 @@ labels past column 72 when compiling
 fixed-format Fortran code.
 </TD></TR>
 <TR></TR></TABLE></BLOCKQUOTE>
-<A name=3>
-
-     <H3>DEFINITION</H3>
-
-</A>
-<BLOCKQUOTE>
-<P>
-By default the stand-alone pre-processor <B>prep</B>(1) will interpret lines with
-"$" in column one, and will output no such lines. Other input is
-conditionally written to the output file based on the directives encountered
-in the input.
-<P>
-The syntax for the control lines is as follows:
-<P>
-<PRE>
-     $DEFINE   variable_name[=expression]                 [! comment ]
-     $UNDEFINE variable_name                              [! comment ]
-<P>
-     $IF       {LOGICAL or INTEGER expression}            [! comment ]
-      or
-     $IFDEF    {variable_name}                            [! comment ]
-      or
-     $IFNDEF   {variable_name}                            [! comment ]
-               { sequence of source statements}
-     [$ELSEIF  {LOGICAL or INTEGER expression}            [! comment ]
-               { sequence of source statements}]
-     [$ELSE                                               [! comment ]
-               { sequence of source statements}]
-     $ENDIF                                               [! comment ]
-<P>
-     $PARCEL   [name]                                     [! comment ]
-     $POST     name                                       [! comment ]
-     $SET      name  string
-     $OUTPUT   filename  [-append]                        [! comment ]
-     $INCLUDE  filename                                   [! comment ]
-     $BLOCK    [comment|null|write|help|version]|
-               [variable [-varname NAME]]
-               [-file NAME [-append]]                     [! comment ]
-<P>
-     $PRINTENV predefined_name|environment_variable_name  [! comment ]
-     $SYSTEM system_command                               [! comment ]
-     $IDENT    metadata                                   [! comment ]
-     $@(#)     metadata                                   [! comment ]
-     $MESSAGE  message_to_stderr
-     $SHOW                                                [! comment ]
-     $STOP {stop_value}                                   [! comment ]
-<P>
-</PRE>
-Compiler directives are specified by a "$" in column one, followed by a
-keyword.
-<P>
-An exclamation character on a valid directive begins an in-line comment
-that is terminated by an end-of-line.
-<P>
-Any LOGICAL expression composed of integer constants, parameters
-and operators, is valid. Operators are
-<P>
-<PRE>
-     .NOT.  .AND.  .OR.  .EQV.  .NEQV.  .EQ.  .NE.  .GE.
-     .GT.   .LE.   .LT.  +      -       *     /     (
-     )      **
-<P>
-</PRE>
-</BLOCKQUOTE>
 <A name=>
 
     <H4>&nbsp; &nbsp; DIRECTIVES</H4>
@@ -328,6 +332,19 @@ Do not use the characters double-quote, greater-than, backslash ("&gt;\)
 in the metadata to remain compatible with SCCS metadata syntax.
 Do not use strings starting with " -" either.
 <P>
+$OUTPUT filename [-append]
+<P>
+Specify the output file to write to. Overrides the initial output file
+specified with command line options. If no output filename is given
+revert back to initial output file. @ is a synonym for stdout.
+<P>
+<PRE>
+      -append [.true.|.false]
+<P>
+</PRE>
+Named files open at the beginning by default. Use the <B>-append</B> switch to
+append to the end of an existing file instead of overwriting it.
+<P>
 $INCLUDE filename
 <P>
 Nested read of specified input file. Fifty (50) nesting levels are allowed.
@@ -335,8 +352,8 @@ Nested read of specified input file. Fifty (50) nesting levels are allowed.
 $PARCEL [name]
 <P>
 The lines between a "$PARCEL name" and "$PARCEL" block are written WITHOUT
-expanding directives to a scratch file that can then be read in much like
-a named file can be with $INCLUDE with the $POST directive.
+expanding directives to a scratch file that can then be read in with the
+$POST directive much like a named file can be with $INCLUDE.
 <P>
 $POST name
 <P>
@@ -401,11 +418,11 @@ or
 <B>$BLOCK VARIABLE </B><B>--varname</B> NAME </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
 [-<B>-file</B> NAME]
 </TD></TR>
-<TR><TD colspan=2>
+<TR></TR></TABLE><!-- .nf -->
 <PRE>
       COMMENT:   write text prefixed by an exclamation and a space
       WRITE:     write text as Fortran WRITE(3f) statements
-                 The Fortran generated is free-format. It is assumed to the
+                 The Fortran generated is free-format. It is assumed the
                  output will not generate lines over 132 columns.
       HELP:      write text as a subroutine called HELP_USAGE
       VERSION:   write text as a subroutine called HELP_VERSION
@@ -419,19 +436,16 @@ or
 If the "<B>-file</B> NAME" option is present the *unaltered* text is written to
 the specified file. This allows documentation to easily be maintained in
 the source file. It can be tex, html, markdown or any plain text.
-The filename will be prefixed with $PREP_DOCUMENT_DIR/doc/ if the
+The filename will be prefixed with $PREP_DOCUMENT_DIR/doc/ . If the
 environment variable $PREP_DOCUMENT_DIR is not set the option is ignored.
-</TD></TR>
-<TR><TD colspan=2>
+<P>
 The text can easily be processed by other utilities such as <B>markdown</B>(1)
 or <B>txt2man</B>(1) to produce <B>man</B>(1) pages and HTML documents. $SYSTEM commands
 may follow the $BLOCK block text to optionally post-process the doc files.
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>A blank value or END returns to normal</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-output processing.
-</TD></TR>
-<TR></TR></TABLE>$SHOW
+<P>
+A blank value or "END" returns to normal output processing.
+<P>
+$SHOW
 <P>
 Shows current state of <B>prep</B>(1); including variable names and values; and
 the name of the current input files. All output is preceded by an
@@ -443,12 +457,12 @@ Example:
     prep A=10 B C D -o paper
     $define z=22
     $show
-    $stop
+    $stop 0
 <P>
     !======================================================================
     !  CURRENT STATE
-    !     TOTAL LINES READ &#46;&#46;&#46;.........          2
-    !     CONDITIONAL_NESTING_LEVEL&#46;&#46;&#46;.   0
+    !     TOTAL LINES READ &#46;&#46;&#46;......... 2
+    !     CONDITIONAL_NESTING_LEVEL&#46;&#46;&#46;. 0
     !     DATE&#46;&#46;&#46;...................... 11:18 21Jun2013
     !     ARGUMENTS &#46;&#46;&#46;................ A=10 B C D -o paper
     !  VARIABLES:
@@ -470,7 +484,7 @@ will be returned as a status value to the system where supported. A
 value of two ("2") is returned if no value is specified. Any value
 from one ("1") to twenty ("20") also causes an implicit execution of
 the "$SHOW" directive before the program is stopped. A value of "0"
-causes normal program termination.
+causes normal program termination. "$QUIT" is an alias for "$STOP 0".
 <P>
 $SYSTEM system_command
 <P>
@@ -490,8 +504,7 @@ Examples:
     $INCLUDE compiled.h
 <P>
     $! obtain up-to-date copy of source file from HTTP server:
-    $SYSTEM wget <A HREF="http://repository.net/src/func.F90">http://repository.net/src/func.F90</A> -O -|
-    cpp -P -C -traditional &gt;_tmp.f90
+    $SYSTEM wget <A HREF="http://repository.net/src/func.F90">http://repository.net/src/func.F90</A> -O - &gt;_tmp.f90
     $INCLUDE _tmp.f90
     $SYSTEM  rm _tmp.f90
 <P>
@@ -609,19 +622,6 @@ o
 2048 variable names may be defined at a time.
 </TD></TR>
 <TR></TR></TABLE></BLOCKQUOTE>
-<P>
-Major <B>cpp</B>(1) features not present in <B>prep</B>:
-<P>
-<PRE>
-   There are no predefined preprocessor symbols. Use a directive input file
-   instead. The predefined variables such as PREP_DATE can be used as a
-   substitute in some cases.
-<P>
-   This program does not provide string (macro) substitution in output
-   lines. See cpp(1) and m4(1) and related utilities if macro expansion is
-   required.
-<P>
-</PRE>
 <A name=5>
 
      <H3>EXAMPLES</H3>
@@ -636,73 +636,107 @@ Define variables on command line:
    but can be grouped together into small files that are included with a
    $INCLUDE or as input files.
 <P>
-     prep HP size=64 -i hp_directives.dirs @ test.F90 -o test_out.f90
+     prep HP size=64 -i hp_directives.dirs test.F90 -o test_out.f90
 <P>
 </PRE>
 <BLOCKQUOTE>
 defines variables HP and SIZE as if the expressions had been on a $DEFINE
-and reads file "hp_directives.dirs" and then stdin and then test.F90.
-Output is directed to test_out.f90
+and reads file "hp_directives.dirs" and then test.F90. Output is directed
+to test_out.f90
 </BLOCKQUOTE>
 <P>
 Basic conditionals:
 <P>
 <PRE>
-   &gt;$! set value of variable "a" if it is not specified on the prep(1) command.
-   &gt;$IF .NOT.DEFINED(A)
-   &gt;$   DEFINE a=1  ! so only define the following first version of SUB1(3f)
-   &gt;$ENDIF
-   &gt;program conditional_compile
-   &gt;   use M_kracken95, only : kracken, lget
-   &gt;   ! use M_kracken95 module to crack command line arguments
-   &gt;   call kracken("cmd","--help .false. --version .false.")
-   &gt;   ! call routine generated by $BLOCK HELP
-   &gt;   call help_usage(lget("cmd_help"))
-   &gt;   ! call routine generated by $BLOCK VERSION
-   &gt;   call help_version(lget("cmd_version"))
-   &gt;   call sub1()
-   &gt;end program conditional_compile
-   &gt;! select a version of SUB1 depending on the value of prep(1) variable "a"
-   &gt;$IF a .EQ. 1
-   &gt;subroutine sub1
-   &gt;   print*, "This is the first SUB1"
-   &gt;end subroutine sub1
-   &gt;$ELSEIF a .eq. 2
-   &gt;subroutine sub1
-   &gt;   print*, "This is the second SUB1"
-   &gt;end subroutine sub1
-   &gt;$ELSE
-   &gt;subroutine sub1
-   &gt;   print*, "This is the third SUB1"
-   &gt;end subroutine sub1
-   &gt;$ENDIF
-   &gt;$!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-   &gt;$! generate help_usage() procedure (and file to run thru txt2man(1) or other
-   &gt;$! filters to make man(1) page if $PREP_DOCUMENT_DIR is set).
-   &gt;$!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-   &gt;$BLOCK HELP --file conditional_compile.man
-   &gt;NAME
-   &gt;    conditional_compile - basic example for prep(1) pre-processor.
-   &gt;SYNOPSIS
-   &gt;    conditional_example [--help] [--version]
-   &gt;DESCRIPTION
-   &gt;    This is a basic example program showing how documentation can be used
-   &gt;    to generate program help text
-   &gt;OPTIONS
-   &gt;       --help
-   &gt;              display this help and exit
-   &gt;       --version
-   &gt;              output version information and exit
-   &gt;$BLOCK END
-   &gt;$!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-   &gt;$! generate help_version() procedure
-   &gt;$BLOCK VERSION
-   &gt;DESCRIPTION: example program showing conditional compilation with prep(1)
-   &gt;PROGRAM:     conditional_compile
-   &gt;VERSION:     1.0, 20160703
-   &gt;AUTHOR:      John S. Urban
-   &gt;$BLOCK END
-   &gt;$!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   &gt; $! set value of variable "a" if it is not specified on the prep(1) command.
+   &gt; $IF .NOT.DEFINED(A)
+   &gt; $   DEFINE a=1  ! so only define the following first version of SUB(3f)
+   &gt; $ENDIF
+   &gt;    program conditional_compile
+   &gt;       call sub()
+   &gt;    end program conditional_compile
+   &gt; $! select a version of SUB depending on the value of variable "a"
+   &gt; $IF a .EQ. 1
+   &gt;    subroutine sub
+   &gt;       print*, "This is the first SUB"
+   &gt;    end subroutine sub
+   &gt; $ELSEIF a .eq. 2
+   &gt;    subroutine sub
+   &gt;       print*, "This is the second SUB"
+   &gt;    end subroutine sub
+   &gt; $ELSE
+   &gt;    subroutine sub
+   &gt;       print*, "This is the third SUB"
+   &gt;    end subroutine sub
+   &gt; $ENDIF
+<P>
+</PRE>
+Common use of $BLOCK
+<P>
+<PRE>
+   &gt; $!
+   &gt; $BLOCK NULL --file manual.tex
+   &gt; This is a block of text that will be ignored on output but optionally
+   &gt; written to a doc/ file when $PREP_DOCUMENT_DIR is set.
+   &gt; $BLOCK END
+   &gt; $!
+   &gt; $BLOCK COMMENT --file manual.tex --append
+   &gt; This is a block of text that will be converted to comments and optionally
+   &gt; appended to a doc/ file when $PREP_DOCUMENT_DIR is set.
+   &gt; $BLOCK END
+   &gt; $!
+<P>
+</PRE>
+Creating a <B>help_usage</B>(3f) subroutine and writing the same documentation to
+a doc file (if the environment variable $PREP_DOCUMENT_DIR is set).
+<P>
+<PRE>
+   &gt; $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   &gt; $! generate help_usage() procedure and file to run thru txt2man(1) or other
+   &gt; $! filters to make man(1) page if $PREP_DOCUMENT_DIR is set.
+   &gt; $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   &gt; $BLOCK HELP --file conditional_compile.man
+   &gt; NAME
+   &gt;     conditional_compile - basic example for prep(1) pre-processor.
+   &gt; SYNOPSIS
+   &gt;     conditional_example [--help] [--version]
+   &gt; DESCRIPTION
+   &gt;     This is a basic example program showing how documentation can be used
+   &gt;     to generate program help text
+   &gt; OPTIONS
+   &gt;        --help
+   &gt;               display this help and exit
+   &gt;        --version
+   &gt;               output version information and exit
+   &gt; $BLOCK END
+<P>
+</PRE>
+Creating a <B>help_version</B>(3f) subroutine
+<P>
+<PRE>
+   &gt; $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   &gt; $! generate help_version() procedure
+   &gt; $BLOCK VERSION
+   &gt; DESCRIPTION: example program showing conditional compilation with prep(1)
+   &gt; PROGRAM:     conditional_compile
+   &gt; VERSION:     1.0, 20160703
+   &gt; AUTHOR:      John S. Urban
+   &gt; $BLOCK END
+   &gt; $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+<P>
+</PRE>
+Sample program using <B>help_usage</B>(3f) and <B>help_version</B>(3f) and <B>M_kracken95</B>(3f):
+<P>
+<PRE>
+   &gt; program conditional_compile
+   &gt;    use M_kracken95, only : kracken, lget
+   &gt;    ! use M_kracken95 module to crack command line arguments
+   &gt;    call kracken("cmd","--help .false. --version .false.")
+   &gt;    ! call routine generated by $BLOCK HELP
+   &gt;    call help_usage(lget("cmd_help"))
+   &gt;    ! call routine generated by $BLOCK VERSION
+   &gt;    call help_version(lget("cmd_version"))
+   &gt; end program conditional_compile
 <P>
 </PRE>
 </BLOCKQUOTE>
@@ -755,7 +789,7 @@ John S. Urban
 <P>
 </BLOCKQUOTE>
 <P><HR>
-<TABLE width=100%><TR> <TD width=33%><I></I></TD> <TD width=33% align=center>untitled ()</TD> <TD align=right width=33%><I>June 12, 2021</I></TD> </TR></TABLE><FONT SIZE=-1>Generated by <A HREF="http://www.squarebox.co.uk/download/manServer.shtml">manServer 1.08</A> from docs/prep.1 using man macros.</FONT>
+<TABLE width=100%><TR> <TD width=33%><I></I></TD> <TD width=33% align=center>untitled ()</TD> <TD align=right width=33%><I>June 13, 2021</I></TD> </TR></TABLE><FONT SIZE=-1>Generated by <A HREF="http://www.squarebox.co.uk/download/manServer.shtml">manServer 1.08</A> from docs/prep.1 using man macros.</FONT>
 <br><br><center><img src="images/prep.1.gif"></center>
 </div>
 </div>

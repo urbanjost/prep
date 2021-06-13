@@ -176,11 +176,12 @@ subroutine cond()       !@(#)cond(3f): process conditional directive assumed to 
       case('SYSTEM');           call exe()
       case('MESSAGE');          call stderr(G_source(2:))             ! trustingly trim MESSAGE from directive
       case('STOP');             call stop(upopts)
+      case('QUIT');             call stop('0')
       end select
    endif
    select case(VERB)                                                  ! process logical flow control even if G_write is false
 
-   case('DEFINE','INCLUDE','PRINTENV','SHOW','STOP')
+   case('DEFINE','INCLUDE','PRINTENV','SHOW','STOP','QUIT')
    case('SYSTEM','UNDEF','UNDEFINE','MESSAGE')
    case('OUTPUT','IDENT','@(#)','BLOCK')
    case('PARCEL','POST','SET')
@@ -2010,6 +2011,64 @@ help_text=[ CHARACTER(LEN=128) :: &
 '         [--comment default|doxygen|ford|none]                                  ',&
 '         [--version]                                                            ',&
 '         [--help]                                                               ',&
+'DESCRIPTION                                                                     ',&
+'                                                                                ',&
+'   By default the stand-alone pre-processor prep(1) will interpret lines with   ',&
+'   "$" in column one, and will output no such lines. Other input is             ',&
+'   conditionally written to the output file based on the directives encountered ',&
+'   in the input. It does not support macros but does support string             ',&
+'   substitution and the inclusion of free-format text blocks that may be        ',&
+'   converted to Fortran comments or CHARACTER variable definitions which may    ',&
+'   also be used for generating documentation files. INTEGER or LOGICAL          ',&
+'   expressions may be used to select output lines.                              ',&
+'                                                                                ',&
+'   The syntax for the directive lines is as follows:                            ',&
+'                                                                                ',&
+'     $DEFINE   variable_name[=expression]                 [! comment ]          ',&
+'     $UNDEFINE variable_name                              [! comment ]          ',&
+'                                                                                ',&
+'     $IF       {LOGICAL or INTEGER expression}            [! comment ]          ',&
+'      or                                                                        ',&
+'     $IFDEF    {variable_name}                            [! comment ]          ',&
+'      or                                                                        ',&
+'     $IFNDEF   {variable_name}                            [! comment ]          ',&
+'               { sequence of source statements}                                 ',&
+'     [$ELSEIF  {LOGICAL or INTEGER expression}            [! comment ]          ',&
+'               { sequence of source statements}]                                ',&
+'     [$ELSE                                               [! comment ]          ',&
+'               { sequence of source statements}]                                ',&
+'     $ENDIF                                               [! comment ]          ',&
+'                                                                                ',&
+'     $PARCEL   [name]                                     [! comment ]          ',&
+'     $POST     name                                       [! comment ]          ',&
+'     $SET      name  string                                                     ',&
+'     $INCLUDE  filename                                   [! comment ]          ',&
+'     $OUTPUT   filename  [-append]                        [! comment ]          ',&
+'     $BLOCK    [comment|null|write|help|version]|                               ',&
+'               [variable [-varname NAME]]                                       ',&
+'               [-file NAME [-append]]                     [! comment ]          ',&
+'                                                                                ',&
+'     $PRINTENV predefined_name|environment_variable_name  [! comment ]          ',&
+'     $SYSTEM system_command                               [! comment ]          ',&
+'     $IDENT    metadata                                   [! comment ]          ',&
+'     $@(#)     metadata                                   [! comment ]          ',&
+'     $MESSAGE  message_to_stderr                                                ',&
+'     $SHOW                                                [! comment ]          ',&
+'     $STOP {stop_value}                                   [! comment ]          ',&
+'                                                                                ',&
+'   Compiler directives are specified by a "$" in column one, followed by a      ',&
+'   keyword.                                                                     ',&
+'                                                                                ',&
+'   An exclamation character on a valid directive begins an in-line comment      ',&
+'   that is terminated by an end-of-line.                                        ',&
+'                                                                                ',&
+'   Any LOGICAL expression composed of integer constants, parameters             ',&
+'   and operators, is valid. Operators are                                       ',&
+'                                                                                ',&
+'     .NOT.  .AND.  .OR.  .EQV.  .NEQV.  .EQ.  .NE.  .GE.                        ',&
+'     .GT.   .LE.   .LT.  +      -       *     /     (                           ',&
+'     )      **                                                                  ',&
+'                                                                                ',&
 'OPTIONS                                                                         ',&
 '   define_list, -D define_list  An optional space-delimited list of expressions ',&
 '                                used to define variables before file processing ',&
@@ -2061,59 +2120,6 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                    FORTRAN code that contains comments or "ident"              ',&
 '                    labels past column 72 when compiling                        ',&
 '                    fixed-format Fortran code.                                  ',&
-'DEFINITION                                                                      ',&
-'                                                                                ',&
-'   By default the stand-alone pre-processor prep(1) will interpret lines with   ',&
-'   "$" in column one, and will output no such lines. Other input is             ',&
-'   conditionally written to the output file based on the directives encountered ',&
-'   in the input.                                                                ',&
-'                                                                                ',&
-'   The syntax for the control lines is as follows:                              ',&
-'                                                                                ',&
-'     $DEFINE   variable_name[=expression]                 [! comment ]          ',&
-'     $UNDEFINE variable_name                              [! comment ]          ',&
-'                                                                                ',&
-'     $IF       {LOGICAL or INTEGER expression}            [! comment ]          ',&
-'      or                                                                        ',&
-'     $IFDEF    {variable_name}                            [! comment ]          ',&
-'      or                                                                        ',&
-'     $IFNDEF   {variable_name}                            [! comment ]          ',&
-'               { sequence of source statements}                                 ',&
-'     [$ELSEIF  {LOGICAL or INTEGER expression}            [! comment ]          ',&
-'               { sequence of source statements}]                                ',&
-'     [$ELSE                                               [! comment ]          ',&
-'               { sequence of source statements}]                                ',&
-'     $ENDIF                                               [! comment ]          ',&
-'                                                                                ',&
-'     $PARCEL   [name]                                     [! comment ]          ',&
-'     $POST     name                                       [! comment ]          ',&
-'     $SET      name  string                                                     ',&
-'     $OUTPUT   filename  [-append]                        [! comment ]          ',&
-'     $INCLUDE  filename                                   [! comment ]          ',&
-'     $BLOCK    [comment|null|write|help|version]|                               ',&
-'               [variable [-varname NAME]]                                       ',&
-'               [-file NAME [-append]]                     [! comment ]          ',&
-'                                                                                ',&
-'     $PRINTENV predefined_name|environment_variable_name  [! comment ]          ',&
-'     $SYSTEM system_command                               [! comment ]          ',&
-'     $IDENT    metadata                                   [! comment ]          ',&
-'     $@(#)     metadata                                   [! comment ]          ',&
-'     $MESSAGE  message_to_stderr                                                ',&
-'     $SHOW                                                [! comment ]          ',&
-'     $STOP {stop_value}                                   [! comment ]          ',&
-'                                                                                ',&
-'   Compiler directives are specified by a "$" in column one, followed by a      ',&
-'   keyword.                                                                     ',&
-'                                                                                ',&
-'   An exclamation character on a valid directive begins an in-line comment      ',&
-'   that is terminated by an end-of-line.                                        ',&
-'                                                                                ',&
-'   Any LOGICAL expression composed of integer constants, parameters             ',&
-'   and operators, is valid. Operators are                                       ',&
-'                                                                                ',&
-'     .NOT.  .AND.  .OR.  .EQV.  .NEQV.  .EQ.  .NE.  .GE.                        ',&
-'     .GT.   .LE.   .LT.  +      -       *     /     (                           ',&
-'     )      **                                                                  ',&
 '                                                                                ',&
 '   DIRECTIVES                                                                   ',&
 '                                                                                ',&
@@ -2178,6 +2184,17 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   in the metadata to remain compatible with SCCS metadata syntax.              ',&
 '   Do not use strings starting with " -" either.                                ',&
 '                                                                                ',&
+'   $OUTPUT filename [-append]                                                   ',&
+'                                                                                ',&
+'   Specify the output file to write to. Overrides the initial output file       ',&
+'   specified with command line options. If no output filename is given          ',&
+'   revert back to initial output file. @ is a synonym for stdout.               ',&
+'                                                                                ',&
+'      -append [.true.|.false]                                                   ',&
+'                                                                                ',&
+'   Named files open at the beginning by default. Use the -append switch to      ',&
+'   append to the end of an existing file instead of overwriting it.             ',&
+'                                                                                ',&
 '   $INCLUDE filename                                                            ',&
 '                                                                                ',&
 '   Nested read of specified input file. Fifty (50) nesting levels are allowed.  ',&
@@ -2185,8 +2202,8 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   $PARCEL [name]                                                               ',&
 '                                                                                ',&
 '   The lines between a "$PARCEL name" and "$PARCEL" block are written WITHOUT   ',&
-'   expanding directives to a scratch file that can then be read in much like    ',&
-'   a named file can be with $INCLUDE with the $POST directive.                  ',&
+'   expanding directives to a scratch file that can then be read in with the     ',&
+'   $POST directive much like a named file can be with $INCLUDE.                 ',&
 '                                                                                ',&
 '   $POST name                                                                   ',&
 '                                                                                ',&
@@ -2239,7 +2256,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '      COMMENT:   write text prefixed by an exclamation and a space              ',&
 '      WRITE:     write text as Fortran WRITE(3f) statements                     ',&
-'                 The Fortran generated is free-format. It is assumed to the     ',&
+'                 The Fortran generated is free-format. It is assumed the        ',&
 '                 output will not generate lines over 132 columns.               ',&
 '      HELP:      write text as a subroutine called HELP_USAGE                   ',&
 '      VERSION:   write text as a subroutine called HELP_VERSION                 ',&
@@ -2252,14 +2269,14 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   If the "-file NAME" option is present the *unaltered* text is written to     ',&
 '   the specified file. This allows documentation to easily be maintained in     ',&
 '   the source file. It can be tex, html, markdown or any plain text.            ',&
-'   The filename will be prefixed with $PREP_DOCUMENT_DIR/doc/ if the            ',&
+'   The filename will be prefixed with $PREP_DOCUMENT_DIR/doc/ . If the          ',&
 '   environment variable $PREP_DOCUMENT_DIR is not set the option is ignored.    ',&
 '                                                                                ',&
 '   The text can easily be processed by other utilities such as markdown(1)      ',&
 '   or txt2man(1) to produce man(1) pages and HTML documents. $SYSTEM commands   ',&
 '   may follow the $BLOCK block text to optionally post-process the doc files.   ',&
 '                                                                                ',&
-'   A blank value or "END" returns to normal  output processing.                 ',&
+'   A blank value or "END" returns to normal output processing.                  ',&
 '                                                                                ',&
 '   $SHOW                                                                        ',&
 '                                                                                ',&
@@ -2272,12 +2289,12 @@ help_text=[ CHARACTER(LEN=128) :: &
 '    prep A=10 B C D -o paper                                                    ',&
 '    $define z=22                                                                ',&
 '    $show                                                                       ',&
-'    $stop                                                                       ',&
+'    $stop 0                                                                     ',&
 '                                                                                ',&
 '    !======================================================================     ',&
 '    !  CURRENT STATE                                                            ',&
-'    !     TOTAL LINES READ ............          2                              ',&
-'    !     CONDITIONAL_NESTING_LEVEL....   0                                     ',&
+'    !     TOTAL LINES READ ............ 2                                       ',&
+'    !     CONDITIONAL_NESTING_LEVEL.... 0                                       ',&
 '    !     DATE......................... 11:18 21Jun2013                         ',&
 '    !     ARGUMENTS ................... A=10 B C D -o paper                     ',&
 '    !  VARIABLES:                                                               ',&
@@ -2298,7 +2315,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   value of two ("2") is returned if no value is specified. Any value           ',&
 '   from one ("1") to twenty ("20") also causes an implicit execution of         ',&
 '   the "$SHOW" directive before the program is stopped. A value of "0"          ',&
-'   causes normal program termination.                                           ',&
+'   causes normal program termination. "$QUIT" is an alias for "$STOP 0".        ',&
 '                                                                                ',&
 '   $SYSTEM system_command                                                       ',&
 '                                                                                ',&
@@ -2317,8 +2334,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '    $INCLUDE compiled.h                                                         ',&
 '                                                                                ',&
 '    $! obtain up-to-date copy of source file from HTTP server:                  ',&
-'    $SYSTEM wget http://repository.net/src/func.F90 -O -|                       ',&
-'    cpp -P -C -traditional >_tmp.f90                                            ',&
+'    $SYSTEM wget http://repository.net/src/func.F90 -O - >_tmp.f90              ',&
 '    $INCLUDE _tmp.f90                                                           ',&
 '    $SYSTEM  rm _tmp.f90                                                        ',&
 '                                                                                ',&
@@ -2384,16 +2400,6 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   o are composed of the letters A-Z, digits 0-9 and _ and $.                   ',&
 '   o 2048 variable names may be defined at a time.                              ',&
 '                                                                                ',&
-'Major cpp(1) features not present in prep:                                      ',&
-'                                                                                ',&
-'   There are no predefined preprocessor symbols. Use a directive input file     ',&
-'   instead. The predefined variables such as PREP_DATE can be used as a         ',&
-'   substitute in some cases.                                                    ',&
-'                                                                                ',&
-'   This program does not provide string (macro) substitution in output          ',&
-'   lines. See cpp(1) and m4(1) and related utilities if macro expansion is      ',&
-'   required.                                                                    ',&
-'                                                                                ',&
 'EXAMPLES                                                                        ',&
 '                                                                                ',&
 '  Define variables on command line:                                             ',&
@@ -2402,69 +2408,95 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   but can be grouped together into small files that are included with a        ',&
 '   $INCLUDE or as input files.                                                  ',&
 '                                                                                ',&
-'     prep HP size=64 -i hp_directives.dirs @ test.F90 -o test_out.f90           ',&
+'     prep HP size=64 -i hp_directives.dirs test.F90 -o test_out.f90             ',&
 '                                                                                ',&
 '   defines variables HP and SIZE as if the expressions had been on a $DEFINE    ',&
-'   and reads file "hp_directives.dirs" and then stdin and then test.F90.        ',&
-'   Output is directed to test_out.f90                                           ',&
+'   and reads file "hp_directives.dirs" and then test.F90. Output is directed    ',&
+'   to test_out.f90                                                              ',&
 '                                                                                ',&
 '  Basic conditionals:                                                           ',&
 '                                                                                ',&
-'   >$! set value of variable "a" if it is not specified on the prep(1) command. ',&
-'   >$IF .NOT.DEFINED(A)                                                         ',&
-'   >$   DEFINE a=1  ! so only define the following first version of SUB1(3f)    ',&
-'   >$ENDIF                                                                      ',&
-'   >program conditional_compile                                                 ',&
-'   >   use M_kracken95, only : kracken, lget                                    ',&
-'   >   ! use M_kracken95 module to crack command line arguments                 ',&
-'   >   call kracken("cmd","--help .false. --version .false.")                   ',&
-'   >   ! call routine generated by $BLOCK HELP                                  ',&
-'   >   call help_usage(lget("cmd_help"))                                        ',&
-'   >   ! call routine generated by $BLOCK VERSION                               ',&
-'   >   call help_version(lget("cmd_version"))                                   ',&
-'   >   call sub1()                                                              ',&
-'   >end program conditional_compile                                             ',&
-'   >! select a version of SUB1 depending on the value of prep(1) variable "a"   ',&
-'   >$IF a .EQ. 1                                                                ',&
-'   >subroutine sub1                                                             ',&
-'   >   print*, "This is the first SUB1"                                         ',&
-'   >end subroutine sub1                                                         ',&
-'   >$ELSEIF a .eq. 2                                                            ',&
-'   >subroutine sub1                                                             ',&
-'   >   print*, "This is the second SUB1"                                        ',&
-'   >end subroutine sub1                                                         ',&
-'   >$ELSE                                                                       ',&
-'   >subroutine sub1                                                             ',&
-'   >   print*, "This is the third SUB1"                                         ',&
-'   >end subroutine sub1                                                         ',&
-'   >$ENDIF                                                                      ',&
-'   >$!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',&
-'   >$! generate help_usage() procedure (and file to run thru txt2man(1) or other',&
-'   >$! filters to make man(1) page if $PREP_DOCUMENT_DIR is set).               ',&
-'   >$!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',&
-'   >$BLOCK HELP --file conditional_compile.man                                  ',&
-'   >NAME                                                                        ',&
-'   >    conditional_compile - basic example for prep(1) pre-processor.          ',&
-'   >SYNOPSIS                                                                    ',&
-'   >    conditional_example [--help] [--version]                                ',&
-'   >DESCRIPTION                                                                 ',&
-'   >    This is a basic example program showing how documentation can be used   ',&
-'   >    to generate program help text                                           ',&
-'   >OPTIONS                                                                     ',&
-'   >       --help                                                               ',&
-'   >              display this help and exit                                    ',&
-'   >       --version                                                            ',&
-'   >              output version information and exit                           ',&
-'   >$BLOCK END                                                                  ',&
-'   >$!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',&
-'   >$! generate help_version() procedure                                        ',&
-'   >$BLOCK VERSION                                                              ',&
-'   >DESCRIPTION: example program showing conditional compilation with prep(1)   ',&
-'   >PROGRAM:     conditional_compile                                            ',&
-'   >VERSION:     1.0, 20160703                                                  ',&
-'   >AUTHOR:      John S. Urban                                                  ',&
-'   >$BLOCK END                                                                  ',&
-'   >$!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',&
+'   > $! set value of variable "a" if it is not specified on the prep(1) command.',&
+'   > $IF .NOT.DEFINED(A)                                                        ',&
+'   > $   DEFINE a=1  ! so only define the following first version of SUB(3f)    ',&
+'   > $ENDIF                                                                     ',&
+'   >    program conditional_compile                                             ',&
+'   >       call sub()                                                           ',&
+'   >    end program conditional_compile                                         ',&
+'   > $! select a version of SUB depending on the value of variable "a"          ',&
+'   > $IF a .EQ. 1                                                               ',&
+'   >    subroutine sub                                                          ',&
+'   >       print*, "This is the first SUB"                                      ',&
+'   >    end subroutine sub                                                      ',&
+'   > $ELSEIF a .eq. 2                                                           ',&
+'   >    subroutine sub                                                          ',&
+'   >       print*, "This is the second SUB"                                     ',&
+'   >    end subroutine sub                                                      ',&
+'   > $ELSE                                                                      ',&
+'   >    subroutine sub                                                          ',&
+'   >       print*, "This is the third SUB"                                      ',&
+'   >    end subroutine sub                                                      ',&
+'   > $ENDIF                                                                     ',&
+'                                                                                ',&
+'  Common use of $BLOCK                                                          ',&
+'                                                                                ',&
+'   > $!                                                                         ',&
+'   > $BLOCK NULL --file manual.tex                                              ',&
+'   > This is a block of text that will be ignored on output but optionally      ',&
+'   > written to a doc/ file when $PREP_DOCUMENT_DIR is set.                     ',&
+'   > $BLOCK END                                                                 ',&
+'   > $!                                                                         ',&
+'   > $BLOCK COMMENT --file manual.tex --append                                  ',&
+'   > This is a block of text that will be converted to comments and optionally  ',&
+'   > appended to a doc/ file when $PREP_DOCUMENT_DIR is set.                    ',&
+'   > $BLOCK END                                                                 ',&
+'   > $!                                                                         ',&
+'                                                                                ',&
+'  Creating a help_usage(3f) subroutine and writing the same documentation to    ',&
+'  a doc file (if the environment variable $PREP_DOCUMENT_DIR is set).           ',&
+'                                                                                ',&
+'   > $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',&
+'   > $! generate help_usage() procedure and file to run thru txt2man(1) or other',&
+'   > $! filters to make man(1) page if $PREP_DOCUMENT_DIR is set.               ',&
+'   > $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',&
+'   > $BLOCK HELP --file conditional_compile.man                                 ',&
+'   > NAME                                                                       ',&
+'   >     conditional_compile - basic example for prep(1) pre-processor.         ',&
+'   > SYNOPSIS                                                                   ',&
+'   >     conditional_example [--help] [--version]                               ',&
+'   > DESCRIPTION                                                                ',&
+'   >     This is a basic example program showing how documentation can be used  ',&
+'   >     to generate program help text                                          ',&
+'   > OPTIONS                                                                    ',&
+'   >        --help                                                              ',&
+'   >               display this help and exit                                   ',&
+'   >        --version                                                           ',&
+'   >               output version information and exit                          ',&
+'   > $BLOCK END                                                                 ',&
+'                                                                                ',&
+'  Creating a help_version(3f) subroutine                                        ',&
+'                                                                                ',&
+'   > $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',&
+'   > $! generate help_version() procedure                                       ',&
+'   > $BLOCK VERSION                                                             ',&
+'   > DESCRIPTION: example program showing conditional compilation with prep(1)  ',&
+'   > PROGRAM:     conditional_compile                                           ',&
+'   > VERSION:     1.0, 20160703                                                 ',&
+'   > AUTHOR:      John S. Urban                                                 ',&
+'   > $BLOCK END                                                                 ',&
+'   > $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',&
+'                                                                                ',&
+'  Sample program using help_usage(3f) and help_version(3f) and M_kracken95(3f): ',&
+'                                                                                ',&
+'   > program conditional_compile                                                ',&
+'   >    use M_kracken95, only : kracken, lget                                   ',&
+'   >    ! use M_kracken95 module to crack command line arguments                ',&
+'   >    call kracken("cmd","--help .false. --version .false.")                  ',&
+'   >    ! call routine generated by $BLOCK HELP                                 ',&
+'   >    call help_usage(lget("cmd_help"))                                       ',&
+'   >    ! call routine generated by $BLOCK VERSION                              ',&
+'   >    call help_version(lget("cmd_version"))                                  ',&
+'   > end program conditional_compile                                            ',&
 '                                                                                ',&
 ' MIXING BLOCK AND PRINTENV                                                      ',&
 '                                                                                ',&

@@ -1,0 +1,21 @@
+$! set value of variable "a" if it is not specified on the prep(1) command.
+$IF .NOT.DEFINED(A)
+$   DEFINE a=1  ! so only define the following first version of SUB(3f)
+$ENDIF
+   program conditional_compile
+      call sub()
+   end program conditional_compile
+$! select a version of SUB depending on the value of variable "a"
+$IF a .EQ. 1
+   subroutine sub
+      print*, "This is the first SUB"
+   end subroutine sub
+$ELSEIF a .eq. 2
+   subroutine sub
+      print*, "This is the second SUB"
+   end subroutine sub
+$ELSE
+   subroutine sub
+      print*, "This is the third SUB"
+   end subroutine sub1
+$ENDIF

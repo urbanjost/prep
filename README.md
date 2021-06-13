@@ -5,6 +5,7 @@
 ---
 ## DOCUMENTATION
  + [manpages](https://urbanjost.github.io/prep/prep.1.html) reformatted as HTML.
+ + the demos/ directory has example input files for a variety of cases
 
 ## DESCRIPTION
 In general pre-processing should be minimalized but is still
