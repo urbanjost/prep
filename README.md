@@ -1,8 +1,6 @@
 # prep(1)
 ## A Fortran pre-processor written in Fortran
----
-## ( __subject to change on a whim!__)
----
+
 ## DOCUMENTATION
  + [manpages](https://urbanjost.github.io/prep/prep.1.html) reformatted as HTML.
  + the [demos/](demos/) directory has example input files for a variety of cases
