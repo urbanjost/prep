@@ -1,0 +1,24 @@
+program testit
+   write(*,*)'Operating System type is ',os_type()
+contains
+function os_type()
+character(len=:),allocatable :: os_type
+$if OS .eq. unknown
+   os_type='UNKNOWN'
+$elseif OS .eq.  linux     
+   os_type='Linux'
+$elseif OS .eq.  macos     
+   os_type='Mac-OS'
+$elseif OS .eq.  windows   
+   os_type='MSWindows'
+$elseif OS .eq.  cygwin    
+   os_type='Cygwin'
+$elseif OS .eq.  solaris   
+   os_type='Solaris'
+$elseif OS .eq.  freebsd   
+   os_type='FreeBSD'
+$elseif OS .eq.  openbsd   
+   os_type='OpenBSD'
+$ENDIF
+end function os_type
+end program testit
