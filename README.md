@@ -32,9 +32,10 @@ Note that `prep(1)` is a simplified but much more portable version of
 `ufpp(1)` provided primarily to see what interest is garnered and whether
 further development is warranted.
 
-So please leave a comment if you find this enticing. Feedback is welcome,
-even if it is a comment on why you are not interested even though you
-read this far!
+So please 
+[**leave a comment**](https://github.com/urbanjost/prep/wiki/Fortran-pre-processing)
+if you find this enticing. Feedback is welcome, even if it is a comment
+on why you are not interested even though you read this far!
 
 ## BUILDING
 To build it requires `git`, `fpm`(Fortran Package Manager), a modern
