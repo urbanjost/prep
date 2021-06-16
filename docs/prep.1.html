@@ -64,12 +64,11 @@ a.existingWikiWord[title]{ //border: 1px dashed #BBB; }
 <A HREF=#3>Options</A><BR>
 <A HREF=#4>Limitations</A><BR>
 <A HREF=#5>Examples</A><BR>
-&nbsp; &nbsp; &nbsp;<A HREF=#6>Mixing Block And Printenv</A><BR>
-&nbsp; &nbsp; &nbsp;<A HREF=#7>Set Usage</A><BR>
-<A HREF=#8>Author</A><BR>
-<A HREF=#9>License</A><BR>
+&nbsp; &nbsp; &nbsp;<A HREF=#6>Set Usage</A><BR>
+<A HREF=#7>Author</A><BR>
+<A HREF=#8>License</A><BR>
 </BLOCKQUOTE>
-<A name=10>
+<A name=9>
 
      <H3>SYNOPSIS</H3>
 
@@ -101,14 +100,14 @@ a.existingWikiWord[title]{ //border: 1px dashed #BBB; }
 </A>
 <BLOCKQUOTE>
 <P>
-By default the stand-alone pre-processor <B>prep</B>(1) will interpret lines with
-"$" in column one, and will output no such lines. Other input is
-conditionally written to the output file based on the directives encountered
-in the input. It does not support macros but does support string
-substitution and the inclusion of free-format text blocks that may be
-converted to Fortran comments or CHARACTER variable definitions which may
-also be used for generating documentation files. INTEGER or LOGICAL
-expressions may be used to select output lines.
+By default the pre-processor <B>prep</B>(1) will interpret lines with "#" in column
+one, and will output no such lines. Other input is conditionally written to
+the output file based on the directives encountered in the input. It does
+not support macros but does support string substitution and the inclusion of
+free-format text blocks that may be converted to Fortran comments or
+CHARACTER variable definitions which may also be used for generating
+documentation files. INTEGER or LOGICAL expressions may be used to select
+output lines.
 <P>
 The suggested suffix for Fortran input files is ".ff" for code files unless
 they contain $SYSTEM directives in which case ".FF" is preferred. $INCLUDE
@@ -133,16 +132,16 @@ The syntax for the directive lines is as follows:
                { sequence of source statements}]
      $ENDIF                                               [! comment ]
 <P>
+     $SET      name  string
+     $IMPORT   name(s)
+<P>
      $PARCEL   [name]                                     [! comment ]
      $POST     name                                       [! comment ]
-     $SET      name  string
-     $INCLUDE  filename                                   [! comment ]
      $OUTPUT   filename  [-append]                        [! comment ]
-     $BLOCK    [comment|null|write|help|version]|
-               [variable [-varname NAME]]
+     $INCLUDE  filename                                   [! comment ]
+     $BLOCK    [comment|null|write|help|version|variable [-varname NAME]]
                [-file NAME [-append]]                     [! comment ]
 <P>
-     $PRINTENV predefined_name|environment_variable_name  [! comment ]
      $SYSTEM system_command                               [! comment ]
      $IDENT    metadata                                   [! comment ]
      $@(#)     metadata                                   [! comment ]
@@ -380,46 +379,13 @@ ${FILE}, ${LINE}, ${DATE}, and ${TIME} are also available. The time
 data refers to the time of processing, not the current time nor the time
 of compilation or loading.
 <P>
-$PRINTENV name
+$IMPORT <B>names</B>(s)
 <P>
-If the name of an uppercase environment variable is given the value
-of the variable will be placed in the output file. If the value is a
-null string or if the variable is undefined output will be stopped.
-This allows the system shell to generate code lines. This is usually
-used to pass in information about the compiler environment. For
-example:
-<P>
-<PRE>
-     # If the following command were executed in the bash(1) shell&#46;&#46;&#46;
-<P>
-      export STAMP="      write(*,*)&#146;&#146;COMPILED ON:&#145;uname -s&#145;;AT &#145;date&#145;&#146;&#146;"
-<P>
-</PRE>
-the environment variable STAMP would be set to something like
-<P>
-<PRE>
-     write(*,*)&#146;&#146;COMPILED ON:Eureka;AT Wed, Jun 12, 2013  8:12:06 PM&#146;&#146;
-<P>
-</PRE>
-A version number would be another possibility
-<P>
-<PRE>
-     export VERSION="      program_version=2.2"
-<P>
-</PRE>
-Special predefined variable names are:
-<P>
-<PRE>
-     Variable Name      Output
-     PREP_DATE  &#46;&#46;&#46;...  PREP_DATE="12:58 14Jun2013"
-     Where code is assumed to have defined PREP_DATE as CHARACTER(LEN=15)
-     PREP_FILE  &#46;&#46;&#46;...  PREP_FILE="current filename"
-     Where code is assumed to have defined PREP_FILE as CHARACTER(LEN=1024)
-     PREP_LINE  &#46;&#46;&#46;...  PREP_LINE=    nnnnnn
-     Where code is assumed to have defined PREP_LINE as INTEGER
-<P>
-</PRE>
-<TABLE cellpadding=3>
+The values of environment variables may be imported such that their names
+and values will be set as if a $SET command command had been done on them.
+<TABLE cellpadding=3><!-- tsb: The values of environment variables may be imported such that their names
+ -->
+<TR></TR><TR></TR>
 <TR valign=top><TD colspan=2>
 <B>$BLOCK [comment|null|write|help|version</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
 [-file NAME [-append]]
@@ -761,49 +727,27 @@ Sample program using <B>help_usage</B>(3f) and <B>help_version</B>(3f) and <B>M_
 </BLOCKQUOTE>
 <A name=6>
 
-    <H4>&nbsp; &nbsp; MIXING BLOCK AND PRINTENV</H4>
-</A>
-<BLOCKQUOTE>
-<P>
-This example shows one way how an environment variable can be turned
-into a write statement
-<P>
-<PRE>
-   &gt; $block write
-   &gt; $ifdef HOME
-   &gt; $printenv HOME
-   &gt; $else
-   &gt;    HOME not defined
-   &gt; $endif
-   &gt; $block end
-<P>
-   Sample output
-<P>
-     write(io,&#146;(a)&#146;)&#146;/home/urbanjs/V600&#146;
-<P>
-</PRE>
-</BLOCKQUOTE>
-<A name=7>
-
     <H4>&nbsp; &nbsp; SET USAGE</H4>
 </A>
 <BLOCKQUOTE>
 Note values are case-sensitive by variable names are not, and there are
 pre-defined values for input file, line in input file, date and time that
 are NOT ACTIVE until at least one $SET directive is processed. That is,
-unset a $SET directive is processed no ${NAME} expansion occurs.
+unless a $SET directive is processed no ${NAME} expansion occurs.
 <P>
 <PRE>
    &gt; $set author  William Shakespeare
+   &gt; $import HOME
    &gt; write(*,*)&#146;By ${AUTHOR}&#146;
    &gt; write(*,*)&#146;File ${FILE}&#146;
    &gt; write(*,*)&#146;Line ${LINE}&#146;
    &gt; write(*,*)&#146;Date ${DATE}&#146;
    &gt; write(*,*)&#146;Time ${TIME}&#146;
+   &gt; write(*,*)&#146;HOME ${HOME}&#146;
 <P>
 </PRE>
 </BLOCKQUOTE>
-<A name=8>
+<A name=7>
 
      <H3>AUTHOR</H3>
 
@@ -811,7 +755,7 @@ unset a $SET directive is processed no ${NAME} expansion occurs.
 <BLOCKQUOTE>
 John S. Urban
 </BLOCKQUOTE>
-<A name=9>
+<A name=8>
 
      <H3>LICENSE</H3>
 
@@ -826,7 +770,7 @@ John S. Urban
 <P>
 </BLOCKQUOTE>
 <P><HR>
-<TABLE width=100%><TR> <TD width=33%><I></I></TD> <TD width=33% align=center>untitled ()</TD> <TD align=right width=33%><I>June 13, 2021</I></TD> </TR></TABLE><FONT SIZE=-1>Generated by <A HREF="http://www.squarebox.co.uk/download/manServer.shtml">manServer 1.08</A> from docs/prep.1 using man macros.</FONT>
+<TABLE width=100%><TR> <TD width=33%><I></I></TD> <TD width=33% align=center>untitled ()</TD> <TD align=right width=33%><I>June 16, 2021</I></TD> </TR></TABLE><FONT SIZE=-1>Generated by <A HREF="http://www.squarebox.co.uk/download/manServer.shtml">manServer 1.08</A> from docs/prep.1 using man macros.</FONT>
 <br><br><center><img src="images/prep.1.gif"></center>
 </div>
 </div>
