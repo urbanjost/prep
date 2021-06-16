@@ -40,7 +40,7 @@ module M_fpp                                                             !@(#)M_
 USE ISO_FORTRAN_ENV, ONLY : ERROR_UNIT, OUTPUT_UNIT                      ! access computing environment ; Standard: Fortran 2003
 use M_io,        only : slurp, get_tmp, dirname
 use M_kracken95, only : sget, dissect, lget                              ! load command argument parsing module
-use M_strings,   only : nospace, v2s, substitute, upper, lower, isalpha, split, delim, str_replace=>replace
+use M_strings,   only : nospace, v2s, substitute, upper, lower, isalpha, split, delim, str_replace=>replace, sep
 use M_list,      only : insert, locate, replace, remove
    implicit none
 
@@ -170,8 +170,9 @@ subroutine cond()       !@(#)cond(3f): process conditional directive assumed to 
       case('OUTPUT');           call output_case(options)             ! Filenames can be case sensitive
       case('PARCEL');           call parcel_case(upopts)
       case('POST');             call post(upopts)
-      case('SET');              call set(options)
       case('BLOCK');            call document(options)
+      case('SET');              call set(options)
+      case('IMPORT');           call import(options)
       case('PRINTENV');         call printenv(upopts)
       case('IDENT','@(#)');     call ident(options)
       case('SHOW') ;            call debug_state(options)
@@ -185,7 +186,7 @@ subroutine cond()       !@(#)cond(3f): process conditional directive assumed to 
 
    case('DEFINE','INCLUDE','PRINTENV','SHOW','STOP','QUIT')
    case('SYSTEM','UNDEF','UNDEFINE','MESSAGE','REDEFINE')
-   case('OUTPUT','IDENT','@(#)','BLOCK')
+   case('OUTPUT','IDENT','@(#)','BLOCK','IMPORT')
    case('PARCEL','POST','SET')
    case(' ')
 
@@ -2017,14 +2018,14 @@ help_text=[ CHARACTER(LEN=128) :: &
 '         [--help]                                                               ',&
 'DESCRIPTION                                                                     ',&
 '                                                                                ',&
-'   By default the stand-alone pre-processor prep(1) will interpret lines with   ',&
-'   "$" in column one, and will output no such lines. Other input is             ',&
-'   conditionally written to the output file based on the directives encountered ',&
-'   in the input. It does not support macros but does support string             ',&
-'   substitution and the inclusion of free-format text blocks that may be        ',&
-'   converted to Fortran comments or CHARACTER variable definitions which may    ',&
-'   also be used for generating documentation files. INTEGER or LOGICAL          ',&
-'   expressions may be used to select output lines.                              ',&
+'   By default the pre-processor prep(1) will interpret lines with "#" in column ',&
+'   one, and will output no such lines. Other input is conditionally written to  ',&
+'   the output file based on the directives encountered in the input. It does    ',&
+'   not support macros but does support string substitution and the inclusion of ',&
+'   free-format text blocks that may be converted to Fortran comments or         ',&
+'   CHARACTER variable definitions which may also be used for generating         ',&
+'   documentation files. INTEGER or LOGICAL expressions may be used to select    ',&
+'   output lines.                                                                ',&
 '                                                                                ',&
 '   The suggested suffix for Fortran input files is ".ff" for code files unless  ',&
 '   they contain $SYSTEM directives in which case ".FF" is preferred. $INCLUDE   ',&
@@ -2048,16 +2049,17 @@ help_text=[ CHARACTER(LEN=128) :: &
 '               { sequence of source statements}]                                ',&
 '     $ENDIF                                               [! comment ]          ',&
 '                                                                                ',&
+'     $SET      name  string                                                     ',&
+'     $IMPORT   name(s)                                                          ',&
+'                                                                                ',&
 '     $PARCEL   [name]                                     [! comment ]          ',&
 '     $POST     name                                       [! comment ]          ',&
-'     $SET      name  string                                                     ',&
-'     $INCLUDE  filename                                   [! comment ]          ',&
 '     $OUTPUT   filename  [-append]                        [! comment ]          ',&
-'     $BLOCK    [comment|null|write|help|version]|                               ',&
-'               [variable [-varname NAME]]                                       ',&
+'     $INCLUDE  filename                                   [! comment ]          ',&
+'     $BLOCK    [comment|null|write|help|version|variable [-varname NAME]]       ',&
 '               [-file NAME [-append]]                     [! comment ]          ',&
 '                                                                                ',&
-'     $PRINTENV predefined_name|environment_variable_name  [! comment ]          ',&
+!'     $PRINTENV predefined_name|environment_variable_name  [! comment ]          ',&
 '     $SYSTEM system_command                               [! comment ]          ',&
 '     $IDENT    metadata                                   [! comment ]          ',&
 '     $@(#)     metadata                                   [! comment ]          ',&
@@ -2233,37 +2235,42 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   data refers to the time of processing, not the current time nor the time     ',&
 '   of compilation or loading.                                                   ',&
 '                                                                                ',&
-'   $PRINTENV name                                                               ',&
+'   $IMPORT names(s)                                                             ',&
 '                                                                                ',&
-'   If the name of an uppercase environment variable is given the value          ',&
-'   of the variable will be placed in the output file. If the value is a         ',&
-'   null string or if the variable is undefined output will be stopped.          ',&
-'   This allows the system shell to generate code lines. This is usually         ',&
-'   used to pass in information about the compiler environment. For              ',&
-'   example:                                                                     ',&
+'   The values of environment variables may be imported such that their names    ',&
+'   and values will be set as if a $SET command command had been done on them.   ',&
 '                                                                                ',&
-'     # If the following command were executed in the bash(1) shell...           ',&
-'                                                                                ',&
-'      export STAMP="      write(*,*)''''COMPILED ON:`uname -s`;AT `date`''''"   ',&
-'                                                                                ',&
-'   the environment variable STAMP would be set to something like                ',&
-'                                                                                ',&
-'     write(*,*)''''COMPILED ON:Eureka;AT Wed, Jun 12, 2013  8:12:06 PM''''      ',&
-'                                                                                ',&
-'   A version number would be another possibility                                ',&
-'                                                                                ',&
-'     export VERSION="      program_version=2.2"                                 ',&
-'                                                                                ',&
-'   Special predefined variable names are:                                       ',&
-'                                                                                ',&
-'     Variable Name      Output                                                  ',&
-'     PREP_DATE  ......  PREP_DATE="12:58 14Jun2013"                             ',&
-'     Where code is assumed to have defined PREP_DATE as CHARACTER(LEN=15)       ',&
-'     PREP_FILE  ......  PREP_FILE="current filename"                            ',&
-'     Where code is assumed to have defined PREP_FILE as CHARACTER(LEN=1024)     ',&
-'     PREP_LINE  ......  PREP_LINE=    nnnnnn                                    ',&
-'     Where code is assumed to have defined PREP_LINE as INTEGER                 ',&
-'                                                                                ',&
+!'   $PRINTENV name                                                               ',&
+!'                                                                                ',&
+!'   If the name of an uppercase environment variable is given the value          ',&
+!'   of the variable will be placed in the output file. If the value is a         ',&
+!'   null string or if the variable is undefined output will be stopped.          ',&
+!'   This allows the system shell to generate code lines. This is usually         ',&
+!'   used to pass in information about the compiler environment. For              ',&
+!'   example:                                                                     ',&
+!'                                                                                ',&
+!'     # If the following command were executed in the bash(1) shell...           ',&
+!'                                                                                ',&
+!'      export STAMP="      write(*,*)''''COMPILED ON:`uname -s`;AT `date`''''"   ',&
+!'                                                                                ',&
+!'   the environment variable STAMP would be set to something like                ',&
+!'                                                                                ',&
+!'     write(*,*)''''COMPILED ON:Eureka;AT Wed, Jun 12, 2013  8:12:06 PM''''      ',&
+!'                                                                                ',&
+!'   A version number would be another possibility                                ',&
+!'                                                                                ',&
+!'     export VERSION="      program_version=2.2"                                 ',&
+!'                                                                                ',&
+!'   Special predefined variable names are:                                       ',&
+!'                                                                                ',&
+!'     Variable Name      Output                                                  ',&
+!'     PREP_DATE  ......  PREP_DATE="12:58 14Jun2013"                             ',&
+!'     Where code is assumed to have defined PREP_DATE as CHARACTER(LEN=15)       ',&
+!'     PREP_FILE  ......  PREP_FILE="current filename"                            ',&
+!'     Where code is assumed to have defined PREP_FILE as CHARACTER(LEN=1024)     ',&
+!'     PREP_LINE  ......  PREP_LINE=    nnnnnn                                    ',&
+!'     Where code is assumed to have defined PREP_LINE as INTEGER                 ',&
+!'                                                                                ',&
 '   $BLOCK [comment|null|write|help|version  [-file NAME [-append]]              ',&
 '     or                                                                         ',&
 '   $BLOCK VARIABLE --varname NAME  [--file NAME]                                ',&
@@ -2518,35 +2525,37 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   >    call help_version(lget("cmd_version"))                                  ',&
 '   > end program conditional_compile                                            ',&
 '                                                                                ',&
-' MIXING BLOCK AND PRINTENV                                                      ',&
-'                                                                                ',&
-'  This example shows one way how an environment variable can be turned          ',&
-'  into a write statement                                                        ',&
-'                                                                                ',&
-'   > $block write                                                               ',&
-'   > $ifdef HOME                                                                ',&
-'   > $printenv HOME                                                             ',&
-'   > $else                                                                      ',&
-'   >    HOME not defined                                                        ',&
-'   > $endif                                                                     ',&
-'   > $block end                                                                 ',&
-'                                                                                ',&
-'   Sample output                                                                ',&
-'                                                                                ',&
-'     write(io,''(a)'')''/home/urbanjs/V600''                                    ',&
-'                                                                                ',&
+!' MIXING BLOCK AND PRINTENV                                                      ',&
+!'                                                                                ',&
+!'  This example shows one way how an environment variable can be turned          ',&
+!'  into a write statement                                                        ',&
+!'                                                                                ',&
+!'   > $block write                                                               ',&
+!'   > $ifdef HOME                                                                ',&
+!'   > $printenv HOME                                                             ',&
+!'   > $else                                                                      ',&
+!'   >    HOME not defined                                                        ',&
+!'   > $endif                                                                     ',&
+!'   > $block end                                                                 ',&
+!'                                                                                ',&
+!'   Sample output                                                                ',&
+!'                                                                                ',&
+!'     write(io,''(a)'')''/home/urbanjs/V600''                                    ',&
+!'                                                                                ',&
 ' SET USAGE                                                                      ',&
 '  Note values are case-sensitive by variable names are not, and there are       ',&
 '  pre-defined values for input file, line in input file, date and time that     ',&
 '  are NOT ACTIVE until at least one $SET directive is processed. That is,       ',&
-'  unset a $SET directive is processed no ${NAME} expansion occurs.              ',&
+'  unless a $SET directive is processed no ${NAME} expansion occurs.             ',&
 '                                                                                ',&
 '   > $set author  William Shakespeare                                           ',&
+'   > $import HOME                                                               ',&
 '   > write(*,*)''By ${AUTHOR}''                                                 ',&
 '   > write(*,*)''File ${FILE}''                                                 ',&
 '   > write(*,*)''Line ${LINE}''                                                 ',&
 '   > write(*,*)''Date ${DATE}''                                                 ',&
 '   > write(*,*)''Time ${TIME}''                                                 ',&
+'   > write(*,*)''HOME ${HOME}''                                                 ',&
 '                                                                                ',&
 'AUTHOR                                                                          ',&
 '   John S. Urban                                                                ',&
@@ -2688,6 +2697,18 @@ end subroutine dissect2
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
+subroutine import(line)
+character(len=*),intent(in)  :: line
+character(len=:),allocatable :: names(:)
+integer                      :: i
+   names=sep(line)
+   do i=1,size(names)
+      call set(names(i)//' '//system_getenv(names(i)))
+   enddo
+end subroutine import
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!===================================================================================================================================
 subroutine set(line)
 character(len=*),intent(in)  :: line
 character(len=:),allocatable :: vals
@@ -2779,9 +2800,9 @@ character(len=4096)           :: scratch
 write(scratch,'(i0)')G_file_dictionary(G_iocount)%line_number
 call set('__LINE__ ' // scratch)
 
-call set('__FILE__ ' // G_file_dictionary(G_iocount)%filename )
-call set('__TIME__ ' // getdate('time'))
-call set('__DATE__ ' // getdate('cdate'))
+!call set('__FILE__ ' // G_file_dictionary(G_iocount)%filename )
+!call set('__TIME__ ' // getdate('time'))
+!call set('__DATE__ ' // getdate('cdate'))
 
 call set('LINE ' // scratch)
 
@@ -2801,6 +2822,81 @@ do i=1,toomany
 enddo
 line=temp
 end subroutine expand_variables
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!===================================================================================================================================
+!>
+!!##NAME
+!!    system_getenv(3f) - [M_system:ENVIRONMENT] get environment variable
+!!    from Fortran by calling get_environment_variable(3f)
+!!    (LICENSE:PD)
+!!
+!!##SYNOPSIS
+!!
+!!    function system_getenv(name,default)
+!!
+!!     character(len=:),allocatable         :: system_getenv
+!!     character(len=*),intent(in)          :: name
+!!     character(len=*),intent(in),optional :: default
+!!
+!!##DESCRIPTION
+!!    The system_getenv() function gets the value of an environment variable.
+!!
+!!##OPTIONS
+!!    name     Return the value of the specified environment variable or
+!!             blank if the variable is not defined.
+!!    default  If the value returned would be blank this value will be used
+!!             instead.
+!!
+!!##EXAMPLE
+!!
+!!   Sample setting an environment variable from Fortran:
+!!
+!!    program demo_system_getenv
+!!    use M_system, only : system_getenv
+!!    implicit none
+!!       write(*,'("USER     : ",a)')system_getenv('USER')
+!!       write(*,'("LOGNAME  : ",a)')system_getenv('LOGNAME')
+!!       write(*,'("USERNAME : ",a)')system_getenv('USERNAME')
+!!    end program demo_system_getenv
+!!
+!!##AUTHOR
+!!    John S. Urban
+!!##LICENSE
+!!    Public Domain
+function system_getenv(name,default) result(value)
+
+! ident_23="@(#)M_system::system_getenv(3f): call get_environment_variable as a function with a default value(3f)"
+
+character(len=*),intent(in)          :: name
+character(len=*),intent(in),optional :: default
+integer                              :: howbig
+integer                              :: stat
+character(len=:),allocatable         :: value
+
+   if(NAME.ne.'')then
+      call get_environment_variable(name, length=howbig, status=stat, trim_name=.true.)  ! get length required to hold value
+      if(howbig.ne.0)then
+         select case (stat)
+         case (1)     ! print *, NAME, " is not defined in the environment. Strange..."
+            value=''
+         case (2)     ! print *, "This processor doesn't support environment variables. Boooh!"
+            value=''
+         case default ! make string to hold value of sufficient size and get value
+            if(allocated(value))deallocate(value)
+            allocate(character(len=max(howbig,1)) :: VALUE)
+            call get_environment_variable(name,value,status=stat,trim_name=.true.)
+            if(stat.ne.0)VALUE=''
+         end select
+      else
+         value=''
+      endif
+   else
+      value=''
+   endif
+   if(value.eq.''.and.present(default))value=default
+
+end function system_getenv
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================

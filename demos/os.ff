@@ -3,6 +3,9 @@ program testit
 contains
 function os_type()
 character(len=:),allocatable :: os_type
+
+os_type='UNKNOWN'
+
 $if OS .eq. unknown
    os_type='UNKNOWN'
 $elseif OS .eq.  linux     
@@ -22,3 +25,5 @@ $elseif OS .eq.  openbsd
 $ENDIF
 end function os_type
 end program testit
+!
+! try calling this with "prep OS=cygwin <os.ff" and "prep OS=linux <os.ff".

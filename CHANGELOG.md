@@ -5,7 +5,19 @@ what's new in the `prep` project. It is a curated, chronologically ordered
 list of notable changes including`records of change such as bug fixes,
 new features, changes, and relevant notifications.
 
-**2021-06-13**  John S. Urban<https://github.com/urbanjost>
+---
+**2021-06-16**  John S. Urban <https://github.com/urbanjost>
+
+### :green_circle: ADD:
+
+  + Added $IMPORT so environment variables can be used as if they had been
+    used to declare $SET names and values.                                
+
+### :orange_circle: DIFF:
+  + deprecated the $PRINTENV directive, as it is superceded by $IMPORT in
+    a much more consistent way.
+---
+**2021-06-13**  John S. Urban <https://github.com/urbanjost>
 
 ### :green_circle: ADD:
 
@@ -14,8 +26,7 @@ new features, changes, and relevant notifications.
     that ${__FILE__}, ${__LINE__}, ${__DATE__}, ${__TIME__} strings will
     be predefined.
 ---
----
-**2021-06-12**  John S. Urban<https://github.com/urbanjost>
+**2021-06-12**  John S. Urban <https://github.com/urbanjost>
 
 ### :green_circle: ADD:
 
@@ -23,7 +34,7 @@ new features, changes, and relevant notifications.
     as a prototype for allowing expansion using POSIX shell syntax
     like a "here document".
 ---
-**2021-06-08**  John S. Urban<https://github.com/urbanjost>
+**2021-06-08**  John S. Urban <https://github.com/urbanjost>
 
 ### :green_circle: ADD:
 

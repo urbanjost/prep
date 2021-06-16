@@ -1,6 +1,15 @@
 $set author  William Shakespeare      
+$import HOME FPM_COMPILER
+
 write(*,*)'By ${AUTHOR}'             
+
 write(*,*)'File ${FILE}'        
 write(*,*)'Line ${LINE}'       
 write(*,*)'Date ${DATE}'      
 write(*,*)'Time ${TIME}'     
+
+write(*,*)'HOME ${HOME}'     
+
+$ifdef FPM_COMPILER
+write(*,*)'COMPILER ${FPM_COMPILER}'     
+$endif
