@@ -19,7 +19,7 @@ SYNOPSIS
          [--help]
 DESCRIPTION
 
-   By default the pre-processor prep(1) will interpret lines with "#" in column
+   By default the pre-processor prep(1) will interpret lines with "$" in column
    one, and will output no such lines. Other input is conditionally written to
    the output file based on the directives encountered in the input. It does
    not support macros but does support string substitution and the inclusion of
