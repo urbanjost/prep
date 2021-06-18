@@ -22,63 +22,62 @@ DESCRIPTION
    By default the pre-processor prep(1) will interpret lines with "$" in column
    one, and will output no such lines. Other input is conditionally written to
    the output file based on the directives encountered in the input. It does
-   not support macros but does support string substitution and the inclusion of
-   free-format text blocks that may be converted to Fortran comments or
-   CHARACTER variable definitions while simultaneously being used to generate
-   documentation files. INTEGER or LOGICAL expressions may be used to select
-   output lines.
+   not support parameterized macros but does support string substitution and
+   the inclusion of free-format text blocks that may be converted to Fortran
+   comments or CHARACTER variable definitions while simultaneously being used
+   to generate documentation files. INTEGER or LOGICAL expressions may be used
+   to select output lines.
 
    The suggested suffix for Fortran input files is ".ff" for code files unless
    they contain $SYSTEM directives in which case ".FF" is preferred. $INCLUDE
    files should use ".ffinc" and ".FFINC" if they include prep(1) directives.
    This naming convention is not required.
 
+   An exclamation character on a valid directive begins an in-line comment
+   that is terminated by an end-of-line.
+
+   An expression is composed of INTEGER and LOGICAL constants, parameters
+   and operators. Operators are
+
+     .NOT.  .AND.  .OR.  .EQV.  .NEQV.  .EQ.  .NE.  .GE.
+     .GT.   .LE.   .LT.  +      -       *     /     (
+     )      **
+
    The syntax for the directive lines is as follows:
 
+    :CONDITIONAL CODE SELECTION
      $DEFINE   variable_name[=expression]                 [! comment ]
      $UNDEFINE variable_name                              [! comment ]
-
-     $IF       {LOGICAL or INTEGER expression}            [! comment ]
-      or
-     $IFDEF    {variable_name}                            [! comment ]
-      or
-     $IFNDEF   {variable_name}                            [! comment ]
+     $IF       expression| [$IFDEF|$IFNDEF variable_name] [! comment ]
                { sequence of source statements}
      [$ELSEIF  {LOGICAL or INTEGER expression}            [! comment ]
                { sequence of source statements}]
      [$ELSE                                               [! comment ]
                { sequence of source statements}]
      $ENDIF                                               [! comment ]
+     $STOP     [stop_value]                               [! comment ]
 
-     $SET      name  string
-     $IMPORT   name(s)
+    :MACRO STRING EXPANSION AND TEXT REPLAY
+     $SET      varname  string
+     $IMPORT   envname(s)
+     $PARCEL   blockname                                  [! comment ]
+     $POST     blockname                                  [! comment ]
 
-     $PARCEL   [name]                                     [! comment ]
-     $POST     name                                       [! comment ]
+    :FILE AND TEXT BLOCK USAGE
      $OUTPUT   filename  [-append]                        [! comment ]
      $INCLUDE  filename                                   [! comment ]
      $BLOCK    [comment|null|write|help|version|variable [-varname NAME]]
                [-file NAME [-append]]                     [! comment ]
 
-     $SYSTEM system_command                               [! comment ]
-     $IDENT    metadata                                   [! comment ]
-     $@(#)     metadata                                   [! comment ]
+    :IDENTIFIERS
+     $IDENT | $@(#)    metadata                           [! comment ]
+
+    :INFORMATION
      $MESSAGE  message_to_stderr
      $SHOW                                                [! comment ]
-     $STOP {stop_value}                                   [! comment ]
 
-   Compiler directives are specified by a "$" in column one, followed by a
-   keyword.
-
-   An exclamation character on a valid directive begins an in-line comment
-   that is terminated by an end-of-line.
-
-   Any LOGICAL expression composed of integer constants, parameters
-   and operators, is valid. Operators are
-
-     .NOT.  .AND.  .OR.  .EQV.  .NEQV.  .EQ.  .NE.  .GE.
-     .GT.   .LE.   .LT.  +      -       *     /     (
-     )      **
+    :SYSTEM COMMANDS
+     $SYSTEM   system_command                             [! comment ]
 
 OPTIONS
    define_list, -D define_list  An optional space-delimited list of expressions
@@ -187,7 +186,10 @@ OPTIONS
 
    This string is generally included for use with the what(1) command.
 
-   The default language is fortran. Depending on your compiler and the
+   "$@(#)" is an alias for "$IDENT" so the source file itself will contain
+   SCCS-metadata so the metadata can be displayed with what(1).
+
+   The default language is "fortran". Depending on your compiler and the
    optimization level used when compiling, these strings may or may not
    remain in the object files and executables created.
 

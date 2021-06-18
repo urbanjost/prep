@@ -103,66 +103,65 @@ a.existingWikiWord[title]{ //border: 1px dashed #BBB; }
 By default the pre-processor <B>prep</B>(1) will interpret lines with "$" in column
 one, and will output no such lines. Other input is conditionally written to
 the output file based on the directives encountered in the input. It does
-not support macros but does support string substitution and the inclusion of
-free-format text blocks that may be converted to Fortran comments or
-CHARACTER variable definitions while simultaneously being used to generate
-documentation files. INTEGER or LOGICAL expressions may be used to select
-output lines.
+not support parameterized macros but does support string substitution and
+the inclusion of free-format text blocks that may be converted to Fortran
+comments or CHARACTER variable definitions while simultaneously being used
+to generate documentation files. INTEGER or LOGICAL expressions may be used
+to select output lines.
 <P>
 The suggested suffix for Fortran input files is ".ff" for code files unless
 they contain $SYSTEM directives in which case ".FF" is preferred. $INCLUDE
 files should use ".ffinc" and ".FFINC" if they include <B>prep</B>(1) directives.
 This naming convention is not required.
 <P>
+An exclamation character on a valid directive begins an in-line comment
+that is terminated by an end-of-line.
+<P>
+An expression is composed of INTEGER and LOGICAL constants, parameters
+and operators. Operators are
+<P>
+<PRE>
+     .NOT.  .AND.  .OR.  .EQV.  .NEQV.  .EQ.  .NE.  .GE.
+     .GT.   .LE.   .LT.  +      -       *     /     (
+     )      **
+<P>
+</PRE>
 The syntax for the directive lines is as follows:
 <P>
 <PRE>
+    :CONDITIONAL CODE SELECTION
      $DEFINE   variable_name[=expression]                 [! comment ]
      $UNDEFINE variable_name                              [! comment ]
-<P>
-     $IF       {LOGICAL or INTEGER expression}            [! comment ]
-      or
-     $IFDEF    {variable_name}                            [! comment ]
-      or
-     $IFNDEF   {variable_name}                            [! comment ]
+     $IF       expression| [$IFDEF|$IFNDEF variable_name] [! comment ]
                { sequence of source statements}
      [$ELSEIF  {LOGICAL or INTEGER expression}            [! comment ]
                { sequence of source statements}]
      [$ELSE                                               [! comment ]
                { sequence of source statements}]
      $ENDIF                                               [! comment ]
+     $STOP     [stop_value]                               [! comment ]
 <P>
-     $SET      name  string
-     $IMPORT   name(s)
+    :MACRO STRING EXPANSION AND TEXT REPLAY
+     $SET      varname  string
+     $IMPORT   envname(s)
+     $PARCEL   blockname                                  [! comment ]
+     $POST     blockname                                  [! comment ]
 <P>
-     $PARCEL   [name]                                     [! comment ]
-     $POST     name                                       [! comment ]
+    :FILE AND TEXT BLOCK USAGE
      $OUTPUT   filename  [-append]                        [! comment ]
      $INCLUDE  filename                                   [! comment ]
      $BLOCK    [comment|null|write|help|version|variable [-varname NAME]]
                [-file NAME [-append]]                     [! comment ]
 <P>
-     $SYSTEM system_command                               [! comment ]
-     $IDENT    metadata                                   [! comment ]
-     $@(#)     metadata                                   [! comment ]
+    :IDENTIFIERS
+     $IDENT | $@(#)    metadata                           [! comment ]
+<P>
+    :INFORMATION
      $MESSAGE  message_to_stderr
      $SHOW                                                [! comment ]
-     $STOP {stop_value}                                   [! comment ]
 <P>
-</PRE>
-Compiler directives are specified by a "$" in column one, followed by a
-keyword.
-<P>
-An exclamation character on a valid directive begins an in-line comment
-that is terminated by an end-of-line.
-<P>
-Any LOGICAL expression composed of integer constants, parameters
-and operators, is valid. Operators are
-<P>
-<PRE>
-     .NOT.  .AND.  .OR.  .EQV.  .NEQV.  .EQ.  .NE.  .GE.
-     .GT.   .LE.   .LT.  +      -       *     /     (
-     )      **
+    :SYSTEM COMMANDS
+     $SYSTEM   system_command                             [! comment ]
 <P>
 </PRE>
 </BLOCKQUOTE>
@@ -329,7 +328,10 @@ Writes a line using SCCS-metadata format of the following forms:
 </PRE>
 This string is generally included for use with the <B>what</B>(1) command.
 <P>
-The default language is fortran. Depending on your compiler and the
+"$@(#)" is an alias for "$IDENT" so the source file itself will contain
+SCCS-metadata so the metadata can be displayed with <B>what</B>(1).
+<P>
+The default language is "fortran". Depending on your compiler and the
 optimization level used when compiling, these strings may or may not
 remain in the object files and executables created.
 <P>
@@ -770,7 +772,7 @@ John S. Urban
 <P>
 </BLOCKQUOTE>
 <P><HR>
-<TABLE width=100%><TR> <TD width=33%><I></I></TD> <TD width=33% align=center>untitled ()</TD> <TD align=right width=33%><I>June 16, 2021</I></TD> </TR></TABLE><FONT SIZE=-1>Generated by <A HREF="http://www.squarebox.co.uk/download/manServer.shtml">manServer 1.08</A> from docs/prep.1 using man macros.</FONT>
+<TABLE width=100%><TR> <TD width=33%><I></I></TD> <TD width=33% align=center>untitled ()</TD> <TD align=right width=33%><I>June 18, 2021</I></TD> </TR></TABLE><FONT SIZE=-1>Generated by <A HREF="http://www.squarebox.co.uk/download/manServer.shtml">manServer 1.08</A> from docs/prep.1 using man macros.</FONT>
 <br><br><center><img src="images/prep.1.gif"></center>
 </div>
 </div>
