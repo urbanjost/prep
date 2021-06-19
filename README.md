@@ -73,11 +73,12 @@ $block comment  ! convert parcel to comments
   any text placed here in free form will be converted to
   comments, as well as anything from a $POST. For example:
 
-  Any processing $BLOCK can do, converting to a CHARACTER variable,
-  writing the lines to an external file for generating documentation,
-  ...
-
 $post ex1
+
+  $BLOCK can do other special processing, such as converting a block 
+  to a CHARACTER variable,
+  writing the lines to an external file for generating documentation,
+  and so on.
 
 $block 
 ```
@@ -114,15 +115,16 @@ end module M_testit
 !   any text placed here in free form will be converted to
 !   comments, as well as anything from a $POST. For example:
 ! 
-!   Any processing $BLOCK can do, converting to a CHARACTER variable,
-!   writing the lines to an external file for generating documentation,
-!   ...
-! 
 !    ! created by urbanjs on Jun 19 2021 at 11:55:43
 !    subroutine testit_real128(value)
 !    real(kind=real128) :: value
 !       write(*,*)'big subroutine with type real128 and value=',value
 !    end subroutine testit_real128
+!
+!  $BLOCK can do other special processing, such as converting a block 
+!  to a CHARACTER variable,
+!  writing the lines to an external file for generating documentation,
+!  and so on.
 !
 ```
 
