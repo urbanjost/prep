@@ -11,7 +11,7 @@ module M_fpp                                                             !@(#)M_
 USE ISO_FORTRAN_ENV, ONLY : ERROR_UNIT, OUTPUT_UNIT                      ! access computing environment ; Standard: Fortran 2003
 use M_io,        only : slurp, get_tmp, dirname                          ! Fortran file I/O routines
 use M_kracken95, only : sget, dissect, lget                              ! load command argument parsing module
-use M_strings,   only : nospace, v2s, substitute, upper, lower, isalpha, split, delim, str_replace=>replace, sep
+use M_strings,   only : nospace, v2s, substitute, upper, lower, isalpha, split, delim, str_replace=>replace, sep, atleast
 use M_list,      only : insert, locate, replace, remove                  ! Basic list lookup and maintenance
    implicit none
 
@@ -1345,7 +1345,7 @@ character(len=*),intent(in) :: opts
       write(G_iout,'(a)')"   stop ! if --help was specified, stop"
       write(G_iout,'(a)')"endif"
       write(G_iout,'(a)')"end subroutine help_usage"
-      write(G_iout,'("!",a)')repeat('-',131)
+      !x!write(G_iout,'("!",a)')repeat('-',131)
    elseif(G_outtype.eq.'variable')then     ! if in 'variable' mode wrap up the variable
       write(G_iout,'(a)')"'']"
    elseif(G_outtype.eq.'version')then  ! if in 'version' mode wrap up the routine
@@ -1357,7 +1357,7 @@ character(len=*),intent(in) :: opts
       write(G_iout,'(a)')"   stop ! if --version was specified, stop"
       write(G_iout,'(a)')"endif"
       write(G_iout,'(a)')"end subroutine help_version"
-      write(G_iout,'("!",a)')repeat('-',131)
+      !x!write(G_iout,'("!",a)')repeat('-',131)
    endif
 
    call dissect2('block','--oo --file --varname textblock --append .false.',opts) ! parse options on input line
@@ -1573,7 +1573,7 @@ subroutine format_g_man()
                enddo
 
             endif
-            write(G_iout,'("!",131("="))')
+            !x!write(G_iout,'("!",131("="))')
 
          case('ford')                    ! convert plain text to doxygen comment blocks with some automatic markdown highlights
             if(len(G_MAN).gt.1)then      ! the way the string is built it starts with a newline
@@ -1600,7 +1600,7 @@ subroutine format_g_man()
                enddo
 
             endif
-            write(G_iout,'("!>",131("="))')
+            !x!write(G_iout,'("!>",131("="))')
 
          case('none')                    ! ignore comment block
 
@@ -1612,7 +1612,7 @@ subroutine format_g_man()
             endif
             write(G_iout,'(a)',iostat=ios) G_MAN
             if(ios.ne.0)exit WRITEIT
-            write(G_iout,'("!",131("="))')
+            !x!write(G_iout,'("!",131("="))')
          end select
 
          exit ALL
@@ -1689,8 +1689,8 @@ character(len=*),intent(in)   :: msg
 
    if(size(keywords).gt.0)then
       write(G_iout,'(a)')'! SET STRINGS:'
-      write(*,*)'>>>',size(keywords)
-      write(*,'(*("!",a,"==>","[",a,"]",/))')(trim(keywords(i)),values(i)(:counts(i)),i=1,size(keywords))
+      write(G_iout,*)'>>>',size(keywords)
+      write(G_iout,'(*("! ",a,"==> ",a,/))')(keywords(i),values(i)(:counts(i)),i=1,size(keywords))
    endif
 
    write(G_iout,'(a)')'!==============================================================================='
@@ -2702,8 +2702,8 @@ integer                      :: i
   if(name.eq.'')then
     ! show array
     if(size(keywords).gt.0)then
-       write(*,*)'>>>',size(keywords)
-       write(*,'(*("!",a,"==>","[",a,"]",/))')(trim(keywords(i)),values(i)(:counts(i)),i=1,size(keywords))
+       write(G_iout,*)'>>>',size(keywords)
+       write(G_iout,'(*("!",a,"==>","[",a,"]",/))')(trim(keywords(i)),values(i)(:counts(i)),i=1,size(keywords))
     endif
   else
      val=line(min(iend+1,len(line)):)
@@ -2775,14 +2775,8 @@ integer                       :: i, j
 character(len=4096)           :: scratch
 
 write(scratch,'(i0)')G_file_dictionary(G_iocount)%line_number
-call set('__LINE__ ' // scratch)
-
-!call set('__FILE__ ' // G_file_dictionary(G_iocount)%filename )
-!call set('__TIME__ ' // getdate('time'))
-!call set('__DATE__ ' // getdate('cdate'))
 
 call set('LINE ' // scratch)
-
 call set('FILE ' // G_file_dictionary(G_iocount)%filename )
 call set('TIME ' // getdate('time'))
 call set('DATE ' // getdate('cdate'))

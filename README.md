@@ -26,10 +26,105 @@ with Fortran.
 In particular, prep(1) allows for maintaining documentation in the body
 of the source code in a variety of formats via the __$BLOCK__ directive.
 
-Please 
-[**leave a comment**](https://github.com/urbanjost/prep/wiki/Fortran-pre-processing)
-if you find this enticing. Feedback is welcome, even if it is a comment
-on why you are not interested even though you read this far!
+Feedback is welcome. 
+[**leave a comment!**](https://github.com/urbanjost/prep/wiki/Fortran-pre-processing)
+
+## EXAMPLE SHOWING TEMPLATING
+
+The most distinct feature of **prep(1)** compared to basic preprocessors is the
+ability to define a block of text and apply special processing to it to simplify
+maintaining documentation but also to repeat the code with different string
+expansions, allowing for a form of templating a generic routine. A relatively
+advanced example:
+
+```text
+$import USER
+$! write the routine generically with ${NAME} variables
+$parcel ex1
+   ! created by ${USER} on ${DATE} at ${TIME}
+   subroutine testit_${KIND}(value)
+   real(kind=${kind}) :: value
+      write(*,*)'big subroutine with type ${kind} and value=',value
+   end subroutine testit_${KIND}
+$parcel
+$! 
+module M_testit
+use, intrinsic :: iso_fortran_env, only : real32, real64, real128
+implicit none
+private
+public testit
+interface testit
+   module procedure testit_real32
+   module procedure testit_real64
+   module procedure testit_real128
+end interface testit
+contains
+$! now just $POST the routine multiple times changing the kind ...
+$set kind real32
+$post ex1
+$set kind real64
+$post ex1
+$set kind real128
+$post ex1
+end module M_testit
+
+$! a POST can be done within a $BLOCK to apply special processing
+$block comment  ! convert parcel to comments
+  any text placed here in free form will be converted to
+  comments, as well as anything from a $POST. For example:
+
+  Any processing $BLOCK can do, converting to a CHARACTER variable,
+  writing the lines to an external file for generating documentation,
+  ...
+
+$post ex1
+
+$block 
+```
+The output looks like
+```fortran
+module M_testit
+use, intrinsic :: iso_fortran_env, only : real32, real64, real128
+implicit none
+private
+public testit
+interface testit
+   module procedure testit_real32
+   module procedure testit_real64
+   module procedure testit_real128
+end interface testit
+contains
+   ! created by urbanjs on Jun 19 2021 at 11:55:43
+   subroutine testit_real32(value)
+   real(kind=real32) :: value
+      write(*,*)'big subroutine with type real32 and value=',value
+   end subroutine testit_real32
+   ! created by urbanjs on Jun 19 2021 at 11:55:43
+   subroutine testit_real64(value)
+   real(kind=real64) :: value
+      write(*,*)'big subroutine with type real64 and value=',value
+   end subroutine testit_real64
+   ! created by urbanjs on Jun 19 2021 at 11:55:43
+   subroutine testit_real128(value)
+   real(kind=real128) :: value
+      write(*,*)'big subroutine with type real128 and value=',value
+   end subroutine testit_real128
+end module M_testit
+
+!   any text placed here in free form will be converted to
+!   comments, as well as anything from a $POST. For example:
+! 
+!   Any processing $BLOCK can do, converting to a CHARACTER variable,
+!   writing the lines to an external file for generating documentation,
+!   ...
+! 
+!    ! created by urbanjs on Jun 19 2021 at 11:55:43
+!    subroutine testit_real128(value)
+!    real(kind=real128) :: value
+!       write(*,*)'big subroutine with type real128 and value=',value
+!    end subroutine testit_real128
+!
+```
 
 ## BUILDING
 To build it requires `git`, `fpm`(Fortran Package Manager), a modern
