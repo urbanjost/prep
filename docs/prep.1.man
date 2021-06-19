@@ -15,6 +15,7 @@ SYNOPSIS
          [--width n]
          [-d ignore|remove|blank]
          [--comment default|doxygen|ford|none]
+         [--linelength 132]
          [--version]
          [--help]
 DESCRIPTION
@@ -124,6 +125,8 @@ OPTIONS
                            used to support the optional compilation of
                            "debug" code by many Fortran compilers when
                            compiling fixed-format Fortran source.
+   --linelength     A warning message is produced if an output line exceeds
+                    this limit.
    --version        Display version and exit
    --width n        Maximum line length of the output file. Default
                     is 1024. Typically used to trim fixed-format
@@ -240,7 +243,7 @@ OPTIONS
    $IMPORT names(s)
 
    The values of environment variables may be imported such that their names
-   and values will be set as if a $SET command command had been done on them.
+   and values will be set as if a $SET command had been done on them.
 
    $BLOCK [comment|null|write|help|version  [-file NAME [-append]]
      or
@@ -497,10 +500,10 @@ EXAMPLES
    > end program conditional_compile
 
  SET USAGE
-  Note values are case-sensitive by variable names are not, and there are
+  Note values are case-sensitive but variable names are not, and there are
   pre-defined values for input file, line in input file, date and time that
-  are NOT ACTIVE until at least one $SET directive is processed. That is,
-  unless a $SET directive is processed no ${NAME} expansion occurs.
+  are NOT ACTIVE until at least one $SET or $IMPORT directive is processed. That
+  is, unless a variable name is defined no ${NAME} expansion occurs.
 
    > $set author  William Shakespeare
    > $import HOME

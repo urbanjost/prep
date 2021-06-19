@@ -144,7 +144,6 @@ subroutine cond()       !@(#)cond(3f): process conditional directive assumed to 
       case('BLOCK');            call document(options)
       case('SET');              call set(options)
       case('IMPORT');           call import(options)
-      case('PRINTENV');         call printenv(upopts)
       case('IDENT','@(#)');     call ident(options)
       case('SHOW') ;            call debug_state(options)
       case('SYSTEM');           call exe()
@@ -155,7 +154,7 @@ subroutine cond()       !@(#)cond(3f): process conditional directive assumed to 
    endif
    select case(VERB)                                                  ! process logical flow control even if G_write is false
 
-   case('DEFINE','INCLUDE','PRINTENV','SHOW','STOP','QUIT')
+   case('DEFINE','INCLUDE','SHOW','STOP','QUIT')
    case('SYSTEM','UNDEF','UNDEFINE','MESSAGE','REDEFINE')
    case('OUTPUT','IDENT','@(#)','BLOCK','IMPORT')
    case('PARCEL','POST','SET')
@@ -165,7 +164,7 @@ subroutine cond()       !@(#)cond(3f): process conditional directive assumed to 
    case('ENDIF');          call endif(noelse,eb)
    case('IF');             call if(upopts,noelse,eb)
    case('IFDEF','IFNDEF'); call def(verb,upopts,noelse,eb)
-   
+
    case default
       call stop_prep('*prep:cond* ERROR(001) - UNKNOWN COMPILER DIRECTIVE ['//trim(verb)//']: '//trim(G_SOURCE))
    end select
@@ -186,10 +185,10 @@ subroutine exe()                                 ! @(#)exe(3f): Execute the comm
       if(G_write_what)then
          call stderr('+'//command)
       endif
-      
+
       ! not returning command status on all platforms
       call execute_command_line (command, exitstat=icmd,cmdstat=cstat,cmdmsg=sstat) ! execute system command
-      
+
       if(icmd.ne.0)then                                                             ! if system command failed exit program
          call stop_prep('*prep:exe* ERROR(002) - SYSTEM COMMAND FAILED:'//v2s(icmd))
       endif
@@ -325,7 +324,7 @@ integer,intent(in)             :: ireset                    ! 0= can redefine va
 
    istore=0
    if (G_numdef.ne.0) then                                  ! test for redefinition of defined name
-      do j=1,G_numdef  
+      do j=1,G_numdef
          if (opts(:iname).eq.G_defvar(j)) then
             istore=j
             if(ireset.ne.0)then                             ! fail if redefinitions are not allowed on this call
@@ -368,7 +367,7 @@ character(len=*),optional :: name
 character(len=*),parameter         :: month='JanFebMarAprMayJunJulAugSepOctNovDec'
 character(len=*),parameter         :: fmt = '(I2.2,A1,I2.2,I3,1X,A3,1x,I4)'
 character(len=*),parameter         :: cdate = '(A3,1X,I2.2,1X,I4.4)'
-character(len=:),allocatable       :: s          
+character(len=:),allocatable       :: s
 character(len=80)                  :: line
 integer,dimension(8)               :: v
 character(len=10) :: name_
@@ -392,56 +391,6 @@ character(len=10) :: name_
    end select
    s=trim(line)
 end function getdate
-!===================================================================================================================================
-!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
-!===================================================================================================================================
-subroutine printenv(opts)                                  !@(#)printenv(3f): process 'PRINTENV variablename' directive
-   character(len=*)             ::  opts                   ! packed uppercase working copy of input line with leading $ removed
-   character(len=G_line_length) ::  varvalue               ! value of environment variable
-   integer                      ::  istatus
-   integer                      ::  ilength
-
-   select case(opts)                                                          ! process directive based on variable name
-   case('PREP_DATE')
-      write(G_outline,'("      PREP_DATE=""",a,"""")')getdate()
-      call write_out(G_outline)
-
-   case('PREP_FILE')
-      ! assumes filename does not have " characters
-      write(G_outline,'("      PREP_FILE=""",a,"""")')trim(G_file_dictionary(G_iocount)%filename)
-      call write_out(G_outline)
-   case('PREP_LINE')
-      ! assumes want this as a string and not a number
-      !write(G_outline,'("      PREP_LINE=""",i11,"""")')G_file_dictionary(G_iocount)%line_number
-      !call write_out(G_outline)
-      write(G_outline,'("      PREP_LINE=",i11)')G_file_dictionary(G_iocount)%line_number  ! assumes want this as a number
-      call write_out(G_outline)
-   case('')
-      call stop_prep('*prepprintenv* ERROR(011) - NO VARIABLE NAME ON "PRINTENV":'//trim(G_SOURCE))
-   case default
-!
-!    STATUS (optional) shall be a default integer scalar. It is an INTENT (OUT) argument. If the environment
-!               variable exists and either has no value or its value is successfully assigned to VALUE, STATUS
-!               is set to zero. STATUS is set to -1 if the VALUE argument is present and has a length less
-!               than the significant length of the environment variable. It is assigned the value 1 if the specified
-!               environment variable does not exist, or 2 if the processor does not support environment variables.
-!               Processor-dependent values greater than 2 may be returned for other error conditions.
-!
-      call get_environment_variable(trim(opts),varvalue,ilength,istatus)
-      select case(istatus)
-      case(0)
-      case(-1)
-         call stop_prep('*prepprintenv* ERROR(012) - VARIABLE VALUE TOO LONG:'//trim(G_SOURCE))
-      case(1)
-         call stop_prep('*prepprintenv* ERROR(013) - VARIABLE DOES NOT EXIST:'//trim(G_SOURCE))
-      case(2)
-         call stop_prep('*prepprintenv* ERROR(014) - COMPILER DOES NOT SUPPORT ENVIRONMENT VARIABLES:'//trim(G_SOURCE))
-      case default
-         call stop_prep('*prepprintenv* ERROR(015) - UNEXPECTED STATUS VALUE '//v2s(istatus)//':'//trim(G_SOURCE))
-      end select
-      call write_out(varvalue)
-   end select
-end subroutine printenv
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
@@ -1190,7 +1139,7 @@ subroutine logic(line,ipos1,ipos2)           !@(#)logic(3f): process .OP. operat
               IF (J.EQ.0) LEN1=1
               ONE=TRUFAL(NEWL,J+LEN1,I1)
            endif
-           
+
            OUT: DO L=I1+LEN,len_trim(NEWL)
              IN: DO K=1,5
                 LEN2=5
@@ -1198,10 +1147,10 @@ subroutine logic(line,ipos1,ipos2)           !@(#)logic(3f): process .OP. operat
                 IF (INDEX(NEWL(I1+LEN:L),OPS(K)(:len_trim(OPS(K)))).NE.0) exit OUT
              enddo IN
            enddo OUT
-           
+
            IF (L.GT.len_trim(NEWL)) LEN2=0
            TWO=TRUFAL(NEWL,I1+LEN+1,L-LEN2)
-           
+
            select case(i)
            case(1); G_dc=.not.two
            case(2); G_dc=one.and.two
@@ -1209,7 +1158,7 @@ subroutine logic(line,ipos1,ipos2)           !@(#)logic(3f): process .OP. operat
            case default
               call stop_prep('*prep* internal error')
            end select
-           
+
            temp='.FALSE.'
            if (G_dc) temp='.TRUE.'
            call rewrit(newl,temp(:len_trim(temp)),j,j+len1-1,l,l-len2+1)
@@ -1991,7 +1940,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   By default the pre-processor prep(1) will interpret lines with "$" in column ',&
 '   one, and will output no such lines. Other input is conditionally written to  ',&
 '   the output file based on the directives encountered in the input. It does    ',&
-'   not support parameterized macros but does support string substitution and    ',& 
+'   not support parameterized macros but does support string substitution and    ',&
 '   the inclusion of free-format text blocks that may be converted to Fortran    ',&
 '   comments or CHARACTER variable definitions while simultaneously being used   ',&
 '   to generate documentation files. INTEGER or LOGICAL expressions may be used  ',&
@@ -2050,7 +1999,6 @@ help_text=[ CHARACTER(LEN=128) :: &
 '     $SHOW                                                [! comment ]          ',&
 '                                                                                ',&
 '    :SYSTEM COMMANDS                                                            ',&
-!'     $PRINTENV predefined_name|environment_variable_name  [! comment ]          ',&
 '     $SYSTEM   system_command                             [! comment ]          ',&
 '                                                                                ',&
 'OPTIONS                                                                         ',&
@@ -2099,11 +2047,10 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                           "debug" code by many Fortran compilers when          ',&
 '                           compiling fixed-format Fortran source.               ',&
 '   --version        Display version and exit                                    ',&
-'   --width n        Maximum line length of the output file. Default             ',&
-'                    is 1024. Typically used to trim fixed-format                ',&
-'                    FORTRAN code that contains comments or "ident"              ',&
-'                    labels past column 72 when compiling                        ',&
-'                    fixed-format Fortran code.                                  ',&
+'   --width n        Maximum line length of the output file. The default is 1024.',&
+'                    Typically used to trim fixed-format FORTRAN code that       ',&
+'                    contains comments or "ident" labels past column 72 when     ',&
+'                    when compiling fixed-format Fortran code.                   ',&
 '                                                                                ',&
 '   DIRECTIVES                                                                   ',&
 '                                                                                ',&
@@ -2214,39 +2161,8 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   $IMPORT names(s)                                                             ',&
 '                                                                                ',&
 '   The values of environment variables may be imported such that their names    ',&
-'   and values will be set as if a $SET command command had been done on them.   ',&
+'   and values will be set as if a $SET command had been done on them.           ',&
 '                                                                                ',&
-!'   $PRINTENV name                                                               ',&
-!'                                                                                ',&
-!'   If the name of an uppercase environment variable is given the value          ',&
-!'   of the variable will be placed in the output file. If the value is a         ',&
-!'   null string or if the variable is undefined output will be stopped.          ',&
-!'   This allows the system shell to generate code lines. This is usually         ',&
-!'   used to pass in information about the compiler environment. For              ',&
-!'   example:                                                                     ',&
-!'                                                                                ',&
-!'     # If the following command were executed in the bash(1) shell...           ',&
-!'                                                                                ',&
-!'      export STAMP="      write(*,*)''''COMPILED ON:`uname -s`;AT `date`''''"   ',&
-!'                                                                                ',&
-!'   the environment variable STAMP would be set to something like                ',&
-!'                                                                                ',&
-!'     write(*,*)''''COMPILED ON:Eureka;AT Wed, Jun 12, 2013  8:12:06 PM''''      ',&
-!'                                                                                ',&
-!'   A version number would be another possibility                                ',&
-!'                                                                                ',&
-!'     export VERSION="      program_version=2.2"                                 ',&
-!'                                                                                ',&
-!'   Special predefined variable names are:                                       ',&
-!'                                                                                ',&
-!'     Variable Name      Output                                                  ',&
-!'     PREP_DATE  ......  PREP_DATE="12:58 14Jun2013"                             ',&
-!'     Where code is assumed to have defined PREP_DATE as CHARACTER(LEN=15)       ',&
-!'     PREP_FILE  ......  PREP_FILE="current filename"                            ',&
-!'     Where code is assumed to have defined PREP_FILE as CHARACTER(LEN=1024)     ',&
-!'     PREP_LINE  ......  PREP_LINE=    nnnnnn                                    ',&
-!'     Where code is assumed to have defined PREP_LINE as INTEGER                 ',&
-!'                                                                                ',&
 '   $BLOCK [comment|null|write|help|version  [-file NAME [-append]]              ',&
 '     or                                                                         ',&
 '   $BLOCK VARIABLE --varname NAME  [--file NAME]                                ',&
@@ -2501,28 +2417,11 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   >    call help_version(lget("cmd_version"))                                  ',&
 '   > end program conditional_compile                                            ',&
 '                                                                                ',&
-!' MIXING BLOCK AND PRINTENV                                                      ',&
-!'                                                                                ',&
-!'  This example shows one way how an environment variable can be turned          ',&
-!'  into a write statement                                                        ',&
-!'                                                                                ',&
-!'   > $block write                                                               ',&
-!'   > $ifdef HOME                                                                ',&
-!'   > $printenv HOME                                                             ',&
-!'   > $else                                                                      ',&
-!'   >    HOME not defined                                                        ',&
-!'   > $endif                                                                     ',&
-!'   > $block end                                                                 ',&
-!'                                                                                ',&
-!'   Sample output                                                                ',&
-!'                                                                                ',&
-!'     write(io,''(a)'')''/home/urbanjs/V600''                                    ',&
-!'                                                                                ',&
 ' SET USAGE                                                                      ',&
-'  Note values are case-sensitive by variable names are not, and there are       ',&
+'  Note values are case-sensitive but variable names are not, and there are      ',&
 '  pre-defined values for input file, line in input file, date and time that     ',&
-'  are NOT ACTIVE until at least one $SET directive is processed. That is,       ',&
-'  unless a $SET directive is processed no ${NAME} expansion occurs.             ',&
+'  are NOT ACTIVE until at least one $SET or $IMPORT directive is processed. That',&
+'  is, unless a variable name is defined no ${NAME} expansion occurs.            ',&
 '                                                                                ',&
 '   > $set author  William Shakespeare                                           ',&
 '   > $import HOME                                                               ',&
@@ -2728,7 +2627,7 @@ if(present(valin))then
    ! find where string is or should be
    call locate(keywords,key,place)
    ! if string was not found insert it
-   if(place.lt.1)then 
+   if(place.lt.1)then
       call insert(keywords,key,iabs(place))
       call insert(values,val,iabs(place))
       call insert(counts,ilen,iabs(place))
@@ -2752,7 +2651,7 @@ character(len=:),allocatable  :: valout
 integer                       :: place
    ! find where string is or should be
    call locate(keywords,key,place)
-   if(place.lt.1)then 
+   if(place.lt.1)then
       valout=''
    else
       valout=values(place)(:counts(place))
@@ -2898,14 +2797,14 @@ integer           :: length, rc, r
 logical           :: file_exists
 character(len=80) :: scratch
 
-   call define('UNKNOWN=0', 0) 
-   call define('LINUX=1', 0) 
-   call define('MACOS=2', 0) 
-   call define('WINDOWS=3', 0) 
-   call define('CYGWIN=4', 0) 
-   call define('SOLARIS=5', 0) 
-   call define('FREEBSD=6', 0) 
-   call define('OPENBSD=7', 0) 
+   call define('UNKNOWN=0', 0)
+   call define('LINUX=1', 0)
+   call define('MACOS=2', 0)
+   call define('WINDOWS=3', 0)
+   call define('CYGWIN=4', 0)
+   call define('SOLARIS=5', 0)
+   call define('FREEBSD=6', 0)
+   call define('OPENBSD=7', 0)
 
    r = OS_UNKNOWN
    ! Check environment variable `OS`.
@@ -2915,7 +2814,7 @@ character(len=80) :: scratch
    else
       ! Check environment variable `OSTYPE`.
       call get_environment_variable('OSTYPE', val, length, rc)
-      if (rc == 0 .and. length > 0) then 
+      if (rc == 0 .and. length > 0) then
           if (index(val, 'linux') > 0) then      ! Linux
               r = OS_LINUX
           elseif (index(val, 'darwin') > 0) then ! macOS
@@ -3038,17 +2937,17 @@ logical                       :: isscratch
       read(G_file_dictionary(G_iocount)%unit_number,'(a)',end=7) line
       G_io_total_lines=G_io_total_lines+1
       G_file_dictionary(G_iocount)%line_number=G_file_dictionary(G_iocount)%line_number+1
-      
+
       if(keeptabs)then
          G_source=line
       else
          call notabs(line,G_source,ilast)                  ! expand tab characters and trim trailing ctrl-M from DOS files
       endif
-      
+
       if(G_expand)then
          call expand_variables(G_source)
       endif
-      
+
       select case (line(1:1))                              ! special processing for lines starting with 'd' or 'D'
       case ('d','D')
          select case(letterd(1:1))
@@ -3063,14 +2962,14 @@ logical                       :: isscratch
             line(1:1)='!'
          end select
       end select
-      
+
       if (line(1:1).eq.prefix.and.line(2:2).ne.'{') then   ! prefix must be in column 1 for conditional compile directive
          call cond()                                       ! process directive
       elseif (G_write) then                                ! if last conditional was true then write line
          call write_out(trim(G_source))                    ! write data line
       endif
       cycle
-      
+
 7     continue                                                      ! end of file encountered on input
       if(G_file_dictionary(G_iocount)%unit_number.ne.5)then
          inquire(unit=G_file_dictionary(G_iocount)%unit_number,iostat=ios,named=isscratch)
@@ -3078,9 +2977,9 @@ logical                       :: isscratch
             close(G_file_dictionary(G_iocount)%unit_number,iostat=ios)
          endif
       endif
-      
+
       G_iocount=G_iocount-1
-      
+
       if(G_iocount.lt.1)exit
    enddo READLINE
 
