@@ -21,6 +21,9 @@ $IFDEF PREP_DOCUMENT_DIR
 $   SYSTEM mkdir -p $PREP_DOCUMENT_DIR/doc
 $ENDIF
 
+program test_help
+call help_usage(.true.)
+contains
 $!
 $! write the manpage as a subroutine for use by the program and as a text file
 $! for post-processing via txt2man (as an example -- could be tex, html, txt, ...).
@@ -47,3 +50,4 @@ $IFDEF PREP_DOCUMENT_DIR
 $   SYSTEM mkdir -p man/man3                                                                        
 $   SYSTEM txt2man $PREP_DOCUMENT_DIR/doc/conditional_compile.3.man >man/man3/conditional_compile.3
 $ENDIF
+end program test_help

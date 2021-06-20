@@ -2,6 +2,7 @@ module M_swap
 implicit none                       ! declare that all variables must be explicitly declared
 private
 
+$! note if the environment variable $PREP_DOCUMENT_DIR is not set the -file option is ignored.
 $BLOCK COMMENT -file swap.3.man
 NAME
    swap(3f) - swap two intrinsic variables
@@ -18,7 +19,6 @@ $IFDEF PREP_DOCUMENT_DIR ! call system commands to convert manpage markdown to r
 $  SYSTEM txt2man $PREP_DOCUMENT_DIR/doc/swap.3.man > man/man3/swap.3
 $  SYSTEM gzip man/man3/swap.3
 $ENDIF
-   environment variable $PREP_DOCUMENT_DIR is not set the option is ignored.
 
 public :: swap
 
@@ -84,3 +84,17 @@ character( len=max(len(string1),len(string2))) :: string_temp
 end subroutine s_swap
 end module M_swap
 $!==============================
+program testit
+use M_swap, only : swap
+integer :: i=10,j=20
+real    :: x=10.10,y=20.20
+
+write(*,*)i,j
+call swap(i,j)
+write(*,*)i,j
+
+write(*,*)x,y
+call swap(x,y)
+write(*,*)x,y
+
+end program testit

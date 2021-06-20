@@ -1,3 +1,4 @@
+program test_block
 $!
 $! basic $block usage
 $!
@@ -41,9 +42,10 @@ $BLOCK END
 endblock
 
 block 
-character(len=:),allocatable :: HELP_TEXT
+character(len=:),allocatable :: HELP_TEXT(:)
 $BLOCK VARIABLE -varname HELP_TEXT
   These lines are converted to a declaration of a CHARACTER
   variable.
 $BLOCK END
 endblock
+end program test_block

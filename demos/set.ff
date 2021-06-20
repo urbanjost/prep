@@ -1,3 +1,4 @@
+program test_set
 $set author  William Shakespeare      
 $import HOME FPM_COMPILER
 
@@ -13,3 +14,4 @@ write(*,*)'HOME ${HOME}'
 $ifdef FPM_COMPILER
 write(*,*)'COMPILER ${FPM_COMPILER}'     
 $endif
+end program test_set
