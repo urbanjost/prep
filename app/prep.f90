@@ -43,6 +43,7 @@ use M_list,      only : insert, locate, replace, remove                  ! Basic
    end type
    type(parcel_stack),public            ::  G_parcel_dictionary(500)
 
+   integer,save                         :: G_line_number=0
    logical,save,public                  :: G_asis=.false.
    logical,save,public                  :: G_expand=.false.
    integer,public                       :: G_iocount=0

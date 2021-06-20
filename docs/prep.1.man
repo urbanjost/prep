@@ -15,7 +15,6 @@ SYNOPSIS
          [--width n]
          [-d ignore|remove|blank]
          [--comment default|doxygen|ford|none]
-         [--linelength 132]
          [--version]
          [--help]
 DESCRIPTION
@@ -125,14 +124,11 @@ OPTIONS
                            used to support the optional compilation of
                            "debug" code by many Fortran compilers when
                            compiling fixed-format Fortran source.
-   --linelength     A warning message is produced if an output line exceeds
-                    this limit.
    --version        Display version and exit
-   --width n        Maximum line length of the output file. Default
-                    is 1024. Typically used to trim fixed-format
-                    FORTRAN code that contains comments or "ident"
-                    labels past column 72 when compiling
-                    fixed-format Fortran code.
+   --width n        Maximum line length of the output file. The default is 1024.
+                    Typically used to trim fixed-format FORTRAN code that
+                    contains comments or "ident" labels past column 72 when
+                    when compiling fixed-format Fortran code.
 
    DIRECTIVES
 
