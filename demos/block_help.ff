@@ -2,7 +2,7 @@ $BLOCK NULL
 
   If you want to write a free-format document as a routine that can be
   called by your program and optionally also write that text to a file
-  possibly for further postprocessing you can use the $BLOCK HELP
+  possibly for further post-processing you can use the $BLOCK HELP
   directive and use $SYSTEM to do the processing.  
 
   So on GNU/Linux and Unix machines this would make the output 
@@ -29,9 +29,9 @@ $! write the manpage as a subroutine for use by the program and as a text file
 $! for post-processing via txt2man (as an example -- could be tex, html, txt, ...).
 $!
 $!
-$BLOCK HELP --file conditional_compile.3.man
+$BLOCK HELP --file conditional_compile.1.man
 NAME
-    conditional_compile(3f) - basic example for prep(1) pre-processor.
+    conditional_compile(1f) - basic example for prep(1) pre-processor.
 
 SYNOPSIS
     conditional_example [--help] [--version]
@@ -47,7 +47,7 @@ $BLOCK END
 
 $! convert the help text from a flat text file to a roff file using txt2man(1)
 $IFDEF PREP_DOCUMENT_DIR
-$   SYSTEM mkdir -p man/man3                                                                        
-$   SYSTEM txt2man $PREP_DOCUMENT_DIR/doc/conditional_compile.3.man >man/man3/conditional_compile.3
+$   SYSTEM mkdir -p man/man1                                                                        
+$   SYSTEM txt2man $PREP_DOCUMENT_DIR/doc/conditional_compile.1.man >man/man1/conditional_compile.1
 $ENDIF
 end program test_help
