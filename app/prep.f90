@@ -1604,43 +1604,44 @@ end subroutine stops
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
 subroutine debug_state(msg)                        !@(#)debug(3f): process $SHOW command or state output when errors occur
-character(len=*),intent(in)   :: msg
-   integer                    :: i
+character(len=*),intent(in) :: msg
+integer                     :: i
+character(len=*),parameter  :: fmt='(*(g0,1x))'
 
    write(G_iout,'(a)')'!==============================================================================='
    write(G_iout,'(a)')'! '//trim(msg)
 
-   write(G_iout,'(a)')'! CURRENT STATE OF PREP(1):'
-   write(G_iout,'("! TOTAL LINES READ ............... ",i0)')G_io_total_lines     ! write number of lines read
-   write(G_iout,'("! CONDITIONAL_NESTING_LEVEL....... ",i0)')G_nestl              ! write nesting level
+   write(G_iout,'(a)')'! Current state of prep(1):('//getdate()//')'
+   write(G_iout,'("! Total lines read ............... ",i0)')G_io_total_lines     ! write number of lines read
+   write(G_iout,'("! Conditional nesting level....... ",i0)')G_nestl              ! write nesting level
    write(G_iout,'("! G_WRITE (general processing).... ",l0)')G_write              ! non-if/else/endif directives processed
    write(G_iout,'("! G_LLWRITE (write input lines)... ",l0)')G_llwrite            ! non-if/else/endif directives processed
-   write(G_iout,'("! DATE............................ ",a)')getdate()             ! current time stamp
-   call write_arguments()
-   write(G_iout,'(a)')'! VARIABLES:'
-   do i=1,G_numdef                                                                ! print variable dictionary
-      write(G_iout,'("! ",a," ! ",a)')G_defvar(i),G_defval(i)                     ! write variable and corresponding value
-   enddo
 
-   write(G_iout,'(a)')'! OPEN FILES:'
-   write(G_iout,'(a)')'!     ! ---- ! UNIT ! LINE NUMBER ! FILENAME'
+   call write_arguments()
+
+   write(G_iout,'(a)')'! Open files:'
+   write(G_iout,'(a)')'!    unit ! line number ! filename'
    do i=1,G_iocount                                                               ! print file dictionary
       ! write table of files
-      write(G_iout,'("!     ! ",i4," ! ",i4," ! ",i11," ! ",a)')i,  &
+      write(G_iout,'("!    ",i4," ! ",i11," ! ",a)') &
       &  G_file_dictionary(i)%unit_number,    &
       &  G_file_dictionary(i)%line_number,    &
       &  trim(G_file_dictionary(i)%filename )
    enddo
 
-   write(G_iout,'(a)')'! INCLUDE DIRECTORIES:'
+   write(G_iout,'(a)')'! INCLUDE directories:'
    do i=1,G_inc_count
-      write(G_iout,'("! ",a)') trim(G_inc_files(i))
+      write(G_iout,'("!    ",a)') trim(G_inc_files(i))
+   enddo
+
+   write(G_iout,'(a)')'! Variables:'
+   do i=1,G_numdef                                                                 ! print variable dictionary
+      write(G_iout,fmt)"!    $DEFINE",trim(G_defvar(i)),' = ',adjustl(G_defval(i)) ! write variable and corresponding value
    enddo
 
    if(size(keywords).gt.0)then
-      write(G_iout,'(a)')'! SET STRINGS:'
-      write(G_iout,*)'>>>',size(keywords)
-      write(G_iout,'(*("! ",a,"==> ",a,/))')(keywords(i),values(i)(:counts(i)),i=1,size(keywords))
+      write(G_iout,fmt)'! SET strings:(There are',size(keywords),'keywords defined)'
+      write(G_iout,'(3(g0,1x))')('!    $SET',keywords(i),values(i)(:counts(i)),i=1,size(keywords))
    endif
 
    write(G_iout,'(a)')'!==============================================================================='
@@ -1656,7 +1657,7 @@ subroutine write_arguments() ! @(#)write_arguments(3f): return all command argum
    integer                      :: icount           !  count of number of arguments available
    character(len=255)           :: value            !  store individual arguments one at a time
 
-   write(G_iout,'(a)',advance='no')'! ARGUMENTS ...................... '
+   write(G_iout,'(a)',advance='no')'! Arguments ...................... '
    icount=command_argument_count()                  ! intrinsic gets number of arguments
    do i=1,icount
       call get_command_argument(i,value,ilength,istatus)
