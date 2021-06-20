@@ -14,7 +14,7 @@ OPTIONS
    Y one of the values to swap
 EXAMPLE
 $BLOCK 
-$IFDEF $PREP_DOCUMENT_DIR ! call system commands to convert manpage markdown to roff 
+$IFDEF PREP_DOCUMENT_DIR ! call system commands to convert manpage markdown to roff 
 $  SYSTEM txt2man $PREP_DOCUMENT_DIR/doc/swap.3.man > man/man3/swap.3
 $  SYSTEM gzip man/man3/swap.3
 $ENDIF
