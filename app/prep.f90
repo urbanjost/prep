@@ -2174,11 +2174,11 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                 The Fortran generated is free-format. It is assumed the        ',&
 '                 output will not generate lines over 132 columns.               ',&
 '      HELP:      write text as a subroutine called HELP_USAGE                   ',&
-'      VERSION:   write text as a subroutine called HELP_VERSION                 ',&
-'                 prefixing lines with @(#) for use with the what(1) command.    ',&
+'      VERSION:   write text as a subroutine called HELP_VERSION prefixing       ',&
+'                 lines with @(#) for use with the what(1) command.              ',&
 '      NULL:      Do not write into current output file                          ',&
-'      VARIABLE:  write as a text variable. The name may be defined using the    ',&
-'                 --varname switch. Default name is "textblock".                 ',&
+'      VARIABLE:  write as a text variable. The name may be defined using        ',&
+'                 the --varname switch. Default name is "textblock".             ',&
 '      END:       End block of specially processed text                          ',&
 '                                                                                ',&
 '   If the "-file NAME" option is present the *unaltered* text is written to     ',&
@@ -2206,22 +2206,35 @@ help_text=[ CHARACTER(LEN=128) :: &
 '    $show                                                                       ',&
 '    $stop 0                                                                     ',&
 '                                                                                ',&
-'    !======================================================================     ',&
-'    !  CURRENT STATE                                                            ',&
-'    !     TOTAL LINES READ ............ 2                                       ',&
-'    !     CONDITIONAL_NESTING_LEVEL.... 0                                       ',&
-'    !     DATE......................... 11:18 21Jun2013                         ',&
-'    !     ARGUMENTS ................... A=10 B C D -o paper                     ',&
-'    !  VARIABLES:                                                               ',&
-'    !     ! A                               !          10                       ',&
-'    !     ! B                               !           1                       ',&
-'    !     ! C                               !           1                       ',&
-'    !     ! D                               !           1                       ',&
-'    !     ! Z                               !          22                       ',&
-'    !  OPEN FILES:                                                              ',&
-'    !     ! ---- ! UNIT ! LINE NUMBER ! FILENAME                                ',&
-'    !     !    1 !    5 !           2 !                                         ',&
-'    !======================================================================     ',&
+'     > !================================================================        ',&
+'     > !                                                                        ',&
+'     > ! Current state of prep(1):(18:39 20 Jun 2021)                           ',&
+'     > ! Total lines read ............... 2                                     ',&
+'     > ! Conditional nesting level....... 0                                     ',&
+'     > ! G_WRITE (general processing).... T                                     ',&
+'     > ! G_LLWRITE (write input lines)... T                                     ',&
+'     > ! Arguments ...................... A=10 B C D -o paper                   ',&
+'     > ! Open files:                                                            ',&
+'     > !    unit ! line number ! filename                                       ',&
+'     > !       5 !           2 ! @                                              ',&
+'     > ! INCLUDE directories:                                                   ',&
+'     > !    .                                                                   ',&
+'     > ! Variables:                                                             ',&
+'     > !    $DEFINE UNKNOWN  =  0                                               ',&
+'     > !    $DEFINE LINUX  =  1                                                 ',&
+'     > !    $DEFINE MACOS  =  2                                                 ',&
+'     > !    $DEFINE WINDOWS  =  3                                               ',&
+'     > !    $DEFINE CYGWIN  =  4                                                ',&
+'     > !    $DEFINE SOLARIS  =  5                                               ',&
+'     > !    $DEFINE FREEBSD  =  6                                               ',&
+'     > !    $DEFINE OPENBSD  =  7                                               ',&
+'     > !    $DEFINE OS  =  1                                                    ',&
+'     > !    $DEFINE A  =  10                                                    ',&
+'     > !    $DEFINE B  =  1                                                     ',&
+'     > !    $DEFINE C  =  1                                                     ',&
+'     > !    $DEFINE D  =  1                                                     ',&
+'     > !    $DEFINE Z  =  22                                                    ',&
+'     > !================================================================        ',&
 '                                                                                ',&
 '   $STOP stop_value                                                             ',&
 '                                                                                ',&
@@ -2325,21 +2338,21 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '  Define variables on command line:                                             ',&
 '                                                                                ',&
-'   Typically, variables are defined on the command line when prep(1) is invoked ',&
-'   but can be grouped together into small files that are included with a        ',&
-'   $INCLUDE or as input files.                                                  ',&
+'   Typically, variables are defined on the command line when prep(1) is         ',&
+'   invoked but can be grouped together into small files that are included       ',&
+'   with a $INCLUDE or as input files.                                           ',&
 '                                                                                ',&
 '     prep HP size=64 -i hp_directives.dirs test.F90 -o test_out.f90             ',&
 '                                                                                ',&
-'   defines variables HP and SIZE as if the expressions had been on a $DEFINE    ',&
-'   and reads file "hp_directives.dirs" and then test.F90. Output is directed    ',&
-'   to test_out.f90                                                              ',&
+'   defines variables HP and SIZE as if the expressions had been on a            ',&
+'   $DEFINE and reads file "hp_directives.dirs" and then test.F90.               ',&
+'   Output is directed to test_out.f90                                           ',&
 '                                                                                ',&
 '  Basic conditionals:                                                           ',&
 '                                                                                ',&
-'   > $! set value of variable "a" if it is not specified on the prep(1) command.',&
+'   > $! set variable "a" if not specified on the prep(1) command.               ',&
 '   > $IF .NOT.DEFINED(A)                                                        ',&
-'   > $   DEFINE a=1  ! so only define the following first version of SUB(3f)    ',&
+'   > $   DEFINE a=1  ! so only define the first version of SUB(3f) below        ',&
 '   > $ENDIF                                                                     ',&
 '   >    program conditional_compile                                             ',&
 '   >       call sub()                                                           ',&
@@ -2363,51 +2376,49 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   > $!                                                                         ',&
 '   > $BLOCK NULL --file manual.tex                                              ',&
-'   > This is a block of text that will be ignored on output but optionally      ',&
-'   > written to a doc/ file when $PREP_DOCUMENT_DIR is set.                     ',&
+'   > This is a block of text that will be ignored on output but                 ',&
+'   > optionally written to a doc/ file when $PREP_DOCUMENT_DIR is set.          ',&
 '   > $BLOCK END                                                                 ',&
 '   > $!                                                                         ',&
 '   > $BLOCK COMMENT --file manual.tex --append                                  ',&
-'   > This is a block of text that will be converted to comments and optionally  ',&
-'   > appended to a doc/ file when $PREP_DOCUMENT_DIR is set.                    ',&
+'   > This is a block of text that will be converted to comments and             ',&
+'   > optionally appended to a doc/ file when $PREP_DOCUMENT_DIR is set.         ',&
 '   > $BLOCK END                                                                 ',&
 '   > $!                                                                         ',&
 '                                                                                ',&
-'  Creating a help_usage(3f) subroutine and writing the same documentation to    ',&
-'  a doc file (if the environment variable $PREP_DOCUMENT_DIR is set).           ',&
+'  Creating a help_usage(3f) subroutine and writing the same documentation       ',&
+'  to a doc file (if the environment variable $PREP_DOCUMENT_DIR is set).        ',&
 '                                                                                ',&
-'   > $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',&
-'   > $! generate help_usage() procedure and file to run thru txt2man(1) or other',&
-'   > $! filters to make man(1) page if $PREP_DOCUMENT_DIR is set.               ',&
-'   > $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',&
+'   > $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@         ',&
+'   > $! generate help_usage() procedure and file to run thru txt2man(1)         ',&
+'   > $! to make man(1) page if $PREP_DOCUMENT_DIR is set.                       ',&
+'   > $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@         ',&
 '   > $BLOCK HELP --file conditional_compile.man                                 ',&
 '   > NAME                                                                       ',&
-'   >     conditional_compile - basic example for prep(1) pre-processor.         ',&
+'   >    conditional_compile - basic example for prep(1) pre-processor.          ',&
 '   > SYNOPSIS                                                                   ',&
-'   >     conditional_example [--help] [--version]                               ',&
+'   >    conditional_example [--help] [--version]                                ',&
 '   > DESCRIPTION                                                                ',&
-'   >     This is a basic example program showing how documentation can be used  ',&
-'   >     to generate program help text                                          ',&
+'   >    This is a basic example program showing how documentation can be        ',&
+'   >    used to generate program help text                                      ',&
 '   > OPTIONS                                                                    ',&
-'   >        --help                                                              ',&
-'   >               display this help and exit                                   ',&
-'   >        --version                                                           ',&
-'   >               output version information and exit                          ',&
+'   >    --help     display this help and exit                                   ',&
+'   >    --version  output version information and exit                          ',&
 '   > $BLOCK END                                                                 ',&
 '                                                                                ',&
 '  Creating a help_version(3f) subroutine                                        ',&
 '                                                                                ',&
-'   > $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',&
+'   > $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@         ',&
 '   > $! generate help_version() procedure                                       ',&
 '   > $BLOCK VERSION                                                             ',&
-'   > DESCRIPTION: example program showing conditional compilation with prep(1)  ',&
+'   > DESCRIPTION: example program showing conditional compilation               ',&
 '   > PROGRAM:     conditional_compile                                           ',&
 '   > VERSION:     1.0.0, 20160703                                               ',&
 '   > AUTHOR:      John S. Urban                                                 ',&
 '   > $BLOCK END                                                                 ',&
-'   > $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',&
+'   > $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@        ',&
 '                                                                                ',&
-'  Sample program using help_usage(3f) and help_version(3f) and M_kracken95(3f): ',&
+'  Sample program using help_usage(f), help_version(3f) and M_kracken95(3f):     ',&
 '                                                                                ',&
 '   > program conditional_compile                                                ',&
 '   >    use M_kracken95, only : kracken, lget                                   ',&
@@ -2422,8 +2433,8 @@ help_text=[ CHARACTER(LEN=128) :: &
 ' SET USAGE                                                                      ',&
 '  Note values are case-sensitive but variable names are not, and there are      ',&
 '  pre-defined values for input file, line in input file, date and time that     ',&
-'  are NOT ACTIVE until at least one $SET or $IMPORT directive is processed. That',&
-'  is, unless a variable name is defined no ${NAME} expansion occurs.            ',&
+'  are NOT ACTIVE until at least one $SET or $IMPORT directive is processed.     ',&
+'  That is, unless a variable name is defined no ${NAME} expansion occurs.       ',&
 '                                                                                ',&
 '   > $set author  William Shakespeare                                           ',&
 '   > $import HOME                                                               ',&

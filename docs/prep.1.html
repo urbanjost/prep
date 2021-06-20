@@ -403,11 +403,11 @@ or
                  The Fortran generated is free-format. It is assumed the
                  output will not generate lines over 132 columns.
       HELP:      write text as a subroutine called HELP_USAGE
-      VERSION:   write text as a subroutine called HELP_VERSION
-                 prefixing lines with @(#) for use with the what(1) command.
+      VERSION:   write text as a subroutine called HELP_VERSION prefixing
+                 lines with @(#) for use with the what(1) command.
       NULL:      Do not write into current output file
-      VARIABLE:  write as a text variable. The name may be defined using the
-                 --varname switch. Default name is "textblock".
+      VARIABLE:  write as a text variable. The name may be defined using
+                 the --varname switch. Default name is "textblock".
       END:       End block of specially processed text
 <P>
 </PRE>
@@ -437,22 +437,35 @@ Example:
     $show
     $stop 0
 <P>
-    !======================================================================
-    !  CURRENT STATE
-    !     TOTAL LINES READ &#46;&#46;&#46;......... 2
-    !     CONDITIONAL_NESTING_LEVEL&#46;&#46;&#46;. 0
-    !     DATE&#46;&#46;&#46;...................... 11:18 21Jun2013
-    !     ARGUMENTS &#46;&#46;&#46;................ A=10 B C D -o paper
-    !  VARIABLES:
-    !     ! A                               !          10
-    !     ! B                               !           1
-    !     ! C                               !           1
-    !     ! D                               !           1
-    !     ! Z                               !          22
-    !  OPEN FILES:
-    !     ! ---- ! UNIT ! LINE NUMBER ! FILENAME
-    !     !    1 !    5 !           2 !
-    !======================================================================
+     &gt; !================================================================
+     &gt; !
+     &gt; ! Current state of prep(1):(18:39 20 Jun 2021)
+     &gt; ! Total lines read &#46;&#46;&#46;............ 2
+     &gt; ! Conditional nesting level&#46;&#46;&#46;.... 0
+     &gt; ! G_WRITE (general processing)&#46;&#46;&#46;. T
+     &gt; ! G_LLWRITE (write input lines)&#46;&#46;&#46; T
+     &gt; ! Arguments &#46;&#46;&#46;................... A=10 B C D -o paper
+     &gt; ! Open files:
+     &gt; !    unit ! line number ! filename
+     &gt; !       5 !           2 ! @
+     &gt; ! INCLUDE directories:
+     &gt; !    .
+     &gt; ! Variables:
+     &gt; !    $DEFINE UNKNOWN  =  0
+     &gt; !    $DEFINE LINUX  =  1
+     &gt; !    $DEFINE MACOS  =  2
+     &gt; !    $DEFINE WINDOWS  =  3
+     &gt; !    $DEFINE CYGWIN  =  4
+     &gt; !    $DEFINE SOLARIS  =  5
+     &gt; !    $DEFINE FREEBSD  =  6
+     &gt; !    $DEFINE OPENBSD  =  7
+     &gt; !    $DEFINE OS  =  1
+     &gt; !    $DEFINE A  =  10
+     &gt; !    $DEFINE B  =  1
+     &gt; !    $DEFINE C  =  1
+     &gt; !    $DEFINE D  =  1
+     &gt; !    $DEFINE Z  =  22
+     &gt; !================================================================
 <P>
 </PRE>
 $STOP stop_value
@@ -618,25 +631,25 @@ o
 Define variables on command line:
 <P>
 <PRE>
-   Typically, variables are defined on the command line when prep(1) is invoked
-   but can be grouped together into small files that are included with a
-   $INCLUDE or as input files.
+   Typically, variables are defined on the command line when prep(1) is
+   invoked but can be grouped together into small files that are included
+   with a $INCLUDE or as input files.
 <P>
      prep HP size=64 -i hp_directives.dirs test.F90 -o test_out.f90
 <P>
 </PRE>
 <BLOCKQUOTE>
-defines variables HP and SIZE as if the expressions had been on a $DEFINE
-and reads file "hp_directives.dirs" and then test.F90. Output is directed
-to test_out.f90
+defines variables HP and SIZE as if the expressions had been on a
+$DEFINE and reads file "hp_directives.dirs" and then test.F90.
+Output is directed to test_out.f90
 </BLOCKQUOTE>
 <P>
 Basic conditionals:
 <P>
 <PRE>
-   &gt; $! set value of variable "a" if it is not specified on the prep(1) command.
+   &gt; $! set variable "a" if not specified on the prep(1) command.
    &gt; $IF .NOT.DEFINED(A)
-   &gt; $   DEFINE a=1  ! so only define the following first version of SUB(3f)
+   &gt; $   DEFINE a=1  ! so only define the first version of SUB(3f) below
    &gt; $ENDIF
    &gt;    program conditional_compile
    &gt;       call sub()
@@ -662,56 +675,54 @@ Common use of $BLOCK
 <PRE>
    &gt; $!
    &gt; $BLOCK NULL --file manual.tex
-   &gt; This is a block of text that will be ignored on output but optionally
-   &gt; written to a doc/ file when $PREP_DOCUMENT_DIR is set.
+   &gt; This is a block of text that will be ignored on output but
+   &gt; optionally written to a doc/ file when $PREP_DOCUMENT_DIR is set.
    &gt; $BLOCK END
    &gt; $!
    &gt; $BLOCK COMMENT --file manual.tex --append
-   &gt; This is a block of text that will be converted to comments and optionally
-   &gt; appended to a doc/ file when $PREP_DOCUMENT_DIR is set.
+   &gt; This is a block of text that will be converted to comments and
+   &gt; optionally appended to a doc/ file when $PREP_DOCUMENT_DIR is set.
    &gt; $BLOCK END
    &gt; $!
 <P>
 </PRE>
-Creating a <B>help_usage</B>(3f) subroutine and writing the same documentation to
-a doc file (if the environment variable $PREP_DOCUMENT_DIR is set).
+Creating a <B>help_usage</B>(3f) subroutine and writing the same documentation
+to a doc file (if the environment variable $PREP_DOCUMENT_DIR is set).
 <P>
 <PRE>
-   &gt; $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-   &gt; $! generate help_usage() procedure and file to run thru txt2man(1) or other
-   &gt; $! filters to make man(1) page if $PREP_DOCUMENT_DIR is set.
-   &gt; $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   &gt; $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   &gt; $! generate help_usage() procedure and file to run thru txt2man(1)
+   &gt; $! to make man(1) page if $PREP_DOCUMENT_DIR is set.
+   &gt; $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
    &gt; $BLOCK HELP --file conditional_compile.man
    &gt; NAME
-   &gt;     conditional_compile - basic example for prep(1) pre-processor.
+   &gt;    conditional_compile - basic example for prep(1) pre-processor.
    &gt; SYNOPSIS
-   &gt;     conditional_example [--help] [--version]
+   &gt;    conditional_example [--help] [--version]
    &gt; DESCRIPTION
-   &gt;     This is a basic example program showing how documentation can be used
-   &gt;     to generate program help text
+   &gt;    This is a basic example program showing how documentation can be
+   &gt;    used to generate program help text
    &gt; OPTIONS
-   &gt;        --help
-   &gt;               display this help and exit
-   &gt;        --version
-   &gt;               output version information and exit
+   &gt;    --help     display this help and exit
+   &gt;    --version  output version information and exit
    &gt; $BLOCK END
 <P>
 </PRE>
 Creating a <B>help_version</B>(3f) subroutine
 <P>
 <PRE>
-   &gt; $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   &gt; $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
    &gt; $! generate help_version() procedure
    &gt; $BLOCK VERSION
-   &gt; DESCRIPTION: example program showing conditional compilation with prep(1)
+   &gt; DESCRIPTION: example program showing conditional compilation
    &gt; PROGRAM:     conditional_compile
    &gt; VERSION:     1.0.0, 20160703
    &gt; AUTHOR:      John S. Urban
    &gt; $BLOCK END
-   &gt; $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   &gt; $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 <P>
 </PRE>
-Sample program using <B>help_usage</B>(3f) and <B>help_version</B>(3f) and <B>M_kracken95</B>(3f):
+Sample program using <B>help_usage</B>(f), <B>help_version</B>(3f) and <B>M_kracken95</B>(3f):
 <P>
 <PRE>
    &gt; program conditional_compile
@@ -733,8 +744,8 @@ Sample program using <B>help_usage</B>(3f) and <B>help_version</B>(3f) and <B>M_
 <BLOCKQUOTE>
 Note values are case-sensitive but variable names are not, and there are
 pre-defined values for input file, line in input file, date and time that
-are NOT ACTIVE until at least one $SET or $IMPORT directive is processed. That
-is, unless a variable name is defined no ${NAME} expansion occurs.
+are NOT ACTIVE until at least one $SET or $IMPORT directive is processed.
+That is, unless a variable name is defined no ${NAME} expansion occurs.
 <P>
 <PRE>
    &gt; $set author  William Shakespeare
