@@ -2051,7 +2051,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   --version        Display version and exit                                    ',&
 '   --width n        Maximum line length of the output file. The default is 1024.',&
 '                    Typically used to trim fixed-format FORTRAN code that       ',&
-'                    contains comments or "ident" labels past column 72 when     ',&
+'                    contains comments or "ident" labels past column 72          ',&
 '                    when compiling fixed-format Fortran code.                   ',&
 '                                                                                ',&
 '   DIRECTIVES                                                                   ',&
