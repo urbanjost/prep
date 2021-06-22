@@ -1,4 +1,4 @@
-$BLOCK SHELL -cmd /bin/sh
+$BLOCK SHELL -cmd /bin/bash
 (
 cat <<EOF
    This is a here document in the Bourne shell that in a GNU/Linux or Unix
@@ -12,4 +12,88 @@ cat <<EOF
 EOF
 pwd
 )|sed -e 's/^/! /'
+
+$! Elaborate example:
+
+################################################################################
+# @(#) Make routine on stdout that describes current programming environment
+# to track where routines were compiled
+
+NAME=myfile.f90
+SHORTNAME=`basename $NAME`
+SHORTNAME=`echo $SHORTNAME|sed -e 's/\..*//'`
+export SHORTNAME NAME VERSION_NO
+
+(
+cat <<EOF
+!-----------------------------------------------------------------------
+subroutine ${SHORTNAME}(i) ! assume long routine names are supported
+ `[[ "$TARGET_REV" =~ .*_ifort ]] && echo '#define __INTEL_COMPILER 1'`
+$ifndef __INTEL_COMPILER
+use iso_fortran_env
+$endif
+implicit none
+integer,intent(in) :: i
+      ! return version number in character variable version and print
+      ! compile information to unit i
+      if(i.ge.0)then
+      write(i,'(1x,79("-"))')
+      call trimit('@(#)File ................ $NAME>')
+      call trimit('@(#)Program Version ..... ${VERSION_NO:-0.0.0}>')
+      call trimit('@(#)Build Target ........ `systemtype -r`>')
+$ifndef __INTEL_COMPILER
+      call trimit('@(#)Compiler Version .... '//trim(compiler_version())//'>')
+      call trimit('@(#)Compiler Options .... '//trim(compiler_options())//'>')
+$endif
+      call trimit('@(#)Compile Date ........ '//&
+     &'`date`>')
+     call trimit('@(#)Compiled on node:>')
+      call trimit('@(#) Nodename ........... '// &
+     &'`uname -n`>')
+      call trimit('@(#) System Type ........ '// &
+     &'`uname -s`>')
+      call trimit('@(#) O.S. Release ....... '// &
+     &'`uname -r`>')
+      call trimit('@(#) O.S. Version ....... ' &
+EOF
+################################################################################
+for name in `uname -v`
+do
+   for short in `echo "$name"|fold -60`
+   do
+           echo "     &//'$short ' &"
+   done
+done
+echo "     &//'>')"
+cat <<EOF
+      call trimit('@(#) Hardware Name ...... '//&
+     &'`uname -m`>')
+      write(i,'(1x,79("-"))')
+      endif
+      contains
+      subroutine trimit(string) ! leave off metadata prefix
+      character(len=*) :: string
+         write(i,*)trim(string(5:len_trim(string)-1))
+      end subroutine trimit
+end subroutine ${SHORTNAME}
+!-----------------------------------------------------------------------
+EOF
+################################################################################
+)
+################################################################################
+# example output of the subroutine generated
+# -------------------------------------------------------------------------------
+# File ................ myfile.f90
+# Program Version ..... 0.0.0
+# Build Target ........ Linux_gfortran
+# Compiler Version .... GCC version 9.3.0
+# Compiler Options .... -mtune=generic -march=x86-64 -fpre-include=/usr/include/finclude/math-vector-fortran.h
+# Compile Date ........ Mon 21 Jun 2021 10:43:09 PM EDT
+# Compiled on node:
+#  Nodename ........... venus
+#  System Type ........ Linux
+#  O.S. Release ....... 5.4.0-66-generic
+#  O.S. Version ....... #74-Ubuntu SMP Wed Jan 27 22:54:38 UTC 2021
+#  Hardware Name ...... x86_64
+# -------------------------------------------------------------------------------
 $BLOCK

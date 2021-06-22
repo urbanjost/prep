@@ -401,7 +401,7 @@ subroutine name(line)                                                 !@(#)name(
 character(len=*)          :: line
    integer                :: i
 
-   if (line(1:1).lt.'A'.or.line(1:1).gt.'Z')then                         ! variable names start with a-z
+   if (line(1:1).lt.'A'.or.line(1:1).gt.'Z'.and.line(1:1).ne.'_')then                         ! variable names start with a-z
      call stop_prep("*prepname* ERROR(016) -VARIABLE NAME DOES NOT START WITH ALPHAMERIC(OR GENERAL SYNTAX ERROR):"//trim(G_source))
    endif
 
