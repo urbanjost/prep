@@ -7,12 +7,12 @@
 !  Extensively rewritten since under a MIT License.
 !     2013-10-03,2020-12-19,2021-06-12 : John S. Urban
 
-module M_fpp                                                             !@(#)M_fpp(3f): module used by prep program
-USE ISO_FORTRAN_ENV, ONLY : ERROR_UNIT, OUTPUT_UNIT                      ! access computing environment ; Standard: Fortran 2003
-use M_io,        only : slurp, get_tmp, dirname                          ! Fortran file I/O routines
-use M_kracken95, only : sget, dissect, lget                              ! load command argument parsing module
+module M_fpp                                                                 !@(#)M_fpp(3f): module used by prep program
+USE ISO_FORTRAN_ENV, ONLY : ERROR_UNIT, OUTPUT_UNIT                          ! access computing environment ; Standard: Fortran 2003
+use M_io,        only : get_tmp, dirname, uniq, fileopen, filedelete         ! Fortran file I/O routines
+use M_kracken95, only : sget, dissect, lget                                  ! load command argument parsing module
 use M_strings,   only : nospace, v2s, substitute, upper, lower, isalpha, split, delim, str_replace=>replace, sep, atleast
-use M_list,      only : insert, locate, replace, remove                  ! Basic list lookup and maintenance
+use M_list,      only : insert, locate, replace, remove                      ! Basic list lookup and maintenance
    implicit none
 
    logical,save                         :: debug=.false.
@@ -81,6 +81,8 @@ use M_list,      only : insert, locate, replace, remove                  ! Basic
 
    integer,public                       :: G_comment_count=0
    character(len=10),public             :: G_comment_style=' '
+   character(len=:),allocatable,save    :: G_scratch_file
+   integer,save                         :: G_scratch_lun=-1
 
    character(len=:),allocatable   :: keywords(:)
    character(len=:),allocatable   :: values(:)
@@ -1286,7 +1288,11 @@ end subroutine rewrit
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
 subroutine document(opts)                    ! @(#)document(3f): process BLOCK command to start or stop special processing
-character(len=*),intent(in) :: opts
+character(len=*),intent(in)  :: opts
+integer                      :: ierr
+integer                      :: ios
+integer                      :: i
+character(len=G_line_length) :: options                 ! everything after first word of command till end of line or !
 
 ! CHECK COMMAND SYNTAX
    if(G_outtype.eq.'help')then  ! if in 'help' mode wrap up the routine
@@ -1298,6 +1304,12 @@ character(len=*),intent(in) :: opts
       !x!write(G_iout,'("!",a)')repeat('-',131)
    elseif(G_outtype.eq.'variable')then     ! if in 'variable' mode wrap up the variable
       write(G_iout,'(a)')"'']"
+   elseif(G_outtype.eq.'shell')then
+         close(unit=G_scratch_lun,iostat=ios)
+         call execute_command_line( trim(sget('block_cmd'))//' < '//G_scratch_file//' > '//G_scratch_file//'.out')
+         ierr=filedelete(G_scratch_file)
+         options=G_scratch_file//'.out'
+         call include(options,50+G_iocount)    ! Filenames can be case sensitive
    elseif(G_outtype.eq.'version')then  ! if in 'version' mode wrap up the routine
       write(G_iout,'("''@(#)COMPILED:       ",a,"'',&")') getdate('long')//'>'
       write(G_iout,'(a)')"'']"
@@ -1310,8 +1322,7 @@ character(len=*),intent(in) :: opts
       !x!write(G_iout,'("!",a)')repeat('-',131)
    endif
 
-   call dissect2('block','--oo --file --varname textblock --append .false.',opts) ! parse options on input line
-
+   call dissect2('block','--oo --file --cmd sh --varname textblock --append .false.',opts) ! parse options on input line
    ! if a previous command has opened a --file FILENAME flush it, because a new one is being opened or this is an END command
    ! and if a --file FILENAME has been selected open it
    call print_comment_block()
@@ -1342,6 +1353,22 @@ character(len=*),intent(in) :: opts
 
    case('NULL')
       G_outtype='null'
+
+   case('SHELL')
+      G_outtype='shell'
+      G_MAN_PRINT=.false.
+      G_MAN_COLLECT=.false.
+      if(G_system_on)then                             ! if allowing commands to be executed
+         flush(unit=G_iout,iostat=ios)
+         !!G_scratch_file=scratch('prep_scratch.'))
+         G_scratch_file=trim(uniq(get_tmp()//'prep_scratch.'))  !! THIS HAS TO BE A UNIQUE NAME -- IMPROVE THIS
+         G_scratch_lun=fileopen(G_scratch_file,'rw',ierr)
+         if(ierr.lt.0)then
+            call stop_prep('*prep:filter* ERROR: FILTER COMMAND FAILED TO OPEN PROCESS:'//trim(G_SOURCE))
+         endif
+      else
+         call stop_prep('*prep:filter* ERROR: FILTER COMMAND BLOCK ENCOUNTERED BUT SYSTEM COMMANDS NOT ENABLED:'//trim(G_SOURCE))
+      endif
 
    case('VARIABLE')
       G_outtype='variable'
@@ -1644,7 +1671,7 @@ character(len=*),parameter  :: fmt='(*(g0,1x))'
       write(G_iout,'(3(g0,1x))')('!    $SET',keywords(i),values(i)(:counts(i)),i=1,size(keywords))
    endif
 
-   write(G_iout,'(a)')'!==============================================================================='
+   write(G_iout,'(a)')'!-------------------------------------------------------------------------------'
 end subroutine debug_state
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -1663,6 +1690,7 @@ subroutine write_arguments() ! @(#)write_arguments(3f): return all command argum
       call get_command_argument(i,value,ilength,istatus)
       write(G_iout,'(a,1x)',advance='no')value(:ilength)
    enddo
+   write(G_iout,'(a)')
    call write_out('')
 end subroutine write_arguments
 !===================================================================================================================================
@@ -1986,11 +2014,14 @@ help_text=[ CHARACTER(LEN=128) :: &
 '    :FILE AND TEXT BLOCK USAGE                                                  ',&
 '     $OUTPUT   filename  [-append]                        [! comment ]          ',&
 '     $INCLUDE  filename                                   [! comment ]          ',&
-!     change so just $BLOCK name/$ENDBLOCK and
-!     $OUTPUT $BLOCK $POST all replaced by $POST if no options slurp file and process if any options
+![=========
+!     consider to change so just $BLOCK name/$ENDBLOCK and
+!     $OUTPUT $BLOCK $POST all replaced by $POST if no options gulp file and process if any options so what $BLOCK does now
 !     $BLOCK
 !     $ENDBLOCK
+!=========]
 '     $BLOCK    [comment|null|write|help|version|variable [-varname NAME]]       ',&
+!'               [shell [-cmd NAME]] |                                            ',&
 '               [-file NAME [-append]]                     [! comment ]          ',&
 '                                                                                ',&
 '    :IDENTIFIERS                                                                ',&
@@ -2179,6 +2210,9 @@ help_text=[ CHARACTER(LEN=128) :: &
 '      NULL:      Do not write into current output file                          ',&
 '      VARIABLE:  write as a text variable. The name may be defined using        ',&
 '                 the --varname switch. Default name is "textblock".             ',&
+!'      SHELL:     run text in block as a shell and replace with the stdout       ',&
+!'                 generated by the shell. The shell may be specified by the -cmd ',&
+!'                 option. The default shell is bash(1).                          ',&
 '      END:       End block of specially processed text                          ',&
 '                                                                                ',&
 '   If the "-file NAME" option is present the *unaltered* text is written to     ',&
@@ -2488,7 +2522,9 @@ character(len=*),intent(in)    :: line
 
    if(G_write_what)then              ! echo "what" lines to stderr
       istart=index(line,'@(#)')
-      write(ERROR_UNIT,'("-->>",a)')trim(line(istart+4:))
+      if(istart.ne.0)then
+         write(ERROR_UNIT,'("-->>",a)')trim(line(istart+4:))
+      endif
    endif
 
    call www(line)
@@ -2501,6 +2537,8 @@ character(len=*),intent(in)    :: line
 character(len=:),allocatable   :: buff
 character(len=115)             :: chunk
 integer                        :: ilen
+integer                        :: ios
+character(len=256)             :: message
 
    select case(trim(G_outtype))
 
@@ -2509,12 +2547,19 @@ integer                        :: ilen
 
    case('null')                                ! do not write
 
+   case('shell')
+      write(G_scratch_lun,'(a)',iostat=ios,iomsg=message)trim(line)
+      if(ios.lt.0)then
+         call stop_prep('*prep:stop* ERROR(68) - FAILED TO WRITE TO PROCESS:'//trim(line)//':'//trim(message))
+      endif
+
    case('variable')
       buff=trim(line)                          ! do not make a line over 132 characters. Trim input line if needed
       buff=buff//repeat(' ',max(80,len(buff))) ! ensure space in buffer for substitute
       call substitute(buff,"'","''")           ! change single quotes in input to two adjacent single quotes
       ilen=max(len_trim(buff),80)              ! make all lines have at least 80 characters in the string for a more legible output
       write(G_iout,'("''",a,"'',&")') buff(:ilen)
+
    case('help')
       buff=trim(line)                          ! do not make a line over 132 characters. Trim input line if needed
       buff=buff//repeat(' ',max(80,len(buff))) ! ensure space in buffer for substitute
@@ -2992,6 +3037,10 @@ logical                       :: isscratch
       endif
 
       G_iocount=G_iocount-1
+      if(G_scratch_lun.ne.-1)then
+         ios=filedelete(G_scratch_file//'.out')
+         G_scratch_lun=-1
+      endif
 
       if(G_iocount.lt.1)exit
    enddo READLINE

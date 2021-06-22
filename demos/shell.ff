@@ -1,0 +1,15 @@
+$BLOCK SHELL -cmd /bin/sh
+(
+cat <<EOF
+   This is a here document in the Bourne shell that in a GNU/Linux or Unix
+   programming environment should show the HOME directory as $HOME and the
+   user as $USER and the current date `date`.
+   
+   This could be any language or command (even another compiled program)
+   that generates source code on stdout.
+   
+   This is very system-dependent and should be used very judiciously.
+EOF
+pwd
+)|sed -e 's/^/! /'
+$BLOCK

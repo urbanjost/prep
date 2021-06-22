@@ -6,6 +6,18 @@ list of notable changes including`records of change such as bug fixes,
 new features, changes, and relevant notifications.
 
 ---
+**2021-06-21**  John S. Urban <https://github.com/urbanjost>
+
+### :green_circle: ADD:
+
+  + Added $BLOCK SHELL option using a simpler system-dependent approach
+    with scratch files rather than with calls to popen(3c) in order to be
+    more portable. The documentation is commented out at this time. This
+    is an experimental feature undergoing evaluation and should not be
+    depended on at this time as a standard feature. It is clearly highly
+    system dependent and should be used with restraint.
+
+---
 **2021-06-16**  John S. Urban <https://github.com/urbanjost>
 
 ### :green_circle: ADD:
