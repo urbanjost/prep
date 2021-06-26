@@ -1517,6 +1517,7 @@ end subroutine print_comment_block
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
 subroutine format_g_man()
+   character(len=:),allocatable   :: array1(:)   ! output array of tokens
    character(len=:),allocatable   :: array(:) ! output array of tokens
    integer                        :: ios
    integer                        :: i
@@ -1527,7 +1528,11 @@ subroutine format_g_man()
 
          case('doxygen')                 ! convert plain text to doxygen comment blocks with some automatic markdown highlights
             if(len(G_MAN).gt.1)then      ! the way the string is built it starts with a newline
-               CALL split(G_MAN,array,delimiters=new_line('N'),nulls='return') ! parse string to an array parsing on delimiters
+               CALL split(G_MAN,array1,delimiters=new_line('N'),nulls='return') ! parse string to an array parsing on delimiters
+               if(allocated(array))deallocate(array)
+               allocate(character(len=len(array1)+6) :: array(size(array1)))  ! make room for !! and ##
+               deallocate(array1)
+               array(:)=array1
                do i=1,size(array)        ! lines starting with a letter and all uppercase letters is prefixed with "##"
                   if( upper(array(i)).eq.array(i) .and. isalpha(array(i)(1:1)).and.lower(array(i)).ne.array(i))then
                      array(i)='##'//trim(array(i))
@@ -1554,7 +1559,9 @@ subroutine format_g_man()
 
          case('ford')                    ! convert plain text to doxygen comment blocks with some automatic markdown highlights
             if(len(G_MAN).gt.1)then      ! the way the string is built it starts with a newline
-               CALL split(G_MAN,array,delimiters=new_line('N'),nulls='return') ! parse string to an array parsing on delimiters
+               CALL split(G_MAN,array1,delimiters=new_line('N'),nulls='return') ! parse string to an array parsing on delimiters
+               array=[character(len=(len(array1)+6)) :: array1] !! pad with trailing spaces
+               deallocate(array1)
                do i=1,size(array)        ! lines starting with a letter and all uppercase letters is prefixed with "##"
                   if( upper(array(i)).eq.array(i) .and. isalpha(array(i)(1:1)).and.lower(array(i)).ne.array(i))then
                      array(i)='## '//trim(array(i))
@@ -2533,6 +2540,7 @@ end subroutine write_out
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
 subroutine www(line) ! @(#)www(3f):  change line into a WRITE, HELP/VERSION, COMMENT output line
+integer,parameter              :: linewidth=80
 character(len=*),intent(in)    :: line
 character(len=:),allocatable   :: buff
 character(len=115)             :: chunk
@@ -2555,16 +2563,16 @@ character(len=256)             :: message
 
    case('variable')
       buff=trim(line)                          ! do not make a line over 132 characters. Trim input line if needed
-      buff=buff//repeat(' ',max(80,len(buff))) ! ensure space in buffer for substitute
+      buff=buff//repeat(' ',max(linewidth,len(buff))) ! ensure space in buffer for substitute
       call substitute(buff,"'","''")           ! change single quotes in input to two adjacent single quotes
-      ilen=max(len_trim(buff),80)              ! make all lines have at least 80 characters in the string for a more legible output
+      ilen=min(len_trim(buff),linewidth)       ! make all lines have at least linewidth characters for a more legible output
       write(G_iout,'("''",a,"'',&")') buff(:ilen)
 
    case('help')
       buff=trim(line)                          ! do not make a line over 132 characters. Trim input line if needed
-      buff=buff//repeat(' ',max(80,len(buff))) ! ensure space in buffer for substitute
+      buff=buff//repeat(' ',max(linewidth,len(buff))) ! ensure space in buffer for substitute
       call substitute(buff,"'","''")           ! change single quotes in input to two adjacent single quotes
-      ilen=max(len_trim(buff),80)              ! make all lines have at least 80 characters in the string for a more legible output
+      ilen=max(len_trim(buff),linewidth)              ! make all lines have at least 80 characters for a more legible output
       write(G_iout,'("''",a,"'',&")') buff(:ilen)
 
    case('version')                             ! write version information with SCCS ID prefix for use with what(1) command
@@ -2573,7 +2581,7 @@ character(len=256)             :: message
                                                !*! should handle longer lines and split them
    case('write')                               ! convert string to a Fortran write statement to unit "IO"
       buff=trim(line)                          ! do not make a line over 132 characters. Trim input line if needed
-      buff=buff//repeat(' ',max(80,len(buff))) ! ensure space in buffer for substitute
+      buff=buff//repeat(' ',max(linewidth,len(buff))) ! ensure space in buffer for substitute
       call substitute(buff,"'","''")
       write(G_iout,'(a)',advance='no')'write(io,''(a)'')'''
       chunk=buff
