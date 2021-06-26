@@ -1489,7 +1489,9 @@ subroutine print_comment_block() !@(#)print_comment_block(3f): format comment bl
 
       open(unit=70,file=filename,iostat=ios,action='write',position=G_MAN_FILE_POSITION)
 
+
       if(ios.ne.0)then
+
          call stop_prep('ERROR(054) print_comment_block - FAILED TO OPEN DOCUMENT OUTPUT FILE:'//trim(filename))
       else
          if(len(G_MAN).gt.1)then                   ! the way the string is built it starts with a newline
@@ -1531,8 +1533,8 @@ subroutine format_g_man()
                CALL split(G_MAN,array1,delimiters=new_line('N'),nulls='return') ! parse string to an array parsing on delimiters
                if(allocated(array))deallocate(array)
                allocate(character(len=len(array1)+6) :: array(size(array1)))  ! make room for !! and ##
-               deallocate(array1)
                array(:)=array1
+               deallocate(array1)
                do i=1,size(array)        ! lines starting with a letter and all uppercase letters is prefixed with "##"
                   if( upper(array(i)).eq.array(i) .and. isalpha(array(i)(1:1)).and.lower(array(i)).ne.array(i))then
                      array(i)='##'//trim(array(i))
