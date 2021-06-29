@@ -76,13 +76,13 @@ data=[ character(len=132) :: &
 "  This block has the NULL keyword specified so these lines are ignored", &
 "  when generating the output file.", &
 "", &
-"$BLOCK END", &
+"$BLOCK", &
 "", &
 "$BLOCK COMMENT ", &
 "  These lines will be converted to Fortran comments.", &
 "  It is easier to reformat comments this way instead of having", &
 "  to prefix each line with exclamations.", &
-"$BLOCK END", &
+"$BLOCK", &
 "", &
 "$BLOCK COMMENT --file doc.html", &
 "<html> <body>", &
@@ -95,14 +95,14 @@ data=[ character(len=132) :: &
 "  so no output has to appear in the output file if desired.", &
 "</p>", &
 "</body> </html>", &
-"$BLOCK END", &
+"$BLOCK", &
 "", &
 "block", &
 "integer :: io=6", &
 "$BLOCK WRITE", &
 "  These lines are converted to a series of WRITE() statements", &
 "  where the LUN value ""IO"" is assumed to have been declared.", &
-"$BLOCK END", &
+"$BLOCK", &
 "endblock", &
 "", &
 "block ", &
@@ -110,7 +110,7 @@ data=[ character(len=132) :: &
 "$BLOCK VARIABLE -varname HELP_TEXT", &
 "  These lines are converted to a declaration of a CHARACTER", &
 "  variable.", &
-"$BLOCK END", &
+"$BLOCK", &
 "endblock", &
 'last line']
 

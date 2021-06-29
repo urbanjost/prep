@@ -76,7 +76,7 @@ $BLOCK COMMENT
    + Automatic objects cannot be saved or initialized.
    + Note that the len of a dummy argument can be used to calculate the automatic variable length.
    + Therefore, you can make sure len is at least max(len(string1),len(string2)) by adding the two lengths together:
-$BLOCK END
+$BLOCK
 
 character(len=*), intent(inout)             :: string1,string2
 character( len=max(len(string1),len(string2))) :: string_temp

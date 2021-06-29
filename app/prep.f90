@@ -1291,7 +1291,6 @@ subroutine document(opts)                    ! @(#)document(3f): process BLOCK c
 character(len=*),intent(in)  :: opts
 integer                      :: ierr
 integer                      :: ios
-integer                      :: i
 character(len=G_line_length) :: options                 ! everything after first word of command till end of line or !
 
 ! CHECK COMMAND SYNTAX
@@ -1650,8 +1649,8 @@ character(len=*),parameter  :: fmt='(*(g0,1x))'
    write(G_iout,'(a)')'! Current state of prep(1):('//getdate()//')'
    write(G_iout,'("! Total lines read ............... ",i0)')G_io_total_lines     ! write number of lines read
    write(G_iout,'("! Conditional nesting level....... ",i0)')G_nestl              ! write nesting level
-   write(G_iout,'("! G_WRITE (general processing).... ",l0)')G_write              ! non-if/else/endif directives processed
-   write(G_iout,'("! G_LLWRITE (write input lines)... ",l0)')G_llwrite            ! non-if/else/endif directives processed
+   write(G_iout,'("! G_WRITE (general processing).... ",l1)')G_write              ! non-if/else/endif directives processed
+   write(G_iout,'("! G_LLWRITE (write input lines)... ",l1)')G_llwrite            ! non-if/else/endif directives processed
 
    call write_arguments()
 
@@ -2356,7 +2355,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   $IF constructs can be nested up to 20 levels deep. Note that using           ',&
 '   more than two levels typically makes input files less readable.              ',&
 '                                                                                ',&
-'   $BLOCK END is required after a $BLOCK or --file FILENAME is not written.     ',&
+'   $BLOCK is required after a $BLOCK or --file FILENAME is not written.         ',&
 '                                                                                ',&
 '   Nesting of $BLOCK sections not allowed.                                      ',&
 '                                                                                ',&
@@ -2421,12 +2420,12 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   > $BLOCK NULL --file manual.tex                                              ',&
 '   > This is a block of text that will be ignored on output but                 ',&
 '   > optionally written to a doc/ file when $PREP_DOCUMENT_DIR is set.          ',&
-'   > $BLOCK END                                                                 ',&
+'   > $BLOCK                                                                     ',&
 '   > $!                                                                         ',&
 '   > $BLOCK COMMENT --file manual.tex --append                                  ',&
 '   > This is a block of text that will be converted to comments and             ',&
 '   > optionally appended to a doc/ file when $PREP_DOCUMENT_DIR is set.         ',&
-'   > $BLOCK END                                                                 ',&
+'   > $BLOCK                                                                     ',&
 '   > $!                                                                         ',&
 '                                                                                ',&
 '  Creating a help_usage(3f) subroutine and writing the same documentation       ',&
@@ -2447,7 +2446,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   > OPTIONS                                                                    ',&
 '   >    --help     display this help and exit                                   ',&
 '   >    --version  output version information and exit                          ',&
-'   > $BLOCK END                                                                 ',&
+'   > $BLOCK                                                                     ',&
 '                                                                                ',&
 '  Creating a help_version(3f) subroutine                                        ',&
 '                                                                                ',&
@@ -2458,7 +2457,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   > PROGRAM:     conditional_compile                                           ',&
 '   > VERSION:     1.0.0, 20160703                                               ',&
 '   > AUTHOR:      John S. Urban                                                 ',&
-'   > $BLOCK END                                                                 ',&
+'   > $BLOCK                                                                     ',&
 '   > $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@        ',&
 '                                                                                ',&
 '  Sample program using help_usage(f), help_version(3f) and M_kracken95(3f):     ',&

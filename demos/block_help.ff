@@ -43,7 +43,7 @@ DESCRIPTION
 OPTIONS
    --help     display this help and exit
    --version  output version information and exit
-$BLOCK END
+$BLOCK
 
 $! convert the help text from a flat text file to a roff file using txt2man(1)
 $IFDEF PREP_DOCUMENT_DIR

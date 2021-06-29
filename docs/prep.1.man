@@ -389,7 +389,7 @@ LIMITATIONS
    $IF constructs can be nested up to 20 levels deep. Note that using
    more than two levels typically makes input files less readable.
 
-   $BLOCK END is required after a $BLOCK or --file FILENAME is not written.
+   $BLOCK is required after a $BLOCK or --file FILENAME is not written.
 
    Nesting of $BLOCK sections not allowed.
 
@@ -454,12 +454,12 @@ EXAMPLES
    > $BLOCK NULL --file manual.tex
    > This is a block of text that will be ignored on output but
    > optionally written to a doc/ file when $PREP_DOCUMENT_DIR is set.
-   > $BLOCK END
+   > $BLOCK
    > $!
    > $BLOCK COMMENT --file manual.tex --append
    > This is a block of text that will be converted to comments and
    > optionally appended to a doc/ file when $PREP_DOCUMENT_DIR is set.
-   > $BLOCK END
+   > $BLOCK
    > $!
 
   Creating a help_usage(3f) subroutine and writing the same documentation
@@ -480,7 +480,7 @@ EXAMPLES
    > OPTIONS
    >    --help     display this help and exit
    >    --version  output version information and exit
-   > $BLOCK END
+   > $BLOCK
 
   Creating a help_version(3f) subroutine
 
@@ -491,7 +491,7 @@ EXAMPLES
    > PROGRAM:     conditional_compile
    > VERSION:     1.0.0, 20160703
    > AUTHOR:      John S. Urban
-   > $BLOCK END
+   > $BLOCK
    > $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
   Sample program using help_usage(f), help_version(3f) and M_kracken95(3f):
