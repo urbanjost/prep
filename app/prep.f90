@@ -22,6 +22,7 @@ use M_list,      only : insert, locate, replace, remove                      ! B
    integer,public,parameter             :: G_var_len=31                   ! allowed length of variable names
 
    integer,public                       :: G_numdef=0                     ! number of defined variables in dictionary
+   logical,public                       :: G_ident=.false.                ! whether to write IDENT as a comment or CHARACTER
 
    character(len=G_line_length),public  :: G_source                       ! original source file line
    character(len=G_line_length),public  :: G_outline                      ! message to build for writing to output
@@ -279,11 +280,19 @@ subroutine ident(opts)                                 !@(#)ident(3f): process $
    case('fortran')    !*! should make look for characters not allowed in metadata, continue over multiple lines, ...
       select case(len(text))
       case(:89)
-         write(G_iout,'("character(len=*),parameter::ident_",i0,"=""@(#)",a,''"'')')ident_count,text
+         if(G_ident)then
+            write(G_iout,'("character(len=*),parameter::ident_",i0,"=""@(#)",a,''"'')')ident_count,text
+         else
+            write(G_iout,'("! ident_",i0,"=""@(#)",a,''"'')')ident_count,text
+         endif
          ident_count=ident_count+1
       case(90:126)
-         write(G_iout,'("character(len=*),parameter::ident_",i0,"=""&")')ident_count
-         write(G_iout,'(''&@(#)'',a,''"'')')text
+         if(G_ident)then
+            write(G_iout,'("character(len=*),parameter::ident_",i0,"=""&")')ident_count
+            write(G_iout,'(''&@(#)'',a,''"'')')text
+         else
+            write(G_iout,'("! ident_",i0,"=""@(#)",a,''"'')')ident_count,text
+         endif
          ident_count=ident_count+1
       case default
          call stop_prep('*prep:exe* ERROR(006) - IDENT TOO LONG:'//trim(G_SOURCE))
@@ -1971,6 +1980,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '         [--width n]                                                            ',&
 '         [-d ignore|remove|blank]                                               ',&
 '         [--comment default|doxygen|ford|none]                                  ',&
+'         [--ident]                                                              ',&
 '         [--version]                                                            ',&
 '         [--help]                                                               ',&
 'DESCRIPTION                                                                     ',&
@@ -2080,6 +2090,13 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                    prefix lines with ''! ''. Allowed keywords are              ',&
 '                    currently "default", "doxygen","none","ford".               ',&
 '                    THIS IS AN ALPHA FEATURE AND NOT FULLY IMPLEMENTED.         ',&
+'   --ident          The output of the $IDENT directive is in the form of a      ',&
+'                    comment by default. If this flag is set the output is       ',&
+'                    of the form described in the $IDENT documentation           ',&
+'                    so executables and object code can contain the metadata     ',&
+'                    for use with the what(1) command. Note this generates an    ',&
+'                    unused variable which some compilers might optimize         ',&
+'                    away depending on what compilation options are used.        ',&
 '   -d ignore|remove|blank  Enable special treatment for lines beginning         ',&
 '                           with "d" or "D" The letter will be left as-is        ',&
 '                           (the default); removed; or replaced with a blank     ',&
@@ -2139,7 +2156,8 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   $IDENT metadata [-language fortran|c|shell]                                  ',&
 '                                                                                ',&
-'   Writes a line using SCCS-metadata format of the following forms:             ',&
+'   When the command line option "-ident" is specified this directive            ',&
+'   writes a line using SCCS-metadata format of one of the following forms:      ',&
 '                                                                                ',&
 '     language:                                                                  ',&
 '     fortran   character(len=*),parameter::ident="@(#)metadata"                 ',&
@@ -2541,7 +2559,7 @@ end subroutine write_out
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
 subroutine www(line) ! @(#)www(3f):  change line into a WRITE, HELP/VERSION, COMMENT output line
-integer,parameter              :: linewidth=80
+integer,parameter              :: linewidth=128
 character(len=*),intent(in)    :: line
 character(len=:),allocatable   :: buff
 character(len=115)             :: chunk
@@ -2946,6 +2964,7 @@ character(len=1024)          :: cmd=' &
    & --version          .false.  &
    & --noenv            .false.  &
    & --comment          COMMENT  &
+   & --ident            .false.  &
    & --width            1024     &
    & '
 logical                       :: isscratch
@@ -2967,6 +2986,7 @@ logical                       :: isscratch
    else
       prefix = sget('prep_prefix')                               ! not a digit so not an ADE so assume a literal character
    endif
+   G_ident=lget('prep_ident')                                    ! write IDENT as comment or CHARACTER variable
    G_iwidth                     = iget('prep_width')
    G_iwidth=max(0,G_iwidth)
    letterd(1:1)               = sget('prep_d')
