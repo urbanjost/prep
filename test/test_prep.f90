@@ -15,6 +15,7 @@ allocate(tally(0))
       write(*,'(a)')'ALL PREP TESTS PASSED'
    else
       write(*,'(a,*(l2))')'PREP TESTS FAILED',tally
+      stop 1
    endif
 contains
 subroutine conditionals()

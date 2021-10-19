@@ -4,7 +4,7 @@
 ## DOCUMENTATION
  + [manpages](https://urbanjost.github.io/prep/prep.1.html) reformatted as HTML.
  + the [demos/](demos/) directory has example input files for a variety of cases
- + The [CHANGELOG](CHANGELOG.md)
+ + The [CHANGELOG](docs/CHANGELOG.md)
 
 ## DESCRIPTION
 `prep(1)` is a streamlined pre-processor primarily designed for use

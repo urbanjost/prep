@@ -6,6 +6,13 @@ list of notable changes including records of change such as bug fixes,
 new features, changes, and relevant notifications.
 
 ---
+**2021-10-19**  John S. Urban <https://github.com/urbanjost>
+
+### :green_circle: ADD:
+
+  + Added algebraic operators (==,>=,<=,/=,>,<) to logical expressions
+    in lieue of just dot operators (.eq.,.ge.,.le.,.ne.,.gt.,.lt.).
+---
 **2021-06-21**  John S. Urban <https://github.com/urbanjost>
 
 ### :green_circle: ADD:

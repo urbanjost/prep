@@ -15,6 +15,7 @@ SYNOPSIS
          [--width n]
          [-d ignore|remove|blank]
          [--comment default|doxygen|ford|none]
+         [--ident]
          [--version]
          [--help]
 DESCRIPTION
@@ -39,9 +40,13 @@ DESCRIPTION
    An expression is composed of INTEGER and LOGICAL constants, parameters
    and operators. Operators are
 
-     .NOT.  .AND.  .OR.  .EQV.  .NEQV.  .EQ.  .NE.  .GE.
-     .GT.   .LE.   .LT.  +      -       *     /     (
-     )      **
+     .NOT.  .AND.  .OR.  .EQV.  .NEQV.
+     .EQ.   .NE.   .GE.  .GT.   .LE.    .LT.
+     ==     /=     >=    >      <=      <
+     +      -       *     /     **
+     (      )
+    C-style:
+     !=     &&     ||
 
    The syntax for the directive lines is as follows:
 
@@ -50,7 +55,7 @@ DESCRIPTION
      $UNDEFINE variable_name                              [! comment ]
      $IF       expression| [$IFDEF|$IFNDEF variable_name] [! comment ]
                { sequence of source statements}
-     [$ELSEIF  {LOGICAL or INTEGER expression}            [! comment ]
+     [$ELSEIF|$ELIF  {LOGICAL or INTEGER expression}      [! comment ]
                { sequence of source statements}]
      [$ELSE                                               [! comment ]
                { sequence of source statements}]
@@ -117,6 +122,13 @@ OPTIONS
                     prefix lines with '! '. Allowed keywords are
                     currently "default", "doxygen","none","ford".
                     THIS IS AN ALPHA FEATURE AND NOT FULLY IMPLEMENTED.
+   --ident          The output of the $IDENT directive is in the form of a
+                    comment by default. If this flag is set the output is
+                    of the form described in the $IDENT documentation
+                    so executables and object code can contain the metadata
+                    for use with the what(1) command. Note this generates an
+                    unused variable which some compilers might optimize
+                    away depending on what compilation options are used.
    -d ignore|remove|blank  Enable special treatment for lines beginning
                            with "d" or "D" The letter will be left as-is
                            (the default); removed; or replaced with a blank
@@ -147,8 +159,8 @@ OPTIONS
    Example:
 
     $define A=1
-    $define B=1
-    $define C=2
+    $define B= 10 - 1
+    $define C=1+1
     $if ( A + B ) / C .eq. 1
        (a+b)/c is one
     $endif
@@ -176,7 +188,8 @@ OPTIONS
 
    $IDENT metadata [-language fortran|c|shell]
 
-   Writes a line using SCCS-metadata format of the following forms:
+   When the command line option "-ident" is specified this directive
+   writes a line using SCCS-metadata format of one of the following forms:
 
      language:
      fortran   character(len=*),parameter::ident="@(#)metadata"
