@@ -31,16 +31,16 @@ use M_list,      only : insert, locate, replace, remove                      ! B
    character(len=G_var_len),public      :: G_defvar(num)                  ! variables in variable dictionary
 
    type file_stack
-      integer                              ::  unit_number
-      integer                              ::  line_number=0
-      character(len=G_line_length)         ::  filename
+      integer                           ::  unit_number
+      integer                           ::  line_number=0
+      character(len=G_line_length)      ::  filename
    end type
    type(file_stack),public              ::  G_file_dictionary(50)
 
    type parcel_stack
-      integer                              ::  unit_number
-      integer                              ::  line_number=0
-      character(len=G_line_length)         ::  name
+      integer                           ::  unit_number
+      integer                           ::  line_number=0
+      character(len=G_line_length)      ::  name
    end type
    type(parcel_stack),public            ::  G_parcel_dictionary(500)
 
@@ -84,10 +84,9 @@ use M_list,      only : insert, locate, replace, remove                      ! B
    character(len=:),allocatable,save    :: G_scratch_file
    integer,save                         :: G_scratch_lun=-1
 
-   character(len=:),allocatable   :: keywords(:)
-   character(len=:),allocatable   :: values(:)
-   integer,allocatable            :: counts(:)
-
+   character(len=:),allocatable         :: keywords(:)
+   character(len=:),allocatable         :: values(:)
+   integer,allocatable                  :: counts(:)
 
    contains
 !===================================================================================================================================
@@ -1791,13 +1790,14 @@ integer                      :: i
          call stop_prep('*prep* ERROR(060) - ERROR REWINDING PARCEL:'//trim(G_source)//':'//trim(message))
       endif
 
-      !======= DEBUG
-      !do
-      !   read(ifound,'(a)',iostat=ios)message
-      !   if(ios.ne.0)exit
-      !   write(*,*)'>>>'//trim(message)
-      !enddo
-      !rewind(unit=ifound,iostat=ios,iomsg=message)
+      if(debug)then
+         do
+            read(ifound,'(a)',iostat=ios)message
+            if(ios.ne.0)exit
+            write(*,*)'>>>'//trim(message)
+         enddo
+         rewind(unit=ifound,iostat=ios,iomsg=message)
+      endif
 
       G_iocount=G_iocount+1
       if(G_iocount.gt.size(G_file_dictionary))then
@@ -3054,10 +3054,9 @@ logical                       :: isscratch
          call notabs(line,G_source,ilast)                  ! expand tab characters and trim trailing ctrl-M from DOS files
       endif
 
-      if(.not.G_inparcel)then
-         if(size(keywords).ne.0)then
-            call expand_variables(G_source)
-         endif
+      if(G_inparcel)then                                   ! do not expand lines stored in a parcel
+      elseif(size(keywords).ne.0)then                      ! expand variables if any variable is defined, else skip for efficieny
+         call expand_variables(G_source)                   ! expand ${NAME} strings
       endif
 
       select case (line(1:1))                              ! special processing for lines starting with 'd' or 'D'
