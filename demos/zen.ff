@@ -1,0 +1,106 @@
+program zen_of_fortran
+use ISO_FORTRAN_ENV, only: stderr=>ERROR_UNIT, stdin=>INPUT_UNIT, stdout=>OUTPUT_UNIT 
+implicit none
+integer,parameter :: io=stdout
+! grokking Fortran:
+$BLOCK WRITE
+Grokking Fortran
+
+Fast is better than slow
+Slow is better than unmaintainable
+
+Small functions are clearer than monolithic procedures
+Simplicity is robustness
+“Make everything as simple as possible – but no simpler” (Einstein)
+
+Self-descriptive code is best
+but comment
+
+Make it look like the math
+
+All inputs and outputs explicit
+All inputs and outputs carefully named and clearly defined
+the closer to the point of declaration the better
+Be paranoid about parameters and check their validity coming and going
+
+Array-oriented is better than object-oriented
+Vector is better than loop
+Matrix is better than vector
+unless it’s complicated
+Strided is better than scattered
+Contiguous is better than strided
+Broadcasting is a great idea
+use where possible
+
+Create tests large and small
+and use them
+Use every debug flag you have been given when developing
+
+Write everything as if it was going to be reused
+and share it
+Package code and supporting files
+like you were going to give them to a friend
+
+“Rules are meant to be broken” (MacArthur, not Einstein)
+
+     Based on:   "The Zen of Fortran", by Ondřej Čertík, John Pask
+                 with poetic license taken by John S. Urban
+     Date:       2021-10-30
+
+     Inspired by Zen of Python 2 and Zen of NumPy 3,
+     by Travis Oliphant and Tim Peters
+$BLOCK
+end program zen_of_fortran
+$!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+$BLOCK NULL
+Nice. More controversial, but I might add a few personal preferences
+(and then snitch this very nice list; what would be a preferred
+attribution?) …
+
+  * self-descriptive code is best, but if you do not add comments and
+    references someone will wish you had (probably you)
+
+  * small functions are clearer than monolithic procedures (which are
+    sometimes justifiable for performance, but should be avoided)
+
+  * Use every debug flag you can while developing
+
+  * The more compilers you use the better
+
+  * Write everything as generically as you can and as if it was going to be reused (and share it)
+
+  * profile your #*?! code (mostly an HPC thing, but you would not believe
+    the things I find).
+
+  * test your input and output values whenever the overhead
+    is tolerable (make your routines paranoid!).
+
+  * make tests
+      + then test at the scale your users will use your code at x 10
+      + next, test at the scale your users will use your code at x 100
+      + and then test to failure.
+
+  * package your code and supporting files like you were going to have to
+    give it to a friend.
+
+Yours beautifully cover optimizations, but a will add these more mundane
+items and put this on a few desks, I think.
+
+certik
+
+    what would be a preferred attribution?
+
+Probably:
+
+Ondřej Čertík, John Pask, Travis Oliphant, Tim Peters
+
+John and I did the Fortran version, Travis did the NumPy version which
+inspired us and Tim did the Python version which inspired Travis and
+us. I hope I didn’t forget about anybody.
+
+wclodius
+22m
+
+FWIW Tim Peters worked on a Fortran compiler for Kendall Square Research in the lab 80s, before he became involved with Python.
+$!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+$BLOCK 

@@ -45,8 +45,7 @@ use M_list,      only : insert, locate, replace, remove                      ! B
    type(parcel_stack),public            ::  G_parcel_dictionary(500)
 
    integer,save                         :: G_line_number=0
-   logical,save,public                  :: G_asis=.false.
-   logical,save,public                  :: G_expand=.false.
+   logical,save,public                  :: G_inparcel=.false.
    integer,public                       :: G_iocount=0
    integer,public                       :: G_parcelcount=0
    integer,public                       :: G_io_total_lines=0
@@ -128,13 +127,11 @@ subroutine cond()       !@(#)cond(3f): process conditional directive assumed to 
    !write(*,*)'OPTIONS='//trim(options)
    !write(*,*)'UPOPTS='//trim(upopts)
 
-   if(G_asis.and.VERB.eq.'PARCEL')then
-      call parcel_case(options)                                       ! end parcel ignoring options
-      return
-   elseif(G_asis)then
-      call write_out(trim(G_source))                                  ! write data line
-      return
-   elseif(G_write)then                                                ! if processing lines in a logically selected region
+   if(G_write)then                                                    ! if processing lines in a logically selected region
+      if(G_inparcel.and.VERB.ne.'PARCEL')then
+         call write_out(trim(G_source))                                  ! write data line
+         return
+      endif
                                                                       ! process the directive
       select case(VERB)
       case('  ')                                                      ! entire line is a comment
@@ -248,7 +245,7 @@ character(len=256)            :: message
    call dissect2('parcel','-oo ',opts)  ! parse options and inline comment on input line
    name=sget('parcel_oo')
    if(name.eq.'')then
-      G_asis=.false.
+      G_inparcel=.false.
       G_iout=G_iout_init
    else
       open(newunit=lun,iostat=ios,action='readwrite',status='scratch',iomsg=message)
@@ -258,7 +255,7 @@ character(len=256)            :: message
          G_parcelcount=G_parcelcount+1
          G_parcel_dictionary(G_parcelcount)%name=name
          G_parcel_dictionary(G_parcelcount)%unit_number=lun
-         G_asis=.true.
+         G_inparcel=.true.
          G_iout=lun
       endif
    endif
@@ -1794,12 +1791,13 @@ integer                      :: i
          call stop_prep('*prep* ERROR(060) - ERROR REWINDING PARCEL:'//trim(G_source)//':'//trim(message))
       endif
 
-      !d!do
-      !d!   read(ifound,'(a)',iostat=ios)message
-      !d!   if(ios.ne.0)exit
-      !d!   write(*,*)'>>>'//trim(message)
-      !d!enddo
-      !d!rewind(unit=ifound,iostat=ios,iomsg=message)
+      !======= DEBUG
+      !do
+      !   read(ifound,'(a)',iostat=ios)message
+      !   if(ios.ne.0)exit
+      !   write(*,*)'>>>'//trim(message)
+      !enddo
+      !rewind(unit=ifound,iostat=ios,iomsg=message)
 
       G_iocount=G_iocount+1
       if(G_iocount.gt.size(G_file_dictionary))then
@@ -2007,11 +2005,11 @@ help_text=[ CHARACTER(LEN=128) :: &
 '         [--help]                                                               ',&
 'DESCRIPTION                                                                     ',&
 '                                                                                ',&
-'   By default the pre-processor prep(1) will interpret lines with "$" in column ',&
-'   one, and will output no such lines. Other input is conditionally written to  ',&
-'   the output file based on the directives encountered in the input. It does    ',&
-'   not support parameterized macros but does support string substitution and    ',&
-'   the inclusion of free-format text blocks that may be converted to Fortran    ',&
+'   The pre-processor prep(1) will interpret lines with "$" (by default) in      ',&
+'   column one, and will output no such lines. Other input is conditionally      ',&
+'   written to the output file based on the directives encountered in the input. ',&
+'   It does not support parameterized macros but does support string substitution',&
+'   and the inclusion of free-format text blocks that may be converted to Fortran',&
 '   comments or CHARACTER variable definitions while simultaneously being used   ',&
 '   to generate documentation files. INTEGER or LOGICAL expressions may be used  ',&
 '   to select output lines.                                                      ',&
@@ -2705,8 +2703,6 @@ integer                      :: i
 ! create a dictionary with character keywords, values, and value lengths
 ! using the routines for maintaining a list
 
-  G_expand=.true.
-
   call dissect2('set','-oo' ,line) ! parse options on input line
   iend=index(line//' ',' ')
   name=upper(line(:iend))
@@ -2717,7 +2713,7 @@ integer                      :: i
        write(G_iout,'(*("!",a,"==>","[",a,"]",/))')(trim(keywords(i)),values(i)(:counts(i)),i=1,size(keywords))
     endif
   else
-     val=line(min(iend+1,len(line)):)
+    val=line(min(iend+1,len(line)):)
     ! insert and replace entries
     call update(name,val)
     ! remove some entries
@@ -3058,8 +3054,10 @@ logical                       :: isscratch
          call notabs(line,G_source,ilast)                  ! expand tab characters and trim trailing ctrl-M from DOS files
       endif
 
-      if(G_expand)then
-         call expand_variables(G_source)
+      if(.not.G_inparcel)then
+         if(size(keywords).ne.0)then
+            call expand_variables(G_source)
+         endif
       endif
 
       select case (line(1:1))                              ! special processing for lines starting with 'd' or 'D'
