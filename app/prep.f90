@@ -42,7 +42,7 @@ use M_list,      only : insert, locate, replace, remove                      ! B
       integer                           ::  line_number=0
       character(len=G_line_length)      ::  name
    end type
-   type(parcel_stack),public            ::  G_parcel_dictionary(500)
+   type(parcel_stack),public            :: G_parcel_dictionary(500)
 
    integer,save                         :: G_line_number=0
    logical,save,public                  :: G_inparcel=.false.
@@ -1699,6 +1699,11 @@ character(len=*),parameter  :: fmt='(*(g0,1x))'
    write(G_iout,'(a)')'! Variables:'
    do i=1,G_numdef                                                                 ! print variable dictionary
       write(G_iout,fmt)"!    $DEFINE",trim(G_defvar(i)),' = ',adjustl(G_defval(i)) ! write variable and corresponding value
+   enddo
+
+   write(G_iout,'(a)')'! Parcels:'
+   do i=1,G_parcelcount
+      write(G_iout,fmt) '!   ',trim(G_parcel_dictionary(i)%name)
    enddo
 
    if(size(keywords).gt.0)then
