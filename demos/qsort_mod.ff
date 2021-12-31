@@ -1,0 +1,109 @@
+! An implementation of QuickSort in functional programming style using
+! recursion and the array functionality of Fortran (pack, array sections,
+! vectorized comparisons) to write quicksort very concisely.
+
+! by Arjen Markus, as posted at comp.lang.fortran on 13 March 2006
+! and modified by @FortranFan.
+
+$! Define the function as a parcel with substitutible variable names
+$PARCEL QSORT !=============================================================================================================
+pure recursive function qsort_${TYPE}_${KIND}(data) result(sorted)
+$IFDEF CHARACTER
+   character(len=*,kind=${KIND}),intent(in)  :: data(:)
+   character(len=len(data),kind=${KIND})     :: sorted(size(data))
+$ELSE
+   ${TYPE}(kind=${KIND}),intent(in)  :: data(:)
+   ${TYPE}(kind=${KIND})             :: sorted(size(data))
+$ENDIF
+   if (size(data) > 1) then
+      sorted = [ qsort( pack(data(2:), data(2:) < data(1) ) ),  data(1), qsort( pack(data(2:), data(2:) >= data(1) ) ) ]
+   else
+      sorted = data
+   endif
+end function qsort_${TYPE}_${KIND}
+$PARCEL !===================================================================================================================
+
+module qsort_mod
+use,intrinsic :: iso_fortran_env, only :  real32,  real64,  real128
+use,intrinsic :: iso_fortran_env, only :  int8,    int16,   int32,   int64
+implicit none
+private
+public :: qsort
+integer,parameter :: ascii=kind('a')
+
+interface qsort
+   module procedure qsort_real_real32
+   module procedure qsort_real_real64
+   module procedure qsort_integer_int8
+   module procedure qsort_integer_int16
+   module procedure qsort_integer_int32
+   module procedure qsort_integer_int64
+   module procedure qsort_character_ascii
+end interface qsort
+
+contains
+
+$! Post the parcel expanding it using various TYPE and KIND values
+$undef CHARACTER
+
+$set TYPE real
+$set KIND real64
+$post QSORT
+$set KIND real32
+$post QSORT
+
+$set TYPE integer
+$set KIND int64
+$post QSORT
+$set KIND int32
+$post QSORT
+$set KIND int16
+$post QSORT
+$set KIND int8
+$post QSORT
+
+$define CHARACTER
+$set TYPE character
+$set KIND ascii
+$post QSORT
+
+end module qsort_mod
+
+$IFDEF TESTPRG90 ! ============================================
+program main
+use qsort_mod, only: qsort
+implicit none
+real                          :: rarr(10)
+integer                       :: iarr(10)
+character(len=20),allocatable :: carr(:)
+character(len=1),parameter    :: nl=new_line('a')
+
+   call random_seed()
+   call random_number(rarr)
+   iarr=100*rarr
+
+   write (*,"(a10,*(1x,f0.3))") "initial",rarr
+   write (*,"(a10,*(1x,f0.3))") "sorted",qsort(rarr)
+
+   write (*,"(a10,*(1x,g0.3))") "initial",iarr
+   write (*,"(a10,*(1x,g0.3))") "sorted",qsort(iarr)
+
+   carr=[character(len=20) :: &
+   'Ayn Rand',                &
+   'Dr. Seuss',               &
+   'Edgar Allan Poe',         &
+   'Ernest Hemingway',        &
+   'George Orwell',           &
+   'James Joyce',             &
+   'J.D. Salinger',           &
+   'J.K. Rowling',            &
+   'J.R.R. Tolkien',          &
+   'Roald Dahl',              &
+   'Virginia Woolf',          &
+   'William Faulkner',        &
+   'William Shakespeare'      &
+   ]
+   write (*,"(a)") "initial",carr,''
+   write (*,"(a)") "sorted",qsort(carr)
+end program main
+$ENDIF TESTPRG90 ! ============================================
