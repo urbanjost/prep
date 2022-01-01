@@ -44,7 +44,6 @@ end interface qsort
 contains
 
 $! Post the parcel expanding it using various TYPE and KIND values
-$undef CHARACTER
 
 $set TYPE real
 $set KIND real64
@@ -62,14 +61,16 @@ $post QSORT
 $set KIND int8
 $post QSORT
 
-$define CHARACTER
+$define CHARACTER  ! define this for use in conditional expressions
 $set TYPE character
 $set KIND ascii
 $post QSORT
+$undef CHARACTER ! clear this to prevent inadvertent use
 
 end module qsort_mod
 
 $IFDEF TESTPRG90 ! ============================================
+! test program runs with integer, real, and character
 program main
 use qsort_mod, only: qsort
 implicit none
