@@ -1,7 +1,7 @@
 # prep(1)
 ## A Fortran code pre-processor
 
-## DOCUMENTATION
+## DOCUMENTATION   ![docs](docs/images/docs.gif)
  + [manpages](https://urbanjost.github.io/prep/prep.1.html) reformatted as HTML.
  + the [demos/](demos/) directory has example input files for a variety of cases
  + The [CHANGELOG](docs/CHANGELOG.md)
@@ -27,7 +27,7 @@ with Fortran.
 In particular, prep(1) allows for maintaining documentation in the body
 of the source code in a variety of formats via the __$BLOCK__ directive.
 
-Feedback is welcome. 
+Feedback is welcome.
 [**leave a comment!**](https://github.com/urbanjost/prep/wiki/Fortran-pre-processing)
 
 ## EXAMPLE SHOWING TEMPLATING
@@ -48,7 +48,7 @@ $parcel ex1
       write(*,*)'big subroutine with type ${kind} and value=',value
    end subroutine testit_${KIND}
 $parcel
-$! 
+$!
 module M_testit
 use, intrinsic :: iso_fortran_env, only : real32, real64, real128
 implicit none
@@ -76,12 +76,12 @@ $block comment  ! convert parcel to comments
 
 $post ex1
 
-  $BLOCK can do other special processing, such as converting a block 
+  $BLOCK can do other special processing, such as converting a block
   to a CHARACTER variable,
   writing the lines to an external file for generating documentation,
   and so on.
 
-$block 
+$block
 ```
 The output looks like
 ```fortran
@@ -115,14 +115,14 @@ end module M_testit
 
 !   any text placed here in free form will be converted to
 !   comments, as well as anything from a $POST. For example:
-! 
+!
 !    ! created by urbanjs on Jun 19 2021 at 11:55:43
 !    subroutine testit_real128(value)
 !    real(kind=real128) :: value
 !       write(*,*)'big subroutine with type real128 and value=',value
 !    end subroutine testit_real128
 !
-!  $BLOCK can do other special processing, such as converting a block 
+!  $BLOCK can do other special processing, such as converting a block
 !  to a CHARACTER variable,
 !  writing the lines to an external file for generating documentation,
 !  and so on.
@@ -134,7 +134,7 @@ To build it requires `git`, `fpm`(Fortran Package Manager), a modern
 Fortran compiler and WWW access or you will need to compile the single-file
 [bootstrap version](https://github.com/urbanjost/index/tree/main/bootstrap). It was tested with
 
-   + GNU Fortran (GCC) 8.3.1  on 20191121 
+   + GNU Fortran (GCC) 8.3.1  on 20191121
    + GNU Fortran 9.3.0        on 20210612
    + ifort (IFORT) 19.1.3.304 on 20200925
 
@@ -151,7 +151,7 @@ Fortran compiler and WWW access or you will need to compile the single-file
 ## BUILDING AND INSTALLING
 ```bash
    # install (in the default location)
-   fpm install 
+   fpm install
 ```
 ## TRY IT
 ```bash

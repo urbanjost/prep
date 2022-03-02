@@ -1,0 +1,15 @@
+program testit
+implicit none
+! declare and initialize a namelist
+! just add a variable to namelist and it is a new parameter !!
+integer    :: i=1, j=2, k=3              ;namelist /cmd/ i,j,k
+real       :: s=111.1, t=222.2, r=333.3  ;namelist /cmd/ s,t,r
+character(len=255) :: c=' '              ;namelist /cmd/ c 
+integer    :: err
+   err=get_arguments()  ! return command line arguments as NAMELIST input
+   ! all done cracking the command line.  use the values in your program.
+   write(*,nml=cmd)
+   ! THE FOLLOWING WOULD NOT BE REQUIRED IF THE EXTENSION EXISTED
+contains
+$GET_ARGUMENTS
+end program testit

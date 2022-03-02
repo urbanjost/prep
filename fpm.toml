@@ -6,6 +6,9 @@ author = "John Urban"
 maintainer = "urbanjost@comcast.net"
 copyright = "2020 John Urban"
 description = "Fortran pre-processor"
+categories = ["preprocessing"]
+keywords = ["preprocessor", "fortran", "fpm", "General Purpose Fortran" ]
+homepage = "https://github.com/urbanjost"
 
 #[library]
 #source-dir="src"

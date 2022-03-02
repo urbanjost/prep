@@ -150,6 +150,7 @@ subroutine cond()       !@(#)cond(3f): process conditional directive assumed to 
       case('MESSAGE');          call stderr(G_source(2:))             ! trustingly trim MESSAGE from directive
       case('STOP');             call stop(upopts)
       case('QUIT');             call stop('0')
+      case('GET_ARGUMENTS');    call write_get_arguments()
       end select
    endif
    select case(VERB)                                                  ! process logical flow control even if G_write is false
@@ -157,7 +158,7 @@ subroutine cond()       !@(#)cond(3f): process conditional directive assumed to 
    case('DEFINE','INCLUDE','SHOW','STOP','QUIT')
    case('SYSTEM','UNDEF','UNDEFINE','MESSAGE','REDEFINE')
    case('OUTPUT','IDENT','@(#)','BLOCK','IMPORT')
-   case('PARCEL','POST','SET')
+   case('PARCEL','POST','SET','GET_ARGUMENTS')
    case(' ')
 
    case('ELSE','ELSEIF','ELIF');  call else(verb,upopts,noelse,eb)
@@ -201,6 +202,37 @@ subroutine exe()                                 ! @(#)exe(3f): Execute the comm
    call define(defineme,0)
 
 end subroutine exe
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!===================================================================================================================================
+subroutine write_get_arguments()                ! @(#)write_get_arguments(3f): write block for processing M_CLI command line parsing
+integer :: i
+character(len=*),parameter :: text(*)=[character(len=132) :: &
+"function get_arguments()"                                                                              ,&
+"character(len=255)           :: message ! use for I/O error messages"                                  ,&
+"character(len=:),allocatable :: string  ! stores command line argument"                                ,&
+"integer                      :: get_arguments"                                                         ,&
+"integer :: command_line_length"                                                                        ,&
+"   call get_command(length=command_line_length)   ! get length needed to hold command"                 ,&
+"   allocate(character(len=command_line_length) :: string)"                                             ,&
+"   call get_command(string)"                                                                           ,&
+"   ! trim off command name and get command line arguments"                                             ,&
+"   string=adjustl(string)//' '                    ! assuming command verb does not have spaces in it"  ,&
+"   string=string(index(string,' '):)"                                                                  ,&
+"   string='&cmd '//string//' /'                   ! add namelist prefix and terminator"                ,&
+"   read(string,nml=cmd,iostat=get_arguments,iomsg=message) ! internal read of namelist"                ,&
+"   if(get_arguments.ne.0)then"                                                                         ,&
+"      write(*,'(''ERROR:'',i0,1x,a)')get_arguments, trim(message)"                                       ,&
+"      write(*,*)'COMMAND OPTIONS ARE'"                                                                 ,&
+"      write(*,nml=cmd)"                                                                                ,&
+"      stop 1"                                                                                          ,&
+"   endif"                                                                                              ,&
+"end function get_arguments"                                                                            ,&
+"" ]
+do i=1,size(text)
+   write(G_iout,'(a)')trim(text(i))
+enddo
+end subroutine write_get_arguments
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
