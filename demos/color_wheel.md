@@ -224,7 +224,7 @@ prep -type md -i demos/color_wheel.md -o app/color_wheel.f90
 
 # run the program to Poskanker pixel map and convert to GIF
 export M_DRAW_DEVICE=p6
-color_wheel
+fpm run color_wheel
 ppmquant 256 < look.hue | ppmtogif > x.gif
 # or using ImageMagic one of several ways is 
 display look.hue
