@@ -84,6 +84,11 @@ use M_list,      only : insert, locate, replace, remove                      ! B
    character(len=:),allocatable,save    :: G_scratch_file
    integer,save                         :: G_scratch_lun=-1
 
+   character(len=:),allocatable,save    :: G_extract_start
+   character(len=:),allocatable,save    :: G_extract_stop
+   logical,save                         :: G_extract=.false.
+   logical,save                         :: G_extract_flag=.false.
+
    character(len=:),allocatable         :: keywords(:)
    character(len=:),allocatable         :: values(:)
    integer,allocatable                  :: counts(:)
@@ -3039,6 +3044,9 @@ character(len=1024)          :: cmd=' &
    & --comment          COMMENT  &
    & --ident            .false.  &
    & --width            1024     &
+   & --start            " "      &
+   & --end              " "      &
+   & --type             " "      &
    & '
 logical                       :: isscratch
 
@@ -3088,6 +3096,21 @@ logical                       :: isscratch
    G_comment_style=lower(sget('prep_comment'))             ! allow formatting comments for particular post-processors
    G_system_on = lget('prep_system')                       ! allow system commands on $SYSTEM directives
 
+   !TODO! have an auto mode where start and end are selected based on file suffix
+   select case(sget('prep_type'))
+   case('md','.md')
+      G_extract_start='```fortran'
+      G_extract_stop='```'
+   case('html','.html','htm','.htm')
+      ! flaw is HTML is not case sensitive
+      G_extract_start='<xmp>'
+      G_extract_stop='</xmp>'
+   case default
+      G_extract_start=sget('prep_start')
+      G_extract_stop=sget('prep_stop')
+   end select
+   if(G_extract_start.ne.''.or.G_extract_stop.ne.'')G_extract=.true.
+
    call get_os_type()
    call defines()                                          ! define named variables declared on the command line
    call includes()                                         ! define include directories supplies on command line
@@ -3095,6 +3118,18 @@ logical                       :: isscratch
 
    READLINE: do                                            ! read loop to read input file
       read(G_file_dictionary(G_iocount)%unit_number,'(a)',end=7) line
+      if(G_extract)then                       ! in extract mode
+         if(line.eq.G_extract_start)then      ! start extracting
+            G_extract_flag=.true.
+            cycle READLINE
+         elseif(line.eq.G_extract_stop.and.G_extract_flag)then   ! stop extracting
+            G_extract_flag=.false.
+            cycle READLINE
+         elseif(.not.G_extract_flag)then      ! skip if not extracting
+            cycle READLINE
+         endif
+      endif
+      !TODO! should line count include skipped lines?
       G_io_total_lines=G_io_total_lines+1
       G_file_dictionary(G_iocount)%line_number=G_file_dictionary(G_iocount)%line_number+1
 
