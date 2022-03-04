@@ -210,3 +210,27 @@ end subroutine slice
 
 end program huedisk
 ```
+## USAGE NOTES
+```bash
+# assuming you are in an fpm project set up with M_graph
+# as a dependency and this file is in the demos/ directory
+# and you have prep, the NetPBM package, or ImageMagik, and pandoc(1):
+
+prep -type md -i demos/color_wheel.md -o app/color_wheel.f90
+
+# run the program to Poskanker pixel map and convert to GIF
+export M_DRAW_DEVICE=p6
+color_wheel
+ppmquant 256 < look.hue | ppmtogif > x.gif
+# or using ImageMagic one of several ways is 
+display look.hue
+# and save in your preferred image type
+
+# convert the markdown file to HTML5 or PDF using a utility
+# such as pandoc
+
+pandoc -f markdown -t latex -o docs/color_wheel.pdf -i demos/color_wheel.md
+```
+<!--
+2022-03-04
+-->
