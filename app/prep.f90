@@ -3045,7 +3045,7 @@ character(len=1024)          :: cmd=' &
    & --ident            .false.  &
    & --width            1024     &
    & --start            " "      &
-   & --end              " "      &
+   & --stop             " "      &
    & --type             " "      &
    & '
 logical                       :: isscratch
