@@ -132,11 +132,15 @@ end module M_testit
 ## BUILDING
 To build it requires `git`, `fpm`(Fortran Package Manager), a modern
 Fortran compiler and WWW access or you will need to compile the single-file
-[bootstrap version](https://github.com/urbanjost/index/tree/main/bootstrap). It was tested with
+[bootstrap version](bootstrap/prep.f90). It was tested with
 
-   + GNU Fortran (GCC) 8.3.1  on 20191121
-   + GNU Fortran 9.3.0        on 20210612
-   + ifort (IFORT) 19.1.3.304 on 20200925
+Copyright (C) 1985-2021 Intel Corporation.  All rights reserved.
+
+   + GNU Fortran (GCC) 8.3.1         on 20191121
+   + GNU Fortran 9.3.0               on 20210612
+   + GNU Fortran 10.3.0              on 20220305
+   + ifort (IFORT) 19.1.3.304        on 20200925
+   + ifort (IFORT) 2021.3.0 20210609 on 20220305
 
 ## ACCESSING
 ```bash
