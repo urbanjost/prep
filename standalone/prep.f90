@@ -5711,7 +5711,7 @@ class(*),intent(in) :: generic
       type is (integer(kind=int64));    write(line(istart:),'(i0)') generic
       type is (real(kind=real32));      write(line(istart:),'(1pg0)') generic
       type is (real(kind=real64));      write(line(istart:),'(1pg0)') generic
-      !type is (real(kind=real128));     write(line(istart:),'(1pg0)') generic
+      !x!type is (real(kind=real128));     write(line(istart:),'(1pg0)') generic
       type is (logical);                write(line(istart:),'(l1)') generic
       type is (character(len=*));       write(line(istart:),'(a)') trim(generic)
       type is (complex);                write(line(istart:),'("(",1pg0,",",1pg0,")")') generic
@@ -5768,7 +5768,7 @@ integer :: i
       type is (integer(kind=int64));    write(line(istart:),'("[",*(i0,1x))') generic
       type is (real(kind=real32));      write(line(istart:),'("[",*(1pg0,1x))') generic
       type is (real(kind=real64));      write(line(istart:),'("[",*(1pg0,1x))') generic
-      !type is (real(kind=real128));     write(line(istart:),'("[",*(1pg0,1x))') generic
+      !x!type is (real(kind=real128));     write(line(istart:),'("[",*(1pg0,1x))') generic
       !type is (real(kind=real256));     write(error_unit,'(1pg0)',advance='no') generic
       type is (logical);                write(line(istart:),'("[",*(l1,1x))') generic
       type is (character(len=*));       write(line(istart:),'("[",:*("""",a,"""",1x))') (trim(generic(i)),i=1,size(generic))
@@ -15393,7 +15393,7 @@ class(*),intent(in) :: generic
       type is (integer(kind=int64));    write(line(istart:),'(i0)') generic
       type is (real(kind=real32));      write(line(istart:),'(1pg0)') generic
       type is (real(kind=real64));      write(line(istart:),'(1pg0)') generic
-      !type is (real(kind=real128));     write(line(istart:),'(1pg0)') generic
+      !x!type is (real(kind=real128));     write(line(istart:),'(1pg0)') generic
       type is (logical);                write(line(istart:),'(l1)') generic
       type is (character(len=*));       write(line(istart:),'(a)') trim(generic)
       type is (complex);                write(line(istart:),'("(",1pg0,",",1pg0,")")') generic
@@ -15450,7 +15450,7 @@ integer :: i
       type is (integer(kind=int64));    write(line(istart:),'("[",*(i0,1x))') generic
       type is (real(kind=real32));      write(line(istart:),'("[",*(1pg0,1x))') generic
       type is (real(kind=real64));      write(line(istart:),'("[",*(1pg0,1x))') generic
-      !type is (real(kind=real128));     write(line(istart:),'("[",*(1pg0,1x))') generic
+      !x!type is (real(kind=real128));     write(line(istart:),'("[",*(1pg0,1x))') generic
       !type is (real(kind=real256));     write(error_unit,'(1pg0)',advance='no') generic
       type is (logical);                write(line(istart:),'("[",*(l1,1x))') generic
       type is (character(len=*));       write(line(istart:),'("[",:*("""",a,"""",1x))') (trim(generic(i)),i=1,size(generic))
@@ -17217,6 +17217,7 @@ use M_list,      only : insert, locate, replace, remove                      ! B
    character(len=:),allocatable,save    :: G_extract_start
    character(len=:),allocatable,save    :: G_extract_stop
    logical,save                         :: G_extract=.false.
+   logical,save                         :: G_extract_auto=.false.
    logical,save                         :: G_extract_flag=.false.
 
    character(len=:),allocatable         :: keywords(:)
@@ -18755,11 +18756,12 @@ subroutine format_g_man()
 
          case('ford')                    ! convert plain text to doxygen comment blocks with some automatic markdown highlights
             if(len(G_MAN).gt.1)then      ! the way the string is built it starts with a newline
+
                CALL split(G_MAN,array1,delimiters=new_line('N'),nulls='return') ! parse string to an array parsing on delimiters
                ikludge=len(array1)+6
-	       if(allocated(array))deallocate(array)
-	       allocate(character(len=ikludge) :: array(size(array)))
-	       array(:)=array1
+               if(allocated(array))deallocate(array)
+               allocate(character(len=ikludge) :: array(size(array)))
+               array(:)=array1
                !!array=[character(len=ikludge) :: array1] !! pad with trailing spaces
                deallocate(array1)
                do i=1,size(array)        ! lines starting with a letter and all uppercase letters is prefixed with "##"
@@ -19177,6 +19179,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '         [--width n]                                                            ',&
 '         [-d ignore|remove|blank]                                               ',&
 '         [--comment default|doxygen|ford|none]                                  ',&
+'         [--type FILE_TYPE | --start START_STRING --stop STOP_STRING]           ',&
 '         [--ident]                                                              ',&
 '         [--version]                                                            ',&
 '         [--help]                                                               ',&
@@ -19274,19 +19277,30 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                        ASCII Decimal Equivalent (Common values are 37=%        ',&
 '                        42=* 35=# 36=$ 64=@). If the value is not numeric       ',&
 '                        it is assumed to be a literal character.                ',&
-'                                                                                ',&
-'   --help           Display documentation and exit.                             ',&
-'                                                                                ',&
-'   --verbose        All commands on a $SYSTEM directive are echoed              ',&
-'                    to stderr with a + prefix. Text following the               ',&
-'                    string "@(#)" is printed to stderr similar to               ',&
-'                    the Unix command what(1) but is otherwise                   ',&
-'                    treated as other text input.                                ',&
-'                                                                                ',&
 '   --noenv          The $IFDEF and $IFNDEF directives test for an               ',&
 '                    internal prep(1) variable and then an                       ',&
 '                    environment variable by default. This option                ',&
 '                    turns off testing for environment variables.                ',&
+'                                                                                ',&
+'   --type FILETYPE  this flag indicates to skip input lines until after a       ',&
+'                    specific start string is encountered and to stop once a     ',&
+'                    specific end string is found left-justifed on lines by      ',&
+'                    themselves.                                                 ',&
+'                                                                                ',&
+'                       FILETYPE  START_STRING   STOP_STRING                     ',&
+'                          md      ```fortran     ```                            ',&
+'                        html      <xmp>          </xmp>                         ',&
+'                                                                                ',&
+'                    The special type "auto" may be specified, in which case     ',&
+'                    files will be processed according to their file suffix.     ',&
+'                    This allows for easily extracting code from common          ',&
+'                    document formats.                                           ',&
+'                                                                                ',&
+'    --start STRING  Same as --type except along with --stop allows for custom   ',&
+'                    strings to be specified.                                    ',&
+'                                                                                ',&
+'    --stop STRING   Same as --type except along with --start allows for custom  ',&
+'                    strings to be specified.                                    ',&
 '                                                                                ',&
 '   --system         Allow system commands on $SYSTEM directives to              ',&
 '                    be executed.                                                ',&
@@ -19319,12 +19333,20 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                           "debug" code by many Fortran compilers when          ',&
 '                           compiling fixed-format Fortran source.               ',&
 '                                                                                ',&
-'   --version        Display version and exit                                    ',&
-'                                                                                ',&
 '   --width n        Maximum line length of the output file. The default is 1024.',&
 '                    Typically used to trim fixed-format FORTRAN code that       ',&
 '                    contains comments or "ident" labels past column 72          ',&
 '                    when compiling fixed-format Fortran code.                   ',&
+'                                                                                ',&
+'   --verbose        All commands on a $SYSTEM directive are echoed              ',&
+'                    to stderr with a + prefix. Text following the               ',&
+'                    string "@(#)" is printed to stderr similar to               ',&
+'                    the Unix command what(1) but is otherwise                   ',&
+'                    treated as other text input.                                ',&
+'                                                                                ',&
+'   --version        Display version and exit                                    ',&
+'                                                                                ',&
+'   --help           Display documentation and exit.                             ',&
 '                                                                                ',&
 '   DIRECTIVES                                                                   ',&
 '                                                                                ',&
@@ -19746,7 +19768,8 @@ help_text=[ CHARACTER(LEN=128) :: &
 '@(#)DESCRIPTION:    Fortran Pre-processor>',&
 !'@(#)VERSION:        4.0.0: 20170502>',&
 !'@(#)VERSION:        5.0.0: 20201219>',&
-'@(#)VERSION:        6.0.0: 20210613>',&
+!'@(#)VERSION:        6.0.0: 20210613>',&
+'@(#)VERSION:        6.0.1: 20220311>',&
 '@(#)AUTHOR:         John S. Urban>',&
 '@(#)HOME PAGE       https://github.com/urbanjost/prep.git/>',&
 '']
@@ -20145,6 +20168,20 @@ end subroutine get_os_type
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
+pure function ends_in(string) result(ending)
+character(*), intent(in)  :: string
+character(:), allocatable :: ending
+integer                   :: n1
+   n1=index(string,'.',back=.true.)
+   if (n1 < 1 .or. n1.eq.len(string) ) then
+       ending=''
+   else
+       ending=string(n1+1:)
+   endif
+end function ends_in
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!===================================================================================================================================
 end module M_fpp
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -20180,7 +20217,7 @@ character(len=1024)          :: cmd=' &
    & --ident            .false.  &
    & --width            1024     &
    & --start            " "      &
-   & --end              " "      &
+   & --stop             " "      &
    & --type             " "      &
    & '
 logical                       :: isscratch
@@ -20240,9 +20277,14 @@ logical                       :: isscratch
       ! flaw is HTML is not case sensitive
       G_extract_start='<xmp>'
       G_extract_stop='</xmp>'
+   case('auto')
+      G_extract_start=''
+      G_extract_stop=''
+      G_extract_auto=.true.
+      G_extract=.true.
    case default
-      G_extract_start=sget('prep_start')
-      G_extract_stop=sget('prep_stop')
+      G_extract_start=trim(sget('prep_start'))
+      G_extract_stop=trim(sget('prep_stop'))
    end select
    if(G_extract_start.ne.''.or.G_extract_stop.ne.'')G_extract=.true.
 
@@ -20250,6 +20292,7 @@ logical                       :: isscratch
    call defines()                                          ! define named variables declared on the command line
    call includes()                                         ! define include directories supplies on command line
    call opens()                                            ! convert input filenames into $include directives
+   call auto()
 
    READLINE: do                                            ! read loop to read input file
       read(G_file_dictionary(G_iocount)%unit_number,'(a)',end=7) line
@@ -20316,13 +20359,35 @@ logical                       :: isscratch
       endif
 
       if(G_iocount.lt.1)exit
+      call auto() ! if in auto mode determine strings for new file
+
    enddo READLINE
 
    if (G_nestl.ne.0) then                                           ! check to make sure all if blocks are closed
       call stop_prep('*prep* ERROR(067) - $IF BLOCK NOT CLOSED.')
    endif
    call print_comment_block()
+
+   contains
+
+subroutine auto()
+   if(G_extract_auto)then
+      select case(ends_in(G_file_dictionary(G_iocount)%filename) )
+      case('md','.md')
+         G_extract_start='```fortran'
+         G_extract_stop='```'
+      case('html','.html','htm','.htm')
+         G_extract_start='<xmp>'
+         G_extract_stop='</xmp>'
+      case default
+         G_extract_start=trim(sget('prep_start'))
+         G_extract_stop=trim(sget('prep_stop'))
+      end select
+   endif
+end subroutine auto
+
 end program prep
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
+ 

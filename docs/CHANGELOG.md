@@ -6,6 +6,13 @@ list of notable changes including records of change such as bug fixes,
 new features, changes, and relevant notifications.
 
 ---
+**2022-03-13**  John S. Urban <https://github.com/urbanjost>
+
+### :green_circle: ADD:
+
+  +  Added --type, --start, and --stop options primarily for allowing for
+     extracting Fortran from extended markdown files.
+---
 **2021-10-19**  John S. Urban <https://github.com/urbanjost>
 
 ### :green_circle: ADD:
