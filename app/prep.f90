@@ -2151,9 +2151,10 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                    specific end string is found left-justifed on lines by      ',&
 '                    themselves.                                                 ',&
 '                                                                                ',&
-'                       FILETYPE  START_STRING   STOP_STRING                     ',&
-'                          md      ```fortran     ```                            ',&
-'                        html      <xmp>          </xmp>                         ',&
+'                       FILETYPE  START_STRING            STOP_STRING            ',&
+'                          md      ```fortran              ```                   ',&
+'                        html      <xmp>                   </xmp>                ',&
+'                        tex       \begin{minted}{Fortran} \end{minted}          ',&
 '                        auto                                                    ',&
 '                        none                                                    ',&
 '                                                                                ',&
@@ -3148,6 +3149,9 @@ logical                       :: isscratch
       ! flaw is HTML is not case sensitive
       G_extract_start='<xmp>'
       G_extract_stop='</xmp>'
+   case('tex')
+      G_extract_start='\begin{minted}{Fortran}'
+      G_extract_stop='\end{minted}'
    case('auto')
       G_extract_start=''
       G_extract_stop=''
@@ -3252,6 +3256,9 @@ subroutine auto()
       case('md','.md')
          G_extract_start='```fortran'
          G_extract_stop='```'
+      case('tex')
+         G_extract_start='\begin{minted}{Fortran}'
+         G_extract_stop='\end{minted}'
       case('html','.html','htm','.htm')
          G_extract_start='<xmp>'
          G_extract_stop='</xmp>'
