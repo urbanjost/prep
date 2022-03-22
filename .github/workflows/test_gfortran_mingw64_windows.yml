@@ -40,7 +40,6 @@ jobs:
            echo $PATH
            pwd
            uname -a
-           #wget https://raw.githubusercontent.com/urbanjost/easy/main/bootstrap/fpm.F90
 	   wget https://github.com/urbanjost/index/blob/main/bootstrap/fpm.F90
 
            gfortran fpm.F90 -o fpm
