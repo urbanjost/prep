@@ -2084,6 +2084,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '    :VARIABLE DEFINITION FOR CONDITIONALS                                       ',&
 '     $DEFINE   variable_name[=expression]                 [! comment ]          ',&
 '     $UNDEFINE variable_name                              [! comment ]          ',&
+'                                                                                ',&
 '    :CONDITIONAL CODE SELECTION                                                 ',&
 '     $IF       expression| [$IFDEF|$IFNDEF variable_name] [! comment ]          ',&
 '               { sequence of source statements}                                 ',&
@@ -2092,6 +2093,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '     [$ELSE                                               [! comment ]          ',&
 '               { sequence of source statements}]                                ',&
 '     $ENDIF                                               [! comment ]          ',&
+'                                                                                ',&
 '     $STOP     [stop_value]                               [! comment ]          ',&
 '                                                                                ',&
 '    :MACRO STRING EXPANSION AND TEXT REPLAY                                     ',&
@@ -2100,12 +2102,14 @@ help_text=[ CHARACTER(LEN=128) :: &
 '     $PARCEL   blockname                                  [! comment ]          ',&
 '     $POST     blockname                                  [! comment ]          ',&
 '                                                                                ',&
-'    :FILE AND TEXT BLOCK USAGE                                                  ',&
+'    :EXTERNAL FILES (see $BLOCK ... --file also)                                ',&
 '     $OUTPUT   filename  [-append]                        [! comment ]          ',&
 '     $INCLUDE  filename                                   [! comment ]          ',&
+'                                                                                ',&
+'    :TEXT BLOCK FILTERS                                                         ',&
 ![=========
 !     consider to change so just $BLOCK name/$ENDBLOCK and
-!     $OUTPUT $BLOCK $POST all replaced by $POST if no options gulp file and process if any options so what $BLOCK does now
+!     $OUTPUT $BLOCK $POST all replaced by $POST if no options gulp file and process if any options do what $BLOCK does now
 !     $BLOCK
 !     $ENDBLOCK
 !=========]
@@ -2151,8 +2155,9 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                    specific end string is found left-justifed on lines by      ',&
 '                    themselves.                                                 ',&
 '                                                                                ',&
-'                       FILETYPE  START_STRING            STOP_STRING            ',&
-'                          md      ```fortran              ```                   ',&
+'                        FileType  Start_String            Stop_String           ',&
+'                        --------  ------------            -----------           ',&
+'                        md        ```fortran              ```                   ',&
 '                        html      <xmp>                   </xmp>                ',&
 '                        tex       \begin{minted}{Fortran} \end{minted}          ',&
 '                        auto                                                    ',&
