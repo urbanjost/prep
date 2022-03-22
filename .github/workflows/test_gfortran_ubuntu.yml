@@ -34,7 +34,7 @@ jobs:
            pwd
            uname -a
            wget https://raw.githubusercontent.com/urbanjost/index/main/bootstrap/fpm.F90
-           gfortran fpm.F90 -o fpm
+           gfortran fpm.F90 -o /home/runner/.local/bin/fpm
            ls -l
 
     - name: Display environment
