@@ -27,8 +27,9 @@ jobs:
     - name: Install fpm
       shell: msys2 {0}
       run: |
-           wget https://github.com/urbanjost/index/blob/main/bootstrap/fpm.F90
+           wget https://raw.githubusercontent.com/urbanjost/index/main/bootstrap/fpm.F90
            gfortran fpm.F90 -o fpm
+           ls -l
 
     - name: Run tests and demo programs (debug)
       shell: msys2 {0}
