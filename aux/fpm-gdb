@@ -1,0 +1,31 @@
+#!/bin/bash
+export RUNNER=$(fpm run --runner|grep build)
+# 132-column
+vim \
+ -c 'set mouse=a' \
+ -c 'packadd termdebug' \
+ -c 'resize +10' \
+ -c "Termdebug $RUNNER" \
+ app/*.f90
+
+exit
+
+bash docs/docs.sh
+cygstart docs/prep.1.html
+fpm run -- --version
+fpm singularity
+
+exit
+
+# 80-column
+vim \
+ -c 'set mouse=a' \
+ -c 'let g:termdebug_wide=1' \
+ -c 'packadd termdebug' \
+ -c 'resize +10' \
+ -c "Termdebug $RUNNER" \
+ app/*.f90
+exit
+
+#fpm run --runner "env RUNNER=$RUNNER vim \
+#set -x

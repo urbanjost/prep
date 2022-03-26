@@ -49,7 +49,7 @@ converted to Fortran comments or CHARACTER variable definitions (while
 optionally simultaneously being used to generate documentation files).
 .PP
 An exclamation character FOLLOWED BY A SPACE on a valid directive begins
-in-line comment that is terminated by an end-of-line. This is particularly
+an in-line comment that is terminated by an end-of-line. This is particularly
 pertinent when using C-style logical tokens, which may contain exclamations.
 .PP
 INTEGER or LOGICAL expressions may be used to select output lines.
@@ -574,8 +574,6 @@ filenames cannot contain spaces on the command line.
 Variable names
 .RS
 .IP \(bu 3
-cannot be redefined unless first undefined.
-.IP \(bu 3
 are limited to 31 characters.
 .IP \(bu 3
 must start with a letter (A-Z).
@@ -583,6 +581,8 @@ must start with a letter (A-Z).
 are composed of the letters A-Z, digits 0-9 and _ and $.
 .IP \(bu 3
 2048 variable names may be defined at a time.
+.IP \(bu 3
+if redefined after first undefined a warning is generated on stderr.
 .SH EXAMPLES
 
 Define variables on command line:

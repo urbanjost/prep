@@ -32,7 +32,7 @@ DESCRIPTION
    optionally simultaneously being used to generate documentation files).
 
    An exclamation character FOLLOWED BY A SPACE on a valid directive begins
-   in-line comment that is terminated by an end-of-line. This is particularly
+   an in-line comment that is terminated by an end-of-line. This is particularly
    pertinent when using C-style logical tokens, which may contain exclamations.
 
    INTEGER or LOGICAL expressions may be used to select output lines.
@@ -475,11 +475,11 @@ LIMITATIONS
 
  Variable names
 
-   o cannot be redefined unless first undefined.
    o are limited to 31 characters.
    o must start with a letter (A-Z).
    o are composed of the letters A-Z, digits 0-9 and _ and $.
    o 2048 variable names may be defined at a time.
+   o if redefined after first undefined a warning is generated on stderr.
 
 EXAMPLES
 
