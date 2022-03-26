@@ -5,6 +5,26 @@ what's new in the `prep` project. It is a curated, chronologically ordered
 list of notable changes including records of change such as bug fixes,
 new features, changes, and relevant notifications.
 
+   - [x] manpage
+   - [x] program
+   - [x] works with fpm(1)
+   - [ ] unit test -- in progress
+
+---
+**2022-03-26**  John S. Urban <https://github.com/urbanjost>
+
+### :red_circle: FIX:
+  + Negative values were unneccesarily not allowed in expressions except
+    as a simple value.
+
+### :orange_circle: DIFF:
+  + A comment is explicitly an exclamation _followed by a space_
+    to allow C-style operators in expressions such as !,!=, ...
+    which must _not_ be followed by a space.
+
+### :green_circle: ADD:
+
+  + $SHOW can take a list of variable names and only print those
 ---
 **2022-03-13**  John S. Urban <https://github.com/urbanjost>
 
@@ -66,11 +86,6 @@ new features, changes, and relevant notifications.
 
 Intialized github repository
 
-   - [x] manpage
-   - [x] program
-   - [ ] unit test
-### :orange_circle: DIFF:
-### :red_circle: FIX:
 ---
 
 <!--

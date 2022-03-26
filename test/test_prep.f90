@@ -11,6 +11,10 @@ allocate(tally(0))
    call conditionals()
    call set()
    call block()
+   call expressions()
+   call define()
+   call block_2()
+   call conditionals_2()
    if(all(tally))then
       write(*,'(a)')'ALL PREP TESTS PASSED'
    else
@@ -41,7 +45,7 @@ expected=[ character(len=132) :: &
 '   a is 1                                                                   ', &
 'last line']
 
-call teardown('CONDITIONAL')
+call teardown('CONDITIONALS')
 end subroutine conditionals
 
 subroutine set()
@@ -141,8 +145,8 @@ expected=[ character(len=132) :: &
 "block", &
 "character(len=:),allocatable :: HELP_TEXT", &
 "HELP_TEXT=[ CHARACTER(LEN=128) :: &", &
-"'  These lines are converted to a declaration of a CHARACTER                     ',&", &
-"'  variable.                                                                     ',&", &
+"'  These lines are converted to a declaration of a CHARACTER',&", &
+"'  variable.',&", &
 "'']", &
 "", &
 "endblock", &
@@ -173,9 +177,11 @@ character(len=*),intent(in) :: name
    if(size(expected).eq.size(result))then
       if( all(expected.eq.result) )then
          write(*,'(*(g0,1x))')name// ' PASSED'
+         tally=[tally,.true.]
          exit CHECK
       endif
    endif
+   tally=[tally,.false.]
    write(*,'(*(g0,1x))')name// ' FAILED'
    write(*,'(/,a)')'RESULT'
    write(*,'(i3.3,1x,a)')(i,trim(result(i)),i=1,size(result))
@@ -185,5 +191,162 @@ character(len=*),intent(in) :: name
    ierr=filedelete('_scratch.txt')
    ierr=filedelete('_out.txt')
 end subroutine teardown
+
+subroutine expressions()
+data=[ character(len=132) :: &
+'$DEFINE A=10', &
+'$IF .NOT.a.EQ.5*2 ! Note space after exclamation ', &
+'$define A=A+1', &
+'bad 1', &
+'$else', &
+'good ', &
+'$endif', &
+' ', &
+'$if !10==5*2', &
+'bad 2', &
+'$define A=A+10', &
+'$else', &
+'good ', &
+'$endif', &
+' ', &
+'$if 2*(4+2-5*2)/(-4)==2', &
+'good ', &
+'$else', &
+'bad 3', &
+'$define A=A+100', &
+'$endif', &
+' ', &
+'$if A.ne.10', &
+'$   stop', &
+'$endif', &
+'last line']
+
+expected=[ character(len=132) :: &
+'good', &
+' ', &
+'good', &
+' ', &
+'good', &
+' ', &
+'last line']
+
+call teardown('EXPRESSIONS')
+
+end subroutine expressions
+
+subroutine define()
+data=[ character(len=132) :: &
+' ', &
+'$DEFINE A=10', &
+'$DEFINE A=A+1', &
+'$ifndef A', &
+'$   stop 1', &
+'$endif', &
+'$UNDEFINE A', &
+'$ifdef A', &
+'$   stop 2', &
+'$endif', &
+'$DEFINE A=10+2', &
+'$show A', &
+'last line']
+
+expected=[ character(len=132) :: &
+' ', &
+'!  A  =  12', &
+'last line']
+
+call teardown('define')
+
+end subroutine define
+
+subroutine block_2()
+data=[ character(len=132) :: &
+'$BLOCK comment', &
+'  This is a block of text that should be', &
+'  converted to standard Fortran comments', &
+'$BLOCK end', &
+'$!------------------------------------------------', &
+'$BLOCK null', &
+'  #===================================#', &
+'  | These lines should be ignored and |', &
+'  | produce no output                 |', &
+'  #===================================#', &
+'$BLOCK ', &
+'$!------------------------------------------------', &
+'$BLOCK write', &
+'  Convert this paragraph of text describing', &
+'  sundry input options into a series of', &
+'  WRITE statements', &
+'$BLOCK end', &
+'$!------------------------------------------------', &
+'character(len=:),allocatable :: textblock(:)', &
+'$BLOCK VARIABLE --varname textblock', &
+'', &
+' It is a lot easier to maintain a large amount of', &
+' text as simple lines than to maintain them as', &
+' properly formatted variable definitions', &
+'', &
+'$BLOCK end', &
+'$!------------------------------------------------', &
+'last line']
+
+expected=[ character(len=132) :: &
+"!   This is a block of text that should be", &
+"!   converted to standard Fortran comments", &
+"write(io,'(a)')'  Convert this paragraph of text describing'", &
+"write(io,'(a)')'  sundry input options into a series of'", &
+"write(io,'(a)')'  WRITE statements'", &
+"character(len=:),allocatable :: textblock(:)", &
+"textblock=[ CHARACTER(LEN=128) :: &", &
+"'',&", &
+"' It is a lot easier to maintain a large amount of',&", &
+"' text as simple lines than to maintain them as',&", &
+"' properly formatted variable definitions',&", &
+"'',&", &
+"'']", &
+"", &
+'last line']
+
+call teardown('block_2')
+
+end subroutine block_2
+
+subroutine conditionals_2()
+
+data=[ character(len=132) :: &
+'$! set variable "a" if not specified on the prep(1) command.', &
+'$IF .NOT.DEFINED(A)', &
+'$   DEFINE a=1  ! so only define the first version of SUB(3f) below', &
+'$ENDIF', &
+'   program conditional_compile', &
+'      call sub()', &
+'   end program conditional_compile', &
+'$! select a version of SUB depending on the value of variable "a"', &
+'$IF a .EQ. 1', &
+'   subroutine sub', &
+'      print*, "This is the first SUB"', &
+'   end subroutine sub', &
+'$ELSEIF a .eq. 2', &
+'   subroutine sub', &
+'     print*, "This is the second SUB"', &
+'  end subroutine sub', &
+'$ELSE', &
+'   subroutine sub', &
+'      print*, "This is the third SUB"', &
+'   end subroutine sub', &
+'$ENDIF', &
+'last line']
+
+expected=[ character(len=132) :: &
+'   program conditional_compile', &
+'      call sub()', &
+'   end program conditional_compile', &
+'   subroutine sub', &
+'      print*, "This is the first SUB"', &
+'   end subroutine sub', &
+'last line']
+
+call teardown('CONDITIONALS_2')
+end subroutine conditionals_2
 
 end program test_prep
