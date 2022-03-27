@@ -136,14 +136,14 @@ integer                      :: verblen
 
    if(G_write)then                                                    ! if processing lines in a logically selected region
       if(G_inparcel.and.VERB.ne.'PARCEL')then
-         call write_out(trim(G_source))                                  ! write data line
+         call write_out(trim(G_source))                               ! write data line
          return
       endif
                                                                       ! process the directive
       select case(VERB)
       case('  ')                                                      ! entire line is a comment
       case('DEFINE');           call define(upopts,1)                 ! only process DEFINE if not skipping data lines
-      CASE('REDEFINE');         call define(upopts,0)                 ! only process DEFINE if not skipping data lines
+      case('REDEFINE');         call define(upopts,0)                 ! only process DEFINE if not skipping data lines
       case('UNDEF','UNDEFINE','DELETE'); call undef(upper(options))   ! only process UNDEF if not skipping data lines
       case('INCLUDE');          call include(options,50+G_iocount)    ! Filenames can be case sensitive
       case('OUTPUT');           call output_case(options)             ! Filenames can be case sensitive
@@ -155,15 +155,16 @@ integer                      :: verblen
       case('IDENT','@(#)');     call ident(options)
       case('SHOW') ;            call debug_state(options,msg='')
       case('SYSTEM');           call exe()
-      case('MESSAGE');          call write_err(G_source(2:))             ! trustingly trim MESSAGE from directive
+      case('MESSAGE');          call write_err(G_source(2:))          ! trustingly trim MESSAGE from directive
       case('STOP');             call stop(upopts)
       case('QUIT');             call stop('0')
       CASE('GET_ARGUMENTS');    call write_get_arguments()
+      CASE('HELP');             call short_help()
       end select
    endif
    select case(VERB)                                                  ! process logical flow control even if G_write is false
 
-   case('DEFINE','INCLUDE','SHOW','STOP','QUIT')
+   case('DEFINE','INCLUDE','SHOW','STOP','QUIT','HELP')
    case('SYSTEM','UNDEF','UNDEFINE','DELETE','MESSAGE','REDEFINE')
    case('OUTPUT','IDENT','@(#)','BLOCK','IMPORT')
    case('PARCEL','POST','SET','GET_ARGUMENTS')
@@ -460,18 +461,18 @@ character(len=*)          :: line
 integer                   :: i
 
    if (line(1:1).lt.'A'.or.line(1:1).gt.'Z'.and.line(1:1).ne.'_')then                         ! variable names start with a-z
-     call stop_prep("*prepname* ERROR(016) -VARIABLE NAME DOES NOT START WITH ALPHAMERIC(OR GENERAL SYNTAX ERROR):"//trim(G_source))
+    call stop_prep("*prep:name* ERROR(016) -VARIABLE NAME DOES NOT START WITH ALPHAMERIC(OR GENERAL SYNTAX ERROR):"//trim(G_source))
    endif
 
    if(len_trim(line).gt.G_var_len)then
-      call stop_prep('*prepname* ERROR(017) - VARIABLE NAME EXCEEDS '//v2s(G_var_len)//' CHARACTERS:'//trim(G_source))
+     call stop_prep('*prep:name* ERROR(017) - VARIABLE NAME EXCEEDS '//v2s(G_var_len)//' CHARACTERS:'//trim(G_source))
    endif
 
    do i=2,len_trim(line)                                                 ! name uses $  _ and letters (A-Z) digits (0-9)
       if(line(i:i).ne.'$'.and.line(i:i).ne.'_'.and.     &
       & (line(i:i).lt.'A'.or.line(i:i).gt.'Z').and.     &
       & (line(i:i).lt.'0'.or.line(i:i).gt.'9')) then
-       call stop_prep('*prepname* ERROR(018) -VARIABLE NAME CONTAINS UNALLOWED CHARACTER(OR GENERAL SYNTAX ERROR):'//trim(G_source))
+      call stop_prep('*prep:name* ERROR(018) -VARIABLE NAME CONTAINS UNALLOWED CHARACTER(OR GENERAL SYNTAX ERROR):'//trim(G_source))
       endif
    enddo
 
@@ -492,7 +493,7 @@ integer                                :: ivalue
    temp=line(ipos1:ipos2)                                                   ! place variable name/value substring into TEMP
 
    if (temp(1:1).eq.' ')then                                                ! did not find expected variable name or value
-      call stop_prep('*prepgetvalue* ERROR(019) - INCOMPLETE STATEMENT.'//trim(G_SOURCE))
+      call stop_prep('*prep* ERROR(019) - INCOMPLETE STATEMENT.'//trim(G_SOURCE))
    endif
 
    if (temp(1:1).ge.'A'.and.temp(1:1).le.'Z') then                          ! appears to be a variable name (not number or logical)
@@ -686,20 +687,20 @@ integer                        :: i
    newl=line(ipos1+7:)
 
    if (len_trim(newl).eq.1.or.index(newl,')').eq.0.or. index(newl,')').eq.2)then
-      call stop_prep("*prepifdef* ERROR(027) - INCOMPLETE STATEMENT."//trim(G_SOURCE))
+      call stop_prep("*prep:ifdef* ERROR(027) - INCOMPLETE STATEMENT."//trim(G_SOURCE))
    endif
    if (index(newl,')').gt.33)then
-      call stop_prep("*prepifdef* ERROR(028) - MISSPELLING OR NAME LENGTH EXCEEDS "//v2s(G_var_len)//" CHARACTERS."//trim(G_source))
+     call stop_prep("*prep:ifdef* ERROR(028) - MISSPELLING OR NAME LENGTH EXCEEDS "//v2s(G_var_len)//" CHARACTERS."//trim(G_source))
    endif
    ifvar= newl(2:index(newl,')')-1)
    if (newl(2:2).lt.'A'.or.newl(2:2).gt.'Z')then
-      call stop_prep("*prepifdef* ERROR(029) - CONSTANT LOGICAL EXPRESSION REQUIRED."//trim(G_source))
+      call stop_prep("*prep:ifdef* ERROR(029) - CONSTANT LOGICAL EXPRESSION REQUIRED."//trim(G_source))
    endif
    do i=3,index(newl,')')-1
       IF (NEWL(I:I).NE.'$'.AND.NEWL(I:I).NE.'_'.AND.(NEWL(I:I).LT.'A' &
        &  .OR.NEWL(I:I).GT.'Z').AND.(NEWL(I:I).LT.'0'                 &
        &  .or.newl(i:i).gt.'9')) then
-         call stop_prep("*prepifdef* ERROR(030) - CONSTANT LOGICAL EXPRESSION REQUIRED."//trim(G_source))
+         call stop_prep("*prep:ifdef* ERROR(030) - CONSTANT LOGICAL EXPRESSION REQUIRED."//trim(G_source))
       endif
    enddo
 
@@ -734,7 +735,7 @@ if(debug)then
 endif
 
    if(noelse.eq.1.or.G_nestl.eq.0) then                    ! test for else instead of elseif
-      call stop_prep("*prepelse* ERROR(031) - MISPLACED $ELSE OR $ELSEIF DIRECTIVE:"//trim(G_SOURCE))
+      call stop_prep("*prep:else* ERROR(031) - MISPLACED $ELSE OR $ELSEIF DIRECTIVE:"//trim(G_SOURCE))
    endif
    if(verb.eq.'ELSE')then
       noelse=1
@@ -785,7 +786,7 @@ logical,intent(out)           :: eb
    G_nestl=G_nestl-1                                           ! decrease if level
 
    if(G_nestl.lt.0)then
-      call stop_prep("*prependif* ERROR(032) - MISPLACED $ENDIF DIRECTIVE:"//trim(G_source))
+      call stop_prep("*prep:endif* ERROR(032) - MISPLACED $ENDIF DIRECTIVE:"//trim(G_source))
    endif
 
    noelse=0                                                    ! reset else level
@@ -939,128 +940,128 @@ integer                         :: l
 integer                         :: len
 integer                         :: numop
 
-   if (ipos2.eq.0) return
-   loc=0
-   j=0
-   minus1=1
-   newl=line(:ipos2)
-   OVERALL: do numop=1,3                         ! check **, then */, then +-
-      TILLDONE: do                               ! keep doing reduction of current operators
-        i=index(newl,ops(numop))                 ! find location in input string where operator string was found
-        if (numop.ne.1) then                     ! if not the two-character operator ** check for either operator of current group
-          i=index(newl,ops(numop)(1:1))          ! find  first operator of group, if present
-          j=index(newl,ops(numop)(2:2))          ! find second operator of group, if present
-          i=max(i,j)                             ! find right-most operator, if any
-          if (i*j.ne.0) i=min(i,j)               ! if at least one operator is present find left-most
-        endif
-        IF (I.EQ.0) cycle OVERALL                ! did not find these operators
+  if (ipos2.eq.0) return
+  loc=0
+  j=0
+  minus1=1
+  newl=line(:ipos2)
+  OVERALL: do numop=1,3                         ! check **, then */, then +-
+     TILLDONE: do                               ! keep doing reduction of current operators
+       i=index(newl,ops(numop))                 ! find location in input string where operator string was found
+       if (numop.ne.1) then                     ! if not the two-character operator ** check for either operator of current group
+         i=index(newl,ops(numop)(1:1))          ! find  first operator of group, if present
+         j=index(newl,ops(numop)(2:2))          ! find second operator of group, if present
+         i=max(i,j)                             ! find right-most operator, if any
+         if (i*j.ne.0) i=min(i,j)               ! if at least one operator is present find left-most
+       endif
+       IF (I.EQ.0) cycle OVERALL                ! did not find these operators
 
-        LEN=1                                    ! operator length
-        IF (NUMOP.EQ.1) LEN=2
-        IF (I.EQ.len_trim(NEWL)) then            ! if operator is at end of string
-           call stop_prep("*prepdomath* ERROR(035) - INCOMPLETE STATEMENT. OPERATOR (**,/,*,+,-) AT STRING END:"//trim(G_SOURCE))
-        endif
-        IF (I.EQ.1.AND.NUMOP.NE.3) then          ! if operator at beginning of string and not +-
-         call stop_prep("*prepdomath* ERROR(036)-SYNTAX ERROR. OPERATOR (**,*,/) NOT ALLOWED TO PREFIX EXPRESSION:"//trim(G_SOURCE))
-        endif
-        if (.not.(i.eq.1.and.numop.eq.3)) then   ! if processing +- operators and sign at beginning of string skip this
-           if (index('*/+-',newl(i-1:i-1)).ne.0.or.index('*/+-',newl(i+len:i+len)).ne.0) then
-              call stop_prep('*prepdomath* ERROR(037) - SYNTAX ERROR IN DOMATH:'//trim(G_source))
-           endif
-        endif
-
-        i1=0
-        if (.not.(i.eq.1.and.numop.eq.3)) then
-           do j=i-1,1,-1
-             if (index('*/+-.',newl(j:j)).eq.0) cycle
-             exit
-           enddo
-           if (.not.(j.eq.i-1.and.j.ne.1))then
-              i1=get_integer_from_string(newl(j+1:i-1))
-           endif
-        endif
-        do l=i+len_trim(ops(numop)),len_trim(newl)
-          if (index('*/+-.',newl(l:l)).eq.0) cycle
-          exit
-        enddo
-
-        i2=get_integer_from_string(newl(i+len:l-1))
-
-        if (numop.eq.1) then
-          i1=i1**i2*minus1
-        else
-           select case (index('*/+-',newl(i:i)))
-           case(1)
-              i1=i1*i2*minus1
-           case(2)
-              if(i2.eq.0)then
-                 call stop_prep('*prepdomath* ERROR(038) - DIVIDE BY ZERO:'//trim(G_source))
-              endif
-              i1=i1/i2*minus1
-           case(3)
-           if (i1.ne.0) then
-             i1=i1*minus1+i2
-           else
-             i1=i1+i2*minus1
-           endif
-           case(4)
-              if (i1.ne.0) then
-                i1=i1*minus1-i2
-              else
-                i1=i1-i2*minus1
-              endif
-           case default
-              call stop_prep('*prepdomath* ERROR(039) - INTERNAL PROGRAM ERROR:'//trim(G_source))
-           end select
-        endif
-
-        if (i1.le.0) then
-          if (j.eq.i-1.and.j.ne.1) then
-            minus1=-1
-            i1=abs(i1)
-            loc=j+1
-            newl(j+1:j+1)=' '
-            l=l-1
-            newl=nospace(newl)
-          elseif (i.eq.1.and.numop.eq.3) then
-            minus1=-1
-            i1=abs(i1)
-            loc=i
-            newl(j:j)=' '
-            l=l-1
-            j=j-1
-            newl=nospace(newl)
-          else
-            minus1=1
+       LEN=1                                    ! operator length
+       IF (NUMOP.EQ.1) LEN=2
+       IF (I.EQ.len_trim(NEWL)) then            ! if operator is at end of string
+          call stop_prep("*prep:domath* ERROR(035) - INCOMPLETE STATEMENT. OPERATOR (**,/,*,+,-) AT STRING END:"//trim(G_SOURCE))
+       endif
+       IF (I.EQ.1.AND.NUMOP.NE.3) then          ! if operator at beginning of string and not +-
+        call stop_prep("*prep:domath* ERROR(036)-SYNTAX ERROR. OPERATOR (**,*,/) NOT ALLOWED TO PREFIX EXPRESSION:"//trim(G_SOURCE))
+       endif
+       if (.not.(i.eq.1.and.numop.eq.3)) then   ! if processing +- operators and sign at beginning of string skip this
+          if (index('*/+-',newl(i-1:i-1)).ne.0.or.index('*/+-',newl(i+len:i+len)).ne.0) then
+            call stop_prep('*prep:domath* ERROR(037) - SYNTAX ERROR IN DOMATH:'//trim(G_source))
           endif
-        else
-          minus1=1
-        endif
-        write(temp,'(i11)') i1
-        temp=nospace(temp)
-        if (j.eq.0.and.l.gt.len_trim(newl)) then
-          newl=temp(:len_trim(temp))
-          cycle overall
-        elseif (j.eq.0) then
-          newl=temp(:len_trim(temp))//newl(l:)
-        elseif (l.gt.len_trim(newl)) then
-          newl=newl(:j)//temp(:len_trim(temp))
-        else
-          newl=newl(:j)//temp(:len_trim(temp))//newl(l:)
-        endif
-        if(i1.lt.0)then  ! if i1 is negative, could produce +-
-           call substitute(newl,'+-','-')
-        endif
-      enddo TILLDONE
-   enddo OVERALL
+       endif
 
-   if (minus1.eq.-1.and.(loc.eq.0.or.loc.eq.1)) then
-      newl(:G_line_length)='-'//newl  !*! note potentially trimming a character off the end
-   elseif (minus1.eq.-1.and.loc.ne.1) then
-      newl=newl(:loc-1)//'-'//newl(loc:)
-   endif
+       i1=0
+       if (.not.(i.eq.1.and.numop.eq.3)) then
+          do j=i-1,1,-1
+            if (index('*/+-.',newl(j:j)).eq.0) cycle
+            exit
+          enddo
+          if (.not.(j.eq.i-1.and.j.ne.1))then
+             i1=get_integer_from_string(newl(j+1:i-1))
+          endif
+       endif
+       do l=i+len_trim(ops(numop)),len_trim(newl)
+         if (index('*/+-.',newl(l:l)).eq.0) cycle
+         exit
+       enddo
 
-   line(:ipos2)=newl(:len_trim(newl))
+       i2=get_integer_from_string(newl(i+len:l-1))
+
+       if (numop.eq.1) then
+         i1=i1**i2*minus1
+       else
+          select case (index('*/+-',newl(i:i)))
+          case(1)
+             i1=i1*i2*minus1
+          case(2)
+             if(i2.eq.0)then
+                call stop_prep('*prepdomath* ERROR(038) - DIVIDE BY ZERO:'//trim(G_source))
+             endif
+             i1=i1/i2*minus1
+          case(3)
+          if (i1.ne.0) then
+            i1=i1*minus1+i2
+          else
+            i1=i1+i2*minus1
+          endif
+          case(4)
+             if (i1.ne.0) then
+               i1=i1*minus1-i2
+             else
+               i1=i1-i2*minus1
+             endif
+          case default
+             call stop_prep('*prepdomath* ERROR(039) - INTERNAL PROGRAM ERROR:'//trim(G_source))
+          end select
+       endif
+
+       if (i1.le.0) then
+         if (j.eq.i-1.and.j.ne.1) then
+           minus1=-1
+           i1=abs(i1)
+           loc=j+1
+           newl(j+1:j+1)=' '
+           l=l-1
+           newl=nospace(newl)
+         elseif (i.eq.1.and.numop.eq.3) then
+           minus1=-1
+           i1=abs(i1)
+           loc=i
+           newl(j:j)=' '
+           l=l-1
+           j=j-1
+           newl=nospace(newl)
+         else
+           minus1=1
+         endif
+       else
+         minus1=1
+       endif
+       write(temp,'(i11)') i1
+       temp=nospace(temp)
+       if (j.eq.0.and.l.gt.len_trim(newl)) then
+         newl=temp(:len_trim(temp))
+         cycle overall
+       elseif (j.eq.0) then
+         newl=temp(:len_trim(temp))//newl(l:)
+       elseif (l.gt.len_trim(newl)) then
+         newl=newl(:j)//temp(:len_trim(temp))
+       else
+         newl=newl(:j)//temp(:len_trim(temp))//newl(l:)
+       endif
+       if(i1.lt.0)then  ! if i1 is negative, could produce +-
+          call substitute(newl,'+-','-')
+       endif
+     enddo TILLDONE
+  enddo OVERALL
+
+  if (minus1.eq.-1.and.(loc.eq.0.or.loc.eq.1)) then
+     newl(:G_line_length)='-'//newl  !*! note potentially trimming a character off the end
+  elseif (minus1.eq.-1.and.loc.ne.1) then
+     newl=newl(:loc-1)//'-'//newl(loc:)
+  endif
+
+  line(:ipos2)=newl(:len_trim(newl))
 
 end subroutine domath
 !===================================================================================================================================
@@ -1498,9 +1499,9 @@ character(len=G_line_length) :: options                 ! everything after first
    case('ASIS')
       G_outtype='asis'
    case default
-      write(stdout,*)'*prepstop* ERROR(047) - UNEXPECTED "BLOCK" OPTION. FOUND:'//trim(G_source)
-      write(stdout,*)'*prepstop* ERROR(048) - UNEXPECTED "BLOCK" OPTION. FOUND:'//trim(sget('block_oo'))
-      call stop_prep('*prepstop* ERROR(049) - UNEXPECTED "BLOCK" OPTION. FOUND:'//sget('block_man'))
+      write(stdout,*)'*prep* ERROR(047) - UNEXPECTED "BLOCK" OPTION. FOUND:'//trim(G_source)
+      write(stdout,*)'*prep* ERROR(048) - UNEXPECTED "BLOCK" OPTION. FOUND:'//trim(sget('block_oo'))
+      call stop_prep('*prep* ERROR(049) - UNEXPECTED "BLOCK" OPTION. FOUND:'//sget('block_man'))
    end select
 
    G_comment_count=0
@@ -1517,14 +1518,12 @@ integer                     :: ivalue
       ivalue=get_integer_from_string(opts)
       if(ivalue.eq.0)then
          stop
-      elseif(ivalue.ge.1.and.ivalue.le.20)then
-         !*!stop ivalue
-         stop 3
       else
-         call stop_prep('*prepstop* ERROR(050) - UNEXPECTED "STOP" VALUE='',i10,''. FOUND:'',a)'//trim(G_source))
+         call stop_prep('',stop_value=ivalue)
+         !call stop_prep('*prep* ERROR(050) - UNEXPECTED "STOP" VALUE='//trim(opts)//'. FROM:'//trim(G_source))
       endif
    else
-      stop 1
+      stop 1 ! , quiet=.true.
    endif
 end subroutine stop
 !===================================================================================================================================
@@ -1683,35 +1682,6 @@ integer                        :: i
       call stop_prep('ERROR(056) print_comment_block - FAILED TO WRITE COMMENT BLOCK')
    endblock ALL
 end subroutine format_g_man
-!===================================================================================================================================
-!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
-!===================================================================================================================================
-subroutine stops(iexit) !@(#)stops(3f): irritating that the value on STOP is scalar-char-initialization-expr. 1-20 OK this way
-integer,intent(in)   :: iexit
-   select case(iexit)
-   case  (1)      ;  stop  1
-   case  (2)      ;  stop  2
-   case  (3)      ;  stop  3
-   case  (4)      ;  stop  4
-   case  (5)      ;  stop  5
-   case  (6)      ;  stop  6
-   case  (7)      ;  stop  7
-   case  (8)      ;  stop  8
-   case  (9)      ;  stop  9
-   case  (10)     ;  stop  10
-   case  (11)     ;  stop  11
-   case  (12)     ;  stop  12
-   case  (13)     ;  stop  13
-   case  (14)     ;  stop  14
-   case  (15)     ;  stop  15
-   case  (16)     ;  stop  16
-   case  (17)     ;  stop  17
-   case  (18)     ;  stop  18
-   case  (19)     ;  stop  19
-   case  (20)     ;  stop  20
-   case  default  ;  stop
-   end   select
-end subroutine stops
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
@@ -2027,13 +1997,20 @@ end subroutine defines
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine stop_prep(message)                   !@(#)stop_prep(3f): write MESSAGE to stderr and exit program
+subroutine stop_prep(message,stop_value)                   !@(#)stop_prep(3f): write MESSAGE to stderr and exit program
 character(len=*),intent(in)  :: message
-   call write_err(message)
+integer,optional :: stop_value
+integer :: stop_value_local
+   stop_value_local=1
+   if( present(stop_value) )stop_value_local=stop_value
+   !call write_err(message)
    call write_err(trim(G_SOURCE))
-   call debug_state(msg='message')
-   stop 1
+   call debug_state(msg=message)
+   stop stop_value_local
 end subroutine stop_prep
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!===================================================================================================================================
 subroutine warn_prep(message)                   !@(#)warn_prep(3f): write MESSAGE to stderr and and continue program
 character(len=*),intent(in)  :: message
    call write_err(message)
@@ -2100,16 +2077,13 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   An expression is composed of INTEGER and LOGICAL constants, parameters       ',&
 '   and operators. Operators are                                                 ',&
 '                                                                                ',&
-'       #------#------#------#------#------#------#------#                       ',&
-'       |  +   |  -   |  *   |  /   |  **  |  (   |  )   |                       ',&
-'       #------#------#------#------#------#------#------#                       ',&
-'       | .EQ. | .NE. | .GE. | .GT. | .LE. | .LT. |                              ',&
-'       |  ==  |  /=  |  >=  |  >   |  <=  |  <   |                              ',&
-'       |      |  !=  |      |      |      |      | <== C-style                  ',&
-'       #------#------#------#------#------#------#                              ',&
-'       |.NOT. |.AND. | .OR. | .EQV.|.NEQV.|                                     ',&
-'       |  !   |  &&  |  ||  |  ==  |  !=  |        <== C-style                  ',&
-'       #------#------#------#------#------#                                     ',&
+'       #-----#-----#-----#-----#-----#-----#-----#                              ',&
+'       |  +  |  -  |  *  |  /  |  ** |  (  |  )  |                              ',&
+'       #-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#------#     ',&
+'       | .EQ.| .NE.| .GE.| .GT.| .LE.| .LT.|.NOT.|.AND.| .OR.|.EQV.|.NEQV.|     ',&
+'       |  == |  /= |  >= |  >  |  <= |  <  |  !  |  && |  || | ==  |  !=  |     ',&
+'       #-----#  != #-----#-----#-----#-----#-----#-----#-----#-----#------#     ',&
+'             #-----#                                                            ',&
 ! C-STYLE NOT SUPPORTED:   %,  <<,  >>, &,  ~
 '                                                                                ',&
 '   The suggested suffix for Fortran input files is ".ff" for code files unless  ',&
@@ -2126,7 +2100,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '    :CONDITIONAL CODE SELECTION                                                 ',&
 '     $IF  logical integer-based expression |                                    ',&
-'     $IFDEF variable-name |                                                     ',&
+'     $IFDEF variable_name |                                                     ',&
 '     $IFNDEF variable_name                                [! comment ]          ',&
 '             { sequence of source statements}                                   ',&
 '     [$ELSEIF|$ELIF logical integer-based expression      [! comment ]          ',&
@@ -2167,7 +2141,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '     $SHOW [defined_variable_name(s)]                     [! comment ]          ',&
 '                                                                                ',&
 '    :SYSTEM COMMANDS                                                            ',&
-'     $SYSTEM   system_command                             [! comment ]          ',&
+'     $SYSTEM   system_command                                                   ',&
 '                                                                                ',&
 'OPTIONS                                                                         ',&
 '   define_list, -D define_list  An optional space-delimited list of expressions ',&
@@ -2380,7 +2354,11 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   $IMPORT names(s)                                                             ',&
 '                                                                                ',&
 '   The values of environment variables may be imported such that their names    ',&
-'   and values will be set as if a $SET command had been done on them.           ',&
+'   and values will be set as if a $SET command had been done on them. The names ',&
+'   of the environment variables are case-sensitive in regards to obtaining the  ',&
+'   initial values, but the names because case-insensitive in prep(). That is    ',&
+'   "import home" gets the lowercase environment variable "home" and sets the    ',&
+'   prep(1) string "HOME" to the value; as prep(1) values are case-insensitive.  ',&
 '                                                                                ',&
 '   $BLOCK [comment|null|write|help|version  [-file NAME [-append]]              ',&
 '     or                                                                         ',&
@@ -2466,12 +2444,13 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   $STOP stop_value                                                             ',&
 '                                                                                ',&
-'   Stops input file processing. An optional integer value of 0 to 20            ',&
-'   will be returned as a status value to the system where supported. A          ',&
-'   value of two ("2") is returned if no value is specified. Any value           ',&
-'   from one ("1") to twenty ("20") also causes an implicit execution of         ',&
-'   the "$SHOW" directive before the program is stopped. A value of "0"          ',&
-'   causes normal program termination. "$QUIT" is an alias for "$STOP 0".        ',&
+'   Stops input file processing. An optional integer value will be returned      ',&
+'   as a status value to the system where supported. A value of one ("1")        ',&
+'   is returned if no value is specified. Any explicit value other than zero     ',&
+'   "(0)" also causes an implicit execution of the "$SHOW" directive before the  ',&
+'   program is stopped. A value of "0" causes normal program termination.        ',&
+'                                                                                ',&
+'   "$QUIT" is an alias for "$STOP 0".                                           ',&
 '                                                                                ',&
 '   $SYSTEM system_command                                                       ',&
 '                                                                                ',&
@@ -2494,10 +2473,9 @@ help_text=[ CHARACTER(LEN=128) :: &
 '    $INCLUDE _tmp.f90                                                           ',&
 '    $SYSTEM  rm _tmp.f90                                                        ',&
 '                                                                                ',&
-'   $UNDEFINE variable_name                                                      ',&
+'   $UNDEFINE variable_name(s)                                                   ',&
 '                                                                                ',&
-'   A symbol defined with $DEFINE can be removed with the $UNDEFINE              ',&
-'   directive.                                                                   ',&
+'   A symbol defined with $DEFINE can be removed with the $UNDEFINE directive.   ',&
 '                                                                                ',&
 '   DEFINED(variable_name)                                                       ',&
 '                                                                                ',&
@@ -2550,7 +2528,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '  Input files                                                                   ',&
 '                                                                                ',&
 '   o lines are limited to 1024 columns. Text past column 1024 is ignored.       ',&
-'   o files currently opened cannot be opened again.                             ',&
+'   o files currently open cannot be open.                                       ',&
 '   o a maximum of 50 files can be nested by $INCLUDE                            ',&
 '   o filenames cannot contain spaces on the command line.                       ',&
 '                                                                                ',&
@@ -2700,7 +2678,8 @@ help_text=[ CHARACTER(LEN=128) :: &
 !'@(#)VERSION:        5.0.0: 20201219>',&
 !'@(#)VERSION:        6.0.0: 20210613>',&
 !'@(#)VERSION:        6.0.1: 20220311>',&
-'@(#)VERSION:        6.1.1: 20220326>',&
+!'@(#)VERSION:        6.1.1: 20220326>',&
+'@(#)VERSION:        6.1.2: 20220326>',&
 '@(#)AUTHOR:         John S. Urban>',&
 '@(#)HOME PAGE       https://github.com/urbanjost/prep.git/>',&
 '']
@@ -2746,7 +2725,7 @@ character(len=256)             :: message
    case('shell')
       write(G_scratch_lun,'(a)',iostat=ios,iomsg=message)trim(line)
       if(ios.lt.0)then
-         call stop_prep('*prep:stop* ERROR(68) - FAILED TO WRITE TO PROCESS:'//trim(line)//':'//trim(message))
+         call stop_prep('*prep* ERROR(68) - FAILED TO WRITE TO PROCESS:'//trim(line)//':'//trim(message))
       endif
 
    case('variable')
@@ -2780,8 +2759,8 @@ character(len=256)             :: message
       write(G_iout,'(a)')trim(line(:min(len(line),G_iwidth)))
 
    case default
-      call stop_prep('*prepstop* ERROR(063) - UNEXPECTED "BLOCK" VALUE. FOUND:'//trim(G_source))
-      call stop_prep('*prepstop* ERROR(064) - UNEXPECTED "BLOCK" VALUE. FOUND:'//trim(G_outtype))
+      call stop_prep('*prep* ERROR(063) - UNEXPECTED "BLOCK" VALUE. FOUND:'//trim(G_source))
+      call stop_prep('*prep* ERROR(064) - UNEXPECTED "BLOCK" VALUE. FOUND:'//trim(G_outtype))
 
    end select
 
@@ -3112,6 +3091,53 @@ end function ends_in
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
+subroutine short_help()
+implicit none
+!@(#)short_help(3f): prints help information"
+character(len=:),allocatable :: help_text(:)
+integer                        :: i
+help_text=[ CHARACTER(LEN=128) :: &
+"   > numeric operators are +,-,*,/,**, () are supported, logical operators are  ",&
+"   >  | .EQ.| .NE.| .GE.| .GT.| .LE.| .LT.|.NOT.|.AND.| .OR.| .EQV.|.NEQV.|     ",&
+"   >  |  == |  /= |  >= |  >  |  <= |  <  |  !  |  && |  || |  ==  |  !=  |     ",&
+"  $DEFINE|$REDEFINE variable_name[=expression]                                  ",&
+"   > Predefined values are                                                      ",&
+"   > UNKNOWN=0 LINUX=1 MACOS=2 WINDOWS=3 CYGWIN=4 SOLARIS=5 FREEBSD=6 OPENBSD=7 ",&
+"   > In addition OS is set to what the program guesses the system type is.      ",&
+"  $UNDEFINE|$UNDEF variable_name(s)                                             ",&
+"CONDITIONAL CODE SELECTION                                                      ",&
+"  $IF logical_integer-based_expression |                                        ",&
+"  $IFDEF variable_name | $IFNDEF variable_name                                  ",&
+"  $IF DEFINED(varname) | $IF .NOT. DEFINED(varname) |                           ",&
+"  $ELSEIF|$ELIF logical_integer-based_expression                                ",&
+"  $ELSE                                                                         ",&
+"  $ENDIF                                                                        ",&
+"MACRO STRING EXPANSION AND TEXT REPLAY                                          ",&
+"  $SET varname string                                                           ",&
+"  $IMPORT envname(s)                                                            ",&
+"   > Unless at least one variable name is defined no ${NAME} expansion occurs.  ",&
+"   > $set author  William Shakespeare                                           ",&
+"   > $import HOME                                                               ",&
+"   > write(*,*)'By ${AUTHOR} on ${DATE} ${TIME}'                                ",&
+"   > write(*,*)'File ${FILE} Line ${LINE} HOME ${HOME}'                         ",&
+"  $PARCEL blockname  ! create a reuseable parcel of text that can be expanded   ",&
+"  $POST   blockname  ! insert a defined parcel of text                          ",&
+"EXTERNAL FILES (see $BLOCK ... --file also)                                     ",&
+"  $OUTPUT filename [-append]                                                    ",&
+"  $INCLUDE filename                                                             ",&
+"TEXT BLOCK FILTERS                                                              ",&
+"  $BLOCK [comment|null|write|variable [-varname NAME]] [-file NAME [-append]]   ",&
+"INFORMATION                                                                     ",&
+"  $MESSAGE message_to_stderr                                                    ",&
+"  $SHOW [defined_variable_name(s)]                                              ",&
+"SYSTEM COMMANDS                                                                 ",&
+"  $SYSTEM command                                                               ",&
+"  $STOP [stop_value] | $QUIT                                                    "]
+   WRITE(stderr,'(a)')(trim(help_text(i)),i=1,size(help_text))
+end subroutine short_help
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!===================================================================================================================================
 end module M_fpp
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -3329,6 +3355,7 @@ subroutine auto()
       end select
    endif
 end subroutine auto
+
 
 end program prep
 !===================================================================================================================================

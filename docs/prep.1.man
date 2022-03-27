@@ -41,16 +41,13 @@ DESCRIPTION
    An expression is composed of INTEGER and LOGICAL constants, parameters
    and operators. Operators are
 
-       #------#------#------#------#------#------#------#
-       |  +   |  -   |  *   |  /   |  **  |  (   |  )   |
-       #------#------#------#------#------#------#------#
-       | .EQ. | .NE. | .GE. | .GT. | .LE. | .LT. |
-       |  ==  |  /=  |  >=  |  >   |  <=  |  <   |
-       |      |  !=  |      |      |      |      | <== C-style
-       #------#------#------#------#------#------#
-       |.NOT. |.AND. | .OR. | .EQV.|.NEQV.|
-       |  !   |  &&  |  ||  |  ==  |  !=  |        <== C-style
-       #------#------#------#------#------#
+       #-----#-----#-----#-----#-----#-----#-----#
+       |  +  |  -  |  *  |  /  |  ** |  (  |  )  |
+       #-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#------#
+       | .EQ.| .NE.| .GE.| .GT.| .LE.| .LT.|.NOT.|.AND.| .OR.|.EQV.|.NEQV.|
+       |  == |  /= |  >= |  >  |  <= |  <  |  !  |  && |  || | ==  |  !=  |
+       #-----#  != #-----#-----#-----#-----#-----#-----#-----#-----#------#
+             #-----#
 
    The suggested suffix for Fortran input files is ".ff" for code files unless
    they contain $SYSTEM directives in which case ".FF" is preferred. $INCLUDE
@@ -66,7 +63,7 @@ DESCRIPTION
 
     :CONDITIONAL CODE SELECTION
      $IF  logical integer-based expression |
-     $IFDEF variable-name |
+     $IFDEF variable_name |
      $IFNDEF variable_name                                [! comment ]
              { sequence of source statements}
      [$ELSEIF|$ELIF logical integer-based expression      [! comment ]
@@ -100,7 +97,7 @@ DESCRIPTION
      $SHOW [defined_variable_name(s)]                     [! comment ]
 
     :SYSTEM COMMANDS
-     $SYSTEM   system_command                             [! comment ]
+     $SYSTEM   system_command
 
 OPTIONS
    define_list, -D define_list  An optional space-delimited list of expressions
@@ -313,7 +310,11 @@ OPTIONS
    $IMPORT names(s)
 
    The values of environment variables may be imported such that their names
-   and values will be set as if a $SET command had been done on them.
+   and values will be set as if a $SET command had been done on them. The names
+   of the environment variables are case-sensitive in regards to obtaining the
+   initial values, but the names because case-insensitive in prep(). That is
+   "import home" gets the lowercase environment variable "home" and sets the
+   prep(1) string "HOME" to the value; as prep(1) values are case-insensitive.
 
    $BLOCK [comment|null|write|help|version  [-file NAME [-append]]
      or
@@ -395,12 +396,13 @@ OPTIONS
 
    $STOP stop_value
 
-   Stops input file processing. An optional integer value of 0 to 20
-   will be returned as a status value to the system where supported. A
-   value of two ("2") is returned if no value is specified. Any value
-   from one ("1") to twenty ("20") also causes an implicit execution of
-   the "$SHOW" directive before the program is stopped. A value of "0"
-   causes normal program termination. "$QUIT" is an alias for "$STOP 0".
+   Stops input file processing. An optional integer value will be returned
+   as a status value to the system where supported. A value of one ("1")
+   is returned if no value is specified. Any explicit value other than zero
+   "(0)" also causes an implicit execution of the "$SHOW" directive before the
+   program is stopped. A value of "0" causes normal program termination.
+
+   "$QUIT" is an alias for "$STOP 0".
 
    $SYSTEM system_command
 
@@ -423,10 +425,9 @@ OPTIONS
     $INCLUDE _tmp.f90
     $SYSTEM  rm _tmp.f90
 
-   $UNDEFINE variable_name
+   $UNDEFINE variable_name(s)
 
-   A symbol defined with $DEFINE can be removed with the $UNDEFINE
-   directive.
+   A symbol defined with $DEFINE can be removed with the $UNDEFINE directive.
 
    DEFINED(variable_name)
 
@@ -479,7 +480,7 @@ LIMITATIONS
   Input files
 
    o lines are limited to 1024 columns. Text past column 1024 is ignored.
-   o files currently opened cannot be opened again.
+   o files currently open cannot be open.
    o a maximum of 50 files can be nested by $INCLUDE
    o filenames cannot contain spaces on the command line.
 

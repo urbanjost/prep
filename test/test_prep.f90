@@ -494,7 +494,7 @@ end subroutine parcel
 subroutine stop()
 data=[ character(len=132) :: &
 "PRINT THIS               ", &
-"$stop 3                  ", &
+"$stop                    ", &
 "NOT THIS                 ", &
 "last line"]
 

@@ -125,16 +125,13 @@ An expression is composed of INTEGER and LOGICAL constants, parameters
 and operators. Operators are
 <P>
 <PRE>
-       #------#------#------#------#------#------#------#
-       |  +   |  -   |  *   |  /   |  **  |  (   |  )   |
-       #------#------#------#------#------#------#------#
-       | .EQ. | .NE. | .GE. | .GT. | .LE. | .LT. |
-       |  ==  |  /=  |  &gt;=  |  &gt;   |  &lt;=  |  &lt;   |
-       |      |  !=  |      |      |      |      | &lt;== C-style
-       #------#------#------#------#------#------#
-       |.NOT. |.AND. | .OR. | .EQV.|.NEQV.|
-       |  !   |  &&  |  ||  |  ==  |  !=  |        &lt;== C-style
-       #------#------#------#------#------#
+       #-----#-----#-----#-----#-----#-----#-----#
+       |  +  |  -  |  *  |  /  |  ** |  (  |  )  |
+       #-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#------#
+       | .EQ.| .NE.| .GE.| .GT.| .LE.| .LT.|.NOT.|.AND.| .OR.|.EQV.|.NEQV.|
+       |  == |  /= |  &gt;= |  &gt;  |  &lt;= |  &lt;  |  !  |  && |  || | ==  |  !=  |
+       #-----#  != #-----#-----#-----#-----#-----#-----#-----#-----#------#
+             #-----#
 <P>
 </PRE>
 The suggested suffix for Fortran input files is ".ff" for code files unless
@@ -152,7 +149,7 @@ The syntax for the directive lines is as follows:
 <P>
     :CONDITIONAL CODE SELECTION
      $IF  logical integer-based expression |
-     $IFDEF variable-name |
+     $IFDEF variable_name |
      $IFNDEF variable_name                                [! comment ]
              { sequence of source statements}
      [$ELSEIF|$ELIF logical integer-based expression      [! comment ]
@@ -186,7 +183,7 @@ The syntax for the directive lines is as follows:
      $SHOW [defined_variable_name(s)]                     [! comment ]
 <P>
     :SYSTEM COMMANDS
-     $SYSTEM   system_command                             [! comment ]
+     $SYSTEM   system_command
 <P>
 </PRE>
 </BLOCKQUOTE>
@@ -466,7 +463,11 @@ refers to the time of processing, not the time of compilation or loading.
 $IMPORT <B>names</B>(s)
 <P>
 The values of environment variables may be imported such that their names
-and values will be set as if a $SET command had been done on them.
+and values will be set as if a $SET command had been done on them. The names
+of the environment variables are case-sensitive in regards to obtaining the
+initial values, but the names because case-insensitive in <B>prep</B>(). That is
+"import home" gets the lowercase environment variable "home" and sets the
+<B>prep</B>(1) string "HOME" to the value; as <B>prep</B>(1) values are case-insensitive.
 <TABLE cellpadding=3><!-- tsb: The values of environment variables may be imported such that their names
  -->
 <TR></TR><TR></TR>
@@ -560,12 +561,13 @@ Example:
 </PRE>
 $STOP stop_value
 <P>
-Stops input file processing. An optional integer value of 0 to 20
-will be returned as a status value to the system where supported. A
-value of two ("2") is returned if no value is specified. Any value
-from one ("1") to twenty ("20") also causes an implicit execution of
-the "$SHOW" directive before the program is stopped. A value of "0"
-causes normal program termination. "$QUIT" is an alias for "$STOP 0".
+Stops input file processing. An optional integer value will be returned
+as a status value to the system where supported. A value of one ("1")
+is returned if no value is specified. Any explicit value other than zero
+"(0)" also causes an implicit execution of the "$SHOW" directive before the
+program is stopped. A value of "0" causes normal program termination.
+<P>
+"$QUIT" is an alias for "$STOP 0".
 <P>
 $SYSTEM system_command
 <P>
@@ -590,10 +592,9 @@ Examples:
     $SYSTEM  rm _tmp.f90
 <P>
 </PRE>
-$UNDEFINE variable_name
+$UNDEFINE <B>variable_name</B>(s)
 <P>
-A symbol defined with $DEFINE can be removed with the $UNDEFINE
-directive.
+A symbol defined with $DEFINE can be removed with the $UNDEFINE directive.
 <P>
 <B>DEFINED</B>(variable_name)
 <P>
@@ -666,7 +667,7 @@ lines are limited to 1024 columns. Text past column 1024 is ignored.
 <TR valign=top><TD width=3%>
 o
 </TD><TD>
-files currently opened cannot be opened again.
+files currently open cannot be open.
 </TD></TR>
 <TR valign=top><TD width=3%>
 o

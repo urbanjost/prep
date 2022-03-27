@@ -17,6 +17,8 @@ new features, changes, and relevant notifications.
 
   + $UNDEFINE can take a list of variable names 
   + $REDEFINE was documented
+  + $STOP was modernized now that a modern STOP is available on the
+    majority of compilers.
 ---
 **2022-03-26**  John S. Urban <https://github.com/urbanjost>
 
