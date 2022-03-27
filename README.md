@@ -157,6 +157,15 @@ Copyright (C) 1985-2021 Intel Corporation.  All rights reserved.
    # install (in the default location)
    fpm install
 ```
+or
+```bash
+   # examples of building standalone version
+   gfortran standalone/prep.f90 -o prep 
+   ifort standalone/prep.f90 -o prep 
+   nvfortran standalone/prep.f90 -o prep 
+   # example of moving to a location in your path
+   mv prep $HOME/.local/bin/
+```
 ## TRY IT
 ```bash
    # if you placed the program in a directory in your command path you are ready to go!

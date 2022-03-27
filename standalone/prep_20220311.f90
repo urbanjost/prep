@@ -18760,9 +18760,8 @@ subroutine format_g_man()
                CALL split(G_MAN,array1,delimiters=new_line('N'),nulls='return') ! parse string to an array parsing on delimiters
                ikludge=len(array1)+6
                if(allocated(array))deallocate(array)
-               allocate(character(len=ikludge) :: array(size(array)))
+               allocate(character(len=ikludge) :: array(size(array1))) !! pad with trailing spaces
                array(:)=array1
-               !!array=[character(len=ikludge) :: array1] !! pad with trailing spaces
                deallocate(array1)
                do i=1,size(array)        ! lines starting with a letter and all uppercase letters is prefixed with "##"
                   if( upper(array(i)).eq.array(i) .and. isalpha(array(i)(1:1)).and.lower(array(i)).ne.array(i))then
