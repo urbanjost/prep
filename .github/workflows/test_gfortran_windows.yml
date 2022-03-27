@@ -9,9 +9,13 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-latest]
+        gcc_v: [9] # Version of GFortran we want to use.
         include:
+
         - os: windows-latest
-          gcc_v: 8
+          os-arch: windows-x86_64
+          release-flags: --flag '--static -g -fbacktrace -O3'
+          exe: .exe
 
     env:
       FC: gfortran
