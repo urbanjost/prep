@@ -11,6 +11,13 @@ new features, changes, and relevant notifications.
    - [ ] unit test -- in progress
 
 ---
+**2022-03-27**  John S. Urban <https://github.com/urbanjost>
+
+### :green_circle: ADD:
+
+  + $UNDEFINE can take a list of variable names 
+  + $REDEFINE was documented
+---
 **2022-03-26**  John S. Urban <https://github.com/urbanjost>
 
 ### :red_circle: FIX:
@@ -21,6 +28,7 @@ new features, changes, and relevant notifications.
   + A comment is explicitly an exclamation _followed by a space_
     to allow C-style operators in expressions such as !,!=, ...
     which must _not_ be followed by a space.
+  + A $DEFINE of a defined value is a warning instead of an error
 
 ### :green_circle: ADD:
 

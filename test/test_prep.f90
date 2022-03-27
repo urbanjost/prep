@@ -15,6 +15,10 @@ allocate(tally(0))
    call define()
    call block_2()
    call conditionals_2()
+   call parcel()
+   call quit()
+   call stop()
+   call message()
    if(all(tally))then
       write(*,'(a)')'ALL PREP TESTS PASSED'
    else
@@ -22,6 +26,28 @@ allocate(tally(0))
       stop 1
    endif
 contains
+!===============================================================================
+subroutine sample()
+data=[ character(len=132) :: &
+"                                                                        ", &
+"                                                                        ", &
+"                                                                        ", &
+"                                                                        ", &
+"                                                                        ", &
+"last line"]
+
+expected=[ character(len=132) :: &
+"                                                                        ", &
+"                                                                        ", &
+"                                                                        ", &
+"                                                                        ", &
+"                                                                        ", &
+'last line']
+
+call teardown('sample')
+
+end subroutine sample
+!===============================================================================
 subroutine conditionals()
 
 data=[ character(len=132) :: &
@@ -47,7 +73,7 @@ expected=[ character(len=132) :: &
 
 call teardown('CONDITIONALS')
 end subroutine conditionals
-
+!===============================================================================
 subroutine set()
 data=[ character(len=132) :: &
 "$set author  William Shakespeare", &
@@ -65,109 +91,97 @@ expected=[ character(len=132) :: &
 call teardown('SET')
 
 end subroutine set
-
+!===============================================================================
 subroutine block()
 data=[ character(len=132) :: &
-"$!", &
-"$! basic $block usage", &
-"$!", &
-"$BLOCK NULL", &
-"", &
-"  The $BLOCK directive allows for several treatments of blocks of", &
-"  free-format text, facilitating easier maintenance of comments,", &
+"$!                                                                      ", &
+"$! basic $block usage                                                   ", &
+"$!                                                                      ", &
+"$BLOCK NULL                                                             ", &
+"                                                                        ", &
+"  The $BLOCK directive allows for several treatments of blocks of       ", &
+"  free-format text, facilitating easier maintenance of comments,        ", &
 "  single-file maintenance of code and documentation, and easy definition", &
-"  of large CHARACTER variable arrays.", &
-"", &
-"  This block has the NULL keyword specified so these lines are ignored", &
-"  when generating the output file.", &
-"", &
-"$BLOCK", &
-"", &
-"$BLOCK COMMENT ", &
-"  These lines will be converted to Fortran comments.", &
-"  It is easier to reformat comments this way instead of having", &
-"  to prefix each line with exclamations.", &
-"$BLOCK", &
-"", &
-"$BLOCK COMMENT --file doc.html", &
-"<html> <body>", &
-"<p>", &
-"  These lines will also be converted to Fortran comments but if ", &
-"  the environment variable $PREP_DOCUMENT_DIR is set it will be", &
-"  also be written as-is into $PREP_DOCUMENT_DIR/doc/doc.html.", &
-"", &
-"  The --file option also works with other options such as NULL", &
-"  so no output has to appear in the output file if desired.", &
-"</p>", &
-"</body> </html>", &
-"$BLOCK", &
-"", &
-"block", &
-"integer :: io=6", &
-"$BLOCK WRITE", &
-"  These lines are converted to a series of WRITE() statements", &
-"  where the LUN value ""IO"" is assumed to have been declared.", &
-"$BLOCK", &
-"endblock", &
-"", &
-"block ", &
-"character(len=:),allocatable :: HELP_TEXT", &
-"$BLOCK VARIABLE -varname HELP_TEXT", &
-"  These lines are converted to a declaration of a CHARACTER", &
-"  variable.", &
-"$BLOCK", &
-"endblock", &
-'last line']
+"  of large CHARACTER variable arrays.                                   ", &
+"                                                                        ", &
+"  This block has the NULL keyword specified so these lines are ignored  ", &
+"  when generating the output file.                                      ", &
+"                                                                        ", &
+"$BLOCK                                                                  ", &
+"                                                                        ", &
+"$BLOCK COMMENT                                                          ", &
+"  These lines will be converted to Fortran comments.                    ", &
+"  It is easier to reformat comments this way instead of having          ", &
+"  to prefix each line with exclamations.                                ", &
+"$BLOCK                                                                  ", &
+"                                                                        ", &
+"$BLOCK COMMENT --file doc.html                                          ", &
+"<html> <body>                                                           ", &
+"<p>                                                                     ", &
+"  These lines will also be converted to Fortran comments but if         ", &
+"  the environment variable $PREP_DOCUMENT_DIR is set it will be         ", &
+"  also be written as-is into $PREP_DOCUMENT_DIR/doc/doc.html.           ", &
+"                                                                        ", &
+"  The --file option also works with other options such as NULL          ", &
+"  so no output has to appear in the output file if desired.             ", &
+"</p>                                                                    ", &
+"</body> </html>                                                         ", &
+"$BLOCK                                                                  ", &
+"                                                                        ", &
+"block                                                                   ", &
+"integer :: io=6                                                         ", &
+"$BLOCK WRITE                                                            ", &
+"  These lines are converted to a series of WRITE() statements           ", &
+"  where the LUN value ""IO"" is assumed to have been declared.          ", &
+"$BLOCK                                                                  ", &
+"endblock                                                                ", &
+"                                                                        ", &
+"block                                                                   ", &
+"character(len=:),allocatable :: HELP_TEXT                               ", &
+"$BLOCK VARIABLE -varname HELP_TEXT                                      ", &
+"  These lines are converted to a declaration of a CHARACTER             ", &
+"  variable.                                                             ", &
+"$BLOCK                                                                  ", &
+"endblock                                                                ", &
+'last line                                                               ']
 
 expected=[ character(len=132) :: &
-"", &
-"!   These lines will be converted to Fortran comments.", &
-"!   It is easier to reformat comments this way instead of having", &
-"!   to prefix each line with exclamations.", &
-"", &
-"! <html> <body>", &
-"! <p>", &
-"!   These lines will also be converted to Fortran comments but if", &
-"!   the environment variable $PREP_DOCUMENT_DIR is set it will be", &
-"!   also be written as-is into $PREP_DOCUMENT_DIR/doc/doc.html.", &
-"! ", &
-"!   The --file option also works with other options such as NULL", &
-"!   so no output has to appear in the output file if desired.", &
-"! </p>", &
-"! </body> </html>", &
-"", &
-"block", &
-"integer :: io=6", &
-"write(io,'(a)')'  These lines are converted to a series of WRITE() statements'", &
-"write(io,'(a)')'  where the LUN value ""IO"" is assumed to have been declared.'", &
-"endblock", &
-"", &
-"block", &
-"character(len=:),allocatable :: HELP_TEXT", &
-"HELP_TEXT=[ CHARACTER(LEN=128) :: &", &
-"'  These lines are converted to a declaration of a CHARACTER',&", &
-"'  variable.',&", &
-"'']", &
-"", &
-"endblock", &
-'last line']
+"                                                                                ", &
+"!   These lines will be converted to Fortran comments.                          ", &
+"!   It is easier to reformat comments this way instead of having                ", &
+"!   to prefix each line with exclamations.                                      ", &
+"                                                                                ", &
+"! <html> <body>                                                                 ", &
+"! <p>                                                                           ", &
+"!   These lines will also be converted to Fortran comments but if               ", &
+"!   the environment variable $PREP_DOCUMENT_DIR is set it will be               ", &
+"!   also be written as-is into $PREP_DOCUMENT_DIR/doc/doc.html.                 ", &
+"!                                                                               ", &
+"!   The --file option also works with other options such as NULL                ", &
+"!   so no output has to appear in the output file if desired.                   ", &
+"! </p>                                                                          ", &
+"! </body> </html>                                                               ", &
+"                                                                                ", &
+"block                                                                           ", &
+"integer :: io=6                                                                 ", &
+"write(io,'(a)')'  These lines are converted to a series of WRITE() statements'  ", &
+"write(io,'(a)')'  where the LUN value ""IO"" is assumed to have been declared.' ", &
+"endblock                                                                        ", &
+"                                                                                ", &
+"block                                                                           ", &
+"character(len=:),allocatable :: HELP_TEXT                                       ", &
+"HELP_TEXT=[ CHARACTER(LEN=128) :: &                                             ", &
+"'  These lines are converted to a declaration of a CHARACTER',&                 ", &
+"'  variable.',&                                                                 ", &
+"'']                                                                             ", &
+"                                                                                ", &
+"endblock                                                                        ", &
+'last line                                                                       ']
 
 call teardown('BLOCK')
 
 end subroutine block
-subroutine blank()
-data=[ character(len=132) :: &
-'                             ', &
-'last line']
-
-expected=[ character(len=132) :: &
-'                             ', &
-'last line']
-
-call teardown('BLANK')
-
-end subroutine blank
-
+!===============================================================================
 subroutine teardown(name)
 character(len=*),intent(in) :: name
    ierr=filewrite('_scratch.txt',data,status='replace')
@@ -191,7 +205,7 @@ character(len=*),intent(in) :: name
    ierr=filedelete('_scratch.txt')
    ierr=filedelete('_out.txt')
 end subroutine teardown
-
+!===============================================================================
 subroutine expressions()
 data=[ character(len=132) :: &
 '$DEFINE A=10', &
@@ -233,7 +247,7 @@ expected=[ character(len=132) :: &
 call teardown('EXPRESSIONS')
 
 end subroutine expressions
-
+!===============================================================================
 subroutine define()
 data=[ character(len=132) :: &
 '                                                    ', &
@@ -279,7 +293,7 @@ expected=[ character(len=132) :: &
 call teardown('define')
 
 end subroutine define
-
+!===============================================================================
 subroutine block_2()
 data=[ character(len=132) :: &
 '$BLOCK comment', &
@@ -331,7 +345,7 @@ expected=[ character(len=132) :: &
 call teardown('block_2')
 
 end subroutine block_2
-
+!===============================================================================
 subroutine conditionals_2()
 
 data=[ character(len=132) :: &
@@ -369,5 +383,161 @@ expected=[ character(len=132) :: &
 
 call teardown('CONDITIONALS_2')
 end subroutine conditionals_2
+!===============================================================================
+subroutine parcel()
+data=[ character(len=132) :: &
+'$! write a generic function ".                   ',&
+'$!==============================                 ',&
+'$PARCEL SWAP                                     ',&
+'elemental subroutine ${PREFIX}_swap(x,y)         ',&
+'!> swap two ${TYPE} variables                    ',&
+'${TYPE}, intent(inout) :: x,y                    ',&
+'${TYPE}                :: temp                   ',&
+'   temp = x; x = y; y = temp                     ',&
+'end subroutine ${PREFIX}_swap                    ',&
+'$PARCEL                                          ',&
+'$!==============================                 ',&
+'module M_swap                                    ',&
+'implicit none                                    ',&
+'private                                          ',&
+'public :: swap                                   ',&
+'integer,parameter :: dp=kind(0.0d0)              ',&
+'integer,parameter :: cd=kind(0.0d0)              ',&
+'interface swap                                   ',&
+'   module procedure r_swap, i_swap, c_swap       ',&
+'   module procedure d_swap, l_swap, cd_swap      ',&
+'end interface                                    ',&
+'contains                                         ',&
+'$!==============================                 ',&
+'$SET TYPE doubleprecision                        ',&
+'$SET PREFIX d                                    ',&
+'$POST SWAP                                       ',&
+'$!==============================                 ',&
+'$SET TYPE real                                   ',&
+'$SET PREFIX r                                    ',&
+'$POST SWAP                                       ',&
+'$!==============================                 ',&
+'$SET TYPE integer                                ',&
+'$SET PREFIX i                                    ',&
+'$POST SWAP                                       ',&
+'$!==============================                 ',&
+'$SET TYPE logical                                ',&
+'$SET PREFIX l                                    ',&
+'$POST SWAP                                       ',&
+'$!==============================                 ',&
+'$SET TYPE complex                                ',&
+'$SET PREFIX c                                    ',&
+'$POST SWAP                                       ',&
+'$!==============================                 ',&
+'$SET TYPE complex(kind=cd)                       ',&
+'$SET PREFIX cd                                   ',&
+'$POST SWAP                                       ',&
+'$!==============================                 ',&
+'end module M_swap                                ',&
+""]
 
+expected=[ character(len=132) :: &
+'module M_swap                                    ',&
+'implicit none                                    ',&
+'private                                          ',&
+'public :: swap                                   ',&
+'integer,parameter :: dp=kind(0.0d0)              ',&
+'integer,parameter :: cd=kind(0.0d0)              ',&
+'interface swap                                   ',&
+'   module procedure r_swap, i_swap, c_swap       ',&
+'   module procedure d_swap, l_swap, cd_swap      ',&
+'end interface                                    ',&
+'contains                                         ',&
+'elemental subroutine d_swap(x,y)                 ',&
+'!> swap two doubleprecision variables            ',&
+'doubleprecision, intent(inout) :: x,y            ',&
+'doubleprecision                :: temp           ',&
+'   temp = x; x = y; y = temp                     ',&
+'end subroutine d_swap                            ',&
+'elemental subroutine r_swap(x,y)                 ',&
+'!> swap two real variables                       ',&
+'real, intent(inout) :: x,y                       ',&
+'real                :: temp                      ',&
+'   temp = x; x = y; y = temp                     ',&
+'end subroutine r_swap                            ',&
+'elemental subroutine i_swap(x,y)                 ',&
+'!> swap two integer variables                    ',&
+'integer, intent(inout) :: x,y                    ',&
+'integer                :: temp                   ',&
+'   temp = x; x = y; y = temp                     ',&
+'end subroutine i_swap                            ',&
+'elemental subroutine l_swap(x,y)                 ',&
+'!> swap two logical variables                    ',&
+'logical, intent(inout) :: x,y                    ',&
+'logical                :: temp                   ',&
+'   temp = x; x = y; y = temp                     ',&
+'end subroutine l_swap                            ',&
+'elemental subroutine c_swap(x,y)                 ',&
+'!> swap two complex variables                    ',&
+'complex, intent(inout) :: x,y                    ',&
+'complex                :: temp                   ',&
+'   temp = x; x = y; y = temp                     ',&
+'end subroutine c_swap                            ',&
+'elemental subroutine cd_swap(x,y)                ',&
+'!> swap two complex(kind=cd) variables           ',&
+'complex(kind=cd), intent(inout) :: x,y           ',&
+'complex(kind=cd)                :: temp          ',&
+'   temp = x; x = y; y = temp                     ',&
+'end subroutine cd_swap                           ',&
+'end module M_swap                                ',&
+'']
+
+call teardown('parcel')
+
+end subroutine parcel
+!===============================================================================
+subroutine stop()
+data=[ character(len=132) :: &
+"PRINT THIS               ", &
+"$stop 3                  ", &
+"NOT THIS                 ", &
+"last line"]
+
+expected=[ character(len=132) :: &
+'PRINT THIS']
+
+call teardown('stop')
+
+end subroutine stop
+!===============================================================================
+subroutine quit()
+data=[ character(len=132) :: &
+"PRINT THIS               ", &
+"$QUIT                    ", &
+"NOT THIS                 ", &
+"last line"]
+
+expected=[ character(len=132) :: &
+'PRINT THIS']
+
+call teardown('quit')
+
+end subroutine quit
+!===============================================================================
+subroutine message()
+data=[ character(len=132) :: &
+"$IMPORT USER                        ", &
+"$import HOME                        ", &
+"$message ${USER} ${DATE} ${TIME}    ", &
+"$set author  William Shakespeare    ", &
+"$MESSAGE 'By ${AUTHOR}'             ", &
+"$MESSAGE 'File ${FILE}'             ", &
+"$MESSAGE 'Line ${LINE}'             ", &
+"$MESSAGE 'Date ${DATE}'             ", &
+"$MESSAGE 'Time ${TIME}'             ", &
+"$MESSAGE 'HOME ${HOME}'             ", &
+"last line"]
+
+expected=[ character(len=132) :: &
+'last line']
+
+call teardown('message')
+
+end subroutine message
+!===============================================================================
 end program test_prep
