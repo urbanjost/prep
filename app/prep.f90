@@ -176,7 +176,7 @@ integer                      :: verblen
    case('IFDEF','IFNDEF'); call def(verb,upopts,noelse,eb)
 
    case default
-      call stop_prep('*prep:cond* ERROR(001) - UNKNOWN COMPILER DIRECTIVE ['//trim(verb)//']: '//trim(G_SOURCE))
+      call stop_prep('*prep* ERROR(001) - UNKNOWN COMPILER DIRECTIVE ['//trim(verb)//']: '//trim(G_SOURCE))
    end select
 end subroutine cond
 !===================================================================================================================================
@@ -200,10 +200,10 @@ character(len=256)            :: sstat
       call execute_command_line (command, exitstat=icmd,cmdstat=cstat,cmdmsg=sstat) ! execute system command
 
       if(icmd.ne.0)then                                                             ! if system command failed exit program
-         call stop_prep('*prep:exe* ERROR(002) - SYSTEM COMMAND FAILED:'//v2s(icmd))
+         call stop_prep('*prep* ERROR(002) - SYSTEM COMMAND FAILED:'//v2s(icmd))
       endif
    else
-      call stop_prep('*prep:exe* ERROR(003) - SYSTEM DIRECTIVE ENCOUNTERED BUT NOT ENABLED:'//trim(G_SOURCE))
+      call stop_prep('*prep* ERROR(003) - SYSTEM DIRECTIVE ENCOUNTERED BUT NOT ENABLED:'//trim(G_SOURCE))
    endif
 
    write(defineme,'("CMD_STATUS=",i8)')icmd
@@ -266,7 +266,7 @@ integer                       :: ios
          if(lget('output_append'))then; position='append'; else; position='asis'; endif
          open(unit=G_iout,file=filename,iostat=ios,action='write',position=position)
          if(ios.ne.0)then
-            call stop_prep('*perf:output_case* ERROR(004) - FAILED TO OPEN OUTPUT FILE:'//trim(filename))
+            call stop_prep('*prep* ERROR(004) - FAILED TO OPEN OUTPUT FILE:'//trim(filename))
          endif
       end select
    if(G_verbose)then
@@ -290,7 +290,7 @@ character(len=256)            :: message
    else
       open(newunit=lun,iostat=ios,action='readwrite',status='scratch',iomsg=message)
       if(ios.ne.0)then
-         call stop_prep('*prep:parcel_case* ERROR(005) - FAILED TO OPEN PARCEL SCRATCH FILE:'//trim(name)//' '//trim(message))
+         call stop_prep('*prep* ERROR(005) - FAILED TO OPEN PARCEL SCRATCH FILE:'//trim(name)//' '//trim(message))
       else
          G_parcelcount=G_parcelcount+1
          G_parcel_dictionary(G_parcelcount)%name=name
@@ -332,12 +332,12 @@ integer,save                  :: ident_count=1
          endif
          ident_count=ident_count+1
       case default
-         call stop_prep('*prep:exe* ERROR(006) - IDENT TOO LONG:'//trim(G_SOURCE))
+         call stop_prep('*prep* ERROR(006) - IDENT TOO LONG:'//trim(G_SOURCE))
       end select
    case('c')
          write(G_iout,'(a)')'#ident "@(#)'//text//'"'
    case default
-         call stop_prep('*prep:exe* ERROR(007) - IDENT LANGUAGE UNKNOWN:'//trim(G_SOURCE))
+         call stop_prep('*prep* ERROR(007) - IDENT LANGUAGE UNKNOWN:'//trim(G_SOURCE))
    end select
 
 end subroutine ident
@@ -357,10 +357,10 @@ integer                     :: istore                       ! location of variab
 ! CHECK COMMAND SYNTAX
    iequ=index(opts,'=')                                     ! find "=" in "variable_name=expression" if any
    if (opts(1:1).eq.' '.or.iequ.eq.len_trim(opts)) then     ! no variable name in packed string or string after = is null
-      call stop_prep('*prep:define* ERROR(008) - INCOMPLETE STATEMENT:'//trim(opts))
+      call stop_prep('*prep* ERROR(008) - INCOMPLETE STATEMENT:'//trim(opts))
    endif
    if (iequ.gt.G_var_len+1) then                            ! variable name too long
-      call stop_prep('*prep:define* ERROR(009) - MISSPELLING OR NAME LENGTH EXCEEDS '//v2s(G_var_len)//' CHARACTERS:'//trim(opts))
+      call stop_prep('*prep* ERROR(009) - MISSPELLING OR NAME LENGTH EXCEEDS '//v2s(G_var_len)//' CHARACTERS:'//trim(opts))
    endif
 
    if(iequ.eq.0)then                                        ! find end of variable name
@@ -377,7 +377,7 @@ integer                     :: istore                       ! location of variab
          if (opts(:iname).eq.G_defvar(j)) then
             istore=j
             if(ireset.ne.0)then                             ! fail if redefinitions are not allowed on this call
-               call warn_prep('*prep:define* WARNING(010) - REDEFINITION OF DEFINED NAME :' &
+               call warn_prep('*prep* WARNING(010) - REDEFINITION OF DEFINED NAME :' &
                & //trim(G_defvar(j))//'='//trim(adjustl(G_defval(j)))//' with '//trim(opts))
             endif
          endif
@@ -461,18 +461,18 @@ character(len=*)          :: line
 integer                   :: i
 
    if (line(1:1).lt.'A'.or.line(1:1).gt.'Z'.and.line(1:1).ne.'_')then                         ! variable names start with a-z
-    call stop_prep("*prep:name* ERROR(016) -VARIABLE NAME DOES NOT START WITH ALPHAMERIC(OR GENERAL SYNTAX ERROR):"//trim(G_source))
+    call stop_prep("*prep* ERROR(016) - VARIABLE NAME DOES NOT START WITH ALPHAMERIC(OR GENERAL SYNTAX ERROR):"//trim(G_source))
    endif
 
    if(len_trim(line).gt.G_var_len)then
-     call stop_prep('*prep:name* ERROR(017) - VARIABLE NAME EXCEEDS '//v2s(G_var_len)//' CHARACTERS:'//trim(G_source))
+     call stop_prep('*prep* ERROR(017) - VARIABLE NAME EXCEEDS '//v2s(G_var_len)//' CHARACTERS:'//trim(G_source))
    endif
 
    do i=2,len_trim(line)                                                 ! name uses $  _ and letters (A-Z) digits (0-9)
       if(line(i:i).ne.'$'.and.line(i:i).ne.'_'.and.     &
       & (line(i:i).lt.'A'.or.line(i:i).gt.'Z').and.     &
       & (line(i:i).lt.'0'.or.line(i:i).gt.'9')) then
-      call stop_prep('*prep:name* ERROR(018) -VARIABLE NAME CONTAINS UNALLOWED CHARACTER(OR GENERAL SYNTAX ERROR):'//trim(G_source))
+      call stop_prep('*prep* ERROR(018) - VARIABLE NAME CONTAINS UNALLOWED CHARACTER(OR GENERAL SYNTAX ERROR):'//trim(G_source))
       endif
    enddo
 
@@ -687,20 +687,20 @@ integer                        :: i
    newl=line(ipos1+7:)
 
    if (len_trim(newl).eq.1.or.index(newl,')').eq.0.or. index(newl,')').eq.2)then
-      call stop_prep("*prep:ifdef* ERROR(027) - INCOMPLETE STATEMENT."//trim(G_SOURCE))
+      call stop_prep("*prep* ERROR(027) - INCOMPLETE STATEMENT."//trim(G_SOURCE))
    endif
    if (index(newl,')').gt.33)then
-     call stop_prep("*prep:ifdef* ERROR(028) - MISSPELLING OR NAME LENGTH EXCEEDS "//v2s(G_var_len)//" CHARACTERS."//trim(G_source))
+     call stop_prep("*prep* ERROR(028) - MISSPELLING OR NAME LENGTH EXCEEDS "//v2s(G_var_len)//" CHARACTERS."//trim(G_source))
    endif
    ifvar= newl(2:index(newl,')')-1)
    if (newl(2:2).lt.'A'.or.newl(2:2).gt.'Z')then
-      call stop_prep("*prep:ifdef* ERROR(029) - CONSTANT LOGICAL EXPRESSION REQUIRED."//trim(G_source))
+      call stop_prep("*prep* ERROR(029) - CONSTANT LOGICAL EXPRESSION REQUIRED."//trim(G_source))
    endif
    do i=3,index(newl,')')-1
       IF (NEWL(I:I).NE.'$'.AND.NEWL(I:I).NE.'_'.AND.(NEWL(I:I).LT.'A' &
        &  .OR.NEWL(I:I).GT.'Z').AND.(NEWL(I:I).LT.'0'                 &
        &  .or.newl(i:i).gt.'9')) then
-         call stop_prep("*prep:ifdef* ERROR(030) - CONSTANT LOGICAL EXPRESSION REQUIRED."//trim(G_source))
+         call stop_prep("*prep* ERROR(030) - CONSTANT LOGICAL EXPRESSION REQUIRED."//trim(G_source))
       endif
    enddo
 
@@ -735,7 +735,7 @@ if(debug)then
 endif
 
    if(noelse.eq.1.or.G_nestl.eq.0) then                    ! test for else instead of elseif
-      call stop_prep("*prep:else* ERROR(031) - MISPLACED $ELSE OR $ELSEIF DIRECTIVE:"//trim(G_SOURCE))
+      call stop_prep("*prep* ERROR(031) - MISPLACED $ELSE OR $ELSEIF DIRECTIVE:"//trim(G_SOURCE))
    endif
    if(verb.eq.'ELSE')then
       noelse=1
@@ -786,7 +786,7 @@ logical,intent(out)           :: eb
    G_nestl=G_nestl-1                                           ! decrease if level
 
    if(G_nestl.lt.0)then
-      call stop_prep("*prep:endif* ERROR(032) - MISPLACED $ENDIF DIRECTIVE:"//trim(G_source))
+      call stop_prep("*prep* ERROR(032) - MISPLACED $ENDIF DIRECTIVE:"//trim(G_source))
    endif
 
    noelse=0                                                    ! reset else level
@@ -959,14 +959,14 @@ integer                         :: numop
        LEN=1                                    ! operator length
        IF (NUMOP.EQ.1) LEN=2
        IF (I.EQ.len_trim(NEWL)) then            ! if operator is at end of string
-          call stop_prep("*prep:domath* ERROR(035) - INCOMPLETE STATEMENT. OPERATOR (**,/,*,+,-) AT STRING END:"//trim(G_SOURCE))
+          call stop_prep("*prep* ERROR(035) - INCOMPLETE STATEMENT. OPERATOR (**,/,*,+,-) AT STRING END:"//trim(G_SOURCE))
        endif
        IF (I.EQ.1.AND.NUMOP.NE.3) then          ! if operator at beginning of string and not +-
-        call stop_prep("*prep:domath* ERROR(036)-SYNTAX ERROR. OPERATOR (**,*,/) NOT ALLOWED TO PREFIX EXPRESSION:"//trim(G_SOURCE))
+        call stop_prep("*prep* ERROR(036) - SYNTAX ERROR. OPERATOR (**,*,/) NOT ALLOWED TO PREFIX EXPRESSION:"//trim(G_SOURCE))
        endif
        if (.not.(i.eq.1.and.numop.eq.3)) then   ! if processing +- operators and sign at beginning of string skip this
           if (index('*/+-',newl(i-1:i-1)).ne.0.or.index('*/+-',newl(i+len:i+len)).ne.0) then
-            call stop_prep('*prep:domath* ERROR(037) - SYNTAX ERROR IN DOMATH:'//trim(G_source))
+            call stop_prep('*prep* ERROR(037) - SYNTAX ERROR IN DOMATH:'//trim(G_source))
           endif
        endif
 
@@ -995,7 +995,7 @@ integer                         :: numop
              i1=i1*i2*minus1
           case(2)
              if(i2.eq.0)then
-                call stop_prep('*prepdomath* ERROR(038) - DIVIDE BY ZERO:'//trim(G_source))
+                call stop_prep('*prep* ERROR(038) - DIVIDE BY ZERO:'//trim(G_source))
              endif
              i1=i1/i2*minus1
           case(3)
@@ -1011,7 +1011,7 @@ integer                         :: numop
                i1=i1-i2*minus1
              endif
           case default
-             call stop_prep('*prepdomath* ERROR(039) - INTERNAL PROGRAM ERROR:'//trim(G_source))
+             call stop_prep('*prep* ERROR(039) - INTERNAL PROGRAM ERROR:'//trim(G_source))
           end select
        endif
 
@@ -1161,19 +1161,19 @@ integer                                 :: ifound            ! index in dictiona
       enddo
 
       if (ifound.eq.-1) then                                 ! if not a defined variable name stop program
-         call stop_prep('*preptrufal* ERROR(040) - UNDEFINED PARAMETER.'//trim(G_source))
+         call stop_prep('*prep* ERROR(040) - UNDEFINED PARAMETER.'//trim(G_source))
       endif
 
       read(G_defval(ifound),'(l4)',iostat=ios) trufal        ! try to read a logical from the value for the variable name
 
       if(ios.ne.0)then                                       ! not successful in reading string as a logical value
-            call stop_prep('*preptrufal* ERROR(041) - CONSTANT LOGICAL EXPRESSION REQUIRED.'//trim(G_source))
+            call stop_prep('*prep* ERROR(041) - CONSTANT LOGICAL EXPRESSION REQUIRED.'//trim(G_source))
       endif
 
    end select
 
    if (ifound.lt.0) then                                     ! not a variable name or string '.TRUE.' or '.FALSE.'
-      call stop_prep('*preptrufal* ERROR(042) - CONSTANT LOGICAL EXPRESSION REQUIRED:'//trim(G_source))
+      call stop_prep('*prep* ERROR(042) - CONSTANT LOGICAL EXPRESSION REQUIRED:'//trim(G_source))
    endif
 
 end function trufal
@@ -1291,7 +1291,7 @@ character(len=7)               :: value
    value=line(1:7)
 
    if (value.ne.'.TRUE.'.and.value.ne.'.FALSE.') then
-      call stop_prep('*prepeval* ERROR(043) - value neither true or false:'//trim(value)//' when evaluating: '//trim(G_source))
+      call stop_prep('*prep* ERROR(043) - value neither true or false:'//trim(value)//' when evaluating: '//trim(G_source))
    endif
 
    read(value,'(l4)') G_dc
@@ -1322,16 +1322,16 @@ integer                      :: ipos1, ipos2
         if (G_defvar(i).eq.value) exit
       enddo
       if (i.gt.G_numdef.or.i.lt.0)then                              ! if variable name not found in dictionary, stop
-        call stop_prep('*prepgi* ERROR(044) - UNDEFINED PARAMETER:'//trim(G_source))
+        call stop_prep('*prep* ERROR(044) - UNDEFINED PARAMETER:'//trim(G_source))
       endif
       read(G_defval(i),'(i11)',iostat=ios) get_integer_from_string  ! read integer value from the value associated with name
       if(ios.ne.0)then                                              ! failed reading integer from value, stop
-        call stop_prep('*prepgi* ERROR(045) - MUST BE INTEGER:'//trim(G_source))
+        call stop_prep('*prep* ERROR(045) - MUST BE INTEGER:'//trim(G_source))
       endif
    else                                                             ! input is not a variable name, assume it represents an integer
       read(line(ipos1:ipos2),'(i11)',iostat=ios) get_integer_from_string               ! try to read integer value from input string
       if(ios.ne.0)then                                              ! failed to convert the string to an integer, so stop
-        call stop_prep('*prepgi* ERROR(046) - MUST BE INTEGER:'//trim(G_source))
+        call stop_prep('*prep* ERROR(046) - MUST BE INTEGER:'//trim(G_source))
       endif
    endif                                                            ! return integer value
 end function get_integer_from_string
@@ -1345,7 +1345,6 @@ integer                    :: j
 integer                    :: j1
 integer                    :: l
 integer                    :: l1
-
 
    if (j.eq.0.and.l.gt.len_trim(line)) then      ! done
       line=temp
@@ -1440,10 +1439,10 @@ character(len=G_line_length) :: options                 ! everything after first
          G_scratch_file=trim(uniq(get_tmp()//'prep_scratch.'))  !! THIS HAS TO BE A UNIQUE NAME -- IMPROVE THIS
          G_scratch_lun=fileopen(G_scratch_file,'rw',ierr)
          if(ierr.lt.0)then
-            call stop_prep('*prep:filter* ERROR: FILTER COMMAND FAILED TO OPEN PROCESS:'//trim(G_SOURCE))
+            call stop_prep('*prep* ERROR(048) - FILTER COMMAND FAILED TO OPEN PROCESS:'//trim(G_SOURCE))
          endif
       else
-         call stop_prep('*prep:filter* ERROR: FILTER COMMAND BLOCK ENCOUNTERED BUT SYSTEM COMMANDS NOT ENABLED:'//trim(G_SOURCE))
+         call stop_prep('*prep* ERROR(049) - FILTER COMMAND BLOCK ENCOUNTERED BUT SYSTEM COMMANDS NOT ENABLED:'//trim(G_SOURCE))
       endif
 
    case('VARIABLE')
@@ -1499,33 +1498,11 @@ character(len=G_line_length) :: options                 ! everything after first
    case('ASIS')
       G_outtype='asis'
    case default
-      write(stdout,*)'*prep* ERROR(047) - UNEXPECTED "BLOCK" OPTION. FOUND:'//trim(G_source)
-      write(stdout,*)'*prep* ERROR(048) - UNEXPECTED "BLOCK" OPTION. FOUND:'//trim(sget('block_oo'))
-      call stop_prep('*prep* ERROR(049) - UNEXPECTED "BLOCK" OPTION. FOUND:'//sget('block_man'))
+      call stop_prep('*prep* ERROR(047) - UNEXPECTED "BLOCK" OPTION. FOUND:'//trim(sget('block_oo'))//' IN '//trim(G_source) )
    end select
 
    G_comment_count=0
 end subroutine document
-!===================================================================================================================================
-!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
-!===================================================================================================================================
-subroutine stop(opts)                    ! @(#)stop(3f): process stop directive
-character(len=*),intent(in) :: opts
-integer                     :: ivalue
-
-! CHECK COMMAND SYNTAX
-   if(opts.ne.'')then
-      ivalue=get_integer_from_string(opts)
-      if(ivalue.eq.0)then
-         stop
-      else
-         call stop_prep('',stop_value=ivalue)
-         !call stop_prep('*prep* ERROR(050) - UNEXPECTED "STOP" VALUE='//trim(opts)//'. FROM:'//trim(G_source))
-      endif
-   else
-      stop 1 ! , quiet=.true.
-   endif
-end subroutine stop
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
@@ -1542,10 +1519,10 @@ integer                      :: ios,iend,istatus,ilength
    call get_environment_variable(varname,varvalue,ilength,istatus)
    select case(istatus)
    case(0)
-   case(-1);     call stop_prep('ERROR(051) print_comment_block - VARIABLE VALUE TOO LONG:'//trim(varname))
-   case(1);     !call stop_prep('ERROR(print_comment_block) - VARIABLE DOES NOT EXIST:'//trim(varname))
-   case(2);      call stop_prep('ERROR(052) print_comment_block - COMPILER DOES NOT SUPPORT ENVIRONMENT VARIABLES:'//trim(varname))
-   case default; call stop_prep('ERROR(053) print_comment_block - UNEXPECTED STATUS VALUE '//v2s(istatus)//':'//trim(varname))
+   case(-1);call stop_prep('*prep* ERROR(051) - VARIABLE VALUE TOO LONG:'//trim(varname))
+   case(1); ! VARIABLE DOES NOT EXIST
+   case(2); call stop_prep('*prep* ERROR(052) - COMPILER DOES NOT SUPPORT ENVIRONMENT VARIABLES:'//trim(varname))
+   case default; call stop_prep('*prep* ERROR(053) - UNEXPECTED STATUS VALUE '//v2s(istatus)//':'//trim(varname))
    end select
 
    if(ilength.ne.0.and.G_MAN.ne.''.and.G_MAN_FILE.ne.' ')then ! if $BLOCK ... --file FILE is present generate file in directory/doc
@@ -1563,10 +1540,9 @@ integer                      :: ios,iend,istatus,ilength
 
       open(unit=70,file=filename,iostat=ios,action='write',position=G_MAN_FILE_POSITION)
 
-
       if(ios.ne.0)then
 
-         call stop_prep('ERROR(054) print_comment_block - FAILED TO OPEN DOCUMENT OUTPUT FILE:'//trim(filename))
+         call stop_prep('*prep* ERROR(054) - FAILED TO OPEN DOCUMENT OUTPUT FILE:'//trim(filename))
       else
          if(len(G_MAN).gt.1)then                   ! the way the string is built it starts with a newline
             write(70,'(a)',iostat=ios) G_MAN(2:)
@@ -1575,7 +1551,7 @@ integer                      :: ios,iend,istatus,ilength
          endif
          if(ios.ne.0)then
             call write_err('G_MAN='//G_MAN)
-            call stop_prep('ERROR(055) print_comment_block - FAILED TO WRITE OUTPUT FILE:'//trim(filename))
+            call stop_prep('*prep* ERROR(055) - FAILED TO WRITE OUTPUT FILE:'//trim(filename))
          endif
       endif
 
@@ -1679,7 +1655,7 @@ integer                        :: i
          exit ALL
       endblock WRITEIT
       call write_err('G_MAN='//G_MAN)
-      call stop_prep('ERROR(056) print_comment_block - FAILED TO WRITE COMMENT BLOCK')
+      call stop_prep('*prep* ERROR(056) - FAILED TO WRITE COMMENT BLOCK')
    endblock ALL
 end subroutine format_g_man
 !===================================================================================================================================
@@ -1989,11 +1965,30 @@ integer                               :: i
       call cond() ! convert variable name into a "$define variablename" directive and process it
    enddo
 
-
 !   If ARRAY(N) fills before reaching the end of the line the routine stops.
 !   Check "if(iend(icount) .eq. ilen)" to see if you got to the end.
 
 end subroutine defines
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!===================================================================================================================================
+subroutine stop(opts)                    ! @(#)stop(3f): process stop directive
+character(len=*),intent(in) :: opts
+integer                     :: ivalue
+
+! CHECK COMMAND SYNTAX
+   if(opts.ne.'')then
+      ivalue=get_integer_from_string(opts)
+      if(ivalue.eq.0)then
+         stop
+      else
+         call stop_prep('',stop_value=ivalue)
+         !call stop_prep('*prep* ERROR(050) - UNEXPECTED "STOP" VALUE='//trim(opts)//'. FROM:'//trim(G_source))
+      endif
+   else
+      stop 1 ! , quiet=.true.
+   endif
+end subroutine stop
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
@@ -2657,7 +2652,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   MIT                                                                          ',&
 '']
    WRITE(stdout,'(a)')(trim(help_text(i)),i=1,size(help_text))
-   stop ! if --help was specified, stop
+   call stop('0')
 endif
 end subroutine help_usage
 
@@ -2684,7 +2679,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '@(#)HOME PAGE       https://github.com/urbanjost/prep.git/>',&
 '']
    WRITE(stdout,'(a)')(trim(help_text(i)(5:len_trim(help_text(i))-1)),i=1,size(help_text))
-   stop ! if --version was specified, stop
+   call stop('0')
 endif
 end subroutine help_version
 !===================================================================================================================================
@@ -2725,7 +2720,7 @@ character(len=256)             :: message
    case('shell')
       write(G_scratch_lun,'(a)',iostat=ios,iomsg=message)trim(line)
       if(ios.lt.0)then
-         call stop_prep('*prep* ERROR(68) - FAILED TO WRITE TO PROCESS:'//trim(line)//':'//trim(message))
+         call stop_prep('*prep* ERROR(068) - FAILED TO WRITE TO PROCESS:'//trim(line)//':'//trim(message))
       endif
 
    case('variable')
@@ -3355,7 +3350,6 @@ subroutine auto()
       end select
    endif
 end subroutine auto
-
 
 end program prep
 !===================================================================================================================================
