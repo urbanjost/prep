@@ -17138,7 +17138,7 @@ end module M_list
 !     2013-10-03,2020-12-19,2021-06-12 : John S. Urban
 
 module M_fpp                                                              !@(#)M_fpp(3f): module used by prep program
-USE ISO_FORTRAN_ENV, ONLY : ERROR_UNIT, OUTPUT_UNIT                       ! access computing environment ; Standard: Fortran 2003
+USE ISO_FORTRAN_ENV, ONLY : STDERR=>ERROR_UNIT, STDOUT=>OUTPUT_UNIT,STDIN=>INPUT_UNIT
 use M_io,        only : get_tmp, dirname, uniq, fileopen, filedelete      ! Fortran file I/O routines
 use M_kracken95, only : sget, dissect, lget                               ! load command argument parsing module
 use M_strings,   only : nospace, v2s, substitute, upper, lower, isalpha, split, delim, str_replace=>replace, sep, atleast
@@ -17184,8 +17184,8 @@ logical,public                       :: G_noenv=.false.                ! ignore 
 
 integer,public                       :: G_iout                         ! output unit
 integer,save,public                  :: G_iout_init                    ! initial output unit
-!integer,public                       :: G_ihelp=ERROR_UNIT             ! output unit for help text
-integer,public                       :: G_ihelp=OUTPUT_UNIT            ! output unit for help text
+!integer,public                       :: G_ihelp=stderr                 ! output unit for help text
+integer,public                       :: G_ihelp=stdout                 ! output unit for help text
 character(len=10),public             :: G_outtype='asis'
 
 integer,public                       :: G_inc_count=0
@@ -17199,7 +17199,7 @@ character(len=10)                    :: G_MAN_FILE_POSITION='ASIS      '
 integer,public                       :: G_nestl=0                      ! count of if/elseif/else/endif nesting level
 integer,public,parameter             :: G_nestl_max=20                 ! maximum nesting level of conditionals
 
-logical,save,public                  :: G_write_what=.false.           ! write strings after @(#) similar to what(1).
+logical,save,public                  :: G_verbose=.false.           ! verbose, including write strings after @(#) like what(1).
 logical,save,public                  :: G_system_on=.false.            ! allow system commands or not on $SYSTEM
 
 logical,public,save                  :: G_condop(0:G_nestl_max)        ! storage to keep track of previous write flags
@@ -17273,8 +17273,8 @@ integer                      :: verblen
       select case(VERB)
       case('  ')                                                      ! entire line is a comment
       case('DEFINE');           call define(upopts,1)                 ! only process DEFINE if not skipping data lines
-      case('REDEFINE');         call define(upopts,0)                 ! only process DEFINE if not skipping data lines
-      case('UNDEF','UNDEFINE'); call undef(upopts)                    ! only process UNDEF if not skipping data lines
+      CASE('REDEFINE');         call define(upopts,0)                 ! only process DEFINE if not skipping data lines
+      case('UNDEF','UNDEFINE','DELETE'); call undef(upper(options))   ! only process UNDEF if not skipping data lines
       case('INCLUDE');          call include(options,50+G_iocount)    ! Filenames can be case sensitive
       case('OUTPUT');           call output_case(options)             ! Filenames can be case sensitive
       case('PARCEL');           call parcel_case(upopts)
@@ -17285,16 +17285,16 @@ integer                      :: verblen
       case('IDENT','@(#)');     call ident(options)
       case('SHOW') ;            call debug_state(options,msg='')
       case('SYSTEM');           call exe()
-      case('MESSAGE');          call stderr(G_source(2:))             ! trustingly trim MESSAGE from directive
+      case('MESSAGE');          call write_err(G_source(2:))             ! trustingly trim MESSAGE from directive
       case('STOP');             call stop(upopts)
       case('QUIT');             call stop('0')
-      case('GET_ARGUMENTS');    call write_get_arguments()
+      CASE('GET_ARGUMENTS');    call write_get_arguments()
       end select
    endif
    select case(VERB)                                                  ! process logical flow control even if G_write is false
 
    case('DEFINE','INCLUDE','SHOW','STOP','QUIT')
-   case('SYSTEM','UNDEF','UNDEFINE','MESSAGE','REDEFINE')
+   case('SYSTEM','UNDEF','UNDEFINE','DELETE','MESSAGE','REDEFINE')
    case('OUTPUT','IDENT','@(#)','BLOCK','IMPORT')
    case('PARCEL','POST','SET','GET_ARGUMENTS')
    case(' ')
@@ -17321,8 +17321,8 @@ character(len=256)            :: sstat
    if(G_system_on)then
       command=adjustl(G_source(2:))                                                 ! remove $ from directive
       command=command(7:)                                                           ! trim SYSTEM from directive
-      if(G_write_what)then
-         call stderr('+'//command)
+      if(G_verbose)then
+         call write_err('+ '//command)
       endif
 
       ! not returning command status on all platforms
@@ -17398,8 +17398,8 @@ integer                       :: ios
             call stop_prep('*perf:output_case* ERROR(004) - FAILED TO OPEN OUTPUT FILE:'//trim(filename))
          endif
       end select
-   if(G_write_what)then
-      write(ERROR_UNIT,'(a)')'*perf:output_case*: OUTPUT FILE CHANGED TO:'//trim(filename)
+   if(G_verbose)then
+      call write_err( '+ OUTPUT FILE CHANGED TO: '//trim(filename) )
    endif
 end subroutine output_case
 !===================================================================================================================================
@@ -17659,32 +17659,38 @@ end subroutine getval
 !===================================================================================================================================
 subroutine undef(opts)                                     !@(#)undef(3f): process UNDEFINE directive
 character(len=*)     :: opts                               ! directive with no spaces, leading prefix removed, and all uppercase
+character(len=:),allocatable :: names(:)              
 integer                     :: ifound                      ! subscript for location of variable to delete
-integer                     :: i,j
+integer                     :: i,j,k
 
 ! REMOVE VARIABLE IF FOUND IN VARIABLE NAME DICTIONARY
    if (len_trim(opts).eq.0) then                           ! if no variable name
-      call stop_prep('*prepundef* ERROR(023) - INCOMPLETE STATEMENT:'//trim(G_source))
+      call stop_prep('*prep* ERROR(023) - $UNDEFINE MISSING TARGETS:'//trim(G_source))
    endif
+   call split(opts,names)
 
-   ifound=-1                                               ! initialize subscript for variable name to be searched for to bad value
-   do i=1,G_numdef                                         ! find defined variable to be undefined by searching dictionary
-      if (G_defvar(i).eq.opts)then                         ! found the requested variable name
-         ifound=i                                          ! record the subscript that the name was located at
-         exit                                              ! found the variable so no longer any need to search remaining names
+   do k=1,size(names)
+      if(G_verbose)then
+         call write_err('+ $UNDEFINE '//names(k))
+      endif
+      ifound=-1                                            ! initialize subscript for variable name to be searched for to bad value
+      do i=1,G_numdef                                      ! find defined variable to be undefined by searching dictionary
+         if (G_defvar(i).eq.names(k))then                  ! found the requested variable name
+            ifound=i                                       ! record the subscript that the name was located at
+            exit                                           ! found the variable so no longer any need to search remaining names
+         endif
+      enddo
+   
+      if (ifound.lt.1) then                                ! variable name not found
+         cycle
+      else
+         do j=ifound,G_numdef-1                            ! remove variable name and value from list of variable names and values
+           G_defvar(j)=G_defvar(j+1)                       ! replace the value to be removed with the one above it and then repeat
+           G_defval(j)=G_defval(j+1)
+         enddo
+         G_numdef=G_numdef-1                               ! decrement number of defined variables
       endif
    enddo
-
-   if (ifound.lt.1) then                                   ! variable name not found
-      return                                               ! quietly ignore unknown name (or syntax error!)
-   endif
-
-   do j=ifound,G_numdef-1                                  ! remove variable name and value from list of variable names and values
-     G_defvar(j)=G_defvar(j+1)                             ! replace the value to be removed with the one above it and then repeat
-     G_defval(j)=G_defval(j+1)
-   enddo
-
-   G_numdef=G_numdef-1                                     ! decrement number of defined variables
 
 end subroutine undef
 !===================================================================================================================================
@@ -18496,7 +18502,7 @@ character(len=G_line_length) :: options                 ! everything after first
 ! CHECK COMMAND SYNTAX
    if(G_outtype.eq.'help')then  ! if in 'help' mode wrap up the routine
       write(G_iout,'(a)')"'']"
-      write(G_iout,'(a)')"   WRITE(*,'(a)')(trim(help_text(i)),i=1,size(help_text))"
+      write(G_iout,'(a)')"   WRITE(stdout,'(a)')(trim(help_text(i)),i=1,size(help_text))"
       write(G_iout,'(a)')"   stop ! if --help was specified, stop"
       write(G_iout,'(a)')"endif"
       write(G_iout,'(a)')"end subroutine help_usage"
@@ -18512,9 +18518,9 @@ character(len=G_line_length) :: options                 ! everything after first
    elseif(G_outtype.eq.'version')then  ! if in 'version' mode wrap up the routine
       write(G_iout,'("''@(#)COMPILED:       ",a,"'',&")') getdate('long')//'>'
       write(G_iout,'(a)')"'']"
-      write(G_iout,'(a)')"   WRITE(*,'(a)')(trim(help_text(i)(5:len_trim(help_text(i))-1)),i=1,size(help_text))"
-      !*!write(G_iout,'(a)')'   write(*,*)"COMPILER VERSION=",COMPILER_VERSION()'
-      !*!write(G_iout,'(a)')'   write(*,*)"COMPILER OPTIONS=",COMPILER_OPTIONS()'
+      write(G_iout,'(a)')"   WRITE(stdout,'(a)')(trim(help_text(i)(5:len_trim(help_text(i))-1)),i=1,size(help_text))"
+      !*!write(G_iout,'(a)')'   write(stdout,*)"COMPILER VERSION=",COMPILER_VERSION()'
+      !*!write(G_iout,'(a)')'   write(stdout,*)"COMPILER OPTIONS=",COMPILER_OPTIONS()'
       write(G_iout,'(a)')"   stop ! if --version was specified, stop"
       write(G_iout,'(a)')"endif"
       write(G_iout,'(a)')"end subroutine help_version"
@@ -18622,8 +18628,8 @@ character(len=G_line_length) :: options                 ! everything after first
    case('ASIS')
       G_outtype='asis'
    case default
-      write(*,*)'*prepstop* ERROR(047) - UNEXPECTED "BLOCK" OPTION. FOUND:'//trim(G_source)
-      write(*,*)'*prepstop* ERROR(048) - UNEXPECTED "BLOCK" OPTION. FOUND:'//trim(sget('block_oo'))
+      write(stdout,*)'*prepstop* ERROR(047) - UNEXPECTED "BLOCK" OPTION. FOUND:'//trim(G_source)
+      write(stdout,*)'*prepstop* ERROR(048) - UNEXPECTED "BLOCK" OPTION. FOUND:'//trim(sget('block_oo'))
       call stop_prep('*prepstop* ERROR(049) - UNEXPECTED "BLOCK" OPTION. FOUND:'//sget('block_man'))
    end select
 
@@ -18699,7 +18705,7 @@ integer                      :: ios,iend,istatus,ilength
             write(70,'(a)',iostat=ios) G_MAN
          endif
          if(ios.ne.0)then
-            call stderr('G_MAN='//G_MAN)
+            call write_err('G_MAN='//G_MAN)
             call stop_prep('ERROR(055) print_comment_block - FAILED TO WRITE OUTPUT FILE:'//trim(filename))
          endif
       endif
@@ -18803,7 +18809,7 @@ integer                        :: i
 
          exit ALL
       endblock WRITEIT
-      call stderr('G_MAN='//G_MAN)
+      call write_err('G_MAN='//G_MAN)
       call stop_prep('ERROR(056) print_comment_block - FAILED TO WRITE COMMENT BLOCK')
    endblock ALL
 end subroutine format_g_man
@@ -18944,7 +18950,7 @@ character(len=4096)                      :: message
    open(unit=iunit,file=trim(line),iostat=ios,status='old',action='read',iomsg=message)
    if(ios.ne.0)then
       call debug_state(msg='OPEN IN INCLUDE')
-      call stderr(message)
+      call write_err(message)
       call stop_prep("*prep* ERROR(057) - FAILED OPEN OF INPUT FILE("//v2s(iunit)//"):"//trim(line))
    else
       rewind(unit=iunit)
@@ -18988,7 +18994,7 @@ integer                      :: i
          do
             read(ifound,'(a)',iostat=ios)message
             if(ios.ne.0)exit
-            write(*,*)'>>>'//trim(message)
+            write(stdout,*)'>>>'//trim(message)
          enddo
          rewind(unit=ifound,iostat=ios,iomsg=message)
       endif
@@ -19153,15 +19159,15 @@ end subroutine defines
 !===================================================================================================================================
 subroutine stop_prep(message)                   !@(#)stop_prep(3f): write MESSAGE to stderr and exit program
 character(len=*),intent(in)  :: message
-   call stderr(message)
-   call stderr(trim(G_SOURCE))
+   call write_err(message)
+   call write_err(trim(G_SOURCE))
    call debug_state(msg='message')
    stop 1
 end subroutine stop_prep
 subroutine warn_prep(message)                   !@(#)warn_prep(3f): write MESSAGE to stderr and and continue program
 character(len=*),intent(in)  :: message
-   call stderr(message)
-   call stderr(trim(G_SOURCE))
+   call write_err(message)
+   call write_err(trim(G_SOURCE))
 end subroutine warn_prep
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -19207,12 +19213,14 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   The pre-processor prep(1) will interpret lines with "$" (by default) in      ',&
 '   column one, and will output no such lines. Other input is conditionally      ',&
-'   written to the output file based on the directives encountered in the input. ',&
+'   written to the output file based on the case-insensitive directive names     ',&
+'   encountered in the input.                                                    ',&
 '                                                                                ',&
 '   prep(1) does not support parameterized macros but does support string        ',&
 '   substitution and the inclusion of free-format text blocks that may be        ',&
 '   converted to Fortran comments or CHARACTER variable definitions (while       ',&
 '   optionally simultaneously being used to generate documentation files).       ',&
+'   Combined, these features allow for basic templating.                         ',&
 '                                                                                ',&
 '   An exclamation character FOLLOWED BY A SPACE on a valid directive begins     ',&
 '   an in-line comment that is terminated by an end-of-line. This is particularly',&
@@ -19243,18 +19251,22 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '    :VARIABLE DEFINITION FOR CONDITIONALS                                       ',&
 '     $DEFINE   variable_name[=expression]                 [! comment ]          ',&
-'     $UNDEFINE variable_name                              [! comment ]          ',&
+'     $REDEFINE variable_name[=expression]                 [! comment ]          ',&
+'     $UNDEFINE|$UNDEF variable_name(s)                    [! comment ]          ',&
 '                                                                                ',&
 '    :CONDITIONAL CODE SELECTION                                                 ',&
-'     $IF       expression| [$IFDEF|$IFNDEF variable_name] [! comment ]          ',&
-'               { sequence of source statements}                                 ',&
-'     [$ELSEIF|$ELIF  {LOGICAL or INTEGER expression}      [! comment ]          ',&
-'               { sequence of source statements}]                                ',&
+'     $IF  logical integer-based expression |                                    ',&
+'     $IFDEF variable-name |                                                     ',&
+'     $IFNDEF variable_name                                [! comment ]          ',&
+'             { sequence of source statements}                                   ',&
+'     [$ELSEIF|$ELIF logical integer-based expression      [! comment ]          ',&
+'             { sequence of source statements}]                                  ',&
 '     [$ELSE                                               [! comment ]          ',&
-'               { sequence of source statements}]                                ',&
+'             { sequence of source statements}]                                  ',&
 '     $ENDIF                                               [! comment ]          ',&
 '                                                                                ',&
 '     $STOP     [stop_value]                               [! comment ]          ',&
+'     $QUIT                                                [! comment ]          ',&
 '                                                                                ',&
 '    :MACRO STRING EXPANSION AND TEXT REPLAY                                     ',&
 '     $SET      varname  string                                                  ',&
@@ -19387,7 +19399,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   DIRECTIVES                                                                   ',&
 '                                                                                ',&
-'   $DEFINE variable_name [=expression]                                          ',&
+'   $DEFINE|$REDEFINE variable_name [=expression]                                ',&
 '                                                                                ',&
 '   A $DEFINE may appear anywhere in a source file. If the value is ".TRUE."     ',&
 '   or ".FALSE." then the parameter is of type LOGICAL, otherwise the            ',&
@@ -19398,6 +19410,10 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   Variables are defined from the point they are encountered in a $DEFINE       ',&
 '   directive or the command line until program termination unless explicitly    ',&
 '   undefined with a $UNDEFINE directive.                                        ',&
+'                                                                                ',&
+'   If defined after first undefined a warning is generated on stderr.           ',&
+'   The $REDEFINE directive is identical to the $DEFINE directive accept no      ',&
+'   warning is produced if the variable is already defined.                      ',&
 '                                                                                ',&
 '   Example:                                                                     ',&
 '                                                                                ',&
@@ -19674,7 +19690,6 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   o must start with a letter (A-Z).                                            ',&
 '   o are composed of the letters A-Z, digits 0-9 and _ and $.                   ',&
 '   o 2048 variable names may be defined at a time.                              ',&
-'   o if redefined after first undefined a warning is generated on stderr.       ',&
 '                                                                                ',&
 'EXAMPLES                                                                        ',&
 '                                                                                ',&
@@ -19793,7 +19808,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 'LICENSE                                                                         ',&
 '   MIT                                                                          ',&
 '']
-   WRITE(*,'(a)')(trim(help_text(i)),i=1,size(help_text))
+   WRITE(stdout,'(a)')(trim(help_text(i)),i=1,size(help_text))
    stop ! if --help was specified, stop
 endif
 end subroutine help_usage
@@ -19819,7 +19834,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '@(#)AUTHOR:         John S. Urban>',&
 '@(#)HOME PAGE       https://github.com/urbanjost/prep.git/>',&
 '']
-   WRITE(*,'(a)')(trim(help_text(i)(5:len_trim(help_text(i))-1)),i=1,size(help_text))
+   WRITE(stdout,'(a)')(trim(help_text(i)(5:len_trim(help_text(i))-1)),i=1,size(help_text))
    stop ! if --version was specified, stop
 endif
 end subroutine help_version
@@ -19830,10 +19845,10 @@ subroutine write_out(line)  ! @(#)writeout(3f):  write (most) source code lines 
 character(len=*),intent(in)    :: line
 integer                        :: istart
 
-   if(G_write_what)then              ! echo "what" lines to stderr
+   if(G_verbose)then              ! echo "what" lines to stderr
       istart=index(line,'@(#)')
       if(istart.ne.0)then
-         write(ERROR_UNIT,'("-->>",a)')trim(line(istart+4:))
+         call write_err( '+ -->>'//trim(line(istart+4:)) )
       endif
    endif
 
@@ -19914,15 +19929,15 @@ end subroutine www
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine stderr(msg)
+subroutine write_err(msg)
 character(len=*),intent(in) :: msg
 integer                     :: ios
-! ident_2="@(#)M_verify::stderr(3f): writes a message to standard error using a standard f2003 method"
+! ident_2="@(#)M_verify::write_err(3f): writes a message to standard error using a standard f2003 method"
 
-   write(error_unit,'(a)',iostat=ios) trim(msg)
-   flush(unit=output_unit,iostat=ios)
-   flush(unit=error_unit,iostat=ios)
-end subroutine stderr
+   write(stderr,'(a)',iostat=ios) trim(msg)
+   flush(unit=stdout,iostat=ios)
+   flush(unit=stderr,iostat=ios)
+end subroutine write_err
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
@@ -20309,7 +20324,10 @@ logical                       :: isscratch
    call help_usage(lget('prep_help'))                      ! if help switch is present display help and exit
 
    keeptabs=lget('prep_keeptabs')
-   G_write_what=lget('prep_verbose')                       ! set flag for special mode where lines with @(#) are written to stderr
+   G_verbose=lget('prep_verbose')                          ! set flag for special mode where lines with @(#) are written to stderr
+   if(G_verbose)then
+      call write_err('+ verbose mode on ')
+   endif
    G_comment_style=lower(sget('prep_comment'))             ! allow formatting comments for particular post-processors
    G_system_on = lget('prep_system')                       ! allow system commands on $SYSTEM directives
 

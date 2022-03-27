@@ -174,19 +174,19 @@ character(len=*),intent(in) :: name
    call execute_command_line ('fpm run prep -- -i _scratch.txt -o _out.txt')
    call gulp('_out.txt',result)
    CHECK : block
-   if(size(expected).eq.size(result))then
-      if( all(expected.eq.result) )then
-         write(*,'(*(g0,1x))')name// ' PASSED'
-         tally=[tally,.true.]
-         exit CHECK
+      if(size(expected).eq.size(result))then
+         if( all(expected.eq.result) )then
+            write(*,'(*(g0,1x))')name// ' PASSED'
+            tally=[tally,.true.]
+            exit CHECK
+         endif
       endif
-   endif
-   tally=[tally,.false.]
-   write(*,'(*(g0,1x))')name// ' FAILED'
-   write(*,'(/,a)')'RESULT'
-   write(*,'(i3.3,1x,a)')(i,trim(result(i)),i=1,size(result))
-   write(*,'(/,a)')'EXPECTED'
-   write(*,'(i3.3,1x,a)')(i,trim(expected(i)),i=1,size(expected))
+      tally=[tally,.false.]
+      write(*,'(*(g0,1x))')name// ' FAILED'
+      write(*,'(/,a)')'RESULT'
+      write(*,'(i3.3,1x,a)')(i,trim(result(i)),i=1,size(result))
+      write(*,'(/,a)')'EXPECTED'
+      write(*,'(i3.3,1x,a)')(i,trim(expected(i)),i=1,size(expected))
    endblock CHECK
    ierr=filedelete('_scratch.txt')
    ierr=filedelete('_out.txt')
@@ -236,23 +236,44 @@ end subroutine expressions
 
 subroutine define()
 data=[ character(len=132) :: &
-' ', &
-'$DEFINE A=10', &
-'$DEFINE A=A+1', &
-'$ifndef A', &
-'$   stop 1', &
-'$endif', &
-'$UNDEFINE A', &
-'$ifdef A', &
-'$   stop 2', &
-'$endif', &
-'$DEFINE A=10+2', &
-'$show A', &
-'last line']
+'                                                    ', &
+'$DEFINE A=10                                        ', &
+'$DEFINE A=A+1                                       ', &
+'$REDEFINE A=A+10                                    ', &
+'$ifndef A                                           ', &
+'$   stop 1                                          ', &
+'$endif                                              ', &
+'$UNDEFINE A                                         ', &
+'$ifdef A                                            ', &
+'$   stop 2                                          ', &
+'$endif                                              ', &
+'$DEFINE A=10+2                                      ', &
+'$show A                                             ', &
+'$define AB                                          ', &
+'$define A_B                                         ', &
+'$define AB_                                         ', &
+'$define SUM=AB+A_B+AB_                              ', &
+'$show SUM AB A_B AB_                                ', &
+'$if .not.(AB+A_B+AB_==3)                            ', &
+'    unexpected sum of the variables                 ', &
+'$   show                                            ', &
+'$   stop 3                                          ', &
+'$endif                                              ', &
+'$undefine ab a_b ab_                                ', &
+'$if defined(AB).or.defined(A_B).or.defined(AB_)     ', &
+'    variables are defined                           ', &
+'$   show                                            ', &
+'$   stop 4                                          ', &
+'$endif                                              ', &
+'last line                                           ']
 
 expected=[ character(len=132) :: &
 ' ', &
 '!  A  =  12', &
+'!  SUM  =  3', &
+'!  AB  =  1', &
+'!  A_B  =  1', &
+'!  AB_  =  1', &
 'last line']
 
 call teardown('define')

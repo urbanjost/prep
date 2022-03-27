@@ -24,12 +24,14 @@ DESCRIPTION
 
    The pre-processor prep(1) will interpret lines with "$" (by default) in
    column one, and will output no such lines. Other input is conditionally
-   written to the output file based on the directives encountered in the input.
+   written to the output file based on the case-insensitive directive names
+   encountered in the input.
 
    prep(1) does not support parameterized macros but does support string
    substitution and the inclusion of free-format text blocks that may be
    converted to Fortran comments or CHARACTER variable definitions (while
    optionally simultaneously being used to generate documentation files).
+   Combined, these features allow for basic templating.
 
    An exclamation character FOLLOWED BY A SPACE on a valid directive begins
    an in-line comment that is terminated by an end-of-line. This is particularly
@@ -59,18 +61,22 @@ DESCRIPTION
 
     :VARIABLE DEFINITION FOR CONDITIONALS
      $DEFINE   variable_name[=expression]                 [! comment ]
-     $UNDEFINE variable_name                              [! comment ]
+     $REDEFINE variable_name[=expression]                 [! comment ]
+     $UNDEFINE|$UNDEF variable_name(s)                    [! comment ]
 
     :CONDITIONAL CODE SELECTION
-     $IF       expression| [$IFDEF|$IFNDEF variable_name] [! comment ]
-               { sequence of source statements}
-     [$ELSEIF|$ELIF  {LOGICAL or INTEGER expression}      [! comment ]
-               { sequence of source statements}]
+     $IF  logical integer-based expression |
+     $IFDEF variable-name |
+     $IFNDEF variable_name                                [! comment ]
+             { sequence of source statements}
+     [$ELSEIF|$ELIF logical integer-based expression      [! comment ]
+             { sequence of source statements}]
      [$ELSE                                               [! comment ]
-               { sequence of source statements}]
+             { sequence of source statements}]
      $ENDIF                                               [! comment ]
 
      $STOP     [stop_value]                               [! comment ]
+     $QUIT                                                [! comment ]
 
     :MACRO STRING EXPANSION AND TEXT REPLAY
      $SET      varname  string
@@ -196,7 +202,7 @@ OPTIONS
 
    DIRECTIVES
 
-   $DEFINE variable_name [=expression]
+   $DEFINE|$REDEFINE variable_name [=expression]
 
    A $DEFINE may appear anywhere in a source file. If the value is ".TRUE."
    or ".FALSE." then the parameter is of type LOGICAL, otherwise the
@@ -207,6 +213,10 @@ OPTIONS
    Variables are defined from the point they are encountered in a $DEFINE
    directive or the command line until program termination unless explicitly
    undefined with a $UNDEFINE directive.
+
+   If defined after first undefined a warning is generated on stderr.
+   The $REDEFINE directive is identical to the $DEFINE directive accept no
+   warning is produced if the variable is already defined.
 
    Example:
 
@@ -479,7 +489,6 @@ LIMITATIONS
    o must start with a letter (A-Z).
    o are composed of the letters A-Z, digits 0-9 and _ and $.
    o 2048 variable names may be defined at a time.
-   o if redefined after first undefined a warning is generated on stderr.
 
 EXAMPLES
 
