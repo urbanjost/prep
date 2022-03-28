@@ -4430,6 +4430,7 @@ doubleprecision function s2v(chars,ierr,onerr)
 
 !character(len=*),parameter::ident_43="@(#)M_strings::s2v(3f): returns doubleprecision number from string"
 
+
 character(len=*),intent(in)  :: chars
 integer,optional             :: ierr
 doubleprecision              :: valu
@@ -11083,6 +11084,7 @@ doubleprecision function s2v(chars,ierr,onerr)
 
 ! ident_44="@(#)M_strings::s2v(3f): returns doubleprecision number from string"
 
+
 character(len=*),intent(in)  :: chars
 integer,optional             :: ierr
 doubleprecision              :: valu
@@ -17131,7 +17133,8 @@ module M_fpp                                                              !@(#)M
 USE ISO_FORTRAN_ENV, ONLY : STDERR=>ERROR_UNIT, STDOUT=>OUTPUT_UNIT,STDIN=>INPUT_UNIT
 use M_io,        only : get_tmp, dirname, uniq, fileopen, filedelete      ! Fortran file I/O routines
 use M_kracken95, only : sget, dissect, lget                               ! load command argument parsing module
-use M_strings,   only : nospace, v2s, substitute, upper, lower, isalpha, split, delim, str_replace=>replace, sep, atleast
+use M_strings,   only : nospace, v2s, substitute, upper, lower, isalpha, split, delim, str_replace=>replace, sep, atleast, unquote
+use M_strings,   only : glob
 use M_list,      only : insert, locate, replace, remove                   ! Basic list lookup and maintenance
 implicit none
 
@@ -17267,7 +17270,7 @@ integer                      :: verblen
       case('DEFINE','DEF');     call define(upopts,1)                 ! only process DEFINE if not skipping data lines
       case('REDEFINE','REDEF'); call define(upopts,0)                 ! only process DEFINE if not skipping data lines
       case('UNDEF','UNDEFINE','DELETE'); call undef(upper(options))   ! only process UNDEF if not skipping data lines
-      case('INCLUDE');          call include(options,50+G_iocount)    ! Filenames can be case sensitive
+      case('INCLUDE','READ');   call include(options,50+G_iocount)    ! Filenames can be case sensitive
       case('OUTPUT');           call output_case(options)             ! Filenames can be case sensitive
       case('PARCEL');           call parcel_case(upopts)
       case('POST');             call post(upopts)
@@ -17289,7 +17292,7 @@ integer                      :: verblen
    case('DEFINE','INCLUDE','SHOW','STOP','QUIT','HELP')
    case('SYSTEM','UNDEF','UNDEFINE','DELETE','MESSAGE','REDEFINE')
    case('OUTPUT','IDENT','@(#)','BLOCK','IMPORT','DEF','REDEF')
-   case('PARCEL','POST','SET','GET_ARGUMENTS')
+   case('PARCEL','POST','SET','GET_ARGUMENTS','READ')
    case(' ')
 
    case('ELSE','ELSEIF','ELIF');  call else(verb,upopts,noelse,eb)
@@ -17662,10 +17665,10 @@ end subroutine getval
 subroutine undef(opts)                                     !@(#)undef(3f): process UNDEFINE directive
 character(len=*)     :: opts                               ! directive with no spaces, leading prefix removed, and all uppercase
 character(len=:),allocatable :: names(:)
-integer                     :: ifound                      ! subscript for location of variable to delete
 integer                     :: i,j,k
 
 ! REMOVE VARIABLE IF FOUND IN VARIABLE NAME DICTIONARY
+! allow basic globbing where * is any string and ? is any character
    if (len_trim(opts).eq.0) then                           ! if no variable name
       call stop_prep('*prep* ERROR(023) - $UNDEFINE MISSING TARGETS:'//trim(G_source))
    endif
@@ -17675,23 +17678,19 @@ integer                     :: i,j,k
       if(G_verbose)then
          call write_err('+ $UNDEFINE '//names(k))
       endif
-      ifound=-1                                            ! initialize subscript for variable name to be searched for to bad value
-      do i=1,G_numdef                                      ! find defined variable to be undefined by searching dictionary
-         if (G_defvar(i).eq.names(k))then                  ! found the requested variable name
-            ifound=i                                       ! record the subscript that the name was located at
-            exit                                           ! found the variable so no longer any need to search remaining names
+      i=0
+      do                                                   ! find defined variable to be undefined by searching dictionary
+         i=i+1
+         if(i.gt.G_numdef)exit
+         if (glob(trim(G_defvar(i)),trim(names(k))))then   ! found the requested variable name
+            do j=i,G_numdef-1                              ! remove variable name and value from list of variable names and values
+              G_defvar(j)=G_defvar(j+1)                    ! replace the value to be removed with the one above it and then repeat
+              G_defval(j)=G_defval(j+1)
+            enddo
+            G_numdef=G_numdef-1                            ! decrement number of defined variables
+            i=i-1
          endif
       enddo
-
-      if (ifound.lt.1) then                                ! variable name not found
-         cycle
-      else
-         do j=ifound,G_numdef-1                            ! remove variable name and value from list of variable names and values
-           G_defvar(j)=G_defvar(j+1)                       ! replace the value to be removed with the one above it and then repeat
-           G_defval(j)=G_defval(j+1)
-         enddo
-         G_numdef=G_numdef-1                               ! decrement number of defined variables
-      endif
    enddo
 
 end subroutine undef
@@ -18745,11 +18744,10 @@ integer                        :: ikludge
          case('ford')                    ! convert plain text to doxygen comment blocks with some automatic markdown highlights
             if(len(G_MAN).gt.1)then      ! the way the string is built it starts with a newline
                CALL split(G_MAN,array1,delimiters=new_line('N'),nulls='return') ! parse string to an array parsing on delimiters
-
                !array=[character(len=(len(array1)+6)) :: array1] !! pad with trailing spaces
                ikludge=len(array1)+6
-               if(allocated(array))deallocate(array)
-               allocate(character(len=ikludge) :: array(size(array1)))
+ 	       if(allocated(array))deallocate(array)
+	       allocate(character(len=ikludge) :: array(size(array1)))
                array(:)=array1
 
                deallocate(array1)
@@ -18811,7 +18809,7 @@ character(len=*),parameter  :: fmt='(*(g0,1x))'
          CALL split(list,array,delimiters=' ;,') ! parse string to an array parsing on delimiters
          do j=1,size(array)
             do i=1,G_numdef                                                                 ! print variable dictionary
-               if(G_defvar(i).eq.array(j))then
+               if(glob(trim(G_defvar(i)),trim(array(j))))then
                   write(G_iout,fmt)"! ",trim(G_defvar(i)),' = ',adjustl(G_defval(i)) ! write variable and corresponding value
                endif
             enddo
@@ -18891,21 +18889,31 @@ character(len=G_line_length),intent(in)  :: line
 integer,intent(in)                       :: iunit
 integer                                  :: ios
 character(len=4096)                      :: message
+character(len=G_line_length)             :: line_unquoted
+integer                                  :: iend
 
-   if(iunit.eq.5.or.line.eq.'@')then                   ! assume this is stdin
+   line_unquoted=adjustl(unquote(line))                   ! remove " from filename using Fortran list-directed I/O rules
+   iend=len_trim(line_unquoted)
+   if(len(line_unquoted).ge.2)then
+      if(line_unquoted(1:1).eq.'<'.and.line_unquoted(iend:iend).eq.'>')then       ! remove < and > from filename
+         line_unquoted=line_unquoted(2:iend-1)
+      endif
+   endif
+
+   if(iunit.eq.5.or.line_unquoted.eq.'@')then                   ! assume this is stdin
       G_iocount=G_iocount+1
       G_file_dictionary(G_iocount)%unit_number=5
-      G_file_dictionary(G_iocount)%filename=line
+      G_file_dictionary(G_iocount)%filename=line_unquoted
       return
    endif
 
-   call findit(line)
+   call findit(line_unquoted)
 
-   open(unit=iunit,file=trim(line),iostat=ios,status='old',action='read',iomsg=message)
+   open(unit=iunit,file=trim(line_unquoted),iostat=ios,status='old',action='read',iomsg=message)
    if(ios.ne.0)then
       call debug_state(msg='OPEN IN INCLUDE')
       call write_err(message)
-      call stop_prep("*prep* ERROR(057) - FAILED OPEN OF INPUT FILE("//v2s(iunit)//"):"//trim(line))
+      call stop_prep("*prep* ERROR(057) - FAILED OPEN OF INPUT FILE("//v2s(iunit)//"):"//trim(line_unquoted))
    else
       rewind(unit=iunit)
       G_iocount=G_iocount+1
@@ -18913,7 +18921,7 @@ character(len=4096)                      :: message
          call stop_prep('*prep* ERROR(058) - INPUT FILE NESTING TOO DEEP:'//trim(G_source))
       endif
       G_file_dictionary(G_iocount)%unit_number=iunit
-      G_file_dictionary(G_iocount)%filename=line
+      G_file_dictionary(G_iocount)%filename=line_unquoted
       G_file_dictionary(G_iocount)%line_number=0
    endif
 
@@ -19378,8 +19386,8 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   $DEFINE|$REDEFINE variable_name [=expression]; ...                           ',&
 '                                                                                ',&
-'   A $DEFINE may appear anywhere in a source file. If the value is ".TRUE."     ',&
-'   or ".FALSE." then the parameter is of type LOGICAL, otherwise the            ',&
+'   A $DEFINE may appear anywhere in a source file. If the expression value is   ',&
+'   ".TRUE." or ".FALSE." then the parameter is of type LOGICAL, otherwise the   ',&
 '   parameter is of type INTEGER and the value must be an INTEGER. If no         ',&
 '   value is supplied, the parameter is of type INTEGER and is given the         ',&
 '   value 1.                                                                     ',&
@@ -19388,7 +19396,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   directive or the command line until program termination unless explicitly    ',&
 '   undefined with a $UNDEFINE directive.                                        ',&
 '                                                                                ',&
-'   If defined after first undefined a warning is generated on stderr.           ',&
+'   If defined when already defined a warning is generated on stderr.            ',&
 '   The $REDEFINE directive is identical to the $DEFINE directive accept no      ',&
 '   warning is produced if the variable is already defined.                      ',&
 '                                                                                ',&
@@ -19397,6 +19405,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '    $define A=1                                                                 ',&
 '    $define B= 10 - 1                                                           ',&
 '    $define C=1+1; D=(-40)/(-10)                                                ',&
+'    $define bigd=d.ge.a; bigb = b >= c && b > 0                                 ',&
 '    $if ( A + B ) / C .eq. 1                                                    ',&
 '       (a+b)/c is one                                                           ',&
 '    $endif                                                                      ',&
@@ -19533,12 +19542,16 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   If a list of defined variable names is present only those variables and      ',&
 '   their values are shown.                                                      ',&
 '                                                                                ',&
+'   Basic globbing is supported, where "*" represents any string, and "?"        ',&
+'   represents any single character.                                             ',&
+'                                                                                ',&
 '   Example:                                                                     ',&
 '                                                                                ',&
 '    prep A=10 B C D -o paper                                                    ',&
 '    $define z=22                                                                ',&
 '    $show B Z                                                                   ',&
 '    $show                                                                       ',&
+'    $show H*;*H;*H* ! show beginning with "H", ending with "H", containing "H"  ',&
 '    $stop 0                                                                     ',&
 !-------------------------------------------------------------------------------
 '                                                                                ',&
@@ -19610,6 +19623,9 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   A symbol defined with $DEFINE can be removed with the $UNDEFINE directive.   ',&
 '   Multiple names may be specified, preferably seperated by semi-colons.        ',&
+'                                                                                ',&
+'   Basic globbing is supported, where "*" represents any string, and "?"        ',&
+'   represents any single character.                                             ',&
 '                                                                                ',&
 '   DEFINED(variable_name)                                                       ',&
 '                                                                                ',&

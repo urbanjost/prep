@@ -201,8 +201,8 @@ OPTIONS
 
    $DEFINE|$REDEFINE variable_name [=expression]; ...
 
-   A $DEFINE may appear anywhere in a source file. If the value is ".TRUE."
-   or ".FALSE." then the parameter is of type LOGICAL, otherwise the
+   A $DEFINE may appear anywhere in a source file. If the expression value is
+   ".TRUE." or ".FALSE." then the parameter is of type LOGICAL, otherwise the
    parameter is of type INTEGER and the value must be an INTEGER. If no
    value is supplied, the parameter is of type INTEGER and is given the
    value 1.
@@ -211,7 +211,7 @@ OPTIONS
    directive or the command line until program termination unless explicitly
    undefined with a $UNDEFINE directive.
 
-   If defined after first undefined a warning is generated on stderr.
+   If defined when already defined a warning is generated on stderr.
    The $REDEFINE directive is identical to the $DEFINE directive accept no
    warning is produced if the variable is already defined.
 
@@ -220,6 +220,7 @@ OPTIONS
     $define A=1
     $define B= 10 - 1
     $define C=1+1; D=(-40)/(-10)
+    $define bigd=d.ge.a; bigb = b >= c && b > 0
     $if ( A + B ) / C .eq. 1
        (a+b)/c is one
     $endif
@@ -353,12 +354,16 @@ OPTIONS
    If a list of defined variable names is present only those variables and
    their values are shown.
 
+   Basic globbing is supported, where "*" represents any string, and "?"
+   represents any single character.
+
    Example:
 
     prep A=10 B C D -o paper
     $define z=22
     $show B Z
     $show
+    $show H*;*H;*H* ! show beginning with "H", ending with "H", containing "H"
     $stop 0
 
      > !  B  =  1
@@ -429,6 +434,9 @@ OPTIONS
 
    A symbol defined with $DEFINE can be removed with the $UNDEFINE directive.
    Multiple names may be specified, preferably seperated by semi-colons.
+
+   Basic globbing is supported, where "*" represents any string, and "?"
+   represents any single character.
 
    DEFINED(variable_name)
 

@@ -12,6 +12,7 @@ USE ISO_FORTRAN_ENV, ONLY : STDERR=>ERROR_UNIT, STDOUT=>OUTPUT_UNIT,STDIN=>INPUT
 use M_io,        only : get_tmp, dirname, uniq, fileopen, filedelete      ! Fortran file I/O routines
 use M_kracken95, only : sget, dissect, lget                               ! load command argument parsing module
 use M_strings,   only : nospace, v2s, substitute, upper, lower, isalpha, split, delim, str_replace=>replace, sep, atleast, unquote
+use M_strings,   only : glob
 use M_list,      only : insert, locate, replace, remove                   ! Basic list lookup and maintenance
 implicit none
 
@@ -542,10 +543,10 @@ end subroutine getval
 subroutine undef(opts)                                     !@(#)undef(3f): process UNDEFINE directive
 character(len=*)     :: opts                               ! directive with no spaces, leading prefix removed, and all uppercase
 character(len=:),allocatable :: names(:)
-integer                     :: ifound                      ! subscript for location of variable to delete
 integer                     :: i,j,k
 
 ! REMOVE VARIABLE IF FOUND IN VARIABLE NAME DICTIONARY
+! allow basic globbing where * is any string and ? is any character
    if (len_trim(opts).eq.0) then                           ! if no variable name
       call stop_prep('*prep* ERROR(023) - $UNDEFINE MISSING TARGETS:'//trim(G_source))
    endif
@@ -555,23 +556,19 @@ integer                     :: i,j,k
       if(G_verbose)then
          call write_err('+ $UNDEFINE '//names(k))
       endif
-      ifound=-1                                            ! initialize subscript for variable name to be searched for to bad value
-      do i=1,G_numdef                                      ! find defined variable to be undefined by searching dictionary
-         if (G_defvar(i).eq.names(k))then                  ! found the requested variable name
-            ifound=i                                       ! record the subscript that the name was located at
-            exit                                           ! found the variable so no longer any need to search remaining names
+      i=0
+      do                                                   ! find defined variable to be undefined by searching dictionary
+         i=i+1
+         if(i.gt.G_numdef)exit
+         if (glob(trim(G_defvar(i)),trim(names(k))))then   ! found the requested variable name
+            do j=i,G_numdef-1                              ! remove variable name and value from list of variable names and values
+              G_defvar(j)=G_defvar(j+1)                    ! replace the value to be removed with the one above it and then repeat
+              G_defval(j)=G_defval(j+1)
+            enddo
+            G_numdef=G_numdef-1                            ! decrement number of defined variables
+            i=i-1
          endif
       enddo
-
-      if (ifound.lt.1) then                                ! variable name not found
-         cycle
-      else
-         do j=ifound,G_numdef-1                            ! remove variable name and value from list of variable names and values
-           G_defvar(j)=G_defvar(j+1)                       ! replace the value to be removed with the one above it and then repeat
-           G_defval(j)=G_defval(j+1)
-         enddo
-         G_numdef=G_numdef-1                               ! decrement number of defined variables
-      endif
    enddo
 
 end subroutine undef
@@ -1684,7 +1681,7 @@ character(len=*),parameter  :: fmt='(*(g0,1x))'
          CALL split(list,array,delimiters=' ;,') ! parse string to an array parsing on delimiters
          do j=1,size(array)
             do i=1,G_numdef                                                                 ! print variable dictionary
-               if(G_defvar(i).eq.array(j))then
+               if(glob(trim(G_defvar(i)),trim(array(j))))then
                   write(G_iout,fmt)"! ",trim(G_defvar(i)),' = ',adjustl(G_defval(i)) ! write variable and corresponding value
                endif
             enddo
@@ -2417,12 +2414,16 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   If a list of defined variable names is present only those variables and      ',&
 '   their values are shown.                                                      ',&
 '                                                                                ',&
+'   Basic globbing is supported, where "*" represents any string, and "?"        ',&
+'   represents any single character.                                             ',&
+'                                                                                ',&
 '   Example:                                                                     ',&
 '                                                                                ',&
 '    prep A=10 B C D -o paper                                                    ',&
 '    $define z=22                                                                ',&
 '    $show B Z                                                                   ',&
 '    $show                                                                       ',&
+'    $show H*;*H;*H* ! show beginning with "H", ending with "H", containing "H"  ',&
 '    $stop 0                                                                     ',&
 !-------------------------------------------------------------------------------
 '                                                                                ',&
@@ -2494,6 +2495,9 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   A symbol defined with $DEFINE can be removed with the $UNDEFINE directive.   ',&
 '   Multiple names may be specified, preferably seperated by semi-colons.        ',&
+'                                                                                ',&
+'   Basic globbing is supported, where "*" represents any string, and "?"        ',&
+'   represents any single character.                                             ',&
 '                                                                                ',&
 '   DEFINED(variable_name)                                                       ',&
 '                                                                                ',&

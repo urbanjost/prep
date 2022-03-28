@@ -11,6 +11,12 @@ new features, changes, and relevant notifications.
    - [ ] unit test -- in progress
 
 ---
+**2022-03-28**  John S. Urban <https://github.com/urbanjost>
+
+### :green_circle: ADD:
+
+  + $SHOW and $UNDEF allow basic globbing with "*" and "?"
+---
 **2022-03-27**  John S. Urban <https://github.com/urbanjost>
 
 ### :green_circle: ADD:
