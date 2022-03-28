@@ -19,6 +19,7 @@ allocate(tally(0))
    call quit()
    call stop()
    call message()
+   call output()
    if(all(tally))then
       write(*,'(a)')'ALL PREP TESTS PASSED'
    else
@@ -263,8 +264,7 @@ data=[ character(len=132) :: &
 '$endif                                              ', &
 '$DEFINE A=10+2                                      ', &
 '$show A                                             ', &
-'$define AB                                          ', &
-'$define A_B                                         ', &
+'$define AB ; A_B                                    ', &
 '$define AB_                                         ', &
 '$define SUM=AB+A_B+AB_                              ', &
 '$show SUM AB A_B AB_                                ', &
@@ -273,7 +273,7 @@ data=[ character(len=132) :: &
 '$   show                                            ', &
 '$   stop 3                                          ', &
 '$endif                                              ', &
-'$undefine ab a_b ab_                                ', &
+'$undefine ab; a_b; ab_                              ', &
 '$if defined(AB).or.defined(A_B).or.defined(AB_)     ', &
 '    variables are defined                           ', &
 '$   show                                            ', &
@@ -539,5 +539,27 @@ expected=[ character(len=132) :: &
 call teardown('message')
 
 end subroutine message
+!===============================================================================
+subroutine output()
+integer :: ios, lun
+data=[ character(len=132) :: &
+"$OUTPUT _scratch_output                                                 ", &
+"This should be placed in an external file                               ", &
+"that is subsequently read back in                                       ", &
+"$OUTPUT                                                                 ", &
+"$INCLUDE _scratch_output                                                ", &
+"last line"]
+
+expected=[ character(len=132) :: &
+"This should be placed in an external file                               ", &
+"that is subsequently read back in                                       ", &
+'last line']
+
+call teardown('output')
+
+open(file='_scratch_output',newunit=lun,iostat=ios)
+close(unit=lun,iostat=ios,status='delete')
+
+end subroutine output
 !===============================================================================
 end program test_prep

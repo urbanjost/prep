@@ -11,7 +11,7 @@ module M_fpp                                                              !@(#)M
 USE ISO_FORTRAN_ENV, ONLY : STDERR=>ERROR_UNIT, STDOUT=>OUTPUT_UNIT,STDIN=>INPUT_UNIT
 use M_io,        only : get_tmp, dirname, uniq, fileopen, filedelete      ! Fortran file I/O routines
 use M_kracken95, only : sget, dissect, lget                               ! load command argument parsing module
-use M_strings,   only : nospace, v2s, substitute, upper, lower, isalpha, split, delim, str_replace=>replace, sep, atleast
+use M_strings,   only : nospace, v2s, substitute, upper, lower, isalpha, split, delim, str_replace=>replace, sep, atleast, unquote
 use M_list,      only : insert, locate, replace, remove                   ! Basic list lookup and maintenance
 implicit none
 
@@ -147,7 +147,7 @@ integer                      :: verblen
       case('DEFINE','DEF');     call define(upopts,1)                 ! only process DEFINE if not skipping data lines
       case('REDEFINE','REDEF'); call define(upopts,0)                 ! only process DEFINE if not skipping data lines
       case('UNDEF','UNDEFINE','DELETE'); call undef(upper(options))   ! only process UNDEF if not skipping data lines
-      case('INCLUDE');          call include(options,50+G_iocount)    ! Filenames can be case sensitive
+      case('INCLUDE','READ');   call include(options,50+G_iocount)    ! Filenames can be case sensitive
       case('OUTPUT');           call output_case(options)             ! Filenames can be case sensitive
       case('PARCEL');           call parcel_case(upopts)
       case('POST');             call post(upopts)
@@ -169,7 +169,7 @@ integer                      :: verblen
    case('DEFINE','INCLUDE','SHOW','STOP','QUIT','HELP')
    case('SYSTEM','UNDEF','UNDEFINE','DELETE','MESSAGE','REDEFINE')
    case('OUTPUT','IDENT','@(#)','BLOCK','IMPORT','DEF','REDEF')
-   case('PARCEL','POST','SET','GET_ARGUMENTS')
+   case('PARCEL','POST','SET','GET_ARGUMENTS','READ')
    case(' ')
 
    case('ELSE','ELSEIF','ELIF');  call else(verb,upopts,noelse,eb)
@@ -1764,21 +1764,31 @@ character(len=G_line_length),intent(in)  :: line
 integer,intent(in)                       :: iunit
 integer                                  :: ios
 character(len=4096)                      :: message
+character(len=G_line_length)             :: line_unquoted
+integer                                  :: iend
 
-   if(iunit.eq.5.or.line.eq.'@')then                   ! assume this is stdin
+   line_unquoted=adjustl(unquote(line))                   ! remove " from filename using Fortran list-directed I/O rules
+   iend=len_trim(line_unquoted)
+   if(len(line_unquoted).ge.2)then
+      if(line_unquoted(1:1).eq.'<'.and.line_unquoted(iend:iend).eq.'>')then       ! remove < and > from filename
+         line_unquoted=line_unquoted(2:iend-1)
+      endif
+   endif
+
+   if(iunit.eq.5.or.line_unquoted.eq.'@')then                   ! assume this is stdin
       G_iocount=G_iocount+1
       G_file_dictionary(G_iocount)%unit_number=5
-      G_file_dictionary(G_iocount)%filename=line
+      G_file_dictionary(G_iocount)%filename=line_unquoted
       return
    endif
 
-   call findit(line)
+   call findit(line_unquoted)
 
-   open(unit=iunit,file=trim(line),iostat=ios,status='old',action='read',iomsg=message)
+   open(unit=iunit,file=trim(line_unquoted),iostat=ios,status='old',action='read',iomsg=message)
    if(ios.ne.0)then
       call debug_state(msg='OPEN IN INCLUDE')
       call write_err(message)
-      call stop_prep("*prep* ERROR(057) - FAILED OPEN OF INPUT FILE("//v2s(iunit)//"):"//trim(line))
+      call stop_prep("*prep* ERROR(057) - FAILED OPEN OF INPUT FILE("//v2s(iunit)//"):"//trim(line_unquoted))
    else
       rewind(unit=iunit)
       G_iocount=G_iocount+1
@@ -1786,7 +1796,7 @@ character(len=4096)                      :: message
          call stop_prep('*prep* ERROR(058) - INPUT FILE NESTING TOO DEEP:'//trim(G_source))
       endif
       G_file_dictionary(G_iocount)%unit_number=iunit
-      G_file_dictionary(G_iocount)%filename=line
+      G_file_dictionary(G_iocount)%filename=line_unquoted
       G_file_dictionary(G_iocount)%line_number=0
    endif
 
@@ -2251,8 +2261,8 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   $DEFINE|$REDEFINE variable_name [=expression]; ...                           ',&
 '                                                                                ',&
-'   A $DEFINE may appear anywhere in a source file. If the value is ".TRUE."     ',&
-'   or ".FALSE." then the parameter is of type LOGICAL, otherwise the            ',&
+'   A $DEFINE may appear anywhere in a source file. If the expression value is   ',&
+'   ".TRUE." or ".FALSE." then the parameter is of type LOGICAL, otherwise the   ',&
 '   parameter is of type INTEGER and the value must be an INTEGER. If no         ',&
 '   value is supplied, the parameter is of type INTEGER and is given the         ',&
 '   value 1.                                                                     ',&
@@ -2261,7 +2271,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   directive or the command line until program termination unless explicitly    ',&
 '   undefined with a $UNDEFINE directive.                                        ',&
 '                                                                                ',&
-'   If defined after first undefined a warning is generated on stderr.           ',&
+'   If defined when already defined a warning is generated on stderr.            ',&
 '   The $REDEFINE directive is identical to the $DEFINE directive accept no      ',&
 '   warning is produced if the variable is already defined.                      ',&
 '                                                                                ',&
@@ -2270,6 +2280,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '    $define A=1                                                                 ',&
 '    $define B= 10 - 1                                                           ',&
 '    $define C=1+1; D=(-40)/(-10)                                                ',&
+'    $define bigd=d.ge.a; bigb = b >= c && b > 0                                 ',&
 '    $if ( A + B ) / C .eq. 1                                                    ',&
 '       (a+b)/c is one                                                           ',&
 '    $endif                                                                      ',&

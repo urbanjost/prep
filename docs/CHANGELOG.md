@@ -20,6 +20,8 @@ new features, changes, and relevant notifications.
     delimited list of variable names and expressions
   + $STOP was modernized now that a modern STOP is available on the
     majority of compilers.
+  + allow filenames on $INCLUDE to be double-quoted or have \< prefix
+    and \> suffix.
 ---
 **2022-03-26**  John S. Urban <https://github.com/urbanjost>
 
