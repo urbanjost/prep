@@ -15,8 +15,9 @@ new features, changes, and relevant notifications.
 
 ### :green_circle: ADD:
 
-  + $UNDEFINE can take a list of variable names 
   + $REDEFINE was documented
+  + $UNDEFINE,$DEFINE,$REDEFINE can take a list of semi-colon
+    delimited list of variable names and expressions
   + $STOP was modernized now that a modern STOP is available on the
     majority of compilers.
 ---

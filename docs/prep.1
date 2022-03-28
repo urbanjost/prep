@@ -80,8 +80,8 @@ The syntax for the directive lines is as follows:
 .nf
 .fam C
     :VARIABLE DEFINITION FOR CONDITIONALS
-     $DEFINE   variable_name[=expression]                 [! comment ]
-     $REDEFINE variable_name[=expression]                 [! comment ]
+     $DEFINE   variable_name[=expression[;\.\.\.]]           [! comment ]
+     $REDEFINE variable_name[=expression[;\.\.\.]]           [! comment ]
      $UNDEFINE|$UNDEF variable_name(s)                    [! comment ]
 
     :CONDITIONAL CODE SELECTION
@@ -117,7 +117,7 @@ The syntax for the directive lines is as follows:
 
     :INFORMATION
      $MESSAGE  message_to_stderr
-     $SHOW [defined_variable_name(s)]                     [! comment ]
+     $SHOW [defined_variable_name[;\.\.\.]]                  [! comment ]
 
     :SYSTEM COMMANDS
      $SYSTEM   system_command
@@ -251,7 +251,7 @@ Display version and exit
 Display documentation and exit.
 .SS   DIRECTIVES
 
-$DEFINE|$REDEFINE variable_name [=expression]
+$DEFINE|$REDEFINE variable_name [=expression]; \.\.\.
 .PP
 A $DEFINE may appear anywhere in a source file. If the value is ".TRUE."
 or ".FALSE." then the parameter is of type LOGICAL, otherwise the
@@ -273,7 +273,7 @@ Example:
 .fam C
     $define A=1
     $define B= 10 - 1
-    $define C=1+1
+    $define C=1+1; D=(-40)/(-10)
     $if ( A + B ) / C .eq. 1
        (a+b)/c is one
     $endif
@@ -419,7 +419,7 @@ may follow the $BLOCK block text to optionally post-process the doc files.
 .PP
 A blank value or "END" returns to normal output processing.
 .PP
-$SHOW \fB[variable_name\fP(s)]
+$SHOW [variable_name][;\.\.\.]
 .PP
 Shows current state of \fBprep\fP(1); including variable names and values; and
 the name of the current input files. All output is preceded by an
@@ -510,9 +510,10 @@ Examples:
 
 .fam T
 .fi
-$UNDEFINE \fBvariable_name\fP(s)
+$UNDEFINE variable_name[; \.\.\.]
 .PP
 A symbol defined with $DEFINE can be removed with the $UNDEFINE directive.
+Multiple names may be specified, preferably seperated by semi-colons.
 .PP
 \fBDEFINED\fP(variable_name)
 .PP

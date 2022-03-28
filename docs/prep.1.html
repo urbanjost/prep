@@ -143,8 +143,8 @@ The syntax for the directive lines is as follows:
 <P>
 <PRE>
     :VARIABLE DEFINITION FOR CONDITIONALS
-     $DEFINE   variable_name[=expression]                 [! comment ]
-     $REDEFINE variable_name[=expression]                 [! comment ]
+     $DEFINE   variable_name[=expression[;&#46;&#46;&#46;]]           [! comment ]
+     $REDEFINE variable_name[=expression[;&#46;&#46;&#46;]]           [! comment ]
      $UNDEFINE|$UNDEF variable_name(s)                    [! comment ]
 <P>
     :CONDITIONAL CODE SELECTION
@@ -180,7 +180,7 @@ The syntax for the directive lines is as follows:
 <P>
     :INFORMATION
      $MESSAGE  message_to_stderr
-     $SHOW [defined_variable_name(s)]                     [! comment ]
+     $SHOW [defined_variable_name[;&#46;&#46;&#46;]]                  [! comment ]
 <P>
     :SYSTEM COMMANDS
      $SYSTEM   system_command
@@ -344,7 +344,7 @@ Display documentation and exit.
 </A>
 <BLOCKQUOTE>
 <P>
-$DEFINE|$REDEFINE variable_name [=expression]
+$DEFINE|$REDEFINE variable_name [=expression]; &#46;&#46;&#46;
 <P>
 A $DEFINE may appear anywhere in a source file. If the value is ".TRUE."
 or ".FALSE." then the parameter is of type LOGICAL, otherwise the
@@ -365,7 +365,7 @@ Example:
 <PRE>
     $define A=1
     $define B= 10 - 1
-    $define C=1+1
+    $define C=1+1; D=(-40)/(-10)
     $if ( A + B ) / C .eq. 1
        (a+b)/c is one
     $endif
@@ -507,7 +507,7 @@ may follow the $BLOCK block text to optionally post-process the doc files.
 <P>
 A blank value or "END" returns to normal output processing.
 <P>
-$SHOW <B>[variable_name</B>(s)]
+$SHOW [variable_name][;&#46;&#46;&#46;]
 <P>
 Shows current state of <B>prep</B>(1); including variable names and values; and
 the name of the current input files. All output is preceded by an
@@ -592,9 +592,10 @@ Examples:
     $SYSTEM  rm _tmp.f90
 <P>
 </PRE>
-$UNDEFINE <B>variable_name</B>(s)
+$UNDEFINE variable_name[; &#46;&#46;&#46;]
 <P>
 A symbol defined with $DEFINE can be removed with the $UNDEFINE directive.
+Multiple names may be specified, preferably seperated by semi-colons.
 <P>
 <B>DEFINED</B>(variable_name)
 <P>

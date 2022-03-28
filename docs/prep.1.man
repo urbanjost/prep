@@ -57,8 +57,8 @@ DESCRIPTION
    The syntax for the directive lines is as follows:
 
     :VARIABLE DEFINITION FOR CONDITIONALS
-     $DEFINE   variable_name[=expression]                 [! comment ]
-     $REDEFINE variable_name[=expression]                 [! comment ]
+     $DEFINE   variable_name[=expression[;...]]           [! comment ]
+     $REDEFINE variable_name[=expression[;...]]           [! comment ]
      $UNDEFINE|$UNDEF variable_name(s)                    [! comment ]
 
     :CONDITIONAL CODE SELECTION
@@ -94,7 +94,7 @@ DESCRIPTION
 
     :INFORMATION
      $MESSAGE  message_to_stderr
-     $SHOW [defined_variable_name(s)]                     [! comment ]
+     $SHOW [defined_variable_name[;...]]                  [! comment ]
 
     :SYSTEM COMMANDS
      $SYSTEM   system_command
@@ -199,7 +199,7 @@ OPTIONS
 
    DIRECTIVES
 
-   $DEFINE|$REDEFINE variable_name [=expression]
+   $DEFINE|$REDEFINE variable_name [=expression]; ...
 
    A $DEFINE may appear anywhere in a source file. If the value is ".TRUE."
    or ".FALSE." then the parameter is of type LOGICAL, otherwise the
@@ -219,7 +219,7 @@ OPTIONS
 
     $define A=1
     $define B= 10 - 1
-    $define C=1+1
+    $define C=1+1; D=(-40)/(-10)
     $if ( A + B ) / C .eq. 1
        (a+b)/c is one
     $endif
@@ -344,7 +344,7 @@ OPTIONS
 
    A blank value or "END" returns to normal output processing.
 
-   $SHOW [variable_name(s)]
+   $SHOW [variable_name][;...]
 
    Shows current state of prep(1); including variable names and values; and
    the name of the current input files. All output is preceded by an
@@ -425,9 +425,10 @@ OPTIONS
     $INCLUDE _tmp.f90
     $SYSTEM  rm _tmp.f90
 
-   $UNDEFINE variable_name(s)
+   $UNDEFINE variable_name[; ...]
 
    A symbol defined with $DEFINE can be removed with the $UNDEFINE directive.
+   Multiple names may be specified, preferably seperated by semi-colons.
 
    DEFINED(variable_name)
 

@@ -1,3 +1,4 @@
+ 
 !>>>>> build/dependencies/M_kracken95/src/M_kracken95.f90
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -1043,23 +1044,23 @@ end subroutine menu
 ! From: "Felix Becker" <felix.becker@zih.tu-dresden.de>
 ! Subject: Variable-length string interface for "retrev".
 ! Date: Tuesday, May 28, 2013 11:51 AM
-!
+! 
 ! Hello John Urban,
-!
+! 
 ! using your Fortran "M_kracken95" module, I wrote a small wrapper that
 ! allows for "val" to be of unknown length, and that allows just getting
 ! the length of val without getting val and vice versa.
-!
+! 
 ! (using allocatable strings, and optional arguments).
-!
+! 
 ! Tested with gfortran version '4.8.0 20130502 (prerelease)'.
-!
+! 
 ! I am aware that M_kracken95 itself uses fixed length strings, and I did
 ! not fiddle with that; just providing a more flexible user interface on
 ! top of that.
-!
+! 
 ! Find my quick hack attached, use it if you want.
-!
+! 
 !-----------------------------------------------------------------------------------------------------------------------------------
 !-!subroutine retrev_string_variable_length(name,val,len,ier)
 !-!  !!! @(#)retrev_string_variable_length: A wrapper for "retrev" from the module "M_kracken95":
@@ -1075,13 +1076,13 @@ end subroutine menu
 !-!  character(len=:),intent(out),allocatable,OPTIONAL ::  val
 !-!  integer,intent(out),OPTIONAL                      ::  llen
 !-!  integer,intent(out),OPTIONAL                      ::  ier
-!-!
+!-!  
 !-!  integer                                           ::  len_internal
 !-!  integer                                           ::  ier_internal
 !-!  character(llen=0)                                 ::  dummystring
-!-!
+!-!  
 !-!  call retrev(name,dummystring,len_internal,ier_internal)
-!-!
+!-!  
 !-!  if (present(val)) then
 !-!    if (allocated(val)) then
 !-!      deallocate(val)
@@ -1089,11 +1090,11 @@ end subroutine menu
 !-!    call allocate_string(int(len_internal,kind=8),val)
 !-!    call retrev(name,val,len_internal,ier_internal)
 !-!  end if
-!-!
+!-!  
 !-!  if (present(llen)) then
 !-!    llen = len_internal
 !-!  end if
-!-!
+!-!  
 !-!  if (present(ier)) then
 !-!    ier = ier_internal
 !-!  end if
@@ -1105,7 +1106,7 @@ end subroutine menu
 !-!  !!! @(#)allocate_string: allocate string
 !-!  integer(kind=8),intent(in)                  :: stringlength
 !-!  character(len=:),allocatable,intent(out)    :: stringvariable
-!-!
+!-!  
 !-!  allocate(character(len=stringlength) :: stringvariable)
 !-!
 !-!end subroutine allocate_string
@@ -1140,7 +1141,8 @@ end module M_kracken95
 ! updated 20131029
 ! read environment variable DEFAULT_CMD
 !-----------------------------------------------------------------------------------------------------------------------------------
-
+ 
+ 
 !>>>>> build/dependencies/M_io/src/M_io.f90
 !===================================================================================================================================
 MODULE M_io
@@ -5780,7 +5782,8 @@ end module m_io
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-
+ 
+ 
 !>>>>> build/dependencies/M_strings/src/M_strings.f90
 !>
 !!##NAME
@@ -15602,7 +15605,8 @@ end subroutine matching_delimiter
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
 end module M_strings
-
+ 
+ 
 !>>>>> build/dependencies/M_list/src/M_list.f90
 !>
 !!##NAME
@@ -17111,7 +17115,8 @@ end module M_list
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
-
+ 
+ 
 !>>>>> app/prep.f90
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -17130,7 +17135,7 @@ use M_strings,   only : nospace, v2s, substitute, upper, lower, isalpha, split, 
 use M_list,      only : insert, locate, replace, remove                   ! Basic list lookup and maintenance
 implicit none
 
-logical,save                         :: debug=.false.
+logical,save                         :: G_debug=.false.
 
 integer,parameter                    :: num=2048                       ! number of named values allowed
 integer,public,parameter             :: G_line_length=4096             ! allowed length of input lines
@@ -17243,11 +17248,13 @@ integer                      :: verblen
    verb=upper(verb)
    upopts=nospace(upper(options))                          ! remove spaces from directive
 
-   !write(*,*)'G_SOURCE='//trim(g_source)
-   !write(*,*)'LINE='//trim(line)
-   !write(*,*)'VERB='//trim(verb)
-   !write(*,*)'OPTIONS='//trim(options)
-   !write(*,*)'UPOPTS='//trim(upopts)
+   if(G_debug)then                                                    ! if processing lines in a logically selected region
+      write(stderr,*)'G_SOURCE='//trim(g_source)
+      write(stderr,*)'LINE='//trim(line)
+      write(stderr,*)'VERB='//trim(verb)
+      write(stderr,*)'OPTIONS='//trim(options)
+      write(stderr,*)'UPOPTS='//trim(upopts)
+   endif
 
    if(G_write)then                                                    ! if processing lines in a logically selected region
       if(G_inparcel.and.VERB.ne.'PARCEL')then
@@ -17257,8 +17264,8 @@ integer                      :: verblen
                                                                       ! process the directive
       select case(VERB)
       case('  ')                                                      ! entire line is a comment
-      case('DEFINE');           call define(upopts,1)                 ! only process DEFINE if not skipping data lines
-      case('REDEFINE');         call define(upopts,0)                 ! only process DEFINE if not skipping data lines
+      case('DEFINE','DEF');     call define(upopts,1)                 ! only process DEFINE if not skipping data lines
+      case('REDEFINE','REDEF'); call define(upopts,0)                 ! only process DEFINE if not skipping data lines
       case('UNDEF','UNDEFINE','DELETE'); call undef(upper(options))   ! only process UNDEF if not skipping data lines
       case('INCLUDE');          call include(options,50+G_iocount)    ! Filenames can be case sensitive
       case('OUTPUT');           call output_case(options)             ! Filenames can be case sensitive
@@ -17268,7 +17275,7 @@ integer                      :: verblen
       case('SET');              call set(options)
       case('IMPORT');           call import(options)
       case('IDENT','@(#)');     call ident(options)
-      case('SHOW') ;            call debug_state(options,msg='')
+      case('SHOW') ;            call debug_state(upper(options),msg='')
       case('SYSTEM');           call exe()
       case('MESSAGE');          call write_err(G_source(2:))          ! trustingly trim MESSAGE from directive
       case('STOP');             call stop(upopts)
@@ -17281,7 +17288,7 @@ integer                      :: verblen
 
    case('DEFINE','INCLUDE','SHOW','STOP','QUIT','HELP')
    case('SYSTEM','UNDEF','UNDEFINE','DELETE','MESSAGE','REDEFINE')
-   case('OUTPUT','IDENT','@(#)','BLOCK','IMPORT')
+   case('OUTPUT','IDENT','@(#)','BLOCK','IMPORT','DEF','REDEF')
    case('PARCEL','POST','SET','GET_ARGUMENTS')
    case(' ')
 
@@ -17331,7 +17338,7 @@ end subroutine exe
 !===================================================================================================================================
 subroutine write_get_arguments()                ! @(#)write_get_arguments(3f): write block for processing M_CLI command line parsing
 integer :: i
-character(len=*),parameter :: text(*)=[character(len=132) :: &
+character(len=132),parameter :: text(*)=[character(len=132) :: &
 "function get_arguments()"                                                                              ,&
 "character(len=255)           :: message ! use for I/O error messages"                                  ,&
 "character(len=:),allocatable :: string  ! stores command line argument"                                ,&
@@ -17459,79 +17466,88 @@ end subroutine ident
 !==================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine define(opts,ireset)                              !@(#)define(3f): process 'DEFINE variablename[=expression]' directive
-character(len=*),intent(in)    :: opts                      ! packed uppercase working copy of input line with leading $verb removed
+subroutine define(allopts,ireset)                           !@(#)define(3f): process 'DEFINE variablename[=expression]' directive
+character(len=*),intent(in)    :: allopts                   ! packed uppercase working copy of input line with leading $verb removed
 integer,intent(in)             :: ireset                    ! 0= can redefine variable, anything else fail on redefine
 
 character(len=G_line_length):: temp                         ! scratch
 integer                     :: iequ                         ! location of "=" in the directive, if any
+integer                     :: i                            ! loop through each expression
 integer                     :: j                            ! index thru variable dictionary to see if variable is already defined
 integer                     :: iname                        ! length of variable name
 integer                     :: istore                       ! location of variable name in dictionary
+character(len=:),allocatable :: array(:)
+character(len=:),allocatable :: opts
 
-! CHECK COMMAND SYNTAX
-   iequ=index(opts,'=')                                     ! find "=" in "variable_name=expression" if any
-   if (opts(1:1).eq.' '.or.iequ.eq.len_trim(opts)) then     ! no variable name in packed string or string after = is null
-      call stop_prep('*prep* ERROR(008) - INCOMPLETE STATEMENT:'//trim(opts))
-   endif
-   if (iequ.gt.G_var_len+1) then                            ! variable name too long
-      call stop_prep('*prep* ERROR(009) - MISSPELLING OR NAME LENGTH EXCEEDS '//v2s(G_var_len)//' CHARACTERS:'//trim(opts))
-   endif
-
-   if(iequ.eq.0)then                                        ! find end of variable name
-      iname=len_trim(opts)
-   else
-      iname=iequ-1
-   endif
-
-   call name(opts(:iname))                                  ! check that variable name is composed of allowed characters
-
-   istore=0
-   if (G_numdef.ne.0) then                                  ! test for redefinition of defined name
-      do j=1,G_numdef
-         if (opts(:iname).eq.G_defvar(j)) then
-            istore=j
-            if(ireset.ne.0)then                             ! fail if redefinitions are not allowed on this call
-               call warn_prep('*prep* WARNING(010) - REDEFINITION OF DEFINED NAME :' &
-               & //trim(G_defvar(j))//'='//trim(adjustl(G_defval(j)))//' with '//trim(opts))
+   CALL split(allopts,array,delimiters=';')                       ! parse string to an array parsing on delimiters
+   
+   do i=1,size(array)
+     opts=trim(array(i))
+     if(opts.eq.'')cycle
+   ! CHECK COMMAND SYNTAX
+      iequ=index(opts,'=')                                     ! find "=" in "variable_name=expression" if any
+      if (opts(1:1).eq.' '.or.iequ.eq.len_trim(opts)) then     ! no variable name in packed string or string after = is null
+         call stop_prep('*prep* ERROR(008) - INCOMPLETE STATEMENT:'//trim(opts))
+      endif
+      if (iequ.gt.G_var_len+1) then                            ! variable name too long
+         call stop_prep('*prep* ERROR(009) - MISSPELLING OR NAME LENGTH EXCEEDS '//v2s(G_var_len)//' CHARACTERS:'//trim(opts))
+      endif
+   
+      if(iequ.eq.0)then                                        ! find end of variable name
+         iname=len_trim(opts)
+      else
+         iname=iequ-1
+      endif
+   
+      call name(opts(:iname))                                  ! check that variable name is composed of allowed characters
+   
+      istore=0
+      if (G_numdef.ne.0) then                                  ! test for redefinition of defined name
+         do j=1,G_numdef
+            if (opts(:iname).eq.G_defvar(j)) then
+               istore=j
+               if(ireset.ne.0)then                             ! fail if redefinitions are not allowed on this call
+                  call warn_prep('*prep* WARNING(010) - REDEFINITION OF DEFINED NAME :' &
+                  & //trim(G_defvar(j))//'='//trim(adjustl(G_defval(j)))//' with '//trim(opts))
+               endif
             endif
-         endif
-      enddo
-   endif
-
-   if(istore.eq.0)then                                      ! new variable name
-      G_numdef=G_numdef+1                                   ! increment number of defined variables
-      istore=G_numdef
-      temp=''
-   endif
-   if (iequ.eq.0) then                                      ! if no = then variable assumes value of 1
-      G_defvar(istore)=opts                                 ! store variable name from line with no =value string
-      temp='1'                                              ! set string to default value
-   else                                                     ! =value string trails name on directive
-      G_defvar(istore)=opts(:iequ-1)                        ! store variable name from line with =value string
-      temp=opts(iequ+1:)                                       ! get expression
-   endif
-
-   temp=str_replace(temp,'==','.EQ.')
-   temp=str_replace(temp,'/=','.NE.')
-   temp=str_replace(temp,'!=','.NE.')
-   temp=str_replace(temp,'>=','.GE.')
-   temp=str_replace(temp,'<=','.LE.')
-   temp=str_replace(temp,'>','.GT.')
-   temp=str_replace(temp,'<','.LT.')
-   temp=str_replace(temp,'&&','.AND.')
-   temp=str_replace(temp,'||','.OR.')
-   temp=str_replace(temp,'!','.NOT.')
-   temp=str_replace(temp,'.XOR.','.NEQV.')
-   call parens(temp)                                        !
-   if (iequ.ne.0) then
-      temp=opts(:iequ)//temp
-   endif
-
-   call math(temp,iequ+1,len_trim(temp))
-   call doop(temp,iequ+1,len_trim(temp))
-   call logic(temp,iequ+1,len_trim(temp))
-   call getval(temp,iequ+1,len_trim(temp),G_defval(istore))
+         enddo
+      endif
+   
+      if(istore.eq.0)then                                      ! new variable name
+         G_numdef=G_numdef+1                                   ! increment number of defined variables
+         istore=G_numdef
+         temp=''
+      endif
+      if (iequ.eq.0) then                                      ! if no = then variable assumes value of 1
+         G_defvar(istore)=opts                                 ! store variable name from line with no =value string
+         temp='1'                                              ! set string to default value
+      else                                                     ! =value string trails name on directive
+         G_defvar(istore)=opts(:iequ-1)                        ! store variable name from line with =value string
+         temp=opts(iequ+1:)                                       ! get expression
+      endif
+   
+      temp=str_replace(temp,'==','.EQ.')
+      temp=str_replace(temp,'/=','.NE.')
+      temp=str_replace(temp,'!=','.NE.')
+      temp=str_replace(temp,'>=','.GE.')
+      temp=str_replace(temp,'<=','.LE.')
+      temp=str_replace(temp,'>','.GT.')
+      temp=str_replace(temp,'<','.LT.')
+      temp=str_replace(temp,'&&','.AND.')
+      temp=str_replace(temp,'||','.OR.')
+      temp=str_replace(temp,'!','.NOT.')
+      temp=str_replace(temp,'.XOR.','.NEQV.')
+      call parens(temp)                                        !
+      if (iequ.ne.0) then
+         temp=opts(:iequ)//temp
+      endif
+   
+      call math(temp,iequ+1,len_trim(temp))
+      call doop(temp,iequ+1,len_trim(temp))
+      call logic(temp,iequ+1,len_trim(temp))
+      call getval(temp,iequ+1,len_trim(temp),G_defval(istore))
+   enddo
 
 end subroutine define
 !===================================================================================================================================
@@ -17653,7 +17669,7 @@ integer                     :: i,j,k
    if (len_trim(opts).eq.0) then                           ! if no variable name
       call stop_prep('*prep* ERROR(023) - $UNDEFINE MISSING TARGETS:'//trim(G_source))
    endif
-   call split(opts,names)
+   call split(opts,names,delimiters=' ;,')
 
    do k=1,size(names)
       if(G_verbose)then
@@ -17840,13 +17856,13 @@ character(len=*)              :: opts                      !
 integer                       :: noelse
 logical                       :: eb
 
-if(debug)then
-   write(*,*)'*ELSE* TOP'
-   write(*,*)'        G_NESTL =',g_nestl
-   write(*,*)'        EB      =',eb
-   write(*,*)'        NOELSE  =',noelse
-   write(*,*)'        G_WRITE =',g_write
-   write(*,*)'        G_CONDOP=',g_condop
+if(G_debug)then
+   write(stderr,*)'*ELSE* TOP'
+   write(stderr,*)'        G_NESTL =',g_nestl
+   write(stderr,*)'        EB      =',eb
+   write(stderr,*)'        NOELSE  =',noelse
+   write(stderr,*)'        G_WRITE =',g_write
+   write(stderr,*)'        G_CONDOP=',g_condop
 endif
 
    if(noelse.eq.1.or.G_nestl.eq.0) then                    ! test for else instead of elseif
@@ -17868,13 +17884,13 @@ endif
      G_write=.true.
    endif
 
-if(debug)then
-   write(*,*)'*ELSE* BOTTOM'
-   write(*,*)'        G_NESTL =',g_nestl
-   write(*,*)'        EB      =',eb
-   write(*,*)'        NOELSE  =',noelse
-   write(*,*)'        G_WRITE =',g_write
-   write(*,*)'        G_CONDOP=',g_condop
+if(G_debug)then
+   write(stderr,*)'*ELSE* BOTTOM'
+   write(stderr,*)'        G_NESTL =',g_nestl
+   write(stderr,*)'        EB      =',eb
+   write(stderr,*)'        NOELSE  =',noelse
+   write(stderr,*)'        G_WRITE =',g_write
+   write(stderr,*)'        G_CONDOP=',g_condop
 endif
 end subroutine else
 !===================================================================================================================================
@@ -17884,13 +17900,13 @@ subroutine endif(noelse,eb)                             !@(#)endif(3f): process 
 integer,intent(out)           :: noelse
 logical,intent(out)           :: eb
 
-   if(debug)then
-      write(*,*)'*ENDIF* TOP'
-      write(*,*)'        G_NESTL =',g_nestl
-      write(*,*)'        EB      =',eb
-      write(*,*)'        NOELSE  =',noelse
-      write(*,*)'        G_WRITE =',g_write
-      write(*,*)'        G_CONDOP=',g_condop
+   if(G_debug)then
+      write(stderr,*)'*ENDIF* TOP'
+      write(stderr,*)'        G_NESTL =',g_nestl
+      write(stderr,*)'        EB      =',eb
+      write(stderr,*)'        NOELSE  =',noelse
+      write(stderr,*)'        G_WRITE =',g_write
+      write(stderr,*)'        G_CONDOP=',g_condop
    endif
 
    ! if no ELSE or ELSEIF present insert ELSE to simplify logic
@@ -17914,13 +17930,13 @@ logical,intent(out)           :: eb
       eb=.false.
    endif
 
-   if(debug)then
-      write(*,*)'*ENDIF* BOTTOM'
-      write(*,*)'        G_NESTL =',g_nestl
-      write(*,*)'        EB      =',eb
-      write(*,*)'        NOELSE  =',noelse
-      write(*,*)'        G_WRITE =',g_write
-      write(*,*)'        G_CONDOP=',g_condop
+   if(G_debug)then
+      write(stderr,*)'*ENDIF* BOTTOM'
+      write(stderr,*)'        G_NESTL =',g_nestl
+      write(stderr,*)'        EB      =',eb
+      write(stderr,*)'        NOELSE  =',noelse
+      write(stderr,*)'        G_WRITE =',g_write
+      write(stderr,*)'        G_CONDOP=',g_condop
    endif
 
 end subroutine endif
@@ -18729,7 +18745,8 @@ integer                        :: ikludge
          case('ford')                    ! convert plain text to doxygen comment blocks with some automatic markdown highlights
             if(len(G_MAN).gt.1)then      ! the way the string is built it starts with a newline
                CALL split(G_MAN,array1,delimiters=new_line('N'),nulls='return') ! parse string to an array parsing on delimiters
-              !array=[character(len=(len(array1)+6)) :: array1] !! pad with trailing spaces
+
+               !array=[character(len=(len(array1)+6)) :: array1] !! pad with trailing spaces
                ikludge=len(array1)+6
                if(allocated(array))deallocate(array)
                allocate(character(len=ikludge) :: array(size(array1)))
@@ -18791,7 +18808,7 @@ character(len=*),parameter  :: fmt='(*(g0,1x))'
    if(present(list))then
       if(list.ne.'')then
          ! print variables:
-         CALL split(list,array) ! parse string to an array parsing on delimiters
+         CALL split(list,array,delimiters=' ;,') ! parse string to an array parsing on delimiters
          do j=1,size(array)
             do i=1,G_numdef                                                                 ! print variable dictionary
                if(G_defvar(i).eq.array(j))then
@@ -18927,7 +18944,7 @@ integer                      :: i
          call stop_prep('*prep* ERROR(060) - ERROR REWINDING PARCEL:'//trim(G_source)//':'//trim(message))
       endif
 
-      if(debug)then
+      if(G_debug)then
          do
             read(ifound,'(a)',iostat=ios)message
             if(ios.ne.0)exit
@@ -19101,13 +19118,13 @@ integer                     :: ivalue
    if(opts.ne.'')then
       ivalue=get_integer_from_string(opts)
       if(ivalue.eq.0)then
-         stop
+         if(.not.G_debug)stop
       else
          call stop_prep('',stop_value=ivalue)
          !call stop_prep('*prep* ERROR(050) - UNEXPECTED "STOP" VALUE='//trim(opts)//'. FROM:'//trim(G_source))
       endif
    else
-      stop 1 ! , quiet=.true.
+      if(.not.G_debug)stop 1 ! , quiet=.true.
    endif
 end subroutine stop
 !===================================================================================================================================
@@ -19122,7 +19139,7 @@ integer :: stop_value_local
    !call write_err(message)
    call write_err(trim(G_SOURCE))
    call debug_state(msg=message)
-   stop stop_value_local
+   if(.not.G_debug)stop stop_value_local
 end subroutine stop_prep
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -19210,8 +19227,8 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   The syntax for the directive lines is as follows:                            ',&
 '                                                                                ',&
 '    :VARIABLE DEFINITION FOR CONDITIONALS                                       ',&
-'     $DEFINE   variable_name[=expression]                 [! comment ]          ',&
-'     $REDEFINE variable_name[=expression]                 [! comment ]          ',&
+'     $DEFINE   variable_name[=expression[;...]]           [! comment ]          ',&
+'     $REDEFINE variable_name[=expression[;...]]           [! comment ]          ',&
 '     $UNDEFINE|$UNDEF variable_name(s)                    [! comment ]          ',&
 '                                                                                ',&
 '    :CONDITIONAL CODE SELECTION                                                 ',&
@@ -19254,7 +19271,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '    :INFORMATION                                                                ',&
 '     $MESSAGE  message_to_stderr                                                ',&
-'     $SHOW [defined_variable_name(s)]                     [! comment ]          ',&
+'     $SHOW [defined_variable_name[;...]]                  [! comment ]          ',&
 '                                                                                ',&
 '    :SYSTEM COMMANDS                                                            ',&
 '     $SYSTEM   system_command                                                   ',&
@@ -19359,7 +19376,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   DIRECTIVES                                                                   ',&
 '                                                                                ',&
-'   $DEFINE|$REDEFINE variable_name [=expression]                                ',&
+'   $DEFINE|$REDEFINE variable_name [=expression]; ...                           ',&
 '                                                                                ',&
 '   A $DEFINE may appear anywhere in a source file. If the value is ".TRUE."     ',&
 '   or ".FALSE." then the parameter is of type LOGICAL, otherwise the            ',&
@@ -19379,7 +19396,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '    $define A=1                                                                 ',&
 '    $define B= 10 - 1                                                           ',&
-'    $define C=1+1                                                               ',&
+'    $define C=1+1; D=(-40)/(-10)                                                ',&
 '    $if ( A + B ) / C .eq. 1                                                    ',&
 '       (a+b)/c is one                                                           ',&
 '    $endif                                                                      ',&
@@ -19507,7 +19524,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   A blank value or "END" returns to normal output processing.                  ',&
 '                                                                                ',&
-'   $SHOW [variable_name(s)]                                                     ',&
+'   $SHOW [variable_name][;...]                                                  ',&
 '                                                                                ',&
 '   Shows current state of prep(1); including variable names and values; and     ',&
 '   the name of the current input files. All output is preceded by an            ',&
@@ -19589,9 +19606,10 @@ help_text=[ CHARACTER(LEN=128) :: &
 '    $INCLUDE _tmp.f90                                                           ',&
 '    $SYSTEM  rm _tmp.f90                                                        ',&
 '                                                                                ',&
-'   $UNDEFINE variable_name(s)                                                   ',&
+'   $UNDEFINE variable_name[; ...]                                               ',&
 '                                                                                ',&
 '   A symbol defined with $DEFINE can be removed with the $UNDEFINE directive.   ',&
+'   Multiple names may be specified, preferably seperated by semi-colons.        ',&
 '                                                                                ',&
 '   DEFINED(variable_name)                                                       ',&
 '                                                                                ',&
@@ -19957,7 +19975,7 @@ integer                      :: i
     ! remove some entries
     !call update('a')
     ! get some values
-    !write(*,*)'get b=>',get('b')
+    !write(stderr,*)'get b=>',get('b')
   endif
 
 contains
@@ -20216,11 +20234,11 @@ help_text=[ CHARACTER(LEN=128) :: &
 "   > numeric operators are +,-,*,/,**, () are supported, logical operators are  ",&
 "   >  | .EQ.| .NE.| .GE.| .GT.| .LE.| .LT.|.NOT.|.AND.| .OR.| .EQV.|.NEQV.|     ",&
 "   >  |  == |  /= |  >= |  >  |  <= |  <  |  !  |  && |  || |  ==  |  !=  |     ",&
-"  $DEFINE|$REDEFINE variable_name[=expression]                                  ",&
+"  $DEFINE|$REDEFINE variable_name[=expression][;...]                            ",&
 "   > Predefined values are                                                      ",&
 "   > UNKNOWN=0 LINUX=1 MACOS=2 WINDOWS=3 CYGWIN=4 SOLARIS=5 FREEBSD=6 OPENBSD=7 ",&
 "   > In addition OS is set to what the program guesses the system type is.      ",&
-"  $UNDEFINE|$UNDEF variable_name(s)                                             ",&
+"  $UNDEFINE|$UNDEF variable_name[;...]                                          ",&
 "CONDITIONAL CODE SELECTION                                                      ",&
 "  $IF logical_integer-based_expression |                                        ",&
 "  $IFDEF variable_name | $IFNDEF variable_name                                  ",&
@@ -20245,7 +20263,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 "  $BLOCK [comment|null|write|variable [-varname NAME]] [-file NAME [-append]]   ",&
 "INFORMATION                                                                     ",&
 "  $MESSAGE message_to_stderr                                                    ",&
-"  $SHOW [defined_variable_name(s)]                                              ",&
+"  $SHOW [defined_variable_name][;...]                                           ",&
 "SYSTEM COMMANDS                                                                 ",&
 "  $SYSTEM command                                                               ",&
 "  $STOP [stop_value] | $QUIT                                                    "]
@@ -20284,6 +20302,7 @@ character(len=1024)          :: cmd=' &
    & --verbose          .false.  &
    & --system           .false.  &
    & --version          .false.  &
+   & --debug            .false.  &
    & --noenv            .false.  &
    & --comment          COMMENT  &
    & --ident            .false.  &
@@ -20334,6 +20353,7 @@ logical                       :: isscratch
 
    call help_version(lget('prep_version'))                 ! if version switch is present display version and exit
    call help_usage(lget('prep_help'))                      ! if help switch is present display help and exit
+   G_debug=lget('prep_debug')                              ! turn on debug mode for developer
 
    keeptabs=lget('prep_keeptabs')
    G_verbose=lget('prep_verbose')                          ! set flag for special mode where lines with @(#) are written to stderr
