@@ -5,11 +5,25 @@ what's new in the `prep` project. It is a curated, chronologically ordered
 list of notable changes including records of change such as bug fixes,
 new features, changes, and relevant notifications.
 
-   - [x] manpage
-   - [x] program
-   - [x] works with fpm(1)
-   - [ ] unit test -- in progress
+  - [x] git repository on WWW (github)
+  - [x] annotated source files 
+  - [x] an open license
+  - [x] fpm(1) build
+  - [x] user manual (on-line)
+  - [x] man-page
+  - [x] app program
+  - [ ] unit test -- in progress
+  - [ ] make(1) build
+  - [ ] developer documents (ford(1))
+  - [ ] CI/CD(Continious Integration/Development) verification (github actions)
+  - [ ] registered in fpm(1) repository
 
+---
+**2022-03-28**  John S. Urban <https://github.com/urbanjost>
+
+### :green_circle: ADD:
+
+  + $STOP can have a user-defined message                   
 ---
 **2022-03-28**  John S. Urban <https://github.com/urbanjost>
 
