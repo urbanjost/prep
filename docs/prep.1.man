@@ -1,5 +1,3 @@
-Project is up to date
-Project is up to date
 NAME
    prep(1) - [DEVELOPER] pre-process FORTRAN source files
    (LICENSE:MIT)
