@@ -127,7 +127,6 @@ end module M_testit
 !  and so on.
 !
 ```
-
 ## Building
 To build it requires `git`, `fpm`(Fortran Package Manager), a modern
 Fortran compiler and WWW access or you will need to compile the single-file
@@ -172,7 +171,6 @@ or
    # if you placed the program in a directory in your command path you are ready to go!
    prep --help
 ```
-
 ## Homepage
 https://github.com/urbanjost/prep.git
 
