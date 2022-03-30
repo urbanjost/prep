@@ -15453,6 +15453,7 @@ end subroutine print_generic
 
 end function str_one
 !===================================================================================================================================
+!===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
 function lowercase(str) result(lcstr)
@@ -19773,15 +19774,15 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '  Define variables on command line:                                             ',&
 '                                                                                ',&
-'   Typically, variables are defined on the command line when prep(1) is         ',&
-'   invoked but can be grouped together into small files that are included       ',&
-'   with a $INCLUDE or as input files.                                           ',&
+'  Typically, variables are defined on the command line when prep(1) is          ',&
+'  invoked but can be grouped together into small files that are included        ',&
+'  with a $INCLUDE or as input files.                                            ',&
 '                                                                                ',&
 '    > prep HP size=64 -i hp_directives.dirs test.F90 -o test_out.f90            ',&
 '                                                                                ',&
-'   defines variables HP and SIZE as if the expressions had been on a            ',&
-'   $DEFINE and reads file "hp_directives.dirs" and then test.F90.               ',&
-'   Output is directed to test_out.f90                                           ',&
+'  defines variables HP and SIZE as if the expressions had been on a             ',&
+'  $DEFINE and reads file "hp_directives.dirs" and then test.F90.                ',&
+'  Output is directed to test_out.f90                                            ',&
 '                                                                                ',&
 '  Basic conditionals:                                                           ',&
 '                                                                                ',&
