@@ -8,12 +8,11 @@
  + The [CI/CD](docs/STATUS.md) results
 
 ## Description
-`prep(1)` is a streamlined pre-processor primarily designed for use
-with Fortran. It does not support procedural macros but does support
-variable substitution and reusable free-format text blocks which allows for
-basic templating as well as easy construction of multi-line CHARACTER
-variables; and is quite capable of supporting traditional conditional
-compilation.
+`prep(1)` is a streamlined pre-processor primarily designed for use with
+Fortran. It does not support procedural macros but does support variable
+substitution and reusable free-format text blocks which allows for basic
+templating as well as easy construction of multi-line CHARACTER variables;
+and is quite capable of supporting traditional conditional compilation.
 
 It is written in standard Fortran so those in the Fortran community
 will find it easy to modify and to use portably wherever modern Fortran
@@ -32,11 +31,11 @@ Feedback is welcome.
 
 ## Example Showing Templating
 
-The most distinct feature of **prep(1)** compared to basic preprocessors is the
-ability to define a block of text and apply special processing to it to simplify
-maintaining documentation but also to repeat the code with different string
-expansions, allowing for a form of templating a generic routine. A relatively
-advanced example:
+The most distinct feature of **prep(1)** compared to basic preprocessors
+is the ability to define a block of text and apply special processing
+to it to simplify maintaining documentation but also to repeat the code
+with different string expansions, allowing for a form of templating a
+generic routine. A relatively advanced example:
 
 ```text
 $import USER
