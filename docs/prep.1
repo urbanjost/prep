@@ -91,11 +91,11 @@ The syntax for the directive lines is as follows:
      $UNDEFINE|$UNDEF variable_name [;\.\.\.]                [! comment ]
 
     :CONDITIONAL CODE SELECTION
-     $IF  logical integer-based expression |
+     $IF  logical_integer-based expression |
      $IFDEF variable_name |
      $IFNDEF variable_name                                [! comment ]
              { sequence of source statements}
-     [$ELSEIF|$ELIF logical integer-based expression      [! comment ]
+     [$ELSEIF|$ELIF logical_integer-based expression      [! comment ]
              { sequence of source statements}]
      [$ELSE                                               [! comment ]
              { sequence of source statements}]
@@ -126,8 +126,8 @@ The syntax for the directive lines is as follows:
      $SYSTEM   system_command
 
     :PROGRAM TERMINATION
-     $STOP     [stop_value [message]]                     [! comment ]
-     $QUIT                                                [! comment ]
+     $STOP     [stop_value ["message"]]                   [! comment ]
+     $QUIT     ["message"]                                [! comment ]
 
 .fam T
 .fi
@@ -157,10 +157,10 @@ ASCII Decimal Equivalent (Common values are 37=%
 it is assumed to be a literal character.
 .TP
 .B \fB--noenv\fP
-The $IFDEF and $IFNDEF directives test for an
-internal \fBprep\fP(1) variable and then an
-environment variable by default. This option
-turns off testing for environment variables.
+The $IFDEF and $IFNDEF directives test for an interal
+\fBprep\fP(1) variable and then an environment variable by
+by default. This option turns off testing for enviroment
+variables.
 .TP
 .B \fB--type\fP FILETYPE
 this flag indicates to skip input lines until after a
@@ -238,8 +238,8 @@ compiling fixed-format Fortran source.
 .TP
 .B \fB--width\fP \fIn\fP
 Maximum line length of the output file. The default is 1024.
-Typically used to trim fixed-format FORTRAN code that
-contains comments or "ident" labels past column 72
+The parameter is yypically used to trim fixed-format FORTRAN
+code that contains comments or "ident" labels past column 72
 when compiling fixed-format Fortran code.
 .TP
 .B \fB--verbose\fP
@@ -280,13 +280,73 @@ Example:
 .PP
 .nf
 .fam C
-    $define A=1
-    $define B = 10 - 1
-    $define C=1+1; D=(-40)/(-10)
-    $define bigd=d.ge.a; bigb = b >= c && b > 0
-    $if ( A + B ) / C .eq. 1
-       (a+b)/c is one
-    $endif
+    > $define A=1
+    > $define B = 10 - 1
+    > $define C=1+1; D=(-40)/(-10)
+    > $define bigd=d.ge.a; bigb = b >= c && b > 0
+    > $if ( A + B ) / C .eq. 1
+    >    (a+b)/c is one
+    > $endif
+
+.fam T
+.fi
+$UNDEFINE variable_name[; \.\.\.]
+.PP
+A symbol defined with $DEFINE can be removed with the $UNDEFINE directive.
+Multiple names may be specified, preferably separated by semi-colons.
+.PP
+Basic globbing is supported, where "*" represents any string, and "?"
+represents any single character.
+.PP
+\fBDEFINED\fP(variable_name)
+.PP
+A special function called \fBDEFINED\fP() may appear only in a $IF or $ELSEIF.
+If "variable_name" has been defined at that point in the source code,
+then the function value is ".TRUE.", otherwise it is ".FALSE.". A name is
+defined only if it has appeared in the source previously in a $DEFINE
+directive or been declared on the command line.
+The names used in compiler directives are district from names in the
+FORTRAN source, which means that "a" in a $DEFINE and "a" in a FORTRAN
+source statement are totally unrelated.
+The \fBDEFINED\fP() parameter is NOT valid in a $DEFINE directive.
+.PP
+Example:
+.PP
+.nf
+.fam C
+    >        Program test
+    > $IF .NOT. DEFINED (inc)
+    >        INCLUDE "comm.inc"
+    > $ELSE
+    >        INCLUDE "comm2.inc"
+    > $ENDIF
+    >        END
+
+.fam T
+.fi
+The file, "comm.inc" will be included in the source if the variable
+"inc", has not been previously defined, while INCLUDE "comm2.inc" will
+be included in the source if "inc" has been defined.
+.PP
+Predefined variables are
+.PP
+.nf
+.fam C
+    SYSTEMON = 1 if the --system switch was used on the command line, else 0.
+
+    UNKNOWN = 0 LINUX   = 1 MACOS   = 2 WINDOWS = 3
+    CYGWIN  = 4 SOLARIS = 5 FREEBSD = 6 OPENBSD = 7
+    In addition OS is set to what the program guesses the system type is.
+
+.nf
+.fam C
+     > $if OS == LINUX
+     >    write(*,*)"System type is Linux"
+     > $elseif OS == WINDOWS
+     >    write(*,*)"System type is MSWindows"
+     > $else
+     >    write(*,*)"System type is unknown"
+     > $endif
 
 .fam T
 .fi
@@ -303,7 +363,9 @@ conditional block.
 $IFDEF/$IFNDEF directives
 .PP
 $IFDEF and $IFNDEF are special forms of the $IF directive that simply test
-if a variable name is defined or not. Essentially, these are equivalent:
+if a variable name is defined or not.
+.PP
+Essentially, these are equivalent:
 .PP
 .nf
 .fam C
@@ -316,12 +378,17 @@ except that environment variables are tested as well by $IFDEF and $IFNDEF
 if the \fB--noenv\fP option is not specified, but never by the function \fBDEFINED\fP(),
 allowing for environment variables to be selectively used or ignored.
 The \fB--noenv\fP switch is therefore only needed for compatibility with \fBfpp\fP(1).
+For the purposes of \fBprep\fP(1) an environment variable is defined if it is
+returned by the system and has a non-blank value.
 .PP
 $IDENT metadata [-language fortran|c|shell]
 .PP
-This is a special-purpose directive used only by users of SCCS-metadata.
-This string is generally included for use with the \fBwhat\fP(1) command, and
-is ignored unless "\fB-ident\fP" is specified on the command line.
+$IDENT is a special-purpose directive generally used only by users of
+.TP
+.B SCCS-metadata.
+This string is generally included for use with the
+\fBwhat\fP(1) command, and generates a comment if "\fB-ident\fP" is not specified
+on the command line.
 .PP
 When the command line option "\fB-ident\fP" is specified this directive
 writes a line using SCCS-metadata format of one of the following forms:
@@ -349,9 +416,9 @@ Do not use strings starting with " -" either.
 .PP
 $OUTPUT filename [-append [.true.|.false.]]
 .PP
-Specify the output file to write to. This Overrides the initial output file
+Specify the output file to write to. This overrides the initial output file
 specified with command line options. If no output filename is given
-revert back to the initial output file. @ is a synonym for stdout.
+\fBprep\fP(1) reverts back to the initial output file. @ is a synonym for stdout.
 .PP
 Files open at the beginning by default. Use the \fB-append\fP switch to
 append to the end of an existing file instead of overwriting it.
@@ -367,8 +434,9 @@ list-directed input.
 $PARCEL [name]
 .PP
 The lines between a "$PARCEL name" and "$PARCEL" block are written to a
-scratch file WITHOUT expanding directives.the file can then be read in with
-the $POST directive much like a named file can be with $INCLUDE.
+scratch file WITHOUT expanding directives. the scratch file can then be read
+in with the $POST directive much like a named file can be with $INCLUDE,
+except the scratch file is automatically deleted at program termination.
 .PP
 $POST name
 .PP
@@ -376,7 +444,8 @@ Read in the scratch file created by the $PARCEL directive. Combined with
 $SET and $IMPORT directives this allows you to replay a section of input
 and replace strings as a simple templating technique, or to repeat lines
 like copyright information or definitions of (obsolescent) Fortran COMMON
-blocks.without the need for INCLUDE files.
+blocks, put contained in source files without the need for separate
+INCLUDE files if all uses are expanded by the current run of \fBprep\fP(1).
 .PP
 $SET name string
 .PP
@@ -404,12 +473,14 @@ the associated value and then sets the \fBprep\fP(1) variable "HOME" to the valu
 or
 .TP
 .B $BLOCK VARIABLE \fB--varname\fP NAME
-[-\fB-file\fP NAME]
+[-\fB-file\fP NAME [-append]]
 .PP
 .nf
 .fam C
       NULL:      Do not write into current output file
-      COMMENT:   write text prefixed by an exclamation and a space
+      COMMENT:   write text prefixed by an exclamation and a space or according
+                 to the style selected by the --comment style selected on the
+                 command line.
       WRITE:     write text as Fortran WRITE(3f) statements
                  The Fortran generated is free-format. It is assumed the
                  output will not generate lines over 132 columns.
@@ -461,53 +532,51 @@ Example:
 .PP
 .nf
 .fam C
-    prep A=10 B C D -o paper
-    $define z=22
-    $show B Z
-    $show
-    $show H*;*H;*H* ! show beginning with "H", ending with "H", containing "H"
-    $stop 0
+    > prep A=10 B C D -o paper
+    > $define z=22
+    > $show B Z
+    > $show
+    > $show H*;*H;*H*! show beginning with "H", ending with "H", containing "H"
+    > $stop 0
 
-.nf
-.fam C
-     > !  B  =  1
-     > !  Z  =  22
-     > !================================================================
-     > !
-     > ! Current state of prep(1):(18:39 20 Jun 2021)
-     > ! Total lines read \.\.\............. 2
-     > ! Conditional nesting level\.\.\..... 0
-     > ! G_WRITE (general processing)\.\.\.. T
-     > ! G_LLWRITE (write input lines)\.\.\. T
-     > ! Arguments \.\.\.................... A=10 B C D -o paper
-     > ! Open files:
-     > !    unit ! line number ! filename
-     > !       5 !           2 ! @
-     > ! INCLUDE directories:
-     > !    .
-     > ! Variables:
-     > !    $DEFINE UNKNOWN  =  0
-     > !    $DEFINE LINUX  =  1
-     > !    $DEFINE MACOS  =  2
-     > !    $DEFINE WINDOWS  =  3
-     > !    $DEFINE CYGWIN  =  4
-     > !    $DEFINE SOLARIS  =  5
-     > !    $DEFINE FREEBSD  =  6
-     > !    $DEFINE OPENBSD  =  7
-     > !    $DEFINE OS  =  1
-     > !    $DEFINE A  =  10
-     > !    $DEFINE B  =  1
-     > !    $DEFINE C  =  1
-     > !    $DEFINE D  =  1
-     > !    $DEFINE Z  =  22
-     > ! Parcels:
-     > !================================================================
+    > !  B  =  1
+    > !  Z  =  22
+    > !================================================================
+    > !
+    > ! Current state of prep(1):(18:39 20 Jun 2021)
+    > ! Total lines read \.\.\............. 2
+    > ! Conditional nesting level\.\.\..... 0
+    > ! G_WRITE (general processing)\.\.\.. T
+    > ! G_LLWRITE (write input lines)\.\.\. T
+    > ! Arguments \.\.\.................... A=10 B C D -o paper
+    > ! Open files:
+    > !    unit ! line number ! filename
+    > !       5 !           2 ! @
+    > ! INCLUDE directories:
+    > !    .
+    > ! Variables:
+    > !    $DEFINE UNKNOWN  =  0
+    > !    $DEFINE LINUX  =  1
+    > !    $DEFINE MACOS  =  2
+    > !    $DEFINE WINDOWS  =  3
+    > !    $DEFINE CYGWIN  =  4
+    > !    $DEFINE SOLARIS  =  5
+    > !    $DEFINE FREEBSD  =  6
+    > !    $DEFINE OPENBSD  =  7
+    > !    $DEFINE OS  =  1
+    > !    $DEFINE A  =  10
+    > !    $DEFINE B  =  1
+    > !    $DEFINE C  =  1
+    > !    $DEFINE D  =  1
+    > !    $DEFINE Z  =  22
+    > ! Parcels:
+    > !================================================================
 
 .fam T
 .fi
-$STOP [stop_value [message]]
+$STOP [stop_value ["message"]]
 .PP
-Stops input file processing. An optional integer value will be returned
+Stops the \fBprep\fP(1) program. An optional integer value will be returned
 as a status value to the system where supported.
 .IP \(bu 3
 A value of "0" causes normal program termination.
@@ -521,11 +590,19 @@ state like a "$SHOW" directive.
 .PP
 "$QUIT" is an alias for "$STOP 0".
 .PP
+.nf
+.fam C
+     >$IFNDEF TYPE
+     >$STOP 10 "ERROR: ""TYPE"" not defined"
+     >$ENDIF
+
+.fam T
+.fi
 $SYSTEM system_command
 .PP
 If system command processing is enabled using the \fB--system\fP switch system
 commands can be executed for such tasks as creating files to be read or to
-further process documents created by $BLOCK. $SYSTEM directives are ignored
+further process documents created by $BLOCK. $SYSTEM directives are errors
 by default; as you clearly need to ensure the input file is trusted before
 before allowing commands to be executed. Commands that are system-specific
 may need to be executed conditionally as well.
@@ -534,74 +611,17 @@ Examples:
 .PP
 .nf
 .fam C
-    $! build variable definitions using GNU/Linux commands
-    $SYSTEM echo system=`hostname` > compiled.h
-    $SYSTEM echo compile_time="`date`" >> compiled.h
-    $INCLUDE compiled.h
+    > $! build variable definitions using GNU/Linux commands
+    > $SYSTEM echo system=`hostname` > compiled.h
+    > $SYSTEM echo compile_time="`date`" >> compiled.h
+    > $INCLUDE compiled.h
 
-    $! obtain up-to-date copy of source file from HTTP server:
-    $SYSTEM wget http://repository.net/src/func.F90 -O - >_tmp.f90
-    $INCLUDE _tmp.f90
-    $SYSTEM  rm _tmp.f90
-
-.fam T
-.fi
-$UNDEFINE variable_name[; \.\.\.]
-.PP
-A symbol defined with $DEFINE can be removed with the $UNDEFINE directive.
-Multiple names may be specified, preferably separated by semi-colons.
-.PP
-Basic globbing is supported, where "*" represents any string, and "?"
-represents any single character.
-.PP
-\fBDEFINED\fP(variable_name)
-.PP
-A special function called \fBDEFINED\fP() may appear only in a $IF or $ELSEIF.
-If "variable_name" has been defined at that point in the source code,
-then the function value is ".TRUE.", otherwise it is ".FALSE.". A name is
-defined only if it has appeared in the source previously in a $DEFINE
-directive or been declared on the command line.
-The names used in compiler directives are district from names in the
-FORTRAN source, which means that "a" in a $DEFINE and "a" in a FORTRAN
-source statement are totally unrelated.
-The \fBDEFINED\fP() parameter is NOT valid in a $DEFINE directive.
-.PP
-Example:
-.PP
-.nf
-.fam C
-    >        Program test
-    > $IF .NOT. DEFINED (inc)
-    >        INCLUDE ''comm.inc''
-    > $ELSE
-    >        INCLUDE ''comm2.inc''
-    > $ENDIF
-    >        END
-
-.fam T
-.fi
-The file, "comm.inc" will be included in the source if the parameter,
-"inc", has not been previously defined, while INCLUDE "comm2.inc" will
-be included in the source if "inc" has been previously defined. This is
-useful for setting up a default inclusion.
-.PP
-Predefined variables are
-.PP
-.nf
-.fam C
-    UNKNOWN = 0 LINUX   = 1 MACOS   = 2 WINDOWS = 3
-    CYGWIN  = 4 SOLARIS = 5 FREEBSD = 6 OPENBSD = 7
-    In addition OS is set to what the program guesses the system type is.
-
-.nf
-.fam C
-     > $if OS == LINUX
-     >    write(*,*)"System type is Linux"
-     > $elseif OS == WINDOWS
-     >    write(*,*)"System type is MSWindows"
-     > $else
-     >    write(*,*)"System type is unknown"
-     > $endif
+    > $if systemon ! if --system switch is prsent on command line
+    > $!  obtain up-to-date copy of source file from HTTP server:
+    > $   SYSTEM wget http://repository.net/src/func.F90 -O - >_tmp.f90
+    > $   INCLUDE _tmp.f90
+    > $   SYSTEM  rm _tmp.f90
+    > $endif
 
 .fam T
 .fi
@@ -618,12 +638,11 @@ more than two levels typically makes input files less readable.
 $BLOCK is required after a $BLOCK or \fB--file\fP FILENAME is not written.
 .PP
 Nesting of $BLOCK sections not allowed.
-.RE
+$INCLUDE may be nested fifty (50) levels.
 .PP
 Input files
-.RS
 .IP \(bu 3
-lines are limited to 1024 columns by default. Text past the limit is
+lines are limited to a maximum of 1024 columns. Text past the limit is
 ignored.
 .IP \(bu 3
 files cannot be concurrently opened multiple times
@@ -631,10 +650,8 @@ files cannot be concurrently opened multiple times
 a maximum of 50 files can be nested by $INCLUDE
 .IP \(bu 3
 filenames cannot contain spaces on the command line.
-.RE
 .PP
 Variable names
-.RS
 .IP \(bu 3
 are limited to 31 characters.
 .IP \(bu 3
@@ -655,7 +672,7 @@ Define variables on command line:
 
 .nf
 .fam C
-     prep HP size=64 -i hp_directives.dirs test.F90 -o test_out.f90
+    > prep HP size=64 -i hp_directives.dirs test.F90 -o test_out.f90
 
 .fam T
 .fi

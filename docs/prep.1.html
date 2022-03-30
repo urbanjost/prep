@@ -154,11 +154,11 @@ The syntax for the directive lines is as follows:
      $UNDEFINE|$UNDEF variable_name [;&#46;&#46;&#46;]                [! comment ]
 <P>
     :CONDITIONAL CODE SELECTION
-     $IF  logical integer-based expression |
+     $IF  logical_integer-based expression |
      $IFDEF variable_name |
      $IFNDEF variable_name                                [! comment ]
              { sequence of source statements}
-     [$ELSEIF|$ELIF logical integer-based expression      [! comment ]
+     [$ELSEIF|$ELIF logical_integer-based expression      [! comment ]
              { sequence of source statements}]
      [$ELSE                                               [! comment ]
              { sequence of source statements}]
@@ -189,8 +189,8 @@ The syntax for the directive lines is as follows:
      $SYSTEM   system_command
 <P>
     :PROGRAM TERMINATION
-     $STOP     [stop_value [message]]                     [! comment ]
-     $QUIT                                                [! comment ]
+     $STOP     [stop_value ["message"]]                   [! comment ]
+     $QUIT     ["message"]                                [! comment ]
 <P>
 </PRE>
 </BLOCKQUOTE>
@@ -231,10 +231,10 @@ it is assumed to be a literal character.
 </TD></TR>
 <TR valign=top><TD colspan=2>
 <B></B><B>--noenv</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-The $IFDEF and $IFNDEF directives test for an
-internal <B>prep</B>(1) variable and then an
-environment variable by default. This option
-turns off testing for environment variables.
+The $IFDEF and $IFNDEF directives test for an interal
+<B>prep</B>(1) variable and then an environment variable by
+by default. This option turns off testing for enviroment
+variables.
 </TD></TR>
 <TR valign=top><TD colspan=2>
 <B></B><B>--type</B> FILETYPE </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
@@ -320,8 +320,8 @@ compiling fixed-format Fortran source.
 <TR valign=top><TD colspan=2>
 <B></B><B>--width</B> <I>n</I> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
 Maximum line length of the output file. The default is 1024.
-Typically used to trim fixed-format FORTRAN code that
-contains comments or "ident" labels past column 72
+The parameter is yypically used to trim fixed-format FORTRAN
+code that contains comments or "ident" labels past column 72
 when compiling fixed-format Fortran code.
 </TD></TR>
 <TR valign=top><TD colspan=2>
@@ -370,13 +370,67 @@ warning is produced if the variable is already defined.
 Example:
 <P>
 <PRE>
-    $define A=1
-    $define B = 10 - 1
-    $define C=1+1; D=(-40)/(-10)
-    $define bigd=d.ge.a; bigb = b &gt;= c && b &gt; 0
-    $if ( A + B ) / C .eq. 1
-       (a+b)/c is one
-    $endif
+    &gt; $define A=1
+    &gt; $define B = 10 - 1
+    &gt; $define C=1+1; D=(-40)/(-10)
+    &gt; $define bigd=d.ge.a; bigb = b &gt;= c && b &gt; 0
+    &gt; $if ( A + B ) / C .eq. 1
+    &gt;    (a+b)/c is one
+    &gt; $endif
+<P>
+</PRE>
+$UNDEFINE variable_name[; &#46;&#46;&#46;]
+<P>
+A symbol defined with $DEFINE can be removed with the $UNDEFINE directive.
+Multiple names may be specified, preferably separated by semi-colons.
+<P>
+Basic globbing is supported, where "*" represents any string, and "?"
+represents any single character.
+<P>
+<B>DEFINED</B>(variable_name)
+<P>
+A special function called <B>DEFINED</B>() may appear only in a $IF or $ELSEIF.
+If "variable_name" has been defined at that point in the source code,
+then the function value is ".TRUE.", otherwise it is ".FALSE.". A name is
+defined only if it has appeared in the source previously in a $DEFINE
+directive or been declared on the command line.
+The names used in compiler directives are district from names in the
+FORTRAN source, which means that "a" in a $DEFINE and "a" in a FORTRAN
+source statement are totally unrelated.
+The <B>DEFINED</B>() parameter is NOT valid in a $DEFINE directive.
+<P>
+Example:
+<P>
+<PRE>
+    &gt;        Program test
+    &gt; $IF .NOT. DEFINED (inc)
+    &gt;        INCLUDE "comm.inc"
+    &gt; $ELSE
+    &gt;        INCLUDE "comm2.inc"
+    &gt; $ENDIF
+    &gt;        END
+<P>
+</PRE>
+The file, "comm.inc" will be included in the source if the variable
+"inc", has not been previously defined, while INCLUDE "comm2.inc" will
+be included in the source if "inc" has been defined.
+<P>
+Predefined variables are
+<P>
+<PRE>
+    SYSTEMON = 1 if the --system switch was used on the command line, else 0.
+<P>
+    UNKNOWN = 0 LINUX   = 1 MACOS   = 2 WINDOWS = 3
+    CYGWIN  = 4 SOLARIS = 5 FREEBSD = 6 OPENBSD = 7
+    In addition OS is set to what the program guesses the system type is.
+<P>
+     &gt; $if OS == LINUX
+     &gt;    write(*,*)"System type is Linux"
+     &gt; $elseif OS == WINDOWS
+     &gt;    write(*,*)"System type is MSWindows"
+     &gt; $else
+     &gt;    write(*,*)"System type is unknown"
+     &gt; $endif
 <P>
 </PRE>
 $IF/$ELSEIF/$ELSE/$ENDIF directives
@@ -392,7 +446,9 @@ conditional block.
 $IFDEF/$IFNDEF directives
 <P>
 $IFDEF and $IFNDEF are special forms of the $IF directive that simply test
-if a variable name is defined or not. Essentially, these are equivalent:
+if a variable name is defined or not.
+<P>
+Essentially, these are equivalent:
 <P>
 <PRE>
      $IFDEF varname  ==&gt; $IF DEFINED(varname)
@@ -403,16 +459,26 @@ except that environment variables are tested as well by $IFDEF and $IFNDEF
 if the <B>--noenv</B> option is not specified, but never by the function <B>DEFINED</B>(),
 allowing for environment variables to be selectively used or ignored.
 The <B>--noenv</B> switch is therefore only needed for compatibility with <B>fpp</B>(1).
+For the purposes of <B>prep</B>(1) an environment variable is defined if it is
+returned by the system and has a non-blank value.
 <P>
 $IDENT metadata [-language fortran|c|shell]
 <P>
-This is a special-purpose directive used only by users of SCCS-metadata.
-This string is generally included for use with the <B>what</B>(1) command, and
-is ignored unless "<B>-ident</B>" is specified on the command line.
-<P>
+$IDENT is a special-purpose directive generally used only by users of
+<TABLE cellpadding=3><!-- tsb: $IDENT is a special-purpose directive generally used only by users of
+ -->
+<TR></TR><TR></TR>
+<TR valign=top><TD colspan=2>
+<B>SCCS-metadata.</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+This string is generally included for use with the
+<B>what</B>(1) command, and generates a comment if "<B>-ident</B>" is not specified
+on the command line.
+</TD></TR>
+<TR><TD colspan=2>
 When the command line option "<B>-ident</B>" is specified this directive
 writes a line using SCCS-metadata format of one of the following forms:
-<P>
+</TD></TR>
+<TR><TD colspan=2>
 <PRE>
      language:
      fortran   character(len=*),parameter::ident="@(#)metadata"
@@ -423,69 +489,85 @@ writes a line using SCCS-metadata format of one of the following forms:
 "$@(#)" is an alias for "$IDENT" so the source file itself will contain
 SCCS-metadata so the metadata can be displayed with <B>what</B>(1) even for the
 unprocessed files.
-<P>
+</TD></TR>
+<TR><TD colspan=2>
 The default language is "fortran". Depending on your compiler and the
 optimization level used when compiling, the output strings may or may not
 remain in the object files and executables created.
-<P>
+</TD></TR>
+<TR><TD colspan=2>
 Do not use the characters double-quote, greater-than, backslash (ie. "&gt;\)
 in the metadata to remain compatible with SCCS metadata syntax.
 Do not use strings starting with " -" either.
-<P>
+</TD></TR>
+<TR><TD colspan=2>
 $OUTPUT filename [-append [.true.|.false.]]
-<P>
-Specify the output file to write to. This Overrides the initial output file
+</TD></TR>
+<TR><TD colspan=2>
+Specify the output file to write to. This overrides the initial output file
 specified with command line options. If no output filename is given
-revert back to the initial output file. @ is a synonym for stdout.
-<P>
+<B>prep</B>(1) reverts back to the initial output file. @ is a synonym for stdout.
+</TD></TR>
+<TR><TD colspan=2>
 Files open at the beginning by default. Use the <B>-append</B> switch to
 append to the end of an existing file instead of overwriting it.
-<P>
+</TD></TR>
+<TR><TD colspan=2>
 $INCLUDE filename
-<P>
+</TD></TR>
+<TR><TD colspan=2>
 Read in the specified input file. Fifty (50) nesting levels are allowed.
 Following the tradition of <B>cpp</B>(1) if "&lt;filename&gt;" is specified the file is
 only searched for relative to the search directories, otherwise it is
 searched for as specified first. Double-quotes are treated as in Fortran
 list-directed input.
-<P>
+</TD></TR>
+<TR><TD colspan=2>
 $PARCEL [name]
-<P>
+</TD></TR>
+<TR><TD colspan=2>
 The lines between a "$PARCEL name" and "$PARCEL" block are written to a
-scratch file WITHOUT expanding directives.the file can then be read in with
-the $POST directive much like a named file can be with $INCLUDE.
-<P>
+scratch file WITHOUT expanding directives. the scratch file can then be read
+in with the $POST directive much like a named file can be with $INCLUDE,
+except the scratch file is automatically deleted at program termination.
+</TD></TR>
+<TR><TD colspan=2>
 $POST name
-<P>
+</TD></TR>
+<TR><TD colspan=2>
 Read in the scratch file created by the $PARCEL directive. Combined with
 $SET and $IMPORT directives this allows you to replay a section of input
 and replace strings as a simple templating technique, or to repeat lines
 like copyright information or definitions of (obsolescent) Fortran COMMON
-blocks.without the need for INCLUDE files.
-<P>
+blocks, put contained in source files without the need for separate
+INCLUDE files if all uses are expanded by the current run of <B>prep</B>(1).
+</TD></TR>
+<TR><TD colspan=2>
 $SET name string
-<P>
+</TD></TR>
+<TR><TD colspan=2>
 If a $SET directive defines a name <B>prep</B>(1) enters expansion mode. In this
 mode anywhere the string "${NAME}" is encountered in subsequent output it
 is replaced by "string". Comments should not be used on a $SET directive.
 Note expansion of a line may cause it to be longer than allowed by some
 compilers. Automatic breaking into continuation lines does not occur.
-<P>
+</TD></TR>
+<TR><TD colspan=2>
 IF A $SET DIRECTIVE HAS BEEN DEFINED the "standard" preprocessor values
 ${FILE}, ${LINE}, ${DATE}, and ${TIME} are also available. The time
 refers to the time of processing, not the time of compilation or loading.
-<P>
+</TD></TR>
+<TR><TD colspan=2>
 $IMPORT name[;&#46;&#46;&#46;]
-<P>
+</TD></TR>
+<TR><TD colspan=2>
 The values of environment variables may be imported just like their names
 and values were used on a $SET directive. The names of the variables are
 case-sensitive in regards to obtaining the values, but the names become
 values, but the names because case-insensitive in <B>prep</B>(). That is,
 "import home" gets the lowercase environment variable "home" and then sets
 the associated value and then sets the <B>prep</B>(1) variable "HOME" to the value.
-<TABLE cellpadding=3><!-- tsb: The values of environment variables may be imported just like their names
- -->
-<TR></TR><TR></TR>
+</TD></TR>
 <TR valign=top><TD colspan=2>
 <B>$BLOCK [comment|null|write|help|version</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
 [-file NAME [-append]]
@@ -493,12 +575,14 @@ or
 </TD></TR>
 <TR valign=top><TD colspan=2>
 <B>$BLOCK VARIABLE </B><B>--varname</B> NAME </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-[-<B>-file</B> NAME]
+[-<B>-file</B> NAME [-append]]
 </TD></TR>
 <TR><TD colspan=2>
 <PRE>
       NULL:      Do not write into current output file
-      COMMENT:   write text prefixed by an exclamation and a space
+      COMMENT:   write text prefixed by an exclamation and a space or according
+                 to the style selected by the --comment style selected on the
+                 command line.
       WRITE:     write text as Fortran WRITE(3f) statements
                  The Fortran generated is free-format. It is assumed the
                  output will not generate lines over 132 columns.
@@ -554,51 +638,51 @@ Example:
 </TD></TR>
 <TR><TD colspan=2>
 <PRE>
-    prep A=10 B C D -o paper
-    $define z=22
-    $show B Z
-    $show
-    $show H*;*H;*H* ! show beginning with "H", ending with "H", containing "H"
-    $stop 0
+    &gt; prep A=10 B C D -o paper
+    &gt; $define z=22
+    &gt; $show B Z
+    &gt; $show
+    &gt; $show H*;*H;*H*! show beginning with "H", ending with "H", containing "H"
+    &gt; $stop 0
 <P>
-     &gt; !  B  =  1
-     &gt; !  Z  =  22
-     &gt; !================================================================
-     &gt; !
-     &gt; ! Current state of prep(1):(18:39 20 Jun 2021)
-     &gt; ! Total lines read &#46;&#46;&#46;............ 2
-     &gt; ! Conditional nesting level&#46;&#46;&#46;.... 0
-     &gt; ! G_WRITE (general processing)&#46;&#46;&#46;. T
-     &gt; ! G_LLWRITE (write input lines)&#46;&#46;&#46; T
-     &gt; ! Arguments &#46;&#46;&#46;................... A=10 B C D -o paper
-     &gt; ! Open files:
-     &gt; !    unit ! line number ! filename
-     &gt; !       5 !           2 ! @
-     &gt; ! INCLUDE directories:
-     &gt; !    .
-     &gt; ! Variables:
-     &gt; !    $DEFINE UNKNOWN  =  0
-     &gt; !    $DEFINE LINUX  =  1
-     &gt; !    $DEFINE MACOS  =  2
-     &gt; !    $DEFINE WINDOWS  =  3
-     &gt; !    $DEFINE CYGWIN  =  4
-     &gt; !    $DEFINE SOLARIS  =  5
-     &gt; !    $DEFINE FREEBSD  =  6
-     &gt; !    $DEFINE OPENBSD  =  7
-     &gt; !    $DEFINE OS  =  1
-     &gt; !    $DEFINE A  =  10
-     &gt; !    $DEFINE B  =  1
-     &gt; !    $DEFINE C  =  1
-     &gt; !    $DEFINE D  =  1
-     &gt; !    $DEFINE Z  =  22
-     &gt; ! Parcels:
-     &gt; !================================================================
+    &gt; !  B  =  1
+    &gt; !  Z  =  22
+    &gt; !================================================================
+    &gt; !
+    &gt; ! Current state of prep(1):(18:39 20 Jun 2021)
+    &gt; ! Total lines read &#46;&#46;&#46;............ 2
+    &gt; ! Conditional nesting level&#46;&#46;&#46;.... 0
+    &gt; ! G_WRITE (general processing)&#46;&#46;&#46;. T
+    &gt; ! G_LLWRITE (write input lines)&#46;&#46;&#46; T
+    &gt; ! Arguments &#46;&#46;&#46;................... A=10 B C D -o paper
+    &gt; ! Open files:
+    &gt; !    unit ! line number ! filename
+    &gt; !       5 !           2 ! @
+    &gt; ! INCLUDE directories:
+    &gt; !    .
+    &gt; ! Variables:
+    &gt; !    $DEFINE UNKNOWN  =  0
+    &gt; !    $DEFINE LINUX  =  1
+    &gt; !    $DEFINE MACOS  =  2
+    &gt; !    $DEFINE WINDOWS  =  3
+    &gt; !    $DEFINE CYGWIN  =  4
+    &gt; !    $DEFINE SOLARIS  =  5
+    &gt; !    $DEFINE FREEBSD  =  6
+    &gt; !    $DEFINE OPENBSD  =  7
+    &gt; !    $DEFINE OS  =  1
+    &gt; !    $DEFINE A  =  10
+    &gt; !    $DEFINE B  =  1
+    &gt; !    $DEFINE C  =  1
+    &gt; !    $DEFINE D  =  1
+    &gt; !    $DEFINE Z  =  22
+    &gt; ! Parcels:
+    &gt; !================================================================
 <P>
 </PRE>
-$STOP [stop_value [message]]
+$STOP [stop_value ["message"]]
 </TD></TR>
 <TR><TD colspan=2>
-Stops input file processing. An optional integer value will be returned
+Stops the <B>prep</B>(1) program. An optional integer value will be returned
 as a status value to the system where supported.
 </TD></TR>
 <TR></TR></TABLE><TABLE cellpadding=3>
@@ -625,11 +709,17 @@ state like a "$SHOW" directive.
 </TD></TR>
 <TR></TR></TABLE>"$QUIT" is an alias for "$STOP 0".
 <P>
+<PRE>
+     &gt;$IFNDEF TYPE
+     &gt;$STOP 10 "ERROR: ""TYPE"" not defined"
+     &gt;$ENDIF
+<P>
+</PRE>
 $SYSTEM system_command
 <P>
 If system command processing is enabled using the <B>--system</B> switch system
 commands can be executed for such tasks as creating files to be read or to
-further process documents created by $BLOCK. $SYSTEM directives are ignored
+further process documents created by $BLOCK. $SYSTEM directives are errors
 by default; as you clearly need to ensure the input file is trusted before
 before allowing commands to be executed. Commands that are system-specific
 may need to be executed conditionally as well.
@@ -637,68 +727,17 @@ may need to be executed conditionally as well.
 Examples:
 <P>
 <PRE>
-    $! build variable definitions using GNU/Linux commands
-    $SYSTEM echo system=&#145;hostname&#145; &gt; compiled.h
-    $SYSTEM echo compile_time="&#145;date&#145;" &gt;&gt; compiled.h
-    $INCLUDE compiled.h
+    &gt; $! build variable definitions using GNU/Linux commands
+    &gt; $SYSTEM echo system=&#145;hostname&#145; &gt; compiled.h
+    &gt; $SYSTEM echo compile_time="&#145;date&#145;" &gt;&gt; compiled.h
+    &gt; $INCLUDE compiled.h
 <P>
-    $! obtain up-to-date copy of source file from HTTP server:
-    $SYSTEM wget <A HREF="http://repository.net/src/func.F90">http://repository.net/src/func.F90</A> -O - &gt;_tmp.f90
-    $INCLUDE _tmp.f90
-    $SYSTEM  rm _tmp.f90
-<P>
-</PRE>
-$UNDEFINE variable_name[; &#46;&#46;&#46;]
-<P>
-A symbol defined with $DEFINE can be removed with the $UNDEFINE directive.
-Multiple names may be specified, preferably separated by semi-colons.
-<P>
-Basic globbing is supported, where "*" represents any string, and "?"
-represents any single character.
-<P>
-<B>DEFINED</B>(variable_name)
-<P>
-A special function called <B>DEFINED</B>() may appear only in a $IF or $ELSEIF.
-If "variable_name" has been defined at that point in the source code,
-then the function value is ".TRUE.", otherwise it is ".FALSE.". A name is
-defined only if it has appeared in the source previously in a $DEFINE
-directive or been declared on the command line.
-The names used in compiler directives are district from names in the
-FORTRAN source, which means that "a" in a $DEFINE and "a" in a FORTRAN
-source statement are totally unrelated.
-The <B>DEFINED</B>() parameter is NOT valid in a $DEFINE directive.
-<P>
-Example:
-<P>
-<PRE>
-    &gt;        Program test
-    &gt; $IF .NOT. DEFINED (inc)
-    &gt;        INCLUDE &#146;&#146;comm.inc&#146;&#146;
-    &gt; $ELSE
-    &gt;        INCLUDE &#146;&#146;comm2.inc&#146;&#146;
-    &gt; $ENDIF
-    &gt;        END
-<P>
-</PRE>
-The file, "comm.inc" will be included in the source if the parameter,
-"inc", has not been previously defined, while INCLUDE "comm2.inc" will
-be included in the source if "inc" has been previously defined. This is
-useful for setting up a default inclusion.
-<P>
-Predefined variables are
-<P>
-<PRE>
-    UNKNOWN = 0 LINUX   = 1 MACOS   = 2 WINDOWS = 3
-    CYGWIN  = 4 SOLARIS = 5 FREEBSD = 6 OPENBSD = 7
-    In addition OS is set to what the program guesses the system type is.
-<P>
-     &gt; $if OS == LINUX
-     &gt;    write(*,*)"System type is Linux"
-     &gt; $elseif OS == WINDOWS
-     &gt;    write(*,*)"System type is MSWindows"
-     &gt; $else
-     &gt;    write(*,*)"System type is unknown"
-     &gt; $endif
+    &gt; $if systemon ! if --system switch is prsent on command line
+    &gt; $!  obtain up-to-date copy of source file from HTTP server:
+    &gt; $   SYSTEM wget <A HREF="http://repository.net/src/func.F90">http://repository.net/src/func.F90</A> -O - &gt;_tmp.f90
+    &gt; $   INCLUDE _tmp.f90
+    &gt; $   SYSTEM  rm _tmp.f90
+    &gt; $endif
 <P>
 </PRE>
 $MESSAGE message
@@ -720,17 +759,16 @@ more than two levels typically makes input files less readable.
 $BLOCK is required after a $BLOCK or <B>--file</B> FILENAME is not written.
 <P>
 Nesting of $BLOCK sections not allowed.
-</BLOCKQUOTE>
+$INCLUDE may be nested fifty (50) levels.
 <P>
 Input files
-<BLOCKQUOTE>
 <TABLE cellpadding=3><!-- tsb: Input files
  -->
 <TR></TR><TR></TR>
 <TR valign=top><TD width=3%>
 o
 </TD><TD>
-lines are limited to 1024 columns by default. Text past the limit is
+lines are limited to a maximum of 1024 columns. Text past the limit is
 ignored.
 </TD></TR>
 <TR valign=top><TD width=3%>
@@ -748,10 +786,7 @@ o
 </TD><TD>
 filenames cannot contain spaces on the command line.
 </TD></TR>
-<TR></TR></TABLE></BLOCKQUOTE>
-<P>
-Variable names
-<BLOCKQUOTE>
+<TR></TR></TABLE>Variable names
 <TABLE cellpadding=3><!-- tsb: Variable names
  -->
 <TR></TR><TR></TR>
@@ -790,7 +825,7 @@ Define variables on command line:
    invoked but can be grouped together into small files that are included
    with a $INCLUDE or as input files.
 <P>
-     prep HP size=64 -i hp_directives.dirs test.F90 -o test_out.f90
+    &gt; prep HP size=64 -i hp_directives.dirs test.F90 -o test_out.f90
 <P>
 </PRE>
 <BLOCKQUOTE>

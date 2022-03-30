@@ -1,13 +1,13 @@
 # prep(1)
-## A Fortran code pre-processor
+## A Fortran code pre-processor written in Fortran
 
-## DOCUMENTATION   ![docs](docs/images/docs.gif)
+## Documentation   ![docs](docs/images/docs.gif)
  + [man-pages](https://urbanjost.github.io/prep/prep.1.html) reformatted as HTML.
  + the [demos/](demos/) directory has example input files for a variety of cases
  + The [CHANGELOG](docs/CHANGELOG.md)
  + The [CI/CD](docs/STATUS.md) results
 
-## DESCRIPTION
+## Description
 `prep(1)` is a streamlined pre-processor primarily designed for use
 with Fortran.  It does not support procedural macros but does support
 variable substitution and reusable free-format text blocks which allows for
@@ -30,7 +30,7 @@ of the source code in a variety of formats via the __$BLOCK__ directive.
 Feedback is welcome.
 [**leave a comment!**](https://github.com/urbanjost/prep/wiki/Fortran-pre-processing)
 
-## EXAMPLE SHOWING TEMPLATING
+## Example Showing Templating
 
 The most distinct feature of **prep(1)** compared to basic preprocessors is the
 ability to define a block of text and apply special processing to it to simplify
@@ -129,12 +129,10 @@ end module M_testit
 !
 ```
 
-## BUILDING
+## Building
 To build it requires `git`, `fpm`(Fortran Package Manager), a modern
 Fortran compiler and WWW access or you will need to compile the single-file
 [bootstrap version](bootstrap/prep.f90). It was tested with
-
-Copyright (C) 1985-2021 Intel Corporation.  All rights reserved.
 
    + GNU Fortran (GCC) 8.3.1         on 20191121
    + GNU Fortran 9.3.0               on 20210612
@@ -142,7 +140,11 @@ Copyright (C) 1985-2021 Intel Corporation.  All rights reserved.
    + ifort (IFORT) 19.1.3.304        on 20200925
    + ifort (IFORT) 2021.3.0 20210609 on 20220305
 
-## ACCESSING
+In addition, the standalone version was tested with
+
+   + nvfortran 21.5-0                on 20220329
+
+## Accessing
 ```bash
    # go to where you want to create the `prep` directory. For example:
    mkdir github
@@ -152,9 +154,9 @@ Copyright (C) 1985-2021 Intel Corporation.  All rights reserved.
    # enter the repository directory
    cd prep
 ```
-## BUILDING AND INSTALLING
+## Building and Installing
 ```bash
-   # install (in the default location)
+   # build and install (in the default location) using fpm(1)
    fpm install
 ```
 or
@@ -166,13 +168,13 @@ or
    # example of moving to a location in your path
    mv prep $HOME/.local/bin/
 ```
-## TRY IT
+## Try It
 ```bash
    # if you placed the program in a directory in your command path you are ready to go!
    prep --help
 ```
 
-## HOMEPAGE
+## Homepage
 https://github.com/urbanjost/prep.git
 
 <!--

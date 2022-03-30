@@ -20,6 +20,7 @@ allocate(tally(0))
    call stop()
    call message()
    call output()
+   call env()
    if(all(tally))then
       write(*,'(a)')'ALL PREP TESTS PASSED'
    else
@@ -561,5 +562,21 @@ open(file='_scratch_output',newunit=lun,iostat=ios)
 close(unit=lun,iostat=ios,status='delete')
 
 end subroutine output
+!===============================================================================
+subroutine env()
+character(len=4096)       :: home_value
+integer                   :: istatus
+
+data=[ character(len=132) :: &
+"$IMPORT HOME             ", &
+"${HOME}"]
+
+home_value=''
+call get_environment_variable('HOME',home_value,status=istatus)
+expected=[ character(len=132) :: home_value]
+
+call teardown('env')
+
+end subroutine env
 !===============================================================================
 end program test_prep
