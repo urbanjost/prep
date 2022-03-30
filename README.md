@@ -9,7 +9,7 @@
 
 ## Description
 `prep(1)` is a streamlined pre-processor primarily designed for use
-with Fortran.  It does not support procedural macros but does support
+with Fortran. It does not support procedural macros but does support
 variable substitution and reusable free-format text blocks which allows for
 basic templating as well as easy construction of multi-line CHARACTER
 variables; and is quite capable of supporting traditional conditional
