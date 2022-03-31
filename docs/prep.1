@@ -11,6 +11,8 @@
 .nr IN 0.2i
 ." -----------------------------------------------------------------
 .RS
+Project is up to date
+Project is up to date
 .SH NAME
 \fBprep\fP(1) - [DEVELOPER] pre-process FORTRAN source files
 (LICENSE:MIT)
@@ -445,7 +447,7 @@ $SET and $IMPORT directives this allows you to replay a section of input
 and replace strings as a simple templating technique, or to repeat lines
 like copyright information or definitions of (obsolescent) Fortran COMMON
 blocks, put contained in source files without the need for separate
-INCLUDE files if all uses are expanded by the current run of \fBprep\fP(1).
+INCLUDE files or error-prone repetition of the declarations.
 .PP
 $SET name string
 .PP
@@ -799,6 +801,12 @@ That is, unless a variable name is defined no ${NAME} expansion occurs.
 
 .fam T
 .fi
+.SH NOTE
+Not documented elsewhere, note that there is a developer flag (\fB--debug\fP) that
+can be useful when learning proper \fBprep\fP(1) uage (but it should not be used in
+production). Among other things it deactivates the termination of the program
+upone detection of an error. This mode thus allows for simple interactive use.
+In addition, when in this mode entering "$HELP" produces a cribsheet.
 .SH AUTHOR
 John S. Urban
 .SH LICENSE
