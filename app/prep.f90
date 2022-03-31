@@ -1,7 +1,6 @@
 ! CONSIDER
 ! make $OUTPUT file nestable
 ! allow multiple files on $INCLUDE
-! document $HELP and --debug?
 ! undocument $BLOCK HELP|VERSION?
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -2468,7 +2467,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   and replace strings as a simple templating technique, or to repeat lines     ',&
 '   like copyright information or definitions of (obsolescent) Fortran COMMON    ',&
 '   blocks, put contained in source files without the need for separate          ',&
-'   INCLUDE files if all uses are expanded by the current run of prep(1).        ',&
+'   INCLUDE files or error-prone repetition of the declarations.                 ',&
 '                                                                                ',&
 '   $SET name string                                                             ',&
 '                                                                                ',&
@@ -2762,6 +2761,12 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   > write(*,*)''Time ${TIME}''                                                 ',&
 '   > write(*,*)''HOME ${HOME}''                                                 ',&
 '                                                                                ',&
+'NOTE                                                                            ',&
+'  Not documented elsewhere, note that there is a developer flag (--debug) that  ',&
+'  can be useful when learning proper prep(1) uage (but it should not be used in ',&
+'  production). Among other things it deactivates the termination of the program ',&
+'  upone detection of an error. This mode thus allows for simple interactive use.',&
+'  In addition, when in this mode entering "$HELP" produces a cribsheet.         ',&
 'AUTHOR                                                                          ',&
 '   John S. Urban                                                                ',&
 '                                                                                ',&
@@ -2801,6 +2806,53 @@ help_text=[ CHARACTER(LEN=128) :: &
    call stop('0')
 endif
 end subroutine help_version
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!===================================================================================================================================
+subroutine short_help()
+implicit none
+!@(#)short_help(3f): prints help information"
+character(len=:),allocatable :: help_text(:)
+integer                        :: i
+help_text=[ CHARACTER(LEN=128) :: &
+"   > numeric operators are +,-,*,/,**, () are supported, logical operators are  ",&
+"   >  | .EQ.| .NE.| .GE.| .GT.| .LE.| .LT.|.NOT.|.AND.| .OR.| .EQV.|.NEQV.|     ",&
+"   >  |  == |  /= |  >= |  >  |  <= |  <  |  !  |  && |  || |  ==  |  !=  |     ",&
+"  $DEFINE|$REDEFINE variable_name[=expression][;...]                            ",&
+"   > Predefined values are                                                      ",&
+"   > UNKNOWN=0 LINUX=1 MACOS=2 WINDOWS=3 CYGWIN=4 SOLARIS=5 FREEBSD=6 OPENBSD=7 ",&
+"   > In addition OS is set to what the program guesses the system type is.      ",&
+"   > SYSTEMON is 1 if --system is used on the command line, else it is 0.       ",&
+"  $UNDEFINE|$UNDEF variable_name[;...]                                          ",&
+"CONDITIONAL CODE SELECTION                                                      ",&
+"  $IF logical_integer-based_expression | $IFDEF|$IFNDEF variable_name           ",&
+"  $IF DEFINED(varname) | $IF .NOT. DEFINED(varname) |                           ",&
+"  $ELSEIF|$ELIF logical_integer-based_expression                                ",&
+"  $ELSE                                                                         ",&
+"  $ENDIF                                                                        ",&
+"MACRO STRING EXPANSION AND TEXT REPLAY                                          ",&
+"  $SET varname string                                                           ",&
+"  $IMPORT envname[;...]                                                         ",&
+"   > Unless at least one variable name is defined no ${NAME} expansion occurs.  ",&
+"   > $set author  William Shakespeare                                           ",&
+"   > $import HOME                                                               ",&
+"   > write(*,*)'${AUTHOR} ${DATE} ${TIME} File ${FILE} Line ${LINE} HOME ${HOME}",&
+"  $PARCEL [blockname]  ! create a reuseable parcel of text that can be expanded ",&
+"  $POST   blockname  ! insert a defined parcel of text                          ",&
+"EXTERNAL FILES (see $BLOCK ... --file also)                                     ",&
+"  $OUTPUT filename [-append]                                                    ",&
+"  $INCLUDE filename                                                             ",&
+"TEXT BLOCK FILTERS                                                              ",&
+"  $BLOCK [comment|null|write|variable [-varname NAME]]|help|version             ",&
+"         [-file NAME [-append]]                                                 ",&
+"INFORMATION                                                                     ",&
+"  $MESSAGE message_to_stderr                                                    ",&
+"  $SHOW [defined_variable_name][;...]                                           ",&
+"SYSTEM COMMANDS                                                                 ",&
+"  $SYSTEM command                                                               ",&
+"  $STOP [stop_value[ ""message""]] | $QUIT [""message""]                           "]
+   WRITE(stderr,'(a)')(trim(help_text(i)),i=1,size(help_text))
+end subroutine short_help
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
@@ -3202,53 +3254,6 @@ integer                   :: n1
        ending=string(n1+1:)
    endif
 end function ends_in
-!===================================================================================================================================
-!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
-!===================================================================================================================================
-subroutine short_help()
-implicit none
-!@(#)short_help(3f): prints help information"
-character(len=:),allocatable :: help_text(:)
-integer                        :: i
-help_text=[ CHARACTER(LEN=128) :: &
-"   > numeric operators are +,-,*,/,**, () are supported, logical operators are  ",&
-"   >  | .EQ.| .NE.| .GE.| .GT.| .LE.| .LT.|.NOT.|.AND.| .OR.| .EQV.|.NEQV.|     ",&
-"   >  |  == |  /= |  >= |  >  |  <= |  <  |  !  |  && |  || |  ==  |  !=  |     ",&
-"  $DEFINE|$REDEFINE variable_name[=expression][;...]                            ",&
-"   > Predefined values are                                                      ",&
-"   > UNKNOWN=0 LINUX=1 MACOS=2 WINDOWS=3 CYGWIN=4 SOLARIS=5 FREEBSD=6 OPENBSD=7 ",&
-"   > In addition OS is set to what the program guesses the system type is.      ",&
-"   > SYSTEMON is 1 if --system is used on the command line, else it is 0.       ",&
-"  $UNDEFINE|$UNDEF variable_name[;...]                                          ",&
-"CONDITIONAL CODE SELECTION                                                      ",&
-"  $IF logical_integer-based_expression | $IFDEF|$IFNDEF variable_name           ",&
-"  $IF DEFINED(varname) | $IF .NOT. DEFINED(varname) |                           ",&
-"  $ELSEIF|$ELIF logical_integer-based_expression                                ",&
-"  $ELSE                                                                         ",&
-"  $ENDIF                                                                        ",&
-"MACRO STRING EXPANSION AND TEXT REPLAY                                          ",&
-"  $SET varname string                                                           ",&
-"  $IMPORT envname[;...]                                                         ",&
-"   > Unless at least one variable name is defined no ${NAME} expansion occurs.  ",&
-"   > $set author  William Shakespeare                                           ",&
-"   > $import HOME                                                               ",&
-"   > write(*,*)'${AUTHOR} ${DATE} ${TIME} File ${FILE} Line ${LINE} HOME ${HOME}",&
-"  $PARCEL blockname  ! create a reuseable parcel of text that can be expanded   ",&
-"  $POST   blockname  ! insert a defined parcel of text                          ",&
-"EXTERNAL FILES (see $BLOCK ... --file also)                                     ",&
-"  $OUTPUT filename [-append]                                                    ",&
-"  $INCLUDE filename                                                             ",&
-"TEXT BLOCK FILTERS                                                              ",&
-"  $BLOCK [comment|null|write|variable [-varname NAME]]|help|version             ",&
-"         [-file NAME [-append]]                                                 ",&
-"INFORMATION                                                                     ",&
-"  $MESSAGE message_to_stderr                                                    ",&
-"  $SHOW [defined_variable_name][;...]                                           ",&
-"SYSTEM COMMANDS                                                                 ",&
-"  $SYSTEM command                                                               ",&
-"  $STOP [stop_value[ ""message""]] | $QUIT [""message""]                           "]
-   WRITE(stderr,'(a)')(trim(help_text(i)),i=1,size(help_text))
-end subroutine short_help
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================

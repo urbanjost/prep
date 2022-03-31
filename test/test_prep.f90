@@ -8,19 +8,67 @@ integer                      :: i
 integer                      :: ierr
 logical,allocatable          :: tally(:)
 allocate(tally(0))
-   call conditionals()
-   call set()
-   call block()
+!>>    > numeric operators are +,-,*,/,**, () are supported, logical operators are
+!>>    >  | .EQ.| .NE.| .GE.| .GT.| .LE.| .LT.|.NOT.|.AND.| .OR.| .EQV.|.NEQV.|
+!>>    >  |  == |  /= |  >= |  >  |  <= |  <  |  !  |  && |  || |  ==  |  !=  |
    call expressions()
+
+!>>   $DEFINE|$REDEFINE variable_name[=expression][;...]
+!>>    > Predefined values are
+!>>    > UNKNOWN=0 LINUX=1 MACOS=2 WINDOWS=3 CYGWIN=4 SOLARIS=5 FREEBSD=6 OPENBSD=7
+!>>    > In addition OS is set to what the program guesses the system type is.
+!>>    > SYSTEMON is 1 if --system is used on the command line, else it is 0.
+!>>   $UNDEFINE|$UNDEF variable_name[;...]
    call define()
-   call block_2()
+
+!>> CONDITIONAL CODE SELECTION
+!>>   $IF logical_integer-based_expression | $IFDEF|$IFNDEF variable_name
+!>>   $IF DEFINED(varname) | $IF .NOT. DEFINED(varname) |
+!>>   $ELSEIF|$ELIF logical_integer-based_expression
+!>>   $ELSE
+!>>   $ENDIF
+   call conditionals()
    call conditionals_2()
+
+!>> MACRO STRING EXPANSION AND TEXT REPLAY
+!>>   $SET varname string
+!>>   $IMPORT envname[;...]
+!>>    > Unless at least one variable name is defined no ${NAME} expansion occurs.
+!>>    > $set author  William Shakespeare
+!>>    > $import HOME
+!>>    > write(*,*)'${AUTHOR} ${DATE} ${TIME} File ${FILE} Line ${LINE} HOME ${HOME}
+   call set()
+
+!>>   $PARCEL [blockname]  ! create a reuseable parcel of text that can be expanded
+!>>   $POST   blockname  ! insert a defined parcel of text
    call parcel()
-   call quit()
-   call stop()
-   call message()
+
+!>> EXTERNAL FILES (see $BLOCK ... --file also)
+!>>   $OUTPUT filename [-append]
+!>>   $INCLUDE filename
    call output()
+
+!>> TEXT BLOCK FILTERS
+!>>   $BLOCK [comment|null|write|variable [-varname NAME]]|help|version
+!>>          [-file NAME [-append]]
+   call block()
+   call block_2()
+
+!>> INFORMATION
+!>>   $MESSAGE message_to_stderr
+!>>   $SHOW [defined_variable_name][;...]
+   call message()
+
+!>> SYSTEM COMMANDS
+!>>   $SYSTEM command
+   !TODO!call system()
+
+!>>   $STOP [stop_value[ "message"]] | $QUIT ["message"]
+   call stop()
+   call quit()
+
    call env()
+
    if(all(tally))then
       write(*,'(a)')'ALL PREP TESTS PASSED'
    else
@@ -298,50 +346,50 @@ end subroutine define
 subroutine block_2()
 data=[ character(len=132) :: &
 '$BLOCK comment', &
-'  This is a block of text that should be', &
-'  converted to standard Fortran comments', &
-'$BLOCK end', &
-'$!------------------------------------------------', &
-'$BLOCK null', &
-'  #===================================#', &
-'  | These lines should be ignored and |', &
-'  | produce no output                 |', &
-'  #===================================#', &
-'$BLOCK ', &
-'$!------------------------------------------------', &
-'$BLOCK write', &
-'  Convert this paragraph of text describing', &
-'  sundry input options into a series of', &
-'  WRITE statements', &
-'$BLOCK end', &
-'$!------------------------------------------------', &
-'character(len=:),allocatable :: textblock(:)', &
-'$BLOCK VARIABLE --varname textblock', &
-'', &
-' It is a lot easier to maintain a large amount of', &
-' text as simple lines than to maintain them as', &
-' properly formatted variable definitions', &
-'', &
-'$BLOCK end', &
-'$!------------------------------------------------', &
+'  This is a block of text that should be                       ', &
+'  converted to standard Fortran comments                       ', &
+'$BLOCK end                                                     ', &
+'$!------------------------------------------------             ', &
+'$BLOCK null                                                    ', &
+'  #===================================#                        ', &
+'  | These lines should be ignored and |                        ', &
+'  | produce no output                 |                        ', &
+'  #===================================#                        ', &
+'$BLOCK                                                         ', &
+'$!------------------------------------------------             ', &
+'$BLOCK write                                                   ', &
+'  Convert this paragraph of text describing                    ', &
+'  sundry input options into a series of                        ', &
+'  WRITE statements                                             ', &
+'$BLOCK end                                                     ', &
+'$!------------------------------------------------             ', &
+'character(len=:),allocatable :: textblock(:)                   ', &
+'$BLOCK VARIABLE --varname textblock                            ', &
+'                                                               ', &
+' It is a lot easier to maintain a large amount of              ', &
+' text as simple lines than to maintain them as                 ', &
+' properly formatted variable definitions                       ', &
+'                                                               ', &
+'$BLOCK end                                                     ', &
+'$!------------------------------------------------             ', &
 'last line']
 
 expected=[ character(len=132) :: &
-"!   This is a block of text that should be", &
-"!   converted to standard Fortran comments", &
-"write(io,'(a)')'  Convert this paragraph of text describing'", &
-"write(io,'(a)')'  sundry input options into a series of'", &
-"write(io,'(a)')'  WRITE statements'", &
-"character(len=:),allocatable :: textblock(:)", &
-"textblock=[ CHARACTER(LEN=128) :: &", &
-"'',&", &
-"' It is a lot easier to maintain a large amount of',&", &
-"' text as simple lines than to maintain them as',&", &
-"' properly formatted variable definitions',&", &
-"'',&", &
-"'']", &
-"", &
-'last line']
+"!   This is a block of text that should be",&
+"!   converted to standard Fortran comments",&
+"write(io,'(a)')'  Convert this paragraph of text describing'",&
+"write(io,'(a)')'  sundry input options into a series of'",&
+"write(io,'(a)')'  WRITE statements'",&
+"character(len=:),allocatable :: textblock(:)",&
+"textblock=[ CHARACTER(LEN=128) :: &",&
+"'',&",&
+"' It is a lot easier to maintain a large amount of',&",&
+"' text as simple lines than to maintain them as',&",&
+"' properly formatted variable definitions',&",&
+"'',&",&
+"'']",&
+"",&
+"last line"]
 
 call teardown('block_2')
 
@@ -350,36 +398,36 @@ end subroutine block_2
 subroutine conditionals_2()
 
 data=[ character(len=132) :: &
-'$! set variable "a" if not specified on the prep(1) command.', &
-'$IF .NOT.DEFINED(A)', &
-'$   DEFINE a=1  ! so only define the first version of SUB(3f) below', &
-'$ENDIF', &
-'   program conditional_compile', &
-'      call sub()', &
-'   end program conditional_compile', &
-'$! select a version of SUB depending on the value of variable "a"', &
-'$IF a .EQ. 1', &
-'   subroutine sub', &
-'      print*, "This is the first SUB"', &
-'   end subroutine sub', &
-'$ELSEIF a .eq. 2', &
-'   subroutine sub', &
-'     print*, "This is the second SUB"', &
-'  end subroutine sub', &
-'$ELSE', &
-'   subroutine sub', &
-'      print*, "This is the third SUB"', &
-'   end subroutine sub', &
-'$ENDIF', &
+'$! set variable "a" if not specified on the prep(1) command.         ', &
+'$IF .NOT.DEFINED(A)                                                  ', &
+'$   DEFINE a=1  ! so only define the first version of SUB(3f) below  ', &
+'$ENDIF                                                               ', &
+'   program conditional_compile                                       ', &
+'      call sub()                                                     ', &
+'   end program conditional_compile                                   ', &
+'$! select a version of SUB depending on the value of variable "a"    ', &
+'$IF a .EQ. 1                                                         ', &
+'   subroutine sub                                                    ', &
+'      print*, "This is the first SUB"                                ', &
+'   end subroutine sub                                                ', &
+'$ELSEIF a .eq. 2                                                     ', &
+'   subroutine sub                                                    ', &
+'     print*, "This is the second SUB"                                ', &
+'  end subroutine sub                                                 ', &
+'$ELSE                                                                ', &
+'   subroutine sub                                                    ', &
+'      print*, "This is the third SUB"                                ', &
+'   end subroutine sub                                                ', &
+'$ENDIF                                                               ', &
 'last line']
 
 expected=[ character(len=132) :: &
-'   program conditional_compile', &
-'      call sub()', &
-'   end program conditional_compile', &
-'   subroutine sub', &
-'      print*, "This is the first SUB"', &
-'   end subroutine sub', &
+'   program conditional_compile                                       ', &
+'      call sub()                                                     ', &
+'   end program conditional_compile                                   ', &
+'   subroutine sub                                                    ', &
+'      print*, "This is the first SUB"                                ', &
+'   end subroutine sub                                                ', &
 'last line']
 
 call teardown('CONDITIONALS_2')
