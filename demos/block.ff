@@ -23,9 +23,10 @@ $BLOCK
 $BLOCK COMMENT --file doc.html
 <html> <body>
 <p>
-  These lines will also be converted to Fortran comments but if 
-  the environment variable $PREP_DOCUMENT_DIR is set it will be
-  also be written as-is into $PREP_DOCUMENT_DIR/doc/doc.html.
+  These lines will also be converted to Fortran comments but if
+  the environment variable $PREP_DOCUMENT_DIR is set it will
+  also be written as-is (except for ${NAME} expansion) into
+  $PREP_DOCUMENT_DIR/doc/doc.html.
 
   The --file option also works with other options such as NULL
   so no output has to appear in the output file if desired.
