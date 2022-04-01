@@ -12,12 +12,25 @@ new features, changes, and relevant notifications.
   - [x] user manual (on-line)
   - [x] man-page
   - [x] app program
-  - [ ] unit test -- in progress
+  - [x] unit test 
   - [ ] make(1) build
   - [ ] developer documents (ford(1))
   - [ ] CI/CD(Continious Integration/Development) verification (github actions)
   - [ ] registered in fpm(1) repository
 
+**2022-04-01**  John S. Urban <https://github.com/urbanjost>
+
+### :red_circle: FIX:
+  + Negative values were not correctly tested by logical operators
+
+### :orange_circle: DIFF:
+  + --debug mode requires --verbose as well to show all debug messages
+
+### :green_circle: ADD:
+
+  + version 7.0.0 is released
+  + added $ERROR for compatibility with some versions of cpp(1)
+  + $IF,$ELSEIF,and $ELIF can use the syntax (expression)THEN
 ---
 **2022-03-28**  John S. Urban <https://github.com/urbanjost>
 

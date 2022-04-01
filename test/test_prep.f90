@@ -66,6 +66,7 @@ allocate(tally(0))
 !>>   $STOP [stop_value[ "message"]] | $QUIT ["message"]
    call stop()
    call quit()
+   call misc()
 
    call env()
 
@@ -626,5 +627,62 @@ expected=[ character(len=132) :: home_value]
 call teardown('env')
 
 end subroutine env
+!===============================================================================
+subroutine misc()
+character(len=4096)       :: home_value
+integer                   :: istatus
+
+data=[ character(len=132) :: &
+'$if ( 3 .eq. 2+1 ) then                                                         ',&
+'OK A                                                                            ',&
+'$else                                                                           ',&
+'$error "test  A"                                                                ',&
+'$endif                                                                          ',&
+'$!======================                                                        ',&
+'$if( 3 .lt. 4 )then                                                             ',&
+'OK B                                                                            ',&
+'$else                                                                           ',&
+'$error "test  B"                                                                ',&
+'$endif                                                                          ',&
+'$!======================                                                        ',&
+'$if( 3 .lt. 4 )                                                                 ',&
+'OK C                                                                            ',&
+'$else                                                                           ',&
+'$error "test  C"                                                                ',&
+'$endif                                                                          ',&
+'$!======================                                                        ',&
+'$if( 3-5 .lt. 4 )                                                               ',&
+'OK D                                                                            ',&
+'$else                                                                           ',&
+'$SHOW                                                                           ',&
+'$error "test  D"                                                                ',&
+'$endif                                                                          ',&
+'$!======================                                                        ',&
+'$if( 3+5 .lt. 4 )                                                               ',&
+'$elseif( -5 .gt. 1 )then                                                        ',&
+'$elseif( -5 .lt. 1 )                                                            ',&
+'OK E                                                                            ',&
+'$endif                                                                          ',&
+'$!======================                                                        ',&
+'$if  2 .ge. (-5  ) .and. 1==1&&2<3&&2<=2&&!4==5&&6>=6&&7>-1&&10**3>999          ',&
+'OK F                                                                            ',&
+'$else                                                                           ',&
+'$error "test  F"                                                                ',&
+'$endif                                                                          ',&
+'$!======================                                                        ',&
+"last line"]
+
+expected=[ character(len=132) :: &
+'OK A',&
+'OK B',&
+'OK C',&
+'OK D',&
+'OK E',&
+'OK F',&
+"last line"]
+
+call teardown('misc')
+
+end subroutine misc
 !===============================================================================
 end program test_prep

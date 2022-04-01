@@ -4429,6 +4429,7 @@ doubleprecision function s2v(chars,ierr,onerr)
 
 !character(len=*),parameter::ident_43="@(#)M_strings::s2v(3f): returns doubleprecision number from string"
 
+
 character(len=*),intent(in)  :: chars
 integer,optional             :: ierr
 doubleprecision              :: valu
@@ -11082,6 +11083,7 @@ doubleprecision function s2v(chars,ierr,onerr)
 
 ! ident_44="@(#)M_strings::s2v(3f): returns doubleprecision number from string"
 
+
 character(len=*),intent(in)  :: chars
 integer,optional             :: ierr
 doubleprecision              :: valu
@@ -15453,7 +15455,6 @@ end subroutine print_generic
 
 end function str_one
 !===================================================================================================================================
-!===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
 function lowercase(str) result(lcstr)
@@ -17117,10 +17118,6 @@ end module M_list
 
 
 !>>>>> app/prep.f90
-! CONSIDER
-! make $OUTPUT file nestable
-! allow multiple files on $INCLUDE
-! undocument $BLOCK HELP|VERSION?
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
@@ -17129,6 +17126,15 @@ end module M_list
 !     http://www.lahey.com/code.htm
 !  Extensively rewritten since under a MIT License.
 !     2013-10-03,2020-12-19,2021-06-12 : John S. Urban
+! CONSIDER
+! make $OUTPUT file nestable
+! allow multiple files on $INCLUDE
+! undocument $BLOCK HELP|VERSION?
+! %,>>,<< operators
+! replace math parsing with M_calculator (but add logical operators to M_calculator)
+! cpp-like procedure macros
+! cpp or fpp compatibility mode
+! line control  # linenumber "file"
 
 module M_fpp                                                              !@(#)M_fpp(3f): module used by prep program
 USE ISO_FORTRAN_ENV, ONLY : STDERR=>ERROR_UNIT, STDOUT=>OUTPUT_UNIT,STDIN=>INPUT_UNIT
@@ -17240,19 +17246,19 @@ integer                      :: verblen
    endif
    if (line(1:1).eq.G_comment)line=''
 
-   verblen=index(line,' ')
+   verblen=scan(line,' (')
    if(verblen.eq.0)then
       verblen=len(line)
       verb=line
       options=' '
    else
       verb=line(:verblen-1)
-      options=adjustl(line(verblen+1:))
+      options=adjustl(line(verblen:))
    endif
    verb=upper(verb)
    upopts=nospace(upper(options))                          ! remove spaces from directive
 
-   if(G_debug)then                                                    ! if processing lines in a logically selected region
+   if(G_debug.and.G_verbose)then                           ! if processing lines in a logically selected region
       write(stderr,*)'G_SOURCE='//trim(g_source)
       write(stderr,*)'LINE='//trim(line)
       write(stderr,*)'VERB='//trim(verb)
@@ -17299,7 +17305,7 @@ integer                      :: verblen
 
    case('ELSE','ELSEIF','ELIF');  call else(verb,upopts,noelse,eb)
    case('ENDIF');          call endif(noelse,eb)
-   case('IF');             call if(upopts,noelse,eb)
+   case('IF');       call if(upopts,noelse,eb)
    case('IFDEF','IFNDEF'); call def(verb,upopts,noelse,eb)
 
    case default
@@ -17706,6 +17712,7 @@ logical                         :: eb
 character(len=G_var_len)     :: value
 integer                      :: ios
 integer                      :: i
+integer                      :: ithen
 character(len=G_line_length) :: expression       ! line        -
 
    noelse=0
@@ -17715,7 +17722,14 @@ character(len=G_line_length) :: expression       ! line        -
    if (G_nestl.gt.G_nestl_max) then
       call stop_prep('*prep* ABORT(bh) - "IF" BLOCK NESTING TOO DEEP, LIMITED TO '//v2s(G_nestl_max)//' LEVELS:'//trim(G_source))
    endif
+
    expression=opts
+   ithen=len_trim(opts)  ! trim off ")THEN"
+   if(ithen.gt.5)then
+      if(expression(ithen-4:ithen).eq.')THEN'.and.expression(1:1).eq.'(')then
+         expression=expression(2:ithen-5)
+      endif
+   endif
 
    FIND_DEFINED: do                                           ! find and reduce all DEFINED() functions to ".TRUE." or ".FALSE."
       if (index(expression,'DEFINED(').ne.0) then             ! find a DEFINED() function
@@ -17853,11 +17867,13 @@ end subroutine ifdef
 !===================================================================================================================================
 subroutine else(verb,opts,noelse,eb)                       !@(#)else(3f): process else and elseif
 character(len=*)              :: verb
-character(len=*)              :: opts                      !
+character(len=*)              :: opts
 integer                       :: noelse
+integer                       :: ithen
 logical                       :: eb
+character(len=G_line_length)  :: expression
 
-if(G_debug)then
+if(G_debug.and.G_verbose)then
    write(stderr,*)'*ELSE* TOP'
    write(stderr,*)'        G_NESTL =',g_nestl
    write(stderr,*)'        EB      =',eb
@@ -17865,6 +17881,14 @@ if(G_debug)then
    write(stderr,*)'        G_WRITE =',g_write
    write(stderr,*)'        G_CONDOP=',g_condop
 endif
+
+   expression=opts
+   ithen=len_trim(opts)  ! trim off ")THEN"
+   if(ithen.gt.5)then
+      if(expression(ithen-4:ithen).eq.')THEN'.and.expression(1:1).eq.'(')then
+         expression=expression(2:ithen-5)
+      endif
+   endif
 
    if(noelse.eq.1.or.G_nestl.eq.0) then                    ! test for else instead of elseif
       call stop_prep("*prep* ERROR(031) - MISPLACED $ELSE OR $ELSEIF DIRECTIVE:"//trim(G_SOURCE))
@@ -17877,15 +17901,15 @@ endif
    if(G_condop(G_nestl)) then
        eb=.true.
        G_write=.false.
-   elseif(len_trim(opts).ne.0)then                         ! elseif detected
+   elseif(len_trim(expression).ne.0)then                   ! elseif detected
      G_nestl=G_nestl-1                                     ! decrease if level because it will be incremented in subroutine if
-     call if(opts,noelse,eb)
+     call if(expression,noelse,eb)
    else                                                    ! else detected
      G_condop(G_nestl)=.true.
      G_write=.true.
    endif
 
-if(G_debug)then
+if(G_debug.and.G_verbose)then
    write(stderr,*)'*ELSE* BOTTOM'
    write(stderr,*)'        G_NESTL =',g_nestl
    write(stderr,*)'        EB      =',eb
@@ -17901,7 +17925,7 @@ subroutine endif(noelse,eb)                             !@(#)endif(3f): process 
 integer,intent(out)           :: noelse
 logical,intent(out)           :: eb
 
-   if(G_debug)then
+   if(G_debug.and.G_verbose)then
       write(stderr,*)'*ENDIF* TOP'
       write(stderr,*)'        G_NESTL =',g_nestl
       write(stderr,*)'        EB      =',eb
@@ -17931,7 +17955,7 @@ logical,intent(out)           :: eb
       eb=.false.
    endif
 
-   if(G_debug)then
+   if(G_debug.and.G_verbose)then
       write(stderr,*)'*ENDIF* BOTTOM'
       write(stderr,*)'        G_NESTL =',g_nestl
       write(stderr,*)'        EB      =',eb
@@ -18207,6 +18231,7 @@ integer                         :: ipos2
 character(len=4),parameter      :: ops(6) = ['.EQ.','.NE.','.GE.','.GT.','.LE.','.LT.']
 character(len=G_var_len)        :: val1
 character(len=G_var_len)        :: val2
+integer                         :: ival1, ival2
 character(len=7)                :: temp
 
 character(len=G_line_length)    :: newl
@@ -18229,19 +18254,21 @@ integer                         :: i,j,k
                endif
             enddo
             call getval(newl,index(newl,ops(i))+4,k-1,val2)
+            ival1=get_integer_from_string(val1)
+            ival2=get_integer_from_string(val2)
             select case(i)                                       ! determine truth
             case(1)                                              ! .eq.
-               if (val1.eq.val2) G_dc=.true.
+               if (ival1.eq.ival2) G_dc=.true.
             case(2)                                              ! .ne.
-               if (val1.ne.val2) G_dc=.true.
+               if (ival1.ne.ival2) G_dc=.true.
             case(3)                                              ! .ge.
-               if (val1.ge.val2) G_dc=.true.
+               if (ival1.ge.ival2) G_dc=.true.
             case(4)                                              ! .gt.
-               if (val1.gt.val2) G_dc=.true.
+               if (ival1.gt.ival2) G_dc=.true.
             case(5)                                              ! .le.
-               if (val1.le.val2) G_dc=.true.
+               if (ival1.le.ival2) G_dc=.true.
             case(6)                                              ! .lt.
-               if (val1.lt.val2) G_dc=.true.
+               if (ival1.lt.ival2) G_dc=.true.
             case default
             end select
             temp='.FALSE.'
@@ -19960,7 +19987,8 @@ help_text=[ CHARACTER(LEN=128) :: &
 !'@(#)VERSION:        6.0.1: 20220311>',&
 !'@(#)VERSION:        6.1.1: 20220326>',&
 !'@(#)VERSION:        6.1.2: 20220326>',&
-'@(#)VERSION:        6.2.2: 20220329>',&
+!'@(#)VERSION:        6.2.2: 20220329>',&
+'@(#)VERSION:        7.0.0: 20220401>',&
 '@(#)AUTHOR:         John S. Urban>',&
 '@(#)HOME PAGE       https://github.com/urbanjost/prep.git/>',&
 '']
@@ -20012,7 +20040,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 "  $SHOW [defined_variable_name][;...]                                           ",&
 "SYSTEM COMMANDS                                                                 ",&
 "  $SYSTEM command                                                               ",&
-"  $STOP [stop_value[ ""message""]] | $QUIT [""message""]                           "]
+"  $STOP [stop_value[ ""message""]] | $QUIT [""message""]| $ERROR [""message""]     "]
    WRITE(stderr,'(a)')(trim(help_text(i)),i=1,size(help_text))
 end subroutine short_help
 !===================================================================================================================================
