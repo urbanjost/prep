@@ -175,7 +175,7 @@ integer                      :: verblen
    case('DEFINE','INCLUDE','SHOW','STOP','QUIT','HELP')
    case('SYSTEM','UNDEF','UNDEFINE','DELETE','MESSAGE','REDEFINE')
    case('OUTPUT','IDENT','@(#)','BLOCK','IMPORT','DEF','REDEF')
-   case('PARCEL','POST','SET','GET_ARGUMENTS','READ')
+   case('PARCEL','POST','SET','GET_ARGUMENTS','READ','ERROR')
    case(' ')
 
    case('ELSE','ELSEIF','ELIF');  call else(verb,upopts,noelse,eb)
