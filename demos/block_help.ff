@@ -1,4 +1,9 @@
 $BLOCK NULL
+--------------------------------------------------------------------------------
+NOTE:
+  Assuming the aux/ directory is in your command path or txt2man(1) will
+  fail!
+--------------------------------------------------------------------------------
 
   If you want to write a free-format document as a routine that can be
   called by your program and optionally also write that text to a file
@@ -19,7 +24,7 @@ $BLOCK
 $! if the document directory is defined make sure it and the doc/ directory exists
 $IFDEF PREP_DOCUMENT_DIR
 $   IF SYSTEMON==1
-$      IF SYSTEM .ne. MSWINDOWS
+$      IF OS .ne. WINDOWS
 $         SYSTEM mkdir -p $PREP_DOCUMENT_DIR/doc
 $      ELSE
 $         SYSTEM mkdir $PREP_DOCUMENT_DIR/doc
