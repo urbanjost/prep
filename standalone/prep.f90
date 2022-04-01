@@ -1141,7 +1141,6 @@ end module M_kracken95
 ! read environment variable DEFAULT_CMD
 !-----------------------------------------------------------------------------------------------------------------------------------
 
-
 !>>>>> build/dependencies/M_io/src/M_io.f90
 !===================================================================================================================================
 MODULE M_io
@@ -4429,7 +4428,6 @@ doubleprecision function s2v(chars,ierr,onerr)
 
 !character(len=*),parameter::ident_43="@(#)M_strings::s2v(3f): returns doubleprecision number from string"
 
-
 character(len=*),intent(in)  :: chars
 integer,optional             :: ierr
 doubleprecision              :: valu
@@ -5782,7 +5780,6 @@ end module m_io
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-
 
 !>>>>> build/dependencies/M_strings/src/M_strings.f90
 !>
@@ -11083,7 +11080,6 @@ doubleprecision function s2v(chars,ierr,onerr)
 
 ! ident_44="@(#)M_strings::s2v(3f): returns doubleprecision number from string"
 
-
 character(len=*),intent(in)  :: chars
 integer,optional             :: ierr
 doubleprecision              :: valu
@@ -15606,7 +15602,6 @@ end subroutine matching_delimiter
 !===================================================================================================================================
 end module M_strings
 
-
 !>>>>> build/dependencies/M_list/src/M_list.f90
 !>
 !!##NAME
@@ -17116,7 +17111,6 @@ end module M_list
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
 
-
 !>>>>> app/prep.f90
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -17287,7 +17281,7 @@ integer                      :: verblen
       case('IDENT','@(#)');     call ident(options)
       case('SHOW') ;            call debug_state(upper(options),msg='')
       case('SYSTEM');           call exe()
-      case('MESSAGE');          call write_err(G_source(2:))          ! trustingly trim MESSAGE from directive
+      case('MESSAGE');          call write_err(options)               ! trustingly trim MESSAGE from directive
       case('STOP');             call stop(options)
       case('QUIT');             call stop('0 '//options)
       case('ERROR');            call stop('1 '//options)
@@ -17447,7 +17441,7 @@ integer,save                  :: ident_count=1
    lang=sget('ident_language')
 
    select case(lang)
-   case('fortran')    !*! should make look for characters not allowed in metadata, continue over multiple lines, ...
+   case('fortran')    !x! should make look for characters not allowed in metadata, continue over multiple lines, ...
       select case(len(text))
       case(:89)
          if(G_ident)then
@@ -18212,7 +18206,7 @@ integer                         :: numop
   enddo OVERALL
 
   if (minus1.eq.-1.and.(loc.eq.0.or.loc.eq.1)) then
-     newl(:G_line_length)='-'//trim(newl)  !*! note potentially trimming a character off the end
+     newl(:G_line_length)='-'//trim(newl)  !x! note potentially trimming a character off the end
   elseif (minus1.eq.-1.and.loc.ne.1) then
      newl=newl(:loc-1)//'-'//newl(loc:)
   endif
@@ -18526,6 +18520,7 @@ subroutine document(opts)                    ! @(#)document(3f): process BLOCK c
 character(len=*),intent(in)  :: opts
 integer                      :: ierr
 integer                      :: ios
+integer                      :: i
 character(len=G_line_length) :: options                 ! everything after first word of command till end of line or !
 
 ! CHECK COMMAND SYNTAX
@@ -18538,7 +18533,7 @@ character(len=G_line_length) :: options                 ! everything after first
       !x!write(G_iout,'("!",a)')repeat('-',131)
    elseif(G_outtype.eq.'variable')then     ! if in 'variable' mode wrap up the variable
       write(G_iout,'(a)')"'']"
-   elseif(G_outtype.eq.'shell')then
+   elseif(G_outtype.eq.'system')then
          close(unit=G_scratch_lun,iostat=ios)
          call execute_command_line( trim(sget('block_cmd'))//' < '//G_scratch_file//' > '//G_scratch_file//'.out')
          ierr=filedelete(G_scratch_file)
@@ -18548,8 +18543,8 @@ character(len=G_line_length) :: options                 ! everything after first
       write(G_iout,'("''@(#)COMPILED:       ",a,"'',&")') getdate('long')//'>'
       write(G_iout,'(a)')"'']"
       write(G_iout,'(a)')"   WRITE(stdout,'(a)')(trim(help_text(i)(5:len_trim(help_text(i))-1)),i=1,size(help_text))"
-      !*!write(G_iout,'(a)')'   write(stdout,*)"COMPILER VERSION=",COMPILER_VERSION()'
-      !*!write(G_iout,'(a)')'   write(stdout,*)"COMPILER OPTIONS=",COMPILER_OPTIONS()'
+      !x!write(G_iout,'(a)')'   write(stdout,*)"COMPILER VERSION=",COMPILER_VERSION()'
+      !x!write(G_iout,'(a)')'   write(stdout,*)"COMPILER OPTIONS=",COMPILER_OPTIONS()'
       write(G_iout,'(a)')"   stop ! if --version was specified, stop"
       write(G_iout,'(a)')"endif"
       write(G_iout,'(a)')"end subroutine help_version"
@@ -18588,8 +18583,17 @@ character(len=G_line_length) :: options                 ! everything after first
    case('NULL')
       G_outtype='null'
 
-   case('SHELL')
-      G_outtype='shell'
+   case('SET')
+      G_outtype='set'
+      G_MAN_PRINT=.false.
+      G_MAN_COLLECT=.false.
+   case('MESSAGE')
+      G_outtype='message'
+      G_MAN_PRINT=.false.
+      G_MAN_COLLECT=.false.
+
+   case('SHELL','SYSTEM')
+      G_outtype='system'
       G_MAN_PRINT=.false.
       G_MAN_COLLECT=.false.
       if(G_system_on)then                             ! if allowing commands to be executed
@@ -19083,7 +19087,7 @@ character(len=G_line_length)          :: dir                        ! directory 
             if(G_inc_files(ii).eq.dir)exit ALREADY
          enddo
          G_inc_count=G_inc_count+1
-         G_inc_count=min(G_inc_count,size(G_inc_files)) ! guard against too many files; !*! should warn on overflow
+         G_inc_count=min(G_inc_count,size(G_inc_files)) ! guard against too many files; !x! should warn on overflow
          G_inc_files(G_inc_count)=dir
       endblock ALREADY
 
@@ -19361,14 +19365,8 @@ help_text=[ CHARACTER(LEN=128) :: &
 '     $INCLUDE  filename                                   [! comment ]          ',&
 '                                                                                ',&
 '    :TEXT BLOCK FILTERS                                                         ',&
-'     $BLOCK    [null|comment|write|variable [-varname NAME]]|help|version       ',&
-'               [-file NAME [-append]]                     [! comment ]          ',&
-![=========
-!     consider to change so just $BLOCK name/$ENDBLOCK and
-!     $OUTPUT $BLOCK $POST all replaced by $POST if no options gulp file and process if any options do what $BLOCK does now
-!     $BLOCK
-!     $ENDBLOCK
-!=========]
+'     $BLOCK   [null|comment|write|variable [-varname NAME]|set|system|          ',&
+'              message|help|version] [-file NAME [-append]][! comment ]          ',&
 '                                                                                ',&
 '    :IDENTIFIERS                                                                ',&
 '     $IDENT | $@(#)    metadata                           [! comment ]          ',&
@@ -19379,11 +19377,6 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '    :SYSTEM COMMANDS                                                            ',&
 '     $SYSTEM   system_command                                                   ',&
-!'               [shell [-cmd NAME]] |                                            ',&
-!
-!'     $SHELL:     run text in block as a shell and replace with the stdout       ',&
-!'                 generated by the shell. The shell may be specified by the -cmd ',&
-!'                 option. The default shell is bash(1).                          ',&
 '                                                                                ',&
 '    :PROGRAM TERMINATION                                                        ',&
 '     $STOP     [stop_value ["message"]]                   [! comment ]          ',&
@@ -19692,6 +19685,10 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                 output will not generate lines over 132 columns.               ',&
 '      VARIABLE:  write as a text variable. The name may be defined using        ',&
 '                 the --varname switch. Default name is "textblock".             ',&
+'      MESSAGE:   All the lines in the block are treated as options to $MESSAGE  ',&
+'      SET:       All the lines in the block are treated as options to $SET      ',&
+'      SYSTEM:    The lines are gathered into a file and executed by the shell   ',&
+'                 with the stdout being written to a scratch file and then read  ',&
 '      END:       End block of specially processed text                          ',&
 '                                                                                ',&
 '    special-purpose modes primarily for use with the M_kracken module:          ',&
@@ -20033,8 +20030,8 @@ help_text=[ CHARACTER(LEN=128) :: &
 "  $OUTPUT filename [-append]                                                    ",&
 "  $INCLUDE filename                                                             ",&
 "TEXT BLOCK FILTERS                                                              ",&
-"  $BLOCK [comment|null|write|variable [-varname NAME]]|help|version             ",&
-"         [-file NAME [-append]]                                                 ",&
+"  $BLOCK [comment|null|write|variable [-varname NAME]|set|system|message|       ",&
+"         help|version][-file NAME [-append]]                                    ",&
 "INFORMATION                                                                     ",&
 "  $MESSAGE message_to_stderr                                                    ",&
 "  $SHOW [defined_variable_name][;...]                                           ",&
@@ -20078,7 +20075,13 @@ character(len=256)             :: message
 
    case('null')                                ! do not write
 
-   case('shell')
+   case('set')                                 ! do not write
+      call set(line)
+
+   case('message')                             ! do not write
+      call write_err(line)                     ! trustingly trim MESSAGE from directive
+
+   case('system')
       write(G_scratch_lun,'(a)',iostat=ios,iomsg=message)trim(line)
       if(ios.lt.0)then
          call stop_prep('*prep* ERROR(068) - FAILED TO WRITE TO PROCESS:'//trim(line)//':'//trim(message))
@@ -20101,7 +20104,7 @@ character(len=256)             :: message
    case('version')                             ! write version information with SCCS ID prefix for use with what(1) command
       write(G_iout,'("''@(#)",a,"'',&")')trim(line(:min(len_trim(line),128-1)))//'>'
 
-                                               !*! should handle longer lines and split them
+                                               !x! should handle longer lines and split them
    case('write')                               ! convert string to a Fortran write statement to unit "IO"
       buff=trim(line)                          ! do not make a line over 132 characters. Trim input line if needed
       buff=buff//repeat(' ',max(linewidth,len(buff))) ! ensure space in buffer for substitute

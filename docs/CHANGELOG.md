@@ -14,10 +14,22 @@ new features, changes, and relevant notifications.
   - [x] app program
   - [x] unit test 
   - [ ] make(1) build
-  - [ ] developer documents (ford(1))
+  - [x] single-file build
+  - [x] developer documents (ford(1),doxygen(1), ...)
   - [ ] CI/CD(Continious Integration/Development) verification (github actions)
   - [ ] registered in fpm(1) repository
+--
+**2022-04-01**  John S. Urban <https://github.com/urbanjost>
 
+### :orange_circle: DIFF:
+  + $MESSAGE no longer automatically prefixs message with "message"
+
+### :green_circle: ADD:
+  + add $BLOCK SYSTEM        
+  + add $BLOCK SET                                             
+  + add $BLOCK MESSAGE                                         
+---
+--
 **2022-04-01**  John S. Urban <https://github.com/urbanjost>
 
 ### :red_circle: FIX:

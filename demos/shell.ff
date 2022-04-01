@@ -1,4 +1,4 @@
-$BLOCK SHELL -cmd /bin/bash
+$BLOCK SYSTEM -cmd /bin/bash
 (
 cat <<EOF
    This is a here document in the Bourne shell that in a GNU/Linux or Unix

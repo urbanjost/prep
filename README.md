@@ -6,6 +6,7 @@
  + the [demos/](demos/) directory has example input files for a variety of cases
  + The [CHANGELOG](docs/CHANGELOG.md)
  + The [CI/CD](docs/STATUS.md) results
+ + Developer [ford(1) output](https://urbanjost.github.io/M_uuid/fpm-ford/index.html)
 
 ## Description
 `prep(1)` is a streamlined pre-processor primarily designed for use with
@@ -25,9 +26,6 @@ with Fortran.
 
 In particular, prep(1) allows for maintaining documentation in the body
 of the source code in a variety of formats via the __$BLOCK__ directive.
-
-Feedback is welcome.
-[**leave a comment!**](https://github.com/urbanjost/prep/wiki/Fortran-pre-processing)
 
 ## Example Showing Templating
 
@@ -173,6 +171,10 @@ or
 ```
 ## Homepage
 https://github.com/urbanjost/prep.git
+
+Feedback is welcome.
+[**leave a comment!**](https://github.com/urbanjost/prep/wiki/Fortran-pre-processing)
+
 
 <!--
 https://github.com/fortran-lang/fpm/issues/78
