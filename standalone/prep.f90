@@ -15451,7 +15451,6 @@ end subroutine print_generic
 
 end function str_one
 !===================================================================================================================================
-!===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
 function lowercase(str) result(lcstr)
@@ -17280,6 +17279,7 @@ integer                      :: verblen
       case('MESSAGE');          call write_err(G_source(2:))          ! trustingly trim MESSAGE from directive
       case('STOP');             call stop(options)
       case('QUIT');             call stop('0 '//options)
+      case('ERROR');            call stop('1 '//options)
       CASE('GET_ARGUMENTS');    call write_get_arguments()
       CASE('HELP');             call short_help()
       end select
@@ -19219,15 +19219,56 @@ help_text=[ CHARACTER(LEN=128) :: &
 '         [--help]                                                               ',&
 'DESCRIPTION                                                                     ',&
 '                                                                                ',&
-'   The pre-processor prep(1) will interpret lines beginning with "$" (by        ',&
-'   default) in column one as directives, and will output no such lines. Other   ',&
-'   input is conditionally written to the output file(s) based on the            ',&
-'   case-insensitive directive instructions.                                     ',&
+'   A preprocessor traditionally is used to conditionally perform operations on  ',&
+'   input files before they are passed to a compiler, including machine-specific ',&
+'   rules. This makes it possible to use a single source file even when different',&
+'   code is required for different execution environments.                       ',&
+'                                                                                ',&
+'   The prep(1) preprocessor has additional features that help to include        ',&
+'   documentation in the same file as the source and to generate generic code    ',&
+'   using a simple templating technique. The basic directives ....               ',&
+'                                                                                ',&
+'   * Conditionally output parts of the source file (controlled by expressions   ',&
+'     on the directives $if, $ifdef, $ifndef, $else, $elif, and $endif. The      ',&
+'     expressions controlling the output may include variables defined on the    ',&
+'     command line and the directives $define, $redefine, $define and $undefine).',&
+'                                                                                ',&
+'   * Include other files (provided by directive $include).                      ',&
+'                                                                                ',&
+'   * Replace text of the form ${NAME} (controlled by directives $set            ',&
+'     and $import).                                                              ',&
+'                                                                                ',&
+'   * Cause an error (controlled by directive $stop) and produce messages        ',&
+'     on stderr (using the directive $message).                                  ',&
+'                                                                                ',&
+'   * Define parcels of text that may be replayed multiple times with            ',&
+'     expansion, allowing for basic templating (controlled by directives         ',&
+'     $parcel and $post).                                                        ',&
+'                                                                                ',&
+'   * Generate multiple output files from a single input file (using             ',&
+'     directive $output).                                                        ',&
+'                                                                                ',&
+'   * Filter blocks of text and convert them to comments, a character            ',&
+'     variable, or Fortran WRITE statements ... (this is provided by             ',&
+'     the $block directive).                                                     ',&
+'                                                                                ',&
+'     Blocked text may be simultaneously written to a separate file, typically   ',&
+'     for use as documentation.                                                  ',&
+'                                                                                ',&
+'   * Call system commands using the $system directive.                          ',&
+'                                                                                ',&
+'   * Record the parameters used and the date and time executed                  ',&
+'     as Fortran comments in the output using $show.                             ',&
+'                                                                                ',&
+'   The pre-processor will interpret lines beginning with "$" (by default) in    ',&
+'   column one as directives, and will output no such lines. Other input is      ',&
+'   conditionally written to the output file(s) based on the case-insensitive    ',&
+'   command names.                                              ',&
 '                                                                                ',&
 '   An exclamation character FOLLOWED BY A SPACE on most directives              ',&
 '   begins an in-line comment that is terminated by an end-of-line. The space    ',&
-'   is particularly pertinent when using C-style logical tokens, which           ',&
-'   may contain exclamations (but not spaces).                                   ',&
+'   is required so comments are not confused with C-style logical operators such ',&
+'   as "!", which may NOT be followed by a space.                                ',&
 '                                                                                ',&
 '   prep(1) supports string substitution and the inclusion of free-format        ',&
 '   text blocks that may be converted to such things as Fortran comments or      ',&
@@ -19237,10 +19278,10 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   Combined, strings substitution and repeatable text blocks allow for          ',&
 '   basic templating.                                                            ',&
 '                                                                                ',&
-'   INTEGER or LOGICAL expressions may be used to conditionally select output    ',&
-'   lines. An expression is composed of INTEGER and LOGICAL constants,           ',&
-'   parameters and operators. Operators are processed as in Fortran              ',&
-'   and/or C expressions:                                                        ',&
+'   INTEGER or LOGICAL expressions may be used on the family of $IF directives   ',&
+'   to conditionally select output lines. An expression is composed of INTEGER   ',&
+'   and LOGICAL constants, parameters, and operators. Operators are processed    ',&
+'   as in Fortran and/or C expressions.                                          ',&
 '                                                                                ',&
 '       #-----#-----#-----#-----#-----#-----#-----#                              ',&
 '       |  +  |  -  |  *  |  /  |  ** |  (  |  )  |  Math Operators              ',&
@@ -19315,6 +19356,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '    :PROGRAM TERMINATION                                                        ',&
 '     $STOP     [stop_value ["message"]]                   [! comment ]          ',&
 '     $QUIT     ["message"]                                [! comment ]          ',&
+'     $ERROR    ["message"]                                [! comment ]          ',&
 '                                                                                ',&
 'OPTIONS                                                                         ',&
 '   define_list, -D define_list  An optional space-delimited list of expressions ',&
@@ -19335,9 +19377,9 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                        42=* 35=# 36=$ 64=@). If the value is not numeric       ',&
 '                        it is assumed to be a literal character.                ',&
 '                                                                                ',&
-'   --noenv          The $IFDEF and $IFNDEF directives test for an interal       ',&
+'   --noenv          The $IFDEF and $IFNDEF directives test for an internal      ',&
 '                    prep(1) variable and then an environment variable by        ',&
-'                    by default. This option turns off testing for enviroment    ',&
+'                    by default. This option turns off testing for environment   ',&
 '                    variables.                                                  ',&
 '                                                                                ',&
 '   --type FILETYPE  this flag indicates to skip input lines until after a       ',&
@@ -19401,7 +19443,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                           compiling fixed-format Fortran source.               ',&
 '                                                                                ',&
 '   --width n    Maximum line length of the output file. The default is 1024.    ',&
-'                The parameter is yypically used to trim fixed-format FORTRAN    ',&
+'                The parameter is typically used to trim fixed-format FORTRAN    ',&
 '                code that contains comments or "ident" labels past column 72    ',&
 '                when compiling fixed-format Fortran code.                       ',&
 '                                                                                ',&
@@ -19527,7 +19569,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   $IDENT metadata [-language fortran|c|shell]                                  ',&
 '                                                                                ',&
 '   $IDENT is a special-purpose directive generally used only by users of        ',&
-'   SCCS-metadata.  This string is generally included for use with the           ',&
+'   SCCS-metadata. This string is generally included for use with the            ',&
 '   what(1) command, and generates a comment if "-ident" is not specified        ',&
 '   on the command line.                                                         ',&
 '                                                                                ',&
@@ -19705,7 +19747,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   o The default message if the value is not "0" is to display the program      ',&
 '     state like a "$SHOW" directive.                                            ',&
 '                                                                                ',&
-'   "$QUIT" is an alias for "$STOP 0".                                           ',&
+'   "$QUIT" is an alias for "$STOP 0". "$ERROR" is a synonym for "$STOP 1"       ',&
 '                                                                                ',&
 '     >$IFNDEF TYPE                                                              ',&
 '     >$STOP 10 "ERROR: ""TYPE"" not defined"                                    ',&
@@ -19727,7 +19769,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '    > $SYSTEM echo compile_time="`date`" >> compiled.h                          ',&
 '    > $INCLUDE compiled.h                                                       ',&
 '                                                                                ',&
-'    > $if systemon ! if --system switch is prsent on command line               ',&
+'    > $if systemon ! if --system switch is present on command line              ',&
 '    > $!  obtain up-to-date copy of source file from HTTP server:               ',&
 '    > $   SYSTEM wget http://repository.net/src/func.F90 -O - >_tmp.f90         ',&
 '    > $   INCLUDE _tmp.f90                                                      ',&
@@ -19878,9 +19920,9 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 'NOTE                                                                            ',&
 '  Not documented elsewhere, note that there is a developer flag (--debug) that  ',&
-'  can be useful when learning proper prep(1) uage (but it should not be used in ',&
+'  can be useful when learning proper prep(1) usage (but it should not be used in',&
 '  production). Among other things it deactivates the termination of the program ',&
-'  upone detection of an error. This mode thus allows for simple interactive use.',&
+'  upon detection of an error. This mode thus allows for simple interactive use. ',&
 '  In addition, when in this mode entering "$HELP" produces a cribsheet.         ',&
 'AUTHOR                                                                          ',&
 '   John S. Urban                                                                ',&
@@ -20292,7 +20334,7 @@ subroutine get_os_type()
 !! Returns OS_UNKNOWN if the operating system cannot be determined.
 !!
 !! calling POSIX or C routines would be far better, M_system::like system_uname(3f)
-!! but trying to use portable Fortran.  If assume compiled by certain compilers could
+!! but trying to use portable Fortran. If assume compiled by certain compilers could
 !! use their extensions as well. Most have a uname(3f) function.
 !!
 integer, parameter :: OS_UNKNOWN = 0
