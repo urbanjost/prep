@@ -18,7 +18,15 @@ $BLOCK
 
 $! if the document directory is defined make sure it and the doc/ directory exists
 $IFDEF PREP_DOCUMENT_DIR
-$   SYSTEM mkdir -p $PREP_DOCUMENT_DIR/doc
+$   IF SYSTEMON==1
+$      IF SYSTEM .ne. MSWINDOWS
+$         SYSTEM mkdir -p $PREP_DOCUMENT_DIR/doc
+$      ELSE
+$         SYSTEM mkdir $PREP_DOCUMENT_DIR/doc
+$      ENDIF
+$   ELSE
+$      MESSAGE "WARNING: The environment variable $PREP_DOCUMENT_DIR is not set"
+$   ENDIF
 $ENDIF
 
 program test_help
@@ -47,7 +55,11 @@ $BLOCK
 
 $! convert the help text from a flat text file to a roff file using txt2man(1)
 $IFDEF PREP_DOCUMENT_DIR
-$   SYSTEM mkdir -p man/man1                                                                        
-$   SYSTEM txt2man $PREP_DOCUMENT_DIR/doc/conditional_compile.1.man >man/man1/conditional_compile.1
+$   IF SYSTEMON==1
+$      SYSTEM mkdir -p man/man1                                                                        
+$      SYSTEM txt2man $PREP_DOCUMENT_DIR/doc/conditional_compile.1.man >man/man1/conditional_compile.1
+$   ELSE
+$      MESSAGE "WARNING: The environment variable $PREP_DOCUMENT_DIR is not set"
+$   ENDIF
 $ENDIF
 end program test_help
