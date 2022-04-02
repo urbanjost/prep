@@ -6,7 +6,7 @@
  + the [demos/](demos/) directory has example input files for a variety of cases
  + The [CHANGELOG](docs/CHANGELOG.md)
  + The [CI/CD](docs/STATUS.md) results
- + Developer [ford(1) output](https://urbanjost.github.io/M_uuid/fpm-ford/index.html)
+ + Developer [ford(1) output](https://urbanjost.github.io/prep/fpm-ford/index.html)
 
 ## Description
 `prep(1)` is a streamlined pre-processor primarily designed for use with

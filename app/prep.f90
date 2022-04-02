@@ -1,6 +1,25 @@
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
+!  @(#)prep: FORTRAN pre-processor
+!  Fortran preprocessor originally based on public-domain FPP pre-processor from Lahey Fortran Code Repository
+!     http://www.lahey.com/code.htm
+!  Extensively rewritten since under a MIT License.
+!     2013-10-03,2020-12-19,2021-06-12 : John S. Urban
+!
+! CONSIDER
+! make $OUTPUT file nestable
+! allow multiple files on $INCLUDE?
+! undocument $BLOCK HELP|VERSION?
+! %,>>,<< operators
+! replace math parsing with M_calculator (but add logical operators to M_calculator)
+! cpp-like procedure macros
+! cpp or fpp compatibility mode
+! line control  # linenumber "file"
+! modularize and modernize calculator expression, if/else/endif
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!===================================================================================================================================
 module M_expression
 use M_strings,   only : str_replace=>replace
 private
@@ -25,28 +44,10 @@ character(len=*) :: string
 
 end subroutine normalize_logical_operators
 end module M_expression
-!===================================================================================================================================
-!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
-!===================================================================================================================================
-!  @(#)prep: FORTRAN pre-processor
-!  Fortran preprocessor originally based on public-domain FPP pre-processor from Lahey Fortran Code Repository
-!     http://www.lahey.com/code.htm
-!  Extensively rewritten since under a MIT License.
-!     2013-10-03,2020-12-19,2021-06-12 : John S. Urban
-! CONSIDER
-! make $OUTPUT file nestable
-! allow multiple files on $INCLUDE
-! undocument $BLOCK HELP|VERSION?
-! %,>>,<< operators
-! replace math parsing with M_calculator (but add logical operators to M_calculator)
-! cpp-like procedure macros
-! cpp or fpp compatibility mode
-! line control  # linenumber "file"
-
 module M_fpp                                                              !@(#)M_fpp(3f): module used by prep program
 USE ISO_FORTRAN_ENV, ONLY : STDERR=>ERROR_UNIT, STDOUT=>OUTPUT_UNIT,STDIN=>INPUT_UNIT
-use M_io,        only : get_tmp, dirname, uniq, fileopen, filedelete      ! Fortran file I/O routines
-use M_kracken95, only : sget, dissect, lget                               ! load command argument parsing module
+use M_io,        only : get_tmp, dirname, uniq, fileopen, filedelete, get_env  ! Fortran file I/O routines
+use M_kracken95, only : sget, dissect, lget                                    ! load command argument parsing module
 use M_strings,   only : nospace, v2s, substitute, upper, lower, isalpha, split, delim, str_replace=>replace, sep, atleast, unquote
 use M_strings,   only : glob
 use M_list,      only : insert, locate, replace, remove                   ! Basic list lookup and maintenance
@@ -693,7 +694,7 @@ character(len=:),allocatable :: varvalue
       G_dc=.false.
    endif
    if((.not.G_noenv).and.(.not.G_dc))then            ! if not found in variable dictionary check environment variables if allowed
-      varvalue=system_getenv(value)
+      varvalue=get_env(value)
       if(len_trim(varvalue).ne.0)then
          G_dc=.true.
       endif
@@ -3088,7 +3089,7 @@ character(len=:),allocatable :: names(:)
 integer                      :: i
    names=sep(line)
    do i=1,size(names)
-      call set(names(i)//' '//system_getenv(names(i)))
+      call set(names(i)//' '//get_env(names(i)))
    enddo
 end subroutine import
 !===================================================================================================================================
@@ -3200,81 +3201,6 @@ do i=1,toomany
 enddo
 line=temp
 end subroutine expand_variables
-!===================================================================================================================================
-!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
-!===================================================================================================================================
-!>
-!!##NAME
-!!    system_getenv(3f) - [M_system:ENVIRONMENT] get environment variable
-!!    from Fortran by calling get_environment_variable(3f)
-!!    (LICENSE:PD)
-!!
-!!##SYNOPSIS
-!!
-!!    function system_getenv(name,default)
-!!
-!!     character(len=:),allocatable         :: system_getenv
-!!     character(len=*),intent(in)          :: name
-!!     character(len=*),intent(in),optional :: default
-!!
-!!##DESCRIPTION
-!!    The system_getenv() function gets the value of an environment variable.
-!!
-!!##OPTIONS
-!!    name     Return the value of the specified environment variable or
-!!             blank if the variable is not defined.
-!!    default  If the value returned would be blank this value will be used
-!!             instead.
-!!
-!!##EXAMPLE
-!!
-!!   Sample setting an environment variable from Fortran:
-!!
-!!    program demo_system_getenv
-!!    use M_system, only : system_getenv
-!!    implicit none
-!!       write(*,'("USER     : ",a)')system_getenv('USER')
-!!       write(*,'("LOGNAME  : ",a)')system_getenv('LOGNAME')
-!!       write(*,'("USERNAME : ",a)')system_getenv('USERNAME')
-!!    end program demo_system_getenv
-!!
-!!##AUTHOR
-!!    John S. Urban
-!!##LICENSE
-!!    Public Domain
-function system_getenv(name,default) result(value)
-
-! ident_23="@(#)M_system::system_getenv(3f): call get_environment_variable as a function with a default value(3f)"
-
-character(len=*),intent(in)          :: name
-character(len=*),intent(in),optional :: default
-integer                              :: howbig
-integer                              :: stat
-character(len=:),allocatable         :: value
-
-   if(NAME.ne.'')then
-      call get_environment_variable(name, length=howbig, status=stat, trim_name=.true.)  ! get length required to hold value
-      if(howbig.ne.0)then
-         select case (stat)
-         case (1)     ! print *, NAME, " is not defined in the environment. Strange..."
-            value=''
-         case (2)     ! print *, "This processor doesn't support environment variables. Boooh!"
-            value=''
-         case default ! make string to hold value of sufficient size and get value
-            if(allocated(value))deallocate(value)
-            allocate(character(len=max(howbig,1)) :: VALUE)
-            call get_environment_variable(name,value,status=stat,trim_name=.true.)
-            if(stat.ne.0)VALUE=''
-         end select
-      else
-         value=''
-      endif
-   else
-      value=''
-   endif
-   if(value.eq.''.and.present(default))value=default
-
-end function system_getenv
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
