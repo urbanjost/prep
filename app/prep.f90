@@ -1,6 +1,33 @@
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
+module M_expression
+use M_strings,   only : str_replace=>replace
+private
+public normalize_logical_operators
+contains
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!===================================================================================================================================
+subroutine normalize_logical_operators(string)
+character(len=*) :: string
+   string=str_replace(string,'==','.EQ.')
+   string=str_replace(string,'/=','.NE.')
+   string=str_replace(string,'!=','.NE.')
+   string=str_replace(string,'>=','.GE.')
+   string=str_replace(string,'<=','.LE.')
+   string=str_replace(string,'>','.GT.')
+   string=str_replace(string,'<','.LT.')
+   string=str_replace(string,'&&','.AND.')
+   string=str_replace(string,'||','.OR.')
+   string=str_replace(string,'!','.NOT.')
+   string=str_replace(string,'.XOR.','.NEQV.')
+
+end subroutine normalize_logical_operators
+end module M_expression
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!===================================================================================================================================
 !  @(#)prep: FORTRAN pre-processor
 !  Fortran preprocessor originally based on public-domain FPP pre-processor from Lahey Fortran Code Repository
 !     http://www.lahey.com/code.htm
@@ -23,6 +50,7 @@ use M_kracken95, only : sget, dissect, lget                               ! load
 use M_strings,   only : nospace, v2s, substitute, upper, lower, isalpha, split, delim, str_replace=>replace, sep, atleast, unquote
 use M_strings,   only : glob
 use M_list,      only : insert, locate, replace, remove                   ! Basic list lookup and maintenance
+use M_expression
 implicit none
 
 logical,save                         :: G_debug=.false.
@@ -370,7 +398,7 @@ integer                     :: istore                       ! location of variab
 character(len=:),allocatable :: array(:)
 character(len=:),allocatable :: opts
 
-   CALL split(allopts,array,delimiters=';')                       ! parse string to an array parsing on delimiters
+   CALL split(allopts,array,delimiters=';')                 ! parse string to an array parsing on delimiters
 
    do i=1,size(array)
      opts=trim(array(i))
@@ -417,18 +445,7 @@ character(len=:),allocatable :: opts
          G_defvar(istore)=opts(:iequ-1)                        ! store variable name from line with =value string
          temp=opts(iequ+1:)                                       ! get expression
       endif
-
-      temp=str_replace(temp,'==','.EQ.')
-      temp=str_replace(temp,'/=','.NE.')
-      temp=str_replace(temp,'!=','.NE.')
-      temp=str_replace(temp,'>=','.GE.')
-      temp=str_replace(temp,'<=','.LE.')
-      temp=str_replace(temp,'>','.GT.')
-      temp=str_replace(temp,'<','.LT.')
-      temp=str_replace(temp,'&&','.AND.')
-      temp=str_replace(temp,'||','.OR.')
-      temp=str_replace(temp,'!','.NOT.')
-      temp=str_replace(temp,'.XOR.','.NEQV.')
+      call normalize_logical_operators(temp)
       call parens(temp)                                        !
       if (iequ.ne.0) then
          temp=opts(:iequ)//temp
@@ -620,17 +637,7 @@ character(len=G_line_length) :: expression       ! line        -
       exit                                                    ! no remaining DEFINED() functions so exit loop
    enddo FIND_DEFINED
 
-   expression=str_replace(expression,'==','.EQ.')
-   expression=str_replace(expression,'/=','.NE.')
-   expression=str_replace(expression,'!=','.NE.')
-   expression=str_replace(expression,'>=','.GE.')
-   expression=str_replace(expression,'<=','.LE.')
-   expression=str_replace(expression,'>','.GT.')
-   expression=str_replace(expression,'<','.LT.')
-   expression=str_replace(expression,'&&','.AND.')
-   expression=str_replace(expression,'||','.OR.')
-   expression=str_replace(expression,'!','.NOT.')
-   expression=str_replace(expression,'.XOR.','.NEQV.')
+   call normalize_logical_operators(expression)
    call parens(expression)
    if (index(expression,'.').eq.0) then                            ! if line should be a variable only
       if (expression(1:1).ge.'A'.and.expression(1:1).le.'Z') then  ! check that variable name starts with a valid character
@@ -1473,6 +1480,14 @@ character(len=G_line_length) :: options                 ! everything after first
       G_outtype='set'
       G_MAN_PRINT=.false.
       G_MAN_COLLECT=.false.
+   case('DEFINE')
+      G_outtype='define'
+      G_MAN_PRINT=.false.
+      G_MAN_COLLECT=.false.
+   case('REDEFINE')
+      G_outtype='redefine'
+      G_MAN_PRINT=.false.
+      G_MAN_COLLECT=.false.
    case('MESSAGE')
       G_outtype='message'
       G_MAN_PRINT=.false.
@@ -2251,8 +2266,9 @@ help_text=[ CHARACTER(LEN=128) :: &
 '     $INCLUDE  filename                                   [! comment ]          ',&
 '                                                                                ',&
 '    :TEXT BLOCK FILTERS                                                         ',&
-'     $BLOCK   [null|comment|write|variable [-varname NAME]|set|system|          ',&
-'              message|help|version] [-file NAME [-append]][! comment ]          ',&
+'     $BLOCK   [null|comment|write|variable [-varname NAME]|                     ',&
+'              set|system|message|define|redefine|                               ',&
+'              help|version] [-file NAME [-append]]        [! comment ]          ',&
 '                                                                                ',&
 '    :IDENTIFIERS                                                                ',&
 '     $IDENT | $@(#)    metadata                           [! comment ]          ',&
@@ -2558,9 +2574,18 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   "import home" gets the lowercase environment variable "home" and then sets   ',&
 '   the associated value and then sets the prep(1) variable "HOME" to the value. ',&
 '                                                                                ',&
-'   $BLOCK [comment|null|write|help|version  [-file NAME [-append]]              ',&
-'     or                                                                         ',&
-'   $BLOCK VARIABLE --varname NAME  [--file NAME [-append]]                      ',&
+'   $BLOCK                                                                       ',&
+'                                                                                ',&
+'   $BLOCK has several forms but in all cases operates on a block of lines:      ',&
+'                                                                                ',&
+'     basic filtering:                                                           ',&
+'      $BLOCK [comment|null|write                 [--file NAME [-append]]        ',&
+'     creating a CHARACTER array:                                                ',&
+'      $BLOCK VARIABLE --varname NAME             [--file NAME [-append]]        ',&
+'     block versions of prep(1) commands:                                        ',&
+'      $BLOCK set|system|message|define|redefine  [--file NAME [-append]]        ',&
+'     specialized procedure construction:                                        ',&
+'      $BLOCK help|version                        [--file NAME [-append]]        ',&
 '                                                                                ',&
 '      NULL:      Do not write into current output file                          ',&
 '      COMMENT:   write text prefixed by an exclamation and a space or according ',&
@@ -2573,6 +2598,8 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                 the --varname switch. Default name is "textblock".             ',&
 '      MESSAGE:   All the lines in the block are treated as options to $MESSAGE  ',&
 '      SET:       All the lines in the block are treated as options to $SET      ',&
+'      DEFINE:    All the lines in the block are treated as options to $DEFINE   ',&
+'      REDEFINE   All the lines in the block are treated as options to $REDEFINE ',&
 '      SYSTEM:    The lines are gathered into a file and executed by the shell   ',&
 '                 with the stdout being written to a scratch file and then read  ',&
 '      END:       End block of specially processed text                          ',&
@@ -2917,7 +2944,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 "  $INCLUDE filename                                                             ",&
 "TEXT BLOCK FILTERS                                                              ",&
 "  $BLOCK [comment|null|write|variable [-varname NAME]|set|system|message|       ",&
-"         help|version][-file NAME [-append]]                                    ",&
+"         define|redefine|help|version][-file NAME [-append]]                    ",&
 "INFORMATION                                                                     ",&
 "  $MESSAGE message_to_stderr                                                    ",&
 "  $SHOW [defined_variable_name][;...]                                           ",&
@@ -2963,6 +2990,12 @@ character(len=256)             :: message
 
    case('set')                                 ! do not write
       call set(line)
+
+   case('define')                              ! do not write
+      call define(nospace(upper(line)),1)
+
+   case('redefine')                            ! do not write
+      call define(nospace(upper(line)),0)
 
    case('message')                             ! do not write
       call write_err(line)                     ! trustingly trim MESSAGE from directive

@@ -132,8 +132,9 @@ DESCRIPTION
      $INCLUDE  filename                                   [! comment ]
 
     :TEXT BLOCK FILTERS
-     $BLOCK   [null|comment|write|variable [-varname NAME]|set|system|
-              message|help|version] [-file NAME [-append]][! comment ]
+     $BLOCK   [null|comment|write|variable [-varname NAME]|
+              set|system|message|define|redefine|
+              help|version] [-file NAME [-append]]        [! comment ]
 
     :IDENTIFIERS
      $IDENT | $@(#)    metadata                           [! comment ]
@@ -439,9 +440,18 @@ OPTIONS
    "import home" gets the lowercase environment variable "home" and then sets
    the associated value and then sets the prep(1) variable "HOME" to the value.
 
-   $BLOCK [comment|null|write|help|version  [-file NAME [-append]]
-     or
-   $BLOCK VARIABLE --varname NAME  [--file NAME [-append]]
+   $BLOCK
+
+   $BLOCK has several forms but in all cases operates on a block of lines:
+
+     basic filtering:
+      $BLOCK [comment|null|write                 [--file NAME [-append]]
+     creating a CHARACTER array:
+      $BLOCK VARIABLE --varname NAME             [--file NAME [-append]]
+     block versions of prep(1) commands:
+      $BLOCK set|system|message|define|redefine  [--file NAME [-append]]
+     specialized procedure construction:
+      $BLOCK help|version                        [--file NAME [-append]]
 
       NULL:      Do not write into current output file
       COMMENT:   write text prefixed by an exclamation and a space or according
@@ -454,6 +464,8 @@ OPTIONS
                  the --varname switch. Default name is "textblock".
       MESSAGE:   All the lines in the block are treated as options to $MESSAGE
       SET:       All the lines in the block are treated as options to $SET
+      DEFINE:    All the lines in the block are treated as options to $DEFINE
+      REDEFINE   All the lines in the block are treated as options to $REDEFINE
       SYSTEM:    The lines are gathered into a file and executed by the shell
                  with the stdout being written to a scratch file and then read
       END:       End block of specially processed text

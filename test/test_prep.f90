@@ -53,6 +53,7 @@ allocate(tally(0))
 !>>          [-file NAME [-append]]
    call block()
    call block_2()
+   call block_3()
 
 !>> INFORMATION
 !>>   $MESSAGE message_to_stderr
@@ -278,7 +279,7 @@ data=[ character(len=132) :: &
 'good ', &
 '$else', &
 'bad 3', &
-'$define A=A+100', &
+'$   define A=A+100', &
 '$endif', &
 ' ', &
 '$if A.ne.10', &
@@ -395,6 +396,52 @@ expected=[ character(len=132) :: &
 call teardown('block_2')
 
 end subroutine block_2
+!===============================================================================
+subroutine block_3()
+data=[ character(len=132) :: &
+'$!-------------------------------',&
+'$BLOCK set                       ',&
+'one   This is the one            ',&
+'two   two plus two is four       ',&
+'three pennies                    ',&
+'four  calling birds              ',&
+'five  1 +1+ 1+4-2                ',&
+'$BLOCK                           ',&
+'$!-------------------------------',&
+'$BLOCK DEFINE                    ',&
+'A=10;b = 20 ;                    ',&
+'VAR = 3+3-2/2*(3**2)             ',&
+'$BLOCK                           ',&
+'$!-------------------------------',&
+'$if VAR==-3                      ',&
+' ${one}                          ',&
+'${two}                           ',&
+'$endif                           ',&
+'$!-------------------------------',&
+'${three}                         ',&
+'      ${three}                   ',&
+'$!-------------------------------',&
+'$if(A+B.eq.30)then               ',&
+'${four}                          ',&
+'${five}                          ',&
+'${one}${three}  ${three}         ',&
+'$endif                           ',&
+'$!-------------------------------',&
+'last line']
+
+expected=[ character(len=132) :: &
+'   This is the one               ',&
+"  two plus two is four           ",&
+"pennies                          ",&
+"      pennies                    ",&
+" calling birds                   ",&
+" 1 +1+ 1+4-2                     ",&
+"  This is the onepennies  pennies",&
+"last line"]
+
+call teardown('block_3')
+
+end subroutine block_3
 !===============================================================================
 subroutine conditionals_2()
 

@@ -248,8 +248,9 @@ The syntax for the directive lines is as follows:
      $INCLUDE  filename                                   [! comment ]
 <P>
     :TEXT BLOCK FILTERS
-     $BLOCK   [null|comment|write|variable [-varname NAME]|set|system|
-              message|help|version] [-file NAME [-append]][! comment ]
+     $BLOCK   [null|comment|write|variable [-varname NAME]|
+              set|system|message|define|redefine|
+              help|version] [-file NAME [-append]]        [! comment ]
 <P>
     :IDENTIFIERS
      $IDENT | $@(#)    metadata                           [! comment ]
@@ -618,20 +619,21 @@ case-sensitive in regards to obtaining the values, but the names become
 values, but the names because case-insensitive in <B>prep</B>(). That is,
 "import home" gets the lowercase environment variable "home" and then sets
 the associated value and then sets the <B>prep</B>(1) variable "HOME" to the value.
-<TABLE cellpadding=3><!-- tsb: The values of environment variables may be imported just like their names
- -->
-<TR></TR><TR></TR>
-<TR valign=top><TD colspan=2>
-<B>$BLOCK [comment|null|write|help|version</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-[-file NAME [-append]]
-or
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>$BLOCK VARIABLE </B><B>--varname</B> NAME </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-[-<B>-file</B> NAME [-append]]
-</TD></TR>
-<TR><TD colspan=2>
+<P>
+$BLOCK
+<P>
+$BLOCK has several forms but in all cases operates on a block of lines:
+<P>
 <PRE>
+     basic filtering:
+      $BLOCK [comment|null|write                 [--file NAME [-append]]
+     creating a CHARACTER array:
+      $BLOCK VARIABLE --varname NAME             [--file NAME [-append]]
+     block versions of prep(1) commands:
+      $BLOCK set|system|message|define|redefine  [--file NAME [-append]]
+     specialized procedure construction:
+      $BLOCK help|version                        [--file NAME [-append]]
+<P>
       NULL:      Do not write into current output file
       COMMENT:   write text prefixed by an exclamation and a space or according
                  to the style selected by the --comment style selected on the
@@ -643,13 +645,14 @@ or
                  the --varname switch. Default name is "textblock".
       MESSAGE:   All the lines in the block are treated as options to $MESSAGE
       SET:       All the lines in the block are treated as options to $SET
+      DEFINE:    All the lines in the block are treated as options to $DEFINE
+      REDEFINE   All the lines in the block are treated as options to $REDEFINE
       SYSTEM:    The lines are gathered into a file and executed by the shell
                  with the stdout being written to a scratch file and then read
       END:       End block of specially processed text
 <P>
 </PRE>
-</TD></TR>
-<TR><TD width=6%>&nbsp;</TD><TD>
+<BLOCKQUOTE>
 special-purpose modes primarily for use with the M_kracken module:
 <P>
 <PRE>
@@ -658,42 +661,35 @@ special-purpose modes primarily for use with the M_kracken module:
                  lines with @(#) for use with the what(1) command.
 <P>
 </PRE>
+</BLOCKQUOTE>
 If the "<B>-file</B> NAME" option is present the text is written to the
 specified file unfiltered except for string expansion. This allows
 documentation to easily be maintained in the source file. It can be
 tex, html, markdown or any plain text. The filename will be prefixed
 with $PREP_DOCUMENT_DIR/doc/ . If the environment variable
 $PREP_DOCUMENT_DIR is not set the option is ignored.
-</TD></TR>
-<TR><TD colspan=2>
+<P>
 The <B>--file</B> output can easily be processed by other utilities such
 as <B>markdown</B>(1) or <B>txt2man</B>(1) to produce <B>man</B>(1) pages and HTML
 documents. $SYSTEM commands may follow the $BLOCK block text to
 optionally post-process the doc files.
-</TD></TR>
-<TR><TD colspan=2>
+<P>
 A blank value or "END" returns to normal output processing.
-</TD></TR>
-<TR><TD colspan=2>
+<P>
 $SHOW [variable_name][;&#46;&#46;&#46;]
-</TD></TR>
-<TR><TD colspan=2>
+<P>
 Shows current state of <B>prep</B>(1); including variable names and values and
 the name of the current input files. All output is preceded by an
 exclamation character.
-</TD></TR>
-<TR><TD colspan=2>
+<P>
 If a list of defined variable names is present only those variables and
 their values are shown.
-</TD></TR>
-<TR><TD colspan=2>
+<P>
 Basic globbing is supported, where "*" represents any string, and "?"
 represents any single character.
-</TD></TR>
-<TR><TD colspan=2>
+<P>
 Example:
-</TD></TR>
-<TR><TD colspan=2>
+<P>
 <PRE>
     &gt; prep A=10 B C D -o paper
     &gt; $define z=22
@@ -737,12 +733,12 @@ Example:
 <P>
 </PRE>
 $STOP [stop_value ["message"]]
-</TD></TR>
-<TR><TD colspan=2>
+<P>
 Stops the <B>prep</B>(1) program. An optional integer value will be returned
 as a status value to the system where supported.
-</TD></TR>
-<TR></TR></TABLE><TABLE cellpadding=3>
+<TABLE cellpadding=3><!-- tsb: Stops the <B>prep</B>(1) program. An optional integer value will be returned
+ -->
+<TR></TR><TR></TR>
 <TR valign=top><TD width=3%>
 o
 </TD><TD>
