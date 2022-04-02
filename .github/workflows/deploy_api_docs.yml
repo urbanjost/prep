@@ -1,4 +1,4 @@
-#name: Build FORD docs & deploy to gh-pages
+#name: Build FORD docs & deploy to main
 name: Build FORD(1) docs
 on:
   push:
@@ -18,7 +18,7 @@ jobs:
       - name: Install dependencies
         run: python -m pip install --upgrade pip ford
 
-      - name: Checkout gh_pages
+      - name: Checkout main
         uses: actions/checkout@v1
 
       - name: Build docs
@@ -31,8 +31,7 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@releases/v3
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          #BRANCH: gh_pages
-          BRANCH: gh_pages
+          BRANCH: main    
           FOLDER: docs/fpm-ford
           TARGET_FOLDER: docs/fpm-ford
 #         ford(1) deletes the output directory before running
