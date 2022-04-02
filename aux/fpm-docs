@@ -1,7 +1,11 @@
 #!/bin/bash
 cd $(dirname $0)/..
+git branch gh-pages
+git checkout gh-pages
 fpm run prep -- --help  > docs/prep.1.man
 txt2man docs/prep.1.man > docs/prep.1
 man2html docs/prep.1    > docs/prep.1.html
-cygstart docs/prep.1.html
+cp docs/prep.1.html /tmp/
+git checkout main
+cygstart /tmp/prep.1.html
 exit
