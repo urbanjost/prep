@@ -11,7 +11,8 @@ Slow is better than unmaintainable
 
 Small functions are clearer than monolithic procedures
 Simplicity is robustness
-“Make everything as simple as possible – but no simpler” (Einstein)
+“Make everything as simple as possible – but no simpler” 
+                                 (Einstein, relatively!)
 
 Self-descriptive code is best
 but comment
@@ -49,6 +50,15 @@ like you were going to give them to a friend
 
      Inspired by Zen of Python 2 and Zen of NumPy 3,
      by Travis Oliphant and Tim Peters
+$BLOCK
+$BLOCK NULL
+
+Einstein did say (The Herbert Spencer Lecture, Oxford, 10 June 1933)
+
+“It can scarcely be denied that the supreme goal of all theory is to
+make the irreducible basic elements as simple and as few as possible
+without having to surrender the adequate representation of a single
+datum of experience.”
 $BLOCK
 end program zen_of_fortran
 $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

@@ -173,6 +173,7 @@ integer                      :: verblen
       write(stderr,*)'VERB='//trim(verb)
       write(stderr,*)'OPTIONS='//trim(options)
       write(stderr,*)'UPOPTS='//trim(upopts)
+      call flushit()
    endif
 
    if(G_write)then                                                    ! if processing lines in a logically selected region
@@ -183,7 +184,7 @@ integer                      :: verblen
                                                                       ! process the directive
       select case(VERB)
       case('  ')                                                      ! entire line is a comment
-      case('DEFINE','DEF');     call define(upopts,1)                 ! only process DEFINE if not skipping data lines
+      case('DEFINE','DEF','LET');     call define(upopts,1)                 ! only process DEFINE if not skipping data lines
       case('REDEFINE','REDEF'); call define(upopts,0)                 ! only process DEFINE if not skipping data lines
       case('UNDEF','UNDEFINE','DELETE'); call undef(upper(options))   ! only process UNDEF if not skipping data lines
       case('INCLUDE','READ');   call include(options,50+G_iocount)    ! Filenames can be case sensitive
@@ -206,7 +207,7 @@ integer                      :: verblen
    endif
    select case(VERB)                                                  ! process logical flow control even if G_write is false
 
-   case('DEFINE','INCLUDE','SHOW','STOP','QUIT','HELP')
+   case('DEFINE','INCLUDE','SHOW','STOP','QUIT','HELP','LET')
    case('SYSTEM','UNDEF','UNDEFINE','DELETE','MESSAGE','REDEFINE')
    case('OUTPUT','IDENT','@(#)','BLOCK','IMPORT','DEF','REDEF')
    case('PARCEL','POST','SET','GET_ARGUMENTS','READ','ERROR')
@@ -224,7 +225,7 @@ end subroutine cond
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine exe()                              ! @(#)exe(3f): Execute the command line specified by the string COMMAND.
+subroutine exe()                              !@(#)exe(3f): Execute the command line specified by the string COMMAND.
 character(len=G_line_length)  :: command      ! directive line with leading prefix and directive name removed
 character(len=G_line_length)  :: defineme     ! scratch string for writing a DEFINE directive in to return command status
 integer                       :: icmd=0
@@ -256,7 +257,7 @@ end subroutine exe
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine write_get_arguments()                ! @(#)write_get_arguments(3f): write block for processing M_CLI command line parsing
+subroutine write_get_arguments()                !@(#)write_get_arguments(3f): write block for processing M_CLI command line parsing
 integer :: i
 character(len=132),parameter :: text(*)=[character(len=132) :: &
 "function get_arguments()"                                                                              ,&
@@ -398,6 +399,11 @@ integer                     :: iname                        ! length of variable
 integer                     :: istore                       ! location of variable name in dictionary
 character(len=:),allocatable :: array(:)
 character(len=:),allocatable :: opts
+
+   !x!if(allopts.eq.'')then                                    ! if no options show all variables. 
+   !x!   call debug_state('*',msg='')
+   !x!   return
+   !x!endif
 
    CALL split(allopts,array,delimiters=';')                 ! parse string to an array parsing on delimiters
 
@@ -761,14 +767,15 @@ integer                       :: ithen
 logical                       :: eb
 character(len=G_line_length)  :: expression
 
-if(G_debug.and.G_verbose)then
-   write(stderr,*)'*ELSE* TOP'
-   write(stderr,*)'        G_NESTL =',g_nestl
-   write(stderr,*)'        EB      =',eb
-   write(stderr,*)'        NOELSE  =',noelse
-   write(stderr,*)'        G_WRITE =',g_write
-   write(stderr,*)'        G_CONDOP=',g_condop
-endif
+   if(G_debug.and.G_verbose)then
+      write(stderr,*)'*ELSE* TOP'
+      write(stderr,*)'        G_NESTL =',g_nestl
+      write(stderr,*)'        EB      =',eb
+      write(stderr,*)'        NOELSE  =',noelse
+      write(stderr,*)'        G_WRITE =',g_write
+      write(stderr,*)'        G_CONDOP=',g_condop
+      call flushit()
+   endif
 
    expression=opts
    ithen=len_trim(opts)  ! trim off ")THEN"
@@ -797,14 +804,15 @@ endif
      G_write=.true.
    endif
 
-if(G_debug.and.G_verbose)then
-   write(stderr,*)'*ELSE* BOTTOM'
-   write(stderr,*)'        G_NESTL =',g_nestl
-   write(stderr,*)'        EB      =',eb
-   write(stderr,*)'        NOELSE  =',noelse
-   write(stderr,*)'        G_WRITE =',g_write
-   write(stderr,*)'        G_CONDOP=',g_condop
-endif
+   if(G_debug.and.G_verbose)then
+      write(stderr,*)'*ELSE* BOTTOM'
+      write(stderr,*)'        G_NESTL =',g_nestl
+      write(stderr,*)'        EB      =',eb
+      write(stderr,*)'        NOELSE  =',noelse
+      write(stderr,*)'        G_WRITE =',g_write
+      write(stderr,*)'        G_CONDOP=',g_condop
+      call flushit()
+   endif
 end subroutine else
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -820,6 +828,7 @@ logical,intent(out)           :: eb
       write(stderr,*)'        NOELSE  =',noelse
       write(stderr,*)'        G_WRITE =',g_write
       write(stderr,*)'        G_CONDOP=',g_condop
+      call flushit()
    endif
 
    ! if no ELSE or ELSEIF present insert ELSE to simplify logic
@@ -850,6 +859,7 @@ logical,intent(out)           :: eb
       write(stderr,*)'        NOELSE  =',noelse
       write(stderr,*)'        G_WRITE =',g_write
       write(stderr,*)'        G_CONDOP=',g_condop
+      call flushit()
    endif
 
 end subroutine endif
@@ -1178,7 +1188,7 @@ end subroutine doop
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-logical function trufal(line,ipos1,ipos2)       ! @(#)trufal(3f): convert variable name or .TRUE./.FALSE. to a logical value
+logical function trufal(line,ipos1,ipos2)       !@(#)trufal(3f): convert variable name or .TRUE./.FALSE. to a logical value
 character(len=G_line_length),intent(in) :: line              ! line containing string to interpret as a logical value
 integer,intent(in)                      :: ipos1             ! starting column of substring in LINE
 integer,intent(in)                      :: ipos2             ! ending column of substring in LINE
@@ -1376,7 +1386,7 @@ integer                      :: ipos1, ipos2
         call stop_prep('*prep* ERROR(045) - MUST BE INTEGER:'//trim(G_source))
       endif
    else                                                             ! input is not a variable name, assume it represents an integer
-      read(line(ipos1:ipos2),'(i11)',iostat=ios) get_integer_from_string               ! try to read integer value from input string
+      read(line(ipos1:ipos2),'(i11)',iostat=ios) get_integer_from_string   ! try to read integer value from input string
       if(ios.ne.0)then                                              ! failed to convert the string to an integer, so stop
         call stop_prep('*prep* ERROR(046) - MUST BE INTEGER:'//trim(G_source))
       endif
@@ -1385,7 +1395,7 @@ end function get_integer_from_string
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine rewrit(line,temp,j,j1,l,l1)                           !@(#)rewrit(3f):
+subroutine rewrit(line,temp,j,j1,l,l1)           !@(#)rewrit(3f):
 character(len=G_line_length)  line
 character(len=*)           :: temp
 integer                    :: j
@@ -1410,7 +1420,7 @@ end subroutine rewrit
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine document(opts)                    ! @(#)document(3f): process BLOCK command to start or stop special processing
+subroutine document(opts)                    !@(#)document(3f): process BLOCK command to start or stop special processing
 character(len=*),intent(in)  :: opts
 integer                      :: ierr
 integer                      :: ios
@@ -1805,7 +1815,7 @@ end subroutine debug_state
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine write_arguments() ! @(#)write_arguments(3f): return all command arguments as a string
+subroutine write_arguments() !@(#)write_arguments(3f): return all command arguments as a string
 
 integer                      :: istatus          !  status (non-zero means error)
 integer                      :: ilength          !  length of individual arguments
@@ -1824,7 +1834,7 @@ end subroutine write_arguments
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine include(line,iunit)  ! @(#)include(3f): add file to input file list
+subroutine include(line,iunit)  !@(#)include(3f): add file to input file list
 implicit none
 character(len=G_line_length),intent(in)  :: line
 integer,intent(in)                       :: iunit
@@ -1870,7 +1880,7 @@ end subroutine include
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine post(parcel_name)  ! @(#)post(3f): switch to scratch file defined by PARCEL
+subroutine post(parcel_name)  !@(#)post(3f): switch to scratch file defined by PARCEL
 implicit none
 character(len=*),intent(in)  :: parcel_name
 integer                      :: ifound
@@ -2059,7 +2069,7 @@ end subroutine defines
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine stop(opts)                    ! @(#)stop(3f): process stop directive
+subroutine stop(opts)                    !@(#)stop(3f): process stop directive
 character(len=*),intent(in)  :: opts
 integer                      :: ivalue
 character(len=:),allocatable :: message
@@ -2076,6 +2086,7 @@ integer                      :: iend
       else
          message=unquote(trim(opts(iend:)))
          write(stderr,'(a)')message
+         call flushit()
       endif
 
       ivalue=get_integer_from_string(opts(:iend))
@@ -2957,7 +2968,7 @@ end subroutine short_help
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine write_out(line)  ! @(#)writeout(3f):  write (most) source code lines to output file
+subroutine write_out(line)  !@(#)writeout(3f):  write (most) source code lines to output file
 character(len=*),intent(in)    :: line
 integer                        :: istart
 
@@ -2973,7 +2984,7 @@ end subroutine write_out
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine www(line) ! @(#)www(3f):  change line into a WRITE, HELP/VERSION, COMMENT output line
+subroutine www(line) !@(#)www(3f):  change line into a WRITE, HELP/VERSION, COMMENT output line
 integer,parameter              :: linewidth=128
 character(len=*),intent(in)    :: line
 character(len=:),allocatable   :: buff
@@ -3063,8 +3074,7 @@ integer                     :: ios
 ! ident_2="@(#)M_verify::write_err(3f): writes a message to standard error using a standard f2003 method"
 
    write(stderr,'(a)',iostat=ios) trim(msg)
-   flush(unit=stdout,iostat=ios)
-   flush(unit=stderr,iostat=ios)
+   call flushit()
 end subroutine write_err
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -3121,6 +3131,7 @@ integer                      :: i
     !call update('a')
     ! get some values
     !write(stderr,*)'get b=>',get('b')
+    !call flushit()
   endif
 
 contains
@@ -3172,7 +3183,7 @@ end subroutine set
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
 subroutine expand_variables(line)
-! @(#) brute force variable substitution. maybe add something like wordexp(3c) with command expansion only if --system?
+!@(#) brute force variable substitution. maybe add something like wordexp(3c) with command expansion only if --system?
 ! this is just to try the concept. Either use wordexp or an equivalent to replicate "here document" processing.
 ! note no automatic continuation of the line if it extends past allowed length, which for Fortran is currently 132 for free-format
 ! the way this is written it would do recursive substitution and does not know when there is just not a match
@@ -3292,6 +3303,14 @@ integer                   :: n1
        ending=string(n1+1:)
    endif
 end function ends_in
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!===================================================================================================================================
+subroutine flushit()
+integer :: ios
+      flush(unit=stdout,iostat=ios)
+      flush(unit=stderr,iostat=ios)
+end subroutine flushit
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
