@@ -30,6 +30,7 @@ contains
 !===================================================================================================================================
 subroutine normalize_logical_operators(string)
 character(len=*) :: string
+
    string=str_replace(string,'==','.EQ.')
    string=str_replace(string,'/=','.NE.')
    string=str_replace(string,'!=','.NE.')
@@ -43,14 +44,19 @@ character(len=*) :: string
    string=str_replace(string,'.XOR.','.NEQV.')
 
 end subroutine normalize_logical_operators
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!===================================================================================================================================
 end module M_expression
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!===================================================================================================================================
 module M_fpp                                                              !@(#)M_fpp(3f): module used by prep program
 USE ISO_FORTRAN_ENV, ONLY : STDERR=>ERROR_UNIT, STDOUT=>OUTPUT_UNIT,STDIN=>INPUT_UNIT
 use M_io,        only : get_tmp, dirname, uniq, fileopen, filedelete, get_env  ! Fortran file I/O routines
 use M_kracken95, only : sget, dissect, lget                                    ! load command argument parsing module
 use M_strings,   only : nospace, v2s, substitute, upper, lower, isalpha, split, delim, str_replace=>replace, sep, atleast, unquote
 use M_strings,   only : glob
-use M_list,      only : insert, locate, replace, remove                   ! Basic list lookup and maintenance
 use M_expression
 implicit none
 
@@ -3106,6 +3112,7 @@ end subroutine import
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
 subroutine set(line)
+use M_list,      only : insert, locate, replace, remove                   ! Basic list lookup and maintenance
 character(len=*),intent(in)  :: line
 character(len=:),allocatable :: name
 character(len=:),allocatable :: val
@@ -3114,7 +3121,6 @@ integer                      :: i
 ! create a dictionary with character keywords, values, and value lengths
 ! using the routines for maintaining a list
 
-  call dissect2('set','-oo' ,line) ! parse options on input line
   iend=index(line//' ',' ')
   name=upper(line(:iend))
   if(name.eq.'')then
