@@ -18,7 +18,8 @@ new features, changes, and relevant notifications.
   - [x] developer documents (ford(1),doxygen(1), ...)
   - [ ] CI/CD(Continious Integration/Development) verification (github actions)
   - [ ] registered in fpm(1) repository
---
+
+---
 **2022-04-01**  John S. Urban <https://github.com/urbanjost>
 
 ### :orange_circle: DIFF:
@@ -29,7 +30,6 @@ new features, changes, and relevant notifications.
   + add $BLOCK SET                                             
   + add $BLOCK MESSAGE                                         
 ---
---
 **2022-04-01**  John S. Urban <https://github.com/urbanjost>
 
 ### :red_circle: FIX:
