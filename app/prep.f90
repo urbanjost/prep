@@ -2283,13 +2283,13 @@ help_text=[ CHARACTER(LEN=128) :: &
 '     $POST     blockname                                  [! comment ]          ',&
 '                                                                                ',&
 '    :EXTERNAL FILES (see $BLOCK ... --file also)                                ',&
-'     $OUTPUT   filename  [-append]                        [! comment ]          ',&
+'     $OUTPUT   filename  [--append]                       [! comment ]          ',&
 '     $INCLUDE  filename                                   [! comment ]          ',&
 '                                                                                ',&
 '    :TEXT BLOCK FILTERS (--file is ignored unless $PREP_DOCUMENT_DIR is set)    ',&
-'     $BLOCK   [null|comment|write|variable [-varname NAME]|                     ',&
+'     $BLOCK   [null|comment|write|variable [--varname NAME]|                    ',&
 '              set|system|message|define|redefine|                               ',&
-'              help|version] [--file NAME [-append]]       [! comment ]          ',&
+'              help|version] [--file NAME [--append]]      [! comment ]          ',&
 '     $ENDBLOCK                                            [! comment ]          ',&
 '                                                                                ',&
 '    :IDENTIFIERS                                                                ',&
@@ -2515,14 +2515,14 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   For the purposes of prep(1) an environment variable is defined if it is      ',&
 '   returned by the system and has a non-blank value.                            ',&
 '                                                                                ',&
-'   $IDENT metadata [-language fortran|c|shell]                                  ',&
+'   $IDENT metadata [--language fortran|c|shell]                                 ',&
 '                                                                                ',&
 '   $IDENT is a special-purpose directive generally used only by users of        ',&
 '   SCCS-metadata. This string is generally included for use with the            ',&
 '   what(1) command, and generates a comment if "-ident" is not specified        ',&
 '   on the command line.                                                         ',&
 '                                                                                ',&
-'   When the command line option "-ident" is specified this directive            ',&
+'   When the command line option "--ident" is specified this directive           ',&
 '   writes a line using SCCS-metadata format of one of the following forms:      ',&
 '                                                                                ',&
 '     language:                                                                  ',&
@@ -2542,13 +2542,13 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   in the metadata to remain compatible with SCCS metadata syntax.              ',&
 '   Do not use strings starting with " -" either.                                ',&
 '                                                                                ',&
-'   $OUTPUT filename [-append [.true.|.false.]]                                  ',&
+'   $OUTPUT filename [--append [.true.|.false.]]                                 ',&
 '                                                                                ',&
 '   Specify the output file to write to. This overrides the initial output file  ',&
 '   specified with command line options. If no output filename is given          ',&
 '   prep(1) reverts back to the initial output file. @ is a synonym for stdout.  ',&
 '                                                                                ',&
-'   Files open at the beginning by default. Use the -append switch to            ',&
+'   Files open at the beginning by default. Use the --append switch to           ',&
 '   append to the end of an existing file instead of overwriting it.             ',&
 '                                                                                ',&
 '   $INCLUDE filename                                                            ',&
@@ -2601,13 +2601,13 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   $BLOCK has several forms but in all cases operates on a block of lines:      ',&
 '                                                                                ',&
 '     basic filtering:                                                           ',&
-'      $BLOCK [comment|null|write                 [--file NAME [-append]]        ',&
+'      $BLOCK [comment|null|write                 [--file NAME [--append]]       ',&
 '     creating a CHARACTER array:                                                ',&
-'      $BLOCK VARIABLE --varname NAME             [--file NAME [-append]]        ',&
+'      $BLOCK VARIABLE --varname NAME             [--file NAME [--append]]       ',&
 '     block versions of prep(1) commands:                                        ',&
-'      $BLOCK set|system|message|define|redefine  [--file NAME [-append]]        ',&
+'      $BLOCK set|system|message|define|redefine  [--file NAME [--append]]       ',&
 '     specialized procedure construction:                                        ',&
-'      $BLOCK help|version                        [--file NAME [-append]]        ',&
+'      $BLOCK help|version                        [--file NAME [--append]]       ',&
 '                                                                                ',&
 '      NULL:      Do not write into current output file                          ',&
 '      COMMENT:   write text prefixed by an exclamation and a space or according ',&
@@ -2632,7 +2632,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '      VERSION:   write text as a subroutine called HELP_VERSION prefixing       ',&
 '                 lines with @(#) for use with the what(1) command.              ',&
 '                                                                                ',&
-'   If the "-file NAME" option is present the text is written to the             ',&
+'   If the "--file NAME" option is present the text is written to the            ',&
 '   specified file unfiltered except for string expansion. This allows           ',&
 '   documentation to easily be maintained in the source file. It can be          ',&
 '   tex, html, markdown or any plain text. The filename will be prefixed         ',&
@@ -2963,11 +2963,11 @@ help_text=[ CHARACTER(LEN=128) :: &
 "  $PARCEL [blockname] ... $ENDPARCEL ! a reuseable parcel of expandable text    ",&
 "  $POST   blockname  ! insert a defined parcel of text                          ",&
 "EXTERNAL FILES (see $BLOCK ... --file also)                                     ",&
-"  $OUTPUT filename [-append]                                                    ",&
+"  $OUTPUT filename [--append]                                                   ",&
 "  $INCLUDE filename                                                             ",&
 "TEXT BLOCK FILTERS (--file writes to $PREP_DOCUMENT_DIR/doc/NAME)               ",&
 "  $BLOCK [comment|null|write|variable [--varname NAME]|set|system|message|      ",&
-"         define|redefine|help|version][--file NAME [-append]] ... $ENDBLOCK     ",&
+"         define|redefine|help|version][--file NAME [--append]] ... $ENDBLOCK    ",&
 "INFORMATION                                                                     ",&
 "  $MESSAGE message_to_stderr                                                    ",&
 "  $SHOW [defined_variable_name][;...]                                           ",&
