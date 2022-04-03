@@ -15,6 +15,8 @@ character(len=*),parameter   :: commands(*)=[ character(len=132) :: &
 'prep -i show.ff                    ',&
 'prep -i template.ff                ',&
 'prep -i zen.ff                     ',&
+'prep -i copyright.ff               ',&
+'prep -i try_kracken.ff             ',&
 'prep --help']
 logical                               :: wait=.false.
 integer                               :: exitstat
