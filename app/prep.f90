@@ -408,7 +408,7 @@ integer                     :: istore                       ! location of variab
 character(len=:),allocatable :: array(:)
 character(len=:),allocatable :: opts
 
-   !x!if(allopts.eq.'')then                                    ! if no options show all variables. 
+   !x!if(allopts.eq.'')then                                    ! if no options show all variables.
    !x!   call debug_state('*',msg='')
    !x!   return
    !x!endif
@@ -2176,10 +2176,11 @@ help_text=[ CHARACTER(LEN=128) :: &
 '         [--help]                                                               ',&
 'DESCRIPTION                                                                     ',&
 '                                                                                ',&
-'   A preprocessor traditionally is used to conditionally perform operations on  ',&
-'   input files before they are passed to a compiler, including machine-specific ',&
-'   rules. This makes it possible to use a single source file even when different',&
-'   code is required for different execution environments.                       ',&
+'   A preprocessor is typically used to conditionally perform operations         ',&
+'   on input files before they are passed to a compiler, including               ',&
+'   machine-specific selection of source lines. This makes it possible           ',&
+'   to use a single source file even when different code is required for         ',&
+'   different execution environments.                                            ',&
 '                                                                                ',&
 '   The prep(1) preprocessor has additional features that help to include        ',&
 '   documentation in the same file as the source and to generate generic code    ',&
@@ -2188,62 +2189,57 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   * Conditionally output parts of the source file (controlled by expressions   ',&
 '     on the directives $if, $ifdef, $ifndef, $else, $elif, and $endif. The      ',&
 '     expressions controlling the output may include variables defined on the    ',&
-'     command line and the directives $define, $redefine, $define and $undefine).',&
+'     command line and the directives $define, $redefine, and $undefine).        ',&
 '                                                                                ',&
 '   * Include other files (provided by directive $include).                      ',&
 '                                                                                ',&
-'   * Replace text of the form ${NAME} (controlled by directives $set            ',&
-'     and $import).                                                              ',&
-'                                                                                ',&
-'   * Cause an error (controlled by directive $stop) and produce messages        ',&
-'     on stderr (using the directive $message).                                  ',&
-'                                                                                ',&
 '   * Define parcels of text that may be replayed multiple times with            ',&
 '     expansion, allowing for basic templating (controlled by directives         ',&
-'     $parcel/$endparcel and $post).                                             ',&
+'     $parcel/$endparcel and $post). The mechanism supported is to replace       ',&
+'     text of the form ${NAME} with user-suppied strings similiar to the         ',&
+'     POSIX shell (controlled by directives $set and $import).                   ',&
+'                                                                                ',&
+'   * Filter blocks of text and convert them to comments, a CHARACTER array,     ',&
+'     or Fortran WRITE statements ... (this is provided by the $block directive.)',&
+'                                                                                ',&
+'     Blocked text may be optionally simultaneously written to a separate file,  ',&
+'     typically for use as documentation.                                        ',&
+'                                                                                ',&
+'     the blocks of text may also be written to a file and executed, with        ',&
+'     stdout captured and included in the prep(1) output file.                   ',&
+'                                                                                ',&
+'   * Call system commands (using the $system directive).                        ',&
 '                                                                                ',&
 '   * Generate multiple output files from a single input file (using             ',&
 '     directive $output).                                                        ',&
 '                                                                                ',&
-'   * Filter blocks of text and convert them to comments, a character            ',&
-'     variable, or Fortran WRITE statements ... (this is provided by             ',&
-'     the $block directive).                                                     ',&
-'                                                                                ',&
-'     Blocked text may be simultaneously written to a separate file, typically   ',&
-'     for use as documentation.                                                  ',&
-'                                                                                ',&
-'   * Call system commands using the $system directive.                          ',&
-'                                                                                ',&
 '   * Record the parameters used and the date and time executed                  ',&
-'     as Fortran comments in the output using $show.                             ',&
+'     as Fortran comments in the output (using $show).                           ',&
+'                                                                                ',&
+'   * Cause an error (controlled by directive $stop) and produce messages        ',&
+'     on stderr (using $message).                                                ',&
 '                                                                                ',&
 '   The pre-processor will interpret lines beginning with "$" (by default) in    ',&
 '   column one as directives, and will output no such lines. Other input is      ',&
 '   conditionally written to the output file(s) based on the case-insensitive    ',&
-'   command names.                                              ',&
+'   command names.                                                               ',&
 '                                                                                ',&
 '   An exclamation character FOLLOWED BY A SPACE on most directives              ',&
 '   begins an in-line comment that is terminated by an end-of-line. The space    ',&
 '   is required so comments are not confused with C-style logical operators such ',&
 '   as "!", which may NOT be followed by a space.                                ',&
 '                                                                                ',&
-'   prep(1) supports string substitution and the inclusion of free-format        ',&
-'   text blocks that may be converted to such things as Fortran comments or      ',&
-'   CHARACTER variable definitions. Optionally, the text block may               ',&
-'   simultaneously be used to generate documentation files.                      ',&
-'                                                                                ',&
 '   Combined, strings substitution and repeatable text blocks allow for          ',&
 '   basic templating.                                                            ',&
 '                                                                                ',&
-'   INTEGER or LOGICAL expressions may be used on the family of $IF directives   ',&
+'   INTEGER or LOGICAL expressions are used on the family of $IF directives      ',&
 '   to conditionally select output lines. An expression is composed of INTEGER   ',&
-'   and LOGICAL constants, parameters, and operators. Operators are processed    ',&
-'   as in Fortran and/or C expressions.                                          ',&
+'   and LOGICAL constants, variable names, and operators. Operators are processed',&
+'   as in Fortran and/or C expressions. The supported operators are ...          ',&
 '                                                                                ',&
 '       #-----#-----#-----#-----#-----#-----#-----#                              ',&
 '       |  +  |  -  |  *  |  /  |  ** |  (  |  )  |  Math Operators              ',&
 '       #-----#-----#-----#-----#-----#-----#-----#                              ',&
-'                                                                                ',&
 '       Logical Operators                                                        ',&
 '       #-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#------#     ',&
 '       | .EQ.| .NE.| .GE.| .GT.| .LE.| .LT.|.NOT.|.AND.| .OR.|.EQV.|.NEQV.|     ',&
@@ -2257,7 +2253,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   files should use ".ffinc" and ".FFINC" if they include prep(1) directives.   ',&
 '   This naming convention is not required.                                      ',&
 '                                                                                ',&
-'   The syntax for the directive lines is as follows:                            ',&
+'   A summary of the syntax for the directive lines follows:                     ',&
 '                                                                                ',&
 '    :VARIABLE DEFINITION FOR CONDITIONALS                                       ',&
 '     $DEFINE   variable_name[=expression] [;...]          [! comment ]          ',&
@@ -2277,7 +2273,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '    :MACRO STRING EXPANSION AND TEXT REPLAY                                     ',&
 '     $SET      varname  string                                                  ',&
-'     $IMPORT   envname[;...]                                                    ',&
+'     $IMPORT   envname[;...]                              [! comment ]          ',&
 '     $PARCEL   blockname                                  [! comment ]          ',&
 '     $ENDPARCEL                                           [! comment ]          ',&
 '     $POST     blockname                                  [! comment ]          ',&
