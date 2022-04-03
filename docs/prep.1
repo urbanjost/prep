@@ -64,7 +64,7 @@ on stderr (using the directive $message).
 .IP \(bu 3
 Define parcels of text that may be replayed multiple times with
 expansion, allowing for basic templating (controlled by directives
-$parcel and $post).
+$parcel/$endparcel and $post).
 .IP \(bu 3
 Generate multiple output files from a single input file (using
 directive $output).
@@ -150,16 +150,18 @@ The syntax for the directive lines is as follows:
      $SET      varname  string
      $IMPORT   envname[;\.\.\.]
      $PARCEL   blockname                                  [! comment ]
+     $ENDPARCEL                                           [! comment ]
      $POST     blockname                                  [! comment ]
 
     :EXTERNAL FILES (see $BLOCK \.\.\. --file also)
      $OUTPUT   filename  [-append]                        [! comment ]
      $INCLUDE  filename                                   [! comment ]
 
-    :TEXT BLOCK FILTERS
+    :TEXT BLOCK FILTERS (--file is ignored unless $PREP_DOCUMENT_DIR is set)
      $BLOCK   [null|comment|write|variable [-varname NAME]|
               set|system|message|define|redefine|
-              help|version] [-file NAME [-append]]        [! comment ]
+              help|version] [--file NAME [-append]]       [! comment ]
+     $ENDBLOCK                                            [! comment ]
 
     :IDENTIFIERS
      $IDENT | $@(#)    metadata                           [! comment ]
@@ -379,7 +381,7 @@ Predefined variables are
 .PP
 .nf
 .fam C
-    SYSTEMON = 1 if the --system switch was used on the command line, else 0.
+    SYSTEMON = .TRUE. if --system was present on the command line, else .FALSE.
 
     UNKNOWN = 0 LINUX   = 1 MACOS   = 2 WINDOWS = 3
     CYGWIN  = 4 SOLARIS = 5 FREEBSD = 6 OPENBSD = 7
@@ -476,9 +478,9 @@ only searched for relative to the search directories, otherwise it is
 searched for as specified first. Double-quotes are treated as in Fortran
 list-directed input.
 .PP
-$PARCEL [name]
+$PARCEL [name] / $ENDPARCEL
 .PP
-The lines between a "$PARCEL name" and "$PARCEL" block are written to a
+The lines between a "$PARCEL name" and "$ENDPARCEL" block are written to a
 scratch file WITHOUT expanding directives. the scratch file can then be read
 in with the $POST directive much like a named file can be with $INCLUDE,
 except the scratch file is automatically deleted at program termination.
@@ -513,7 +515,7 @@ values, but the names because case-insensitive in \fBprep\fP(). That is,
 "import home" gets the lowercase environment variable "home" and then sets
 the associated value and then sets the \fBprep\fP(1) variable "HOME" to the value.
 .PP
-$BLOCK
+$BLOCK / $ENDBLOCK
 .PP
 $BLOCK has several forms but in all cases operates on a block of lines:
 .PP
@@ -571,7 +573,8 @@ as \fBmarkdown\fP(1) or \fBtxt2man\fP(1) to produce \fBman\fP(1) pages and HTML
 documents. $SYSTEM commands may follow the $BLOCK block text to
 optionally post-process the doc files.
 .PP
-A blank value or "END" returns to normal output processing.
+$ENDBLOCK ends the block, which is preferred; but a blank value or "END" on
+a $BLOCK directive does as well.
 .PP
 $SHOW [variable_name][;\.\.\.]
 .PP
@@ -673,7 +676,7 @@ Examples:
     > $SYSTEM echo compile_time="`date`" >> compiled.h
     > $INCLUDE compiled.h
 
-    > $if systemon ! if --system switch is present on command line
+    > $if systemon      ! if --system switch is present on command line
     > $!  obtain up-to-date copy of source file from HTTP server:
     > $   SYSTEM wget http://repository.net/src/func.F90 -O - >_tmp.f90
     > $   INCLUDE _tmp.f90
@@ -692,7 +695,7 @@ Note that messages for $MESSAGE do not treat "! " as starting a comment
 $IF constructs can be nested up to 20 levels deep. Note that using
 more than two levels typically makes input files less readable.
 .PP
-$BLOCK is required after a $BLOCK or \fB--file\fP FILENAME is not written.
+$ENDBLOCK is required after a $BLOCK or \fB--file\fP FILENAME is not written.
 .PP
 Nesting of $BLOCK sections not allowed.
 $INCLUDE may be nested fifty (50) levels.
@@ -769,20 +772,20 @@ Common use of $BLOCK
 .fam C
    > $!
    > $BLOCK NULL --file manual.tex
-   > This is a block of text that will be ignored on output but
-   > optionally written to a doc/ file when $PREP_DOCUMENT_DIR is set.
-   > $BLOCK
+   > This is a block of text that will be ignored except it is optionally
+   > written to a $PREP_DOCUMENT_DIR/doc/ file when $PREP_DOCUMENT_DIR is set.
+   > $ENDBLOCK
    > $!
    > $BLOCK COMMENT --file manual.tex --append
-   > This is a block of text that will be converted to comments and
-   > optionally appended to a doc/ file when $PREP_DOCUMENT_DIR is set.
-   > $BLOCK
+   > This is a block of text that will be converted to comments and optionally
+   > appended to a $PREP_DOCUMENT_DIR/doc/ file when $PREP_DOCUMENT_DIR is set.
+   > $ENDBLOCK
    > $!
 
 .fam T
 .fi
-Creating a \fBhelp_usage\fP(3f) subroutine and writing the same documentation
-to a doc file (if the environment variable $PREP_DOCUMENT_DIR is set).
+Creating a \fBhelp_usage\fP(3f) subroutine and writing the same documentation to a
+$PREP_DOCUMENT_DIR/doc file if environment variable $PREP_DOCUMENT_DIR is set.
 .PP
 .nf
 .fam C
@@ -801,7 +804,7 @@ to a doc file (if the environment variable $PREP_DOCUMENT_DIR is set).
    > OPTIONS
    >    --help     display this help and exit
    >    --version  output version information and exit
-   > $BLOCK
+   > $ENDBLOCK
 
 .fam T
 .fi
@@ -816,7 +819,7 @@ Creating a \fBhelp_version\fP(3f) subroutine
    > PROGRAM:     conditional_compile
    > VERSION:     1.0.0, 20160703
    > AUTHOR:      John S. Urban
-   > $BLOCK
+   > $ENDBLOCK
    > $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 .fam T

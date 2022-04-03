@@ -148,7 +148,7 @@ o
 </TD><TD>
 Define parcels of text that may be replayed multiple times with
 expansion, allowing for basic templating (controlled by directives
-$parcel and $post).
+$parcel/$endparcel and $post).
 </TD></TR>
 <TR valign=top><TD width=3%>
 o
@@ -241,16 +241,18 @@ The syntax for the directive lines is as follows:
      $SET      varname  string
      $IMPORT   envname[;&#46;&#46;&#46;]
      $PARCEL   blockname                                  [! comment ]
+     $ENDPARCEL                                           [! comment ]
      $POST     blockname                                  [! comment ]
 <P>
     :EXTERNAL FILES (see $BLOCK &#46;&#46;&#46; --file also)
      $OUTPUT   filename  [-append]                        [! comment ]
      $INCLUDE  filename                                   [! comment ]
 <P>
-    :TEXT BLOCK FILTERS
+    :TEXT BLOCK FILTERS (--file is ignored unless $PREP_DOCUMENT_DIR is set)
      $BLOCK   [null|comment|write|variable [-varname NAME]|
               set|system|message|define|redefine|
-              help|version] [-file NAME [-append]]        [! comment ]
+              help|version] [--file NAME [-append]]       [! comment ]
+     $ENDBLOCK                                            [! comment ]
 <P>
     :IDENTIFIERS
      $IDENT | $@(#)    metadata                           [! comment ]
@@ -493,7 +495,7 @@ be included in the source if "inc" has been defined.
 Predefined variables are
 <P>
 <PRE>
-    SYSTEMON = 1 if the --system switch was used on the command line, else 0.
+    SYSTEMON = .TRUE. if --system was present on the command line, else .FALSE.
 <P>
     UNKNOWN = 0 LINUX   = 1 MACOS   = 2 WINDOWS = 3
     CYGWIN  = 4 SOLARIS = 5 FREEBSD = 6 OPENBSD = 7
@@ -583,9 +585,9 @@ only searched for relative to the search directories, otherwise it is
 searched for as specified first. Double-quotes are treated as in Fortran
 list-directed input.
 <P>
-$PARCEL [name]
+$PARCEL [name] / $ENDPARCEL
 <P>
-The lines between a "$PARCEL name" and "$PARCEL" block are written to a
+The lines between a "$PARCEL name" and "$ENDPARCEL" block are written to a
 scratch file WITHOUT expanding directives. the scratch file can then be read
 in with the $POST directive much like a named file can be with $INCLUDE,
 except the scratch file is automatically deleted at program termination.
@@ -620,7 +622,7 @@ values, but the names because case-insensitive in <B>prep</B>(). That is,
 "import home" gets the lowercase environment variable "home" and then sets
 the associated value and then sets the <B>prep</B>(1) variable "HOME" to the value.
 <P>
-$BLOCK
+$BLOCK / $ENDBLOCK
 <P>
 $BLOCK has several forms but in all cases operates on a block of lines:
 <P>
@@ -674,7 +676,8 @@ as <B>markdown</B>(1) or <B>txt2man</B>(1) to produce <B>man</B>(1) pages and HT
 documents. $SYSTEM commands may follow the $BLOCK block text to
 optionally post-process the doc files.
 <P>
-A blank value or "END" returns to normal output processing.
+$ENDBLOCK ends the block, which is preferred; but a blank value or "END" on
+a $BLOCK directive does as well.
 <P>
 $SHOW [variable_name][;&#46;&#46;&#46;]
 <P>
@@ -785,7 +788,7 @@ Examples:
     &gt; $SYSTEM echo compile_time="&#145;date&#145;" &gt;&gt; compiled.h
     &gt; $INCLUDE compiled.h
 <P>
-    &gt; $if systemon ! if --system switch is present on command line
+    &gt; $if systemon      ! if --system switch is present on command line
     &gt; $!  obtain up-to-date copy of source file from HTTP server:
     &gt; $   SYSTEM wget <A HREF="http://repository.net/src/func.F90">http://repository.net/src/func.F90</A> -O - &gt;_tmp.f90
     &gt; $   INCLUDE _tmp.f90
@@ -809,7 +812,7 @@ Note that messages for $MESSAGE do not treat "! " as starting a comment
 $IF constructs can be nested up to 20 levels deep. Note that using
 more than two levels typically makes input files less readable.
 <P>
-$BLOCK is required after a $BLOCK or <B>--file</B> FILENAME is not written.
+$ENDBLOCK is required after a $BLOCK or <B>--file</B> FILENAME is not written.
 <P>
 Nesting of $BLOCK sections not allowed.
 $INCLUDE may be nested fifty (50) levels.
@@ -916,19 +919,19 @@ Common use of $BLOCK
 <PRE>
    &gt; $!
    &gt; $BLOCK NULL --file manual.tex
-   &gt; This is a block of text that will be ignored on output but
-   &gt; optionally written to a doc/ file when $PREP_DOCUMENT_DIR is set.
-   &gt; $BLOCK
+   &gt; This is a block of text that will be ignored except it is optionally
+   &gt; written to a $PREP_DOCUMENT_DIR/doc/ file when $PREP_DOCUMENT_DIR is set.
+   &gt; $ENDBLOCK
    &gt; $!
    &gt; $BLOCK COMMENT --file manual.tex --append
-   &gt; This is a block of text that will be converted to comments and
-   &gt; optionally appended to a doc/ file when $PREP_DOCUMENT_DIR is set.
-   &gt; $BLOCK
+   &gt; This is a block of text that will be converted to comments and optionally
+   &gt; appended to a $PREP_DOCUMENT_DIR/doc/ file when $PREP_DOCUMENT_DIR is set.
+   &gt; $ENDBLOCK
    &gt; $!
 <P>
 </PRE>
-Creating a <B>help_usage</B>(3f) subroutine and writing the same documentation
-to a doc file (if the environment variable $PREP_DOCUMENT_DIR is set).
+Creating a <B>help_usage</B>(3f) subroutine and writing the same documentation to a
+$PREP_DOCUMENT_DIR/doc file if environment variable $PREP_DOCUMENT_DIR is set.
 <P>
 <PRE>
    &gt; $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -946,7 +949,7 @@ to a doc file (if the environment variable $PREP_DOCUMENT_DIR is set).
    &gt; OPTIONS
    &gt;    --help     display this help and exit
    &gt;    --version  output version information and exit
-   &gt; $BLOCK
+   &gt; $ENDBLOCK
 <P>
 </PRE>
 Creating a <B>help_version</B>(3f) subroutine
@@ -959,7 +962,7 @@ Creating a <B>help_version</B>(3f) subroutine
    &gt; PROGRAM:     conditional_compile
    &gt; VERSION:     1.0.0, 20160703
    &gt; AUTHOR:      John S. Urban
-   &gt; $BLOCK
+   &gt; $ENDBLOCK
    &gt; $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 <P>
 </PRE>

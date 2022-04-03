@@ -20,6 +20,17 @@ new features, changes, and relevant notifications.
   - [ ] registered in fpm(1) repository
 
 ---
+**2022-04-02**  John S. Urban <https://github.com/urbanjost>
+
+### :orange_circle: DIFF:
+  + Ending "$BLOCK" with "$BLOCK END" or "$BLOCK" and "$PARCEL NAME "
+    with "$PARCEL" is now deprecated,
+### :green_circle: ADD:
+  + add $ENDBLOCK 
+  + add $ENDPARCEL                                             
+  + add predefined SYSTEMON variable for conditional execution of lines
+    when --system is on the command line
+---
 **2022-04-01**  John S. Urban <https://github.com/urbanjost>
 
 ### :orange_circle: DIFF:

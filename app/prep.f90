@@ -152,6 +152,7 @@ character(len=G_line_length) :: upopts                     ! directive line with
 logical,save                 :: eb=.false.
 integer,save                 :: noelse=0
 integer                      :: verblen
+logical                      :: ifound
 
    line=adjustl(G_source(2:))                              ! remove leading prefix and spaces from directive line
 
@@ -182,8 +183,10 @@ integer                      :: verblen
       call flushit()
    endif
 
+   ifound=.true.
    if(G_write)then                                                    ! if processing lines in a logically selected region
-      if(G_inparcel.and.VERB.ne.'PARCEL')then
+
+      if(G_inparcel.and.(VERB.ne.'PARCEL'.and.VERB.ne.'ENDPARCEL') )then
          call write_out(trim(G_source))                               ! write data line
          return
       endif
@@ -196,8 +199,10 @@ integer                      :: verblen
       case('INCLUDE','READ');   call include(options,50+G_iocount)    ! Filenames can be case sensitive
       case('OUTPUT');           call output_case(options)             ! Filenames can be case sensitive
       case('PARCEL');           call parcel_case(upopts)
+      case('ENDPARCEL');        call parcel_case(' ')
       case('POST');             call post(upopts)
       case('BLOCK');            call document(options)
+      case('ENDBLOCK');         call document(' ')
       case('SET');              call set(options)
       case('IMPORT');           call import(options)
       case('IDENT','@(#)');     call ident(options)
@@ -209,23 +214,20 @@ integer                      :: verblen
       case('ERROR');            call stop('1 '//options)
       CASE('GET_ARGUMENTS');    call write_get_arguments()
       CASE('HELP');             call short_help()
+      case default
+         ifound=.false.
       end select
    endif
    select case(VERB)                                                  ! process logical flow control even if G_write is false
-
-   case('DEFINE','INCLUDE','SHOW','STOP','QUIT','HELP','LET')
-   case('SYSTEM','UNDEF','UNDEFINE','DELETE','MESSAGE','REDEFINE')
-   case('OUTPUT','IDENT','@(#)','BLOCK','IMPORT','DEF','REDEF')
-   case('PARCEL','POST','SET','GET_ARGUMENTS','READ','ERROR')
-   case(' ')
-
    case('ELSE','ELSEIF','ELIF');  call else(verb,upopts,noelse,eb)
    case('ENDIF');          call endif(noelse,eb)
    case('IF');       call if(upopts,noelse,eb)
    case('IFDEF','IFNDEF'); call def(verb,upopts,noelse,eb)
 
    case default
-      call stop_prep('*prep* ERROR(001) - UNKNOWN COMPILER DIRECTIVE ['//trim(verb)//']: '//trim(G_SOURCE))
+      if(.not.ifound)then
+         call stop_prep('*prep* ERROR(001) - UNKNOWN COMPILER DIRECTIVE ['//trim(verb)//']: '//trim(G_SOURCE))
+      endif
    end select
 end subroutine cond
 !===================================================================================================================================
@@ -2198,7 +2200,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   * Define parcels of text that may be replayed multiple times with            ',&
 '     expansion, allowing for basic templating (controlled by directives         ',&
-'     $parcel and $post).                                                        ',&
+'     $parcel/$endparcel and $post).                                             ',&
 '                                                                                ',&
 '   * Generate multiple output files from a single input file (using             ',&
 '     directive $output).                                                        ',&
@@ -2277,16 +2279,18 @@ help_text=[ CHARACTER(LEN=128) :: &
 '     $SET      varname  string                                                  ',&
 '     $IMPORT   envname[;...]                                                    ',&
 '     $PARCEL   blockname                                  [! comment ]          ',&
+'     $ENDPARCEL                                           [! comment ]          ',&
 '     $POST     blockname                                  [! comment ]          ',&
 '                                                                                ',&
 '    :EXTERNAL FILES (see $BLOCK ... --file also)                                ',&
 '     $OUTPUT   filename  [-append]                        [! comment ]          ',&
 '     $INCLUDE  filename                                   [! comment ]          ',&
 '                                                                                ',&
-'    :TEXT BLOCK FILTERS                                                         ',&
+'    :TEXT BLOCK FILTERS (--file is ignored unless $PREP_DOCUMENT_DIR is set)    ',&
 '     $BLOCK   [null|comment|write|variable [-varname NAME]|                     ',&
 '              set|system|message|define|redefine|                               ',&
-'              help|version] [-file NAME [-append]]        [! comment ]          ',&
+'              help|version] [--file NAME [-append]]       [! comment ]          ',&
+'     $ENDBLOCK                                            [! comment ]          ',&
 '                                                                                ',&
 '    :IDENTIFIERS                                                                ',&
 '     $IDENT | $@(#)    metadata                           [! comment ]          ',&
@@ -2470,7 +2474,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   Predefined variables are                                                     ',&
 '                                                                                ',&
-'    SYSTEMON = 1 if the --system switch was used on the command line, else 0.   ',&
+'    SYSTEMON = .TRUE. if --system was present on the command line, else .FALSE. ',&
 '                                                                                ',&
 '    UNKNOWN = 0 LINUX   = 1 MACOS   = 2 WINDOWS = 3                             ',&
 '    CYGWIN  = 4 SOLARIS = 5 FREEBSD = 6 OPENBSD = 7                             ',&
@@ -2555,9 +2559,9 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   searched for as specified first. Double-quotes are treated as in Fortran     ',&
 '   list-directed input.                                                         ',&
 '                                                                                ',&
-'   $PARCEL [name]                                                               ',&
+'   $PARCEL [name] / $ENDPARCEL                                                  ',&
 '                                                                                ',&
-'   The lines between a "$PARCEL name" and "$PARCEL" block are written to a      ',&
+'   The lines between a "$PARCEL name" and "$ENDPARCEL" block are written to a   ',&
 '   scratch file WITHOUT expanding directives. the scratch file can then be read ',&
 '   in with the $POST directive much like a named file can be with $INCLUDE,     ',&
 '   except the scratch file is automatically deleted at program termination.     ',&
@@ -2592,7 +2596,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   "import home" gets the lowercase environment variable "home" and then sets   ',&
 '   the associated value and then sets the prep(1) variable "HOME" to the value. ',&
 '                                                                                ',&
-'   $BLOCK                                                                       ',&
+'   $BLOCK / $ENDBLOCK                                                           ',&
 '                                                                                ',&
 '   $BLOCK has several forms but in all cases operates on a block of lines:      ',&
 '                                                                                ',&
@@ -2640,7 +2644,8 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   documents. $SYSTEM commands may follow the $BLOCK block text to              ',&
 '   optionally post-process the doc files.                                       ',&
 '                                                                                ',&
-'   A blank value or "END" returns to normal output processing.                  ',&
+'   $ENDBLOCK ends the block, which is preferred; but a blank value or "END" on  ',&
+'   a $BLOCK directive does as well.                                             ',&
 '                                                                                ',&
 '   $SHOW [variable_name][;...]                                                  ',&
 '                                                                                ',&
@@ -2729,7 +2734,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '    > $SYSTEM echo compile_time="`date`" >> compiled.h                          ',&
 '    > $INCLUDE compiled.h                                                       ',&
 '                                                                                ',&
-'    > $if systemon ! if --system switch is present on command line              ',&
+'    > $if systemon      ! if --system switch is present on command line         ',&
 '    > $!  obtain up-to-date copy of source file from HTTP server:               ',&
 '    > $   SYSTEM wget http://repository.net/src/func.F90 -O - >_tmp.f90         ',&
 '    > $   INCLUDE _tmp.f90                                                      ',&
@@ -2747,7 +2752,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   $IF constructs can be nested up to 20 levels deep. Note that using           ',&
 '   more than two levels typically makes input files less readable.              ',&
 '                                                                                ',&
-'   $BLOCK is required after a $BLOCK or --file FILENAME is not written.         ',&
+'   $ENDBLOCK is required after a $BLOCK or --file FILENAME is not written.      ',&
 '                                                                                ',&
 '   Nesting of $BLOCK sections not allowed.                                      ',&
 '   $INCLUDE may be nested fifty (50) levels.                                    ',&
@@ -2809,18 +2814,18 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   > $!                                                                         ',&
 '   > $BLOCK NULL --file manual.tex                                              ',&
-'   > This is a block of text that will be ignored on output but                 ',&
-'   > optionally written to a doc/ file when $PREP_DOCUMENT_DIR is set.          ',&
-'   > $BLOCK                                                                     ',&
+'   > This is a block of text that will be ignored except it is optionally       ',&
+'   > written to a $PREP_DOCUMENT_DIR/doc/ file when $PREP_DOCUMENT_DIR is set.  ',&
+'   > $ENDBLOCK                                                                  ',&
 '   > $!                                                                         ',&
 '   > $BLOCK COMMENT --file manual.tex --append                                  ',&
-'   > This is a block of text that will be converted to comments and             ',&
-'   > optionally appended to a doc/ file when $PREP_DOCUMENT_DIR is set.         ',&
-'   > $BLOCK                                                                     ',&
+'   > This is a block of text that will be converted to comments and optionally  ',&
+'   > appended to a $PREP_DOCUMENT_DIR/doc/ file when $PREP_DOCUMENT_DIR is set. ',&
+'   > $ENDBLOCK                                                                  ',&
 '   > $!                                                                         ',&
 '                                                                                ',&
-'  Creating a help_usage(3f) subroutine and writing the same documentation       ',&
-'  to a doc file (if the environment variable $PREP_DOCUMENT_DIR is set).        ',&
+'  Creating a help_usage(3f) subroutine and writing the same documentation to a  ',&
+'  $PREP_DOCUMENT_DIR/doc file if environment variable $PREP_DOCUMENT_DIR is set.',&
 '                                                                                ',&
 '   > $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@         ',&
 '   > $! generate help_usage() procedure and file to run thru txt2man(1)         ',&
@@ -2837,7 +2842,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   > OPTIONS                                                                    ',&
 '   >    --help     display this help and exit                                   ',&
 '   >    --version  output version information and exit                          ',&
-'   > $BLOCK                                                                     ',&
+'   > $ENDBLOCK                                                                  ',&
 '                                                                                ',&
 '  Creating a help_version(3f) subroutine                                        ',&
 '                                                                                ',&
@@ -2848,7 +2853,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   > PROGRAM:     conditional_compile                                           ',&
 '   > VERSION:     1.0.0, 20160703                                               ',&
 '   > AUTHOR:      John S. Urban                                                 ',&
-'   > $BLOCK                                                                     ',&
+'   > $ENDBLOCK                                                                  ',&
 '   > $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@        ',&
 '                                                                                ',&
 '  Sample program using help_usage(f), help_version(3f) and M_kracken95(3f):     ',&
@@ -2940,7 +2945,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 "   > Predefined values are                                                      ",&
 "   > UNKNOWN=0 LINUX=1 MACOS=2 WINDOWS=3 CYGWIN=4 SOLARIS=5 FREEBSD=6 OPENBSD=7 ",&
 "   > In addition OS is set to what the program guesses the system type is.      ",&
-"   > SYSTEMON is 1 if --system is used on the command line, else it is 0.       ",&
+"   > SYSTEMON is .TRUE. if --system is present on the command line, else .FALSE.",&
 "  $UNDEFINE|$UNDEF variable_name[;...]                                          ",&
 "CONDITIONAL CODE SELECTION                                                      ",&
 "  $IF logical_integer-based_expression | $IFDEF|$IFNDEF variable_name           ",&
@@ -2955,14 +2960,14 @@ help_text=[ CHARACTER(LEN=128) :: &
 "   > $set author  William Shakespeare                                           ",&
 "   > $import HOME                                                               ",&
 "   > write(*,*)'${AUTHOR} ${DATE} ${TIME} File ${FILE} Line ${LINE} HOME ${HOME}",&
-"  $PARCEL [blockname]  ! create a reuseable parcel of text that can be expanded ",&
+"  $PARCEL [blockname] ... $ENDPARCEL ! a reuseable parcel of expandable text    ",&
 "  $POST   blockname  ! insert a defined parcel of text                          ",&
 "EXTERNAL FILES (see $BLOCK ... --file also)                                     ",&
 "  $OUTPUT filename [-append]                                                    ",&
 "  $INCLUDE filename                                                             ",&
-"TEXT BLOCK FILTERS                                                              ",&
-"  $BLOCK [comment|null|write|variable [-varname NAME]|set|system|message|       ",&
-"         define|redefine|help|version][-file NAME [-append]]                    ",&
+"TEXT BLOCK FILTERS (--file writes to $PREP_DOCUMENT_DIR/doc/NAME)               ",&
+"  $BLOCK [comment|null|write|variable [--varname NAME]|set|system|message|      ",&
+"         define|redefine|help|version][--file NAME [-append]] ... $ENDBLOCK     ",&
 "INFORMATION                                                                     ",&
 "  $MESSAGE message_to_stderr                                                    ",&
 "  $SHOW [defined_variable_name][;...]                                           ",&
@@ -3411,9 +3416,9 @@ logical                       :: isscratch
    G_comment_style=lower(sget('prep_comment'))             ! allow formatting comments for particular post-processors
    G_system_on = lget('prep_system')                       ! allow system commands on $SYSTEM directives
    if(G_system_on)then
-      call define('SYSTEMON=1', 0)
+      call define('SYSTEMON=.TRUE.', 0)
    else
-      call define('SYSTEMON=0', 0)
+      call define('SYSTEMON=.FALSE.', 0)
    endif
    !TODO! have an auto mode where start and end are selected based on file suffix
    select case(sget('prep_type'))

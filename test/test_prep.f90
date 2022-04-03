@@ -159,13 +159,13 @@ data=[ character(len=132) :: &
 "  This block has the NULL keyword specified so these lines are ignored  ", &
 "  when generating the output file.                                      ", &
 "                                                                        ", &
-"$BLOCK                                                                  ", &
+"$ENDBLOCK                                                               ", &
 "                                                                        ", &
 "$BLOCK COMMENT                                                          ", &
 "  These lines will be converted to Fortran comments.                    ", &
 "  It is easier to reformat comments this way instead of having          ", &
 "  to prefix each line with exclamations.                                ", &
-"$BLOCK                                                                  ", &
+"$ENDBLOCK                                                               ", &
 "                                                                        ", &
 "$BLOCK COMMENT --file doc.html                                          ", &
 "<html> <body>                                                           ", &
@@ -178,7 +178,7 @@ data=[ character(len=132) :: &
 "  so no output has to appear in the output file if desired.             ", &
 "</p>                                                                    ", &
 "</body> </html>                                                         ", &
-"$BLOCK                                                                  ", &
+"$ENDBLOCK                                                               ", &
 "                                                                        ", &
 "block                                                                   ", &
 "integer :: io=6                                                         ", &
@@ -193,7 +193,7 @@ data=[ character(len=132) :: &
 "$BLOCK VARIABLE -varname HELP_TEXT                                      ", &
 "  These lines are converted to a declaration of a CHARACTER             ", &
 "  variable.                                                             ", &
-"$BLOCK                                                                  ", &
+"$BLOCK END                                                              ", &
 "endblock                                                                ", &
 'last line                                                               ']
 
@@ -250,9 +250,9 @@ character(len=*),intent(in) :: name
       tally=[tally,.false.]
       write(*,'(*(g0,1x))')name// ' FAILED'
       write(*,'(/,a)')'RESULT'
-      write(*,'(i3.3,1x,a)')(i,trim(result(i)),i=1,size(result))
+      if(allocated(result))write(*,'(i3.3,1x,a)')(i,trim(result(i)),i=1,size(result))
       write(*,'(/,a)')'EXPECTED'
-      write(*,'(i3.3,1x,a)')(i,trim(expected(i)),i=1,size(expected))
+      if(allocated(expected))write(*,'(i3.3,1x,a)')(i,trim(expected(i)),i=1,size(expected))
    endblock CHECK
    ierr=filedelete('_scratch.txt')
    ierr=filedelete('_out.txt')
@@ -357,13 +357,13 @@ data=[ character(len=132) :: &
 '  | These lines should be ignored and |                        ', &
 '  | produce no output                 |                        ', &
 '  #===================================#                        ', &
-'$BLOCK                                                         ', &
+'$ENDBLOCK                                                      ', &
 '$!------------------------------------------------             ', &
 '$BLOCK write                                                   ', &
 '  Convert this paragraph of text describing                    ', &
 '  sundry input options into a series of                        ', &
 '  WRITE statements                                             ', &
-'$BLOCK end                                                     ', &
+'$ENDBLOCK                                                      ', &
 '$!------------------------------------------------             ', &
 'character(len=:),allocatable :: textblock(:)                   ', &
 '$BLOCK VARIABLE --varname textblock                            ', &
@@ -372,7 +372,7 @@ data=[ character(len=132) :: &
 ' text as simple lines than to maintain them as                 ', &
 ' properly formatted variable definitions                       ', &
 '                                                               ', &
-'$BLOCK end                                                     ', &
+'$ENDBLOCK                                                      ', &
 '$!------------------------------------------------             ', &
 'last line']
 
@@ -406,12 +406,12 @@ data=[ character(len=132) :: &
 'three pennies                    ',&
 'four  calling birds              ',&
 'five  1 +1+ 1+4-2                ',&
-'$BLOCK                           ',&
+'$ENDBLOCK                        ',&
 '$!-------------------------------',&
 '$BLOCK DEFINE                    ',&
 'A=10;b = 20 ;                    ',&
 'VAR = 3+3-2/2*(3**2)             ',&
-'$BLOCK                           ',&
+'$ENDBLOCK                        ',&
 '$!-------------------------------',&
 '$if VAR==-3                      ',&
 ' ${one}                          ',&
@@ -492,7 +492,7 @@ data=[ character(len=132) :: &
 '${TYPE}                :: temp                   ',&
 '   temp = x; x = y; y = temp                     ',&
 'end subroutine ${PREFIX}_swap                    ',&
-'$PARCEL                                          ',&
+'$ENDPARCEL                                       ',&
 '$!==============================                 ',&
 'module M_swap                                    ',&
 'implicit none                                    ',&
