@@ -20030,7 +20030,8 @@ help_text=[ CHARACTER(LEN=128) :: &
 !'@(#)VERSION:        6.1.1: 20220326>',&
 !'@(#)VERSION:        6.1.2: 20220326>',&
 !'@(#)VERSION:        6.2.2: 20220329>',&
-'@(#)VERSION:        7.0.0: 20220401>',&
+!'@(#)VERSION:        7.0.0: 20220401>',&
+'@(#)VERSION:        8.0.0: 20220403>',&
 '@(#)AUTHOR:         John S. Urban>',&
 '@(#)HOME PAGE       https://github.com/urbanjost/prep.git/>',&
 '']
