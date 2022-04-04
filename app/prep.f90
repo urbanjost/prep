@@ -490,34 +490,27 @@ end subroutine define
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-function getdate(name) result(s)         !@(#) getdate(3f): Function to write date and time into returned string
-character(len=*),optional :: name
+function getdate(name) result(s)         !@(#) getdate(3f): Function to write date and time into returned string in different styles
+character(len=*),intent(in),optional :: name
 
-! PURPOSE - Return a string with the current date and time
-character(len=*),parameter         :: month='JanFebMarAprMayJunJulAugSepOctNovDec'
-character(len=*),parameter         :: fmt = '(I2.2,A1,I2.2,I3,1X,A3,1x,I4)'
-character(len=*),parameter         :: cdate = '(A3,1X,I2.2,1X,I4.4)'
-character(len=:),allocatable       :: s
-character(len=80)                  :: line
-integer,dimension(8)               :: v
-character(len=10) :: name_
+character(len=*),parameter           :: month='JanFebMarAprMayJunJulAugSepOctNovDec'
+character(len=*),parameter           :: fmt = '(I2.2,A1,I2.2,I3,1X,A3,1x,I4)'
+character(len=*),parameter           :: cdate = '(A3,1X,I2.2,1X,I4.4)'
+character(len=:),allocatable         :: s
+character(len=80)                    :: line
+integer,dimension(8)                 :: v
+character(len=10)                    :: name_
 
    call date_and_time(values=v)
    name_='prep'
    if(present(name))name_=name
    select case(lower(name_))
-   case('prep') ! PREP_DATE="00:39  5 Nov 2013"
-   write(line,fmt) v(5), ':', v(6), v(3), month(3*v(2)-2:3*v(2)), v(1)
-   case('date')
-   write(line,'(i4.4,"-",i2.2,"-",i2.2)') v(1),v(2),v(3)
-   case('cdate')
-   write(line,cdate) month(3*v(2)-2:3*v(2)), v(3), v(1)
-   case('long')
-   write(line,'(i4.4,"-",i2.2,"-",i2.2," ",i2.2,":",i2.2,":",i2.2," UTC",sp,i0)') v(1),v(2),v(3),v(5),v(6),v(7),v(4)
-   case('time')
-   write(line,'(i2.2,":",i2.2,":",i2.2)') v(5),v(6),v(7)
-   case default
-   write(line,'(i4.4,"-",i2.2,"-",i2.2," ",i2.2,":",i2.2,":",i2.2," UTC",sp,i0)') v(1),v(2),v(3),v(5),v(6),v(7),v(4)
+   case('prep')  ; write(line,fmt) v(5), ':', v(6), v(3), month(3*v(2)-2:3*v(2)), v(1) ! PREP_DATE="00:39  5 Nov 2013"
+   case('date')  ; write(line,'(i4.4,"-",i2.2,"-",i2.2)') v(1),v(2),v(3)
+   case('cdate') ; write(line,cdate) month(3*v(2)-2:3*v(2)), v(3), v(1)
+   case('long')  ; write(line,'(i4.4,"-",i2.2,"-",i2.2," ",i2.2,":",i2.2,":",i2.2," UTC",sp,i0)') v(1),v(2),v(3),v(5),v(6),v(7),v(4)
+   case('time')  ; write(line,'(i2.2,":",i2.2,":",i2.2)') v(5),v(6),v(7)
+   case default  ; write(line,'(i4.4,"-",i2.2,"-",i2.2," ",i2.2,":",i2.2,":",i2.2," UTC",sp,i0)') v(1),v(2),v(3),v(5),v(6),v(7),v(4)
    end select
    s=trim(line)
 end function getdate
