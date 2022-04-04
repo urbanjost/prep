@@ -3,9 +3,9 @@
 
 ## Documentation   ![docs](docs/images/docs.gif)
  + [man-pages](https://urbanjost.github.io/prep/prep.1.html) reformatted as HTML.
- + the [demos/](demos/) directory has example input files for a variety of cases
- + The [CHANGELOG](docs/CHANGELOG.md)
- + The [CI/CD](docs/STATUS.md) results
+ + the [demos/](https://github.com/urbanjost/prep/demos/) directory has example input files for a variety of cases
+ + The [CHANGELOG](https://github.com/urbanjost/prep/docs/CHANGELOG.md)
+ + The [CI/CD](https://github.com/urbajost/prep/docs/STATUS.md) results
  + Developer [ford(1) output](https://urbanjost.github.io/prep/fpm-ford/index.html)
 
 ## Description

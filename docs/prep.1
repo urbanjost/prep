@@ -11,14 +11,13 @@
 .nr IN 0.2i
 ." -----------------------------------------------------------------
 .RS
+Project is up to date
 .SH NAME
 \fBprep\fP(1) - [DEVELOPER] pre-process FORTRAN source files
 (LICENSE:MIT)
 
 .SH SYNOPSIS
-.TP
-.B \fBprep\fP
-[[-D] \fIdefine_list\fP]
+\fBprep\fP [[-D] \fIdefine_list\fP]
 [-I \fIinclude_directories\fP]
 [-i \fBinput_file\fP(s)]
 [-o \fIoutput_file\fP]
@@ -635,7 +634,7 @@ Example:
     > $show
     > $show H*;*H;*H*! show beginning with "H", ending with "H", containing "H"
     > $stop 0
-
+    >
     > !  B  =  1
     > !  Z  =  22
     > !================================================================
@@ -817,31 +816,24 @@ Common use of $BLOCK
 .fi
 This is a block of text that will be converted to comments and optionally
 appended to a $PREP_DOCUMENT_DIR/doc/ file when $PREP_DOCUMENT_DIR is set.
-> $BLOCK COMMENT-\fB-file\fP conditional_compile.man
-> NAME
-.RS
-.TP
-.B >
-conditional_compile - basic example for \fBprep\fP(1) pre-processor.
-> SYNOPSIS
-.TP
-.B >
-conditional_example [-\fB-help\fP] [-\fB-version\fP]
-> DESCRIPTION
-.TP
-.B >
-This is a basic example program showing how documentation can be
-.TP
-.B >
-used to generate program help text
-> OPTIONS
-.TP
-.B >
-\fB--help\fP     display this help and exit
-.TP
-.B >
-\fB--version\fP  output version information and exit
-> $ENDBLOCK
+.PP
+.nf
+.fam C
+   > $BLOCK COMMENT--file conditional_compile.man
+   > NAME
+   >    conditional_compile - basic example for prep(1) pre-processor.
+   > SYNOPSIS
+   >    conditional_example [--help] [--version]
+   > DESCRIPTION
+   >    This is a basic example program showing how documentation can be
+   >    used to generate program help text
+   > OPTIONS
+   >    --help     display this help and exit
+   >    --version  output version information and exit
+   > $ENDBLOCK
+
+.fam T
+.fi
 .SS SET USAGE
 Note values are case-sensitive but variable names are not, and there are
 pre-defined values for input file, line in input file, date and time that

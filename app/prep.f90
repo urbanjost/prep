@@ -458,7 +458,7 @@ character(len=:),allocatable :: opts
          temp='1'                                              ! set string to default value
       else                                                     ! =value string trails name on directive
          G_defvar(istore)=opts(:iequ-1)                        ! store variable name from line with =value string
-         temp=opts(iequ+1:)                                       ! get expression
+         temp=opts(iequ+1:)                                    ! get expression
       endif
       call normalize_logical_operators(temp)
       call parens(temp)                                        !
@@ -617,7 +617,7 @@ end subroutine undef
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine if(opts,noelse,eb)                              !@(#)if(3f): process IF and ELSEIF directives
+subroutine if(opts,noelse,eb)                                 !@(#)if(3f): process IF and ELSEIF directives
 character(len=*),intent(in)     :: opts
 integer,intent(out)             :: noelse
 logical                         :: eb
@@ -625,18 +625,18 @@ character(len=G_var_len)     :: value
 integer                      :: ios
 integer                      :: i
 integer                      :: ithen
-character(len=G_line_length) :: expression       ! line        -
+character(len=G_line_length) :: expression                 
 
    noelse=0
    G_write=.false.
 
-   G_nestl=G_nestl+1                                       ! increment IF nest level
+   G_nestl=G_nestl+1                                          ! increment IF nest level
    if (G_nestl.gt.G_nestl_max) then
       call stop_prep('*prep* ABORT(bh) - "IF" BLOCK NESTING TOO DEEP, LIMITED TO '//v2s(G_nestl_max)//' LEVELS:'//trim(G_source))
    endif
 
    expression=opts
-   ithen=len_trim(opts)  ! trim off ")THEN"
+   ithen=len_trim(opts)                                       ! trim off ")THEN"
    if(ithen.gt.5)then
       if(expression(ithen-4:ithen).eq.')THEN'.and.expression(1:1).eq.'(')then
          expression=expression(2:ithen-5)
@@ -1832,7 +1832,7 @@ integer                      :: icount           !  count of number of arguments
 character(len=255)           :: value            !  store individual arguments one at a time
 
    write(G_iout,'(a)',advance='no')'! Arguments ...................... '
-   icount=command_argument_count()                  ! intrinsic gets number of arguments
+   icount=command_argument_count()               ! intrinsic gets number of arguments
    do i=1,icount
       call get_command_argument(i,value,ilength,istatus)
       write(G_iout,'(a,1x)',advance='no')value(:ilength)
@@ -2152,28 +2152,27 @@ stopit=.false.
 if(l_help)then
 !-------------------------------------------------------------------------------
 help_text=[ CHARACTER(LEN=128) :: &
-'Project is up to date                                                           ',&
 'NAME                                                                            ',&
 '   prep(1) - [DEVELOPER] pre-process FORTRAN source files                       ',&
 '   (LICENSE:MIT)                                                                ',&
 '                                                                                ',&
 'SYNOPSIS                                                                        ',&
-'   prep  [[-D] define_list]                                                     ',&
-'         [-I include_directories]                                               ',&
-'         [-i input_file(s)]                                                     ',&
-'         [-o output_file]                                                       ',&
-'         [--system]                                                             ',&
-'         [--verbose]                                                            ',&
-'         [--prefix character|ADE]                                               ',&
-'         [--keeptabs]                                                           ',&
-'         [--noenv]                                                              ',&
-'         [--width n]                                                            ',&
-'         [-d ignore|remove|blank]                                               ',&
-'         [--comment default|doxygen|ford|none]                                  ',&
-'         [--type FILE_TYPE | --start START_STRING --stop STOP_STRING]           ',&
-'         [--ident]                                                              ',&
-'         [--version]                                                            ',&
-'         [--help]                                                               ',&
+'   prep [[-D] define_list]                                                      ',&
+'        [-I include_directories]                                                ',&
+'        [-i input_file(s)]                                                      ',&
+'        [-o output_file]                                                        ',&
+'        [--system]                                                              ',&
+'        [--verbose]                                                             ',&
+'        [--prefix character|ADE]                                                ',&
+'        [--keeptabs]                                                            ',&
+'        [--noenv]                                                               ',&
+'        [--width n]                                                             ',&
+'        [-d ignore|remove|blank]                                                ',&
+'        [--comment default|doxygen|ford|none]                                   ',&
+'        [--type FILE_TYPE | --start START_STRING --stop STOP_STRING]            ',&
+'        [--ident]                                                               ',&
+'        [--version]                                                             ',&
+'        [--help]                                                                ',&
 'DESCRIPTION                                                                     ',&
 '                                                                                ',&
 '   A preprocessor is used to conditionally perform operations on input files    ',&
@@ -2509,6 +2508,18 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   $IFDEF and $IFNDEF are special forms of the $IF directive that simply test   ',&
 '   if a variable name is defined or not.                                        ',&
 '                                                                                ',&
+'   The expressions may optionally be enclosed in parenthesis and followed by    ',&
+'   the keyword "THEN", ie. they may use Fortran syntax. For example, the        ',&
+'   previous example may also be written as:                                     ',&
+'                                                                                ',&
+'     > $IF(OS .EQ. LINUX)THEN                                                   ',&
+'     >    write(*,*)"System type is Linux"                                      ',&
+'     > $ELSEIF(OS .EQ. WINDOWS)THEN                                             ',&
+'     >    write(*,*)"System type is MSWindows"                                  ',&
+'     > $ELSE                                                                    ',&
+'     >    write(*,*)"System type is unknown"                                    ',&
+'     > $ENDIF                                                                   ',&
+'                                                                                ',&
 '   Essentially, these are equivalent:                                           ',&
 '                                                                                ',&
 '     $IFDEF varname  ==> $IF DEFINED(varname)                                   ',&
@@ -2673,7 +2684,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '    > $show                                                                     ',&
 '    > $show H*;*H;*H*! show beginning with "H", ending with "H", containing "H" ',&
 '    > $stop 0                                                                   ',&
-'                                                                                ',&
+'    >                                                                           ',&
 '    > !  B  =  1                                                                ',&
 '    > !  Z  =  22                                                               ',&
 '    > !================================================================         ',&
@@ -2826,6 +2837,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   >                                                                            ',&
 '  This is a block of text that will be converted to comments and optionally     ',&
 '  appended to a $PREP_DOCUMENT_DIR/doc/ file when $PREP_DOCUMENT_DIR is set.    ',&
+'                                                                                ',&
 '   > $BLOCK COMMENT--file conditional_compile.man                               ',&
 '   > NAME                                                                       ',&
 '   >    conditional_compile - basic example for prep(1) pre-processor.          ',&

@@ -63,6 +63,33 @@ $BLOCK
 end program zen_of_fortran
 $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 $BLOCK NULL
+NormanKirkby
+
+o  Start with your audience and use their existing knowledge as a
+   platform.
+
+o  Early on, give them a reason to learn Fortran - there are plenty but
+   they may not know this yet.
+
+o  Make it FUN. And fun for everyone = stretch the brightest but make
+   sure they can all get something out of every exercise.
+
+o  Unless you are taking a very experiential approach use the rule of
+   3 lots: tell them what you are about to tell them, tell it to them and
+   then tell them what you told them.
+
+o  Enthuse, it is always infectious
+
+o  Invite and welcome questions, praise those brave enough to ask.
+
+o  Be very careful about “requiring” access to books, University
+   libraries rarely have the stocks they claim.
+
+o  You will never forget your first lecture course, so enjoy it, and
+   good luck.
+$ENDBLOCK
+$!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+$BLOCK NULL
 Nice. More controversial, but I might add a few personal preferences
 (and then snitch this very nice list; what would be a preferred
 attribution?) …

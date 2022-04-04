@@ -1,24 +1,25 @@
+Project is up to date
 NAME
    prep(1) - [DEVELOPER] pre-process FORTRAN source files
    (LICENSE:MIT)
 
 SYNOPSIS
-   prep  [[-D] define_list]
-         [-I include_directories]
-         [-i input_file(s)]
-         [-o output_file]
-         [--system]
-         [--verbose]
-         [--prefix character|ADE]
-         [--keeptabs]
-         [--noenv]
-         [--width n]
-         [-d ignore|remove|blank]
-         [--comment default|doxygen|ford|none]
-         [--type FILE_TYPE | --start START_STRING --stop STOP_STRING]
-         [--ident]
-         [--version]
-         [--help]
+   prep [[-D] define_list]
+        [-I include_directories]
+        [-i input_file(s)]
+        [-o output_file]
+        [--system]
+        [--verbose]
+        [--prefix character|ADE]
+        [--keeptabs]
+        [--noenv]
+        [--width n]
+        [-d ignore|remove|blank]
+        [--comment default|doxygen|ford|none]
+        [--type FILE_TYPE | --start START_STRING --stop STOP_STRING]
+        [--ident]
+        [--version]
+        [--help]
 DESCRIPTION
 
    A preprocessor is used to conditionally perform operations on input files
@@ -517,7 +518,7 @@ DIRECTIVES
     > $show
     > $show H*;*H;*H*! show beginning with "H", ending with "H", containing "H"
     > $stop 0
-
+    >
     > !  B  =  1
     > !  Z  =  22
     > !================================================================
@@ -670,6 +671,7 @@ EXAMPLES
    >
   This is a block of text that will be converted to comments and optionally
   appended to a $PREP_DOCUMENT_DIR/doc/ file when $PREP_DOCUMENT_DIR is set.
+
    > $BLOCK COMMENT--file conditional_compile.man
    > NAME
    >    conditional_compile - basic example for prep(1) pre-processor.

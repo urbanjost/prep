@@ -48,6 +48,7 @@ a.existingWikiWord[title]{ //border: 1px dashed #BBB; }
 <H1><HR><I>Manual Reference Pages &nbsp;-&nbsp;</I><NOBR>untitled ()</NOBR><HR></H1>
 </CENTER>
 <BLOCKQUOTE>
+Project is up to date
 </BLOCKQUOTE>
 <A name=0>
 
@@ -81,10 +82,7 @@ a.existingWikiWord[title]{ //border: 1px dashed #BBB; }
 
 </A>
 <BLOCKQUOTE>
-<TABLE cellpadding=3>
-<TR valign=top><TD width=6% nowrap>
-<B></B><B>prep</B> </TD><TD valign=bottom>
-[[-D] <I>define_list</I>]
+<B>prep</B> [[-D] <I>define_list</I>]
 [-I <I>include_directories</I>]
 [-i <B>input_file</B>(s)]
 [-o <I>output_file</I>]
@@ -100,8 +98,7 @@ a.existingWikiWord[title]{ //border: 1px dashed #BBB; }
 [-<B>-ident</B>]
 [-<B>-version</B>]
 [-<B>-help</B>]
-</TD></TR>
-<TR></TR></TABLE></BLOCKQUOTE>
+</BLOCKQUOTE>
 <A name=2>
 
      <H3>DESCRIPTION</H3>
@@ -740,7 +737,7 @@ Example:
     &gt; $show
     &gt; $show H*;*H;*H*! show beginning with "H", ending with "H", containing "H"
     &gt; $stop 0
-<P>
+    &gt;
     &gt; !  B  =  1
     &gt; !  Z  =  22
     &gt; !================================================================
@@ -966,41 +963,22 @@ Common use of $BLOCK
 </PRE>
 This is a block of text that will be converted to comments and optionally
 appended to a $PREP_DOCUMENT_DIR/doc/ file when $PREP_DOCUMENT_DIR is set.
-&gt; $BLOCK COMMENT-<B>-file</B> conditional_compile.man
-&gt; NAME
-<BLOCKQUOTE>
-<TABLE cellpadding=3><!-- tsb:    &gt; $!
- -->
-<TR></TR><TR></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>&gt;</B> </TD><TD valign=bottom>
-conditional_compile - basic example for <B>prep</B>(1) pre-processor.
-&gt; SYNOPSIS
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>&gt;</B> </TD><TD valign=bottom>
-conditional_example [-<B>-help</B>] [-<B>-version</B>]
-&gt; DESCRIPTION
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>&gt;</B> </TD><TD valign=bottom>
-This is a basic example program showing how documentation can be
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>&gt;</B> </TD><TD valign=bottom>
-used to generate program help text
-&gt; OPTIONS
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>&gt;</B> </TD><TD valign=bottom>
-<B>--help</B>     display this help and exit
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>&gt;</B> </TD><TD valign=bottom>
-<B>--version</B>  output version information and exit
-&gt; $ENDBLOCK
-</TD></TR>
-<TR></TR></TABLE></BLOCKQUOTE>
+<P>
+<PRE>
+   &gt; $BLOCK COMMENT--file conditional_compile.man
+   &gt; NAME
+   &gt;    conditional_compile - basic example for prep(1) pre-processor.
+   &gt; SYNOPSIS
+   &gt;    conditional_example [--help] [--version]
+   &gt; DESCRIPTION
+   &gt;    This is a basic example program showing how documentation can be
+   &gt;    used to generate program help text
+   &gt; OPTIONS
+   &gt;    --help     display this help and exit
+   &gt;    --version  output version information and exit
+   &gt; $ENDBLOCK
+<P>
+</PRE>
 </BLOCKQUOTE>
 <A name=9>
 
