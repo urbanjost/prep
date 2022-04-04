@@ -29,6 +29,7 @@ allocate(tally(0))
 !>>   $ENDIF
    call conditionals()
    call conditionals_2()
+   call conditionals_3()
 
 !>> MACRO STRING EXPANSION AND TEXT REPLAY
 !>>   $SET varname string
@@ -731,5 +732,60 @@ expected=[ character(len=132) :: &
 call teardown('misc')
 
 end subroutine misc
+!===============================================================================
+subroutine conditionals_3()
+
+data=[ character(len=132) :: &
+'$define a;b;c;d;e;f;g;h                                                      ',&
+'$                                                                            ',&
+'$if defined(a,b,c,d,e,f,g).and.defined(h,g,f,e,d,c,b,a).and..not.defined(i,j)',&
+'GOOD 1                                                                       ',&
+'$else                                                                        ',&
+'BAD 1                                                                        ',&
+'$endif                                                                       ',&
+'$                                                                            ',&
+'$if defined(a,b,c,i,d,e,f,g).and.defined(h,g,f,e,d,c,b,a)                    ',&
+'BAD 2                                                                        ',&
+'$else                                                                        ',&
+'GOOD 2                                                                       ',&
+'$endif                                                                       ',&
+'$                                                                            ',&
+'$if defined(a,b,c,i,d,e,f,g).and.defined(h,g,f,e,j,d,c,b,a)                  ',&
+'BAD 3                                                                        ',&
+'$else                                                                        ',&
+'GOOD 3                                                                       ',&
+'$endif                                                                       ',&
+'$                                                                            ',&
+'$if defined(a,b,c,d,e,f,g).and.defined(h,g,f,e,j,d,c,b,a)                    ',&
+'BAD 4                                                                        ',&
+'$else                                                                        ',&
+'GOOD 4                                                                       ',&
+'$endif                                                                       ',&
+'$                                                                            ',&
+'$if defined(a).or.defined(i)                                                 ',&
+'GOOD 5                                                                       ',&
+'$else                                                                        ',&
+'BAD 5                                                                        ',&
+'$endif                                                                       ',&
+'$                                                                            ',&
+'$if defined(j).or.defined(i)                                                 ',&
+'BAD 6                                                                        ',&
+'$else                                                                        ',&
+'GOOD 6                                                                       ',&
+'$endif                                                                       ',&
+'$                                                                            ',&
+'last line']
+
+expected=[ character(len=132) :: &
+'GOOD 1                                                                  ', &
+'GOOD 2                                                                  ', &
+'GOOD 3                                                                  ', &
+'GOOD 4                                                                  ', &
+'GOOD 5                                                                  ', &
+'GOOD 6                                                                  ', &
+'last line']
+
+call teardown('CONDITIONALS3')
+end subroutine conditionals_3
 !===============================================================================
 end program test_prep

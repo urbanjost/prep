@@ -26,6 +26,7 @@ new features, changes, and relevant notifications.
   + Ending "$BLOCK" with "$BLOCK END" or "$BLOCK" and "$PARCEL NAME "
     with "$PARCEL" is now deprecated,
 ### :green_circle: ADD:
+  + on $IF and $ELSEIF  DEFINED() function can take list of names
   + add $ENDBLOCK 
   + add $ENDPARCEL                                             
   + add predefined SYSTEMON variable for conditional execution of lines

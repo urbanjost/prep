@@ -297,7 +297,7 @@ DIRECTIVES
    Basic globbing is supported, where "*" represents any string, and "?"
    represents any single character.
 
-   DEFINED(variable_name)
+   DEFINED(variable_name[,...])
 
    A special function called DEFINED() may appear only in a $IF or $ELSEIF.
    If "variable_name" has been defined at that point in the source code,
