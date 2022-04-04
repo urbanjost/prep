@@ -149,7 +149,7 @@ DIRECTIVE SYNTAX SUMMARY
       $MESSAGE  message_to_stderr
       $SHOW [defined_variable_name[;...]]                  [! comment ]
 
-  System Commands
+  System Commands (See also: $BLOCK SHELL)
 
       $SYSTEM   system_command
 
@@ -353,6 +353,18 @@ DIRECTIVES
 
    $IFDEF and $IFNDEF are special forms of the $IF directive that simply test
    if a variable name is defined or not.
+
+   The expressions may optionally be enclosed in parenthesis and followed by
+   the keyword "THEN", ie. they may use Fortran syntax. For example, the
+   previous example may also be written as:
+
+     > $IF(OS .EQ. LINUX)THEN
+     >    write(*,*)"System type is Linux"
+     > $ELSEIF(OS .EQ. WINDOWS)THEN
+     >    write(*,*)"System type is MSWindows"
+     > $ELSE
+     >    write(*,*)"System type is unknown"
+     > $ENDIF
 
    Essentially, these are equivalent:
 
@@ -669,6 +681,7 @@ EXAMPLES
    > written to a $PREP_DOCUMENT_DIR/doc/ file when $PREP_DOCUMENT_DIR is set.
    > $ENDBLOCK
    >
+
   This is a block of text that will be converted to comments and optionally
   appended to a $PREP_DOCUMENT_DIR/doc/ file when $PREP_DOCUMENT_DIR is set.
 

@@ -218,17 +218,31 @@ logical                      :: ifound
          ifound=.false.
       end select
    endif
+
    select case(VERB)                                                  ! process logical flow control even if G_write is false
    case('ELSE','ELSEIF','ELIF');  call else(verb,upopts,noelse,eb)
    case('ENDIF');          call endif(noelse,eb)
    case('IF');       call if(upopts,noelse,eb)
    case('IFDEF','IFNDEF'); call def(verb,upopts,noelse,eb)
-
    case default
       if(.not.ifound)then
-         call stop_prep('*prep* ERROR(001) - UNKNOWN COMPILER DIRECTIVE ['//trim(verb)//']: '//trim(G_SOURCE))
+         !==========================================================================================================================
+         !PROPOSAL>!==================== allow assignments  name=expression by default 
+         !upopts=nospace(upper(line))     ! remove spaces from directive
+         !if(index(upopts,'=').gt.1.and.G_write)then  ! maybe try it as a simple expression instead; but should do it earlier
+         !                                ! to behave like fortran and not have reserved words, and only if LHS is
+         !                                ! an acceptable variable name
+         !   call define(upopts,0)        ! only process DEFINE if not skipping data lines
+         !else
+         !   call stop_prep('*prep* ERROR(001) - UNKNOWN COMPILER DIRECTIVE ['//trim(verb)//']: '//trim(G_SOURCE))
+         !endif
+         !PROPOSAL<!====================
+            call stop_prep('*prep* ERROR(001) - UNKNOWN COMPILER DIRECTIVE ['//trim(verb)//']: '//trim(G_SOURCE))
+         !PROPOSAL!====================
+         !==========================================================================================================================
       endif
    end select
+
 end subroutine cond
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -2303,7 +2317,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '      $MESSAGE  message_to_stderr                                               ',&
 '      $SHOW [defined_variable_name[;...]]                  [! comment ]         ',&
 '                                                                                ',&
-'  System Commands                                                               ',&
+'  System Commands (See also: $BLOCK SHELL)                                      ',&
 '                                                                                ',&
 '      $SYSTEM   system_command                                                  ',&
 '                                                                                ',&
@@ -2835,6 +2849,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   > written to a $PREP_DOCUMENT_DIR/doc/ file when $PREP_DOCUMENT_DIR is set.  ',&
 '   > $ENDBLOCK                                                                  ',&
 '   >                                                                            ',&
+'                                                                                ',&
 '  This is a block of text that will be converted to comments and optionally     ',&
 '  appended to a $PREP_DOCUMENT_DIR/doc/ file when $PREP_DOCUMENT_DIR is set.    ',&
 '                                                                                ',&
@@ -2978,7 +2993,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 "INFORMATION                                                                     ",&
 "  $MESSAGE message_to_stderr                                                    ",&
 "  $SHOW [defined_variable_name][;...]                                           ",&
-"SYSTEM COMMANDS                                                                 ",&
+"SYSTEM COMMANDS (see also: $BLOCK SHELL)                                        ",&
 "  $SYSTEM command                                                               ",&
 "  $STOP [stop_value[ ""message""]] | $QUIT [""message""]| $ERROR [""message""]     "]
    WRITE(stderr,'(a)')(trim(help_text(i)),i=1,size(help_text))
