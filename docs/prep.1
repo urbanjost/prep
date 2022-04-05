@@ -484,12 +484,10 @@ returned by the system and has a non-blank value.
 .PP
 $IDENT metadata [-\fB-language\fP fortran|c|shell]
 .PP
-$IDENT is a special-purpose directive generally used only by users of
-SCCS-metadata. This string is generally included for use with the
-\fBwhat\fP(1) command, and generates a comment if "\fB-ident\fP" is not specified
-on the command line.
+$IDENT is a special-purpose directive useful to users of SCCS-metadata.
+The string generated can be used by the \fBwhat\fP(1) command,
 .PP
-When the command line option "\fB--ident\fP" is specified this directive
+When the command line option "\fB--ident\fP [LANGUAGE]" is specified this directive
 writes a line using SCCS-metadata format of one of the following forms:
 .PP
 .nf
@@ -501,13 +499,23 @@ writes a line using SCCS-metadata format of one of the following forms:
 
 .fam T
 .fi
+The default language is "fortran".
+.PP
+Depending on your compiler and the optimization level used when compiling,
+the output string may not remain in the object files and executables created.
+.PP
+If the \fB-ident\fP switch is not specified, a Fortran comment line is generated
+of the form
+.PP
+.nf
+.fam C
+       ! ident_NNN="@(#)this is metadata"
+
+.fam T
+.fi
 "$@(#)" is an alias for "$IDENT" so the source file itself will contain
 SCCS-metadata so the metadata can be displayed with \fBwhat\fP(1) even for the
 unprocessed files.
-.PP
-The default language is "fortran". Depending on your compiler and the
-optimization level used when compiling, the output strings may or may not
-remain in the object files and executables created.
 .PP
 Do not use the characters double-quote, greater-than, backslash (ie. ">\\)
 in the metadata to remain compatible with SCCS metadata syntax.
@@ -515,11 +523,11 @@ Do not use strings starting with " -" either.
 .PP
 $OUTPUT filename [-\fB-append\fP [.true.|.false.]]
 .PP
-Specify the output file to write to. This overrides the initial output file
+Specifies the output file to write to. This overrides the initial output file
 specified with command line options. If no output filename is given
-\fBprep\fP(1) reverts back to the initial output file. @ is a synonym for stdout.
+\fBprep\fP(1) reverts back to the initial output file. "@" is a synonym for stdout.
 .PP
-Files open at the beginning by default. Use the \fB--append\fP switch to
+Files are open at the first line by default. Use the \fB--append\fP switch to
 append to the end of an existing file instead of overwriting it.
 .PP
 $INCLUDE filename
@@ -527,19 +535,19 @@ $INCLUDE filename
 Read in the specified input file. Fifty (50) nesting levels are allowed.
 Following the tradition of \fBcpp\fP(1) if "<filename>" is specified the file is
 only searched for relative to the search directories, otherwise it is
-searched for as specified first. Double-quotes are treated as in Fortran
-list-directed input.
+searched for as specified first. Double-quotes in the filename are treated
+as in Fortran list-directed input.
 .PP
 $PARCEL [name] / $ENDPARCEL
 .PP
-The lines between a "$PARCEL name" and "$ENDPARCEL" block are written to a
-scratch file WITHOUT expanding directives. the scratch file can then be read
-in with the $POST directive much like a named file can be with $INCLUDE,
-except the scratch file is automatically deleted at program termination.
+The block of lines between a "$PARCEL name" and "$ENDPARCEL" directive are
+written to a scratch file WITHOUT expanding directives. the scratch file can
+then be read in with the $POST directive much like a named file can be with
+$INCLUDE except the file is automatically deleted at program termination.
 .PP
 $POST name
 .PP
-Read in the scratch file created by the $PARCEL directive. Combined with
+Read in a scratch file created by the $PARCEL directive. Combined with
 $SET and $IMPORT directives this allows you to replay a section of input
 and replace strings as a simple templating technique, or to repeat lines
 like copyright information or definitions of (obsolescent) Fortran COMMON
@@ -620,10 +628,10 @@ tex, html, markdown or any plain text. The filename will be prefixed
 with $PREP_DOCUMENT_DIR/doc/ . If the environment variable
 $PREP_DOCUMENT_DIR is not set the option is ignored.
 .PP
-The \fB--file\fP output can easily be processed by other utilities such
-as \fBmarkdown\fP(1) or \fBtxt2man\fP(1) to produce \fBman\fP(1) pages and HTML
-documents. $SYSTEM commands may follow the $BLOCK block text to
-optionally post-process the doc files.
+The \fB--file\fP output can easily be processed by other utilities such as
+\fBmarkdown\fP(1) or \fBtxt2man\fP(1) to produce \fBman\fP(1) pages and HTML documents.
+$SYSTEM commands may follow the $BLOCK block text to optionally post-process
+the doc files.
 .PP
 $ENDBLOCK ends the block, which is preferred; but a blank value or "END" on
 a $BLOCK directive does as well.

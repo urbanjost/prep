@@ -227,7 +227,7 @@ logical                      :: ifound
    case default
       if(.not.ifound)then
          !==========================================================================================================================
-         !PROPOSAL>!==================== allow assignments  name=expression by default 
+         !PROPOSAL>!==================== allow assignments  name=expression by default
          !upopts=nospace(upper(line))     ! remove spaces from directive
          !if(index(upopts,'=').gt.1.and.G_write)then  ! maybe try it as a simple expression instead; but should do it earlier
          !                                ! to behave like fortran and not have reserved words, and only if LHS is
@@ -341,13 +341,13 @@ end subroutine output_case
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine parcel_case(opts)                             !@(#)parcel_case(3f): process $PARCEL directive
+subroutine parcel_case(opts)                          !@(#)parcel_case(3f): process $PARCEL directive
 character(len=*)              :: opts
 character(len=G_line_length)  :: name                 ! name on $PARCEL command
 integer                       :: ios
 integer                       :: lun
 character(len=256)            :: message
-   call dissect2('parcel','-oo ',opts)  ! parse options and inline comment on input line
+   call dissect2('parcel','-oo ',opts)                ! parse options and inline comment on input line
    name=sget('parcel_oo')
    if(name.eq.'')then
       G_inparcel=.false.
@@ -625,14 +625,14 @@ end subroutine undef
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
 subroutine if(opts,noelse,eb)                                 !@(#)if(3f): process IF and ELSEIF directives
-character(len=*),intent(in)     :: opts
-integer,intent(out)             :: noelse
-logical                         :: eb
+character(len=*),intent(in)  :: opts
+integer,intent(out)          :: noelse
+logical                      :: eb
 character(len=G_var_len)     :: value
 integer                      :: ios
 integer                      :: i
 integer                      :: ithen
-character(len=G_line_length) :: expression                 
+character(len=G_line_length) :: expression
 
    noelse=0
    G_write=.false.
@@ -1379,38 +1379,32 @@ end subroutine eval
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-function get_integer_from_string(line) !@(#)get_integer_from_string(3f): read integer value from line(ipos1:ipos2)
+function get_integer_from_string(line) !@(#)get_integer_from_string(3f): read integer value from line
                                                                     ! assume string is a variable name or an integer value
-character(len=*),intent(in)  :: line                                ! string containing substring to read an integer value from
-
-character(len=G_var_len)     :: value                               ! the substring
+character(len=*),intent(in)  :: line                                ! string to read an integer value from
 integer                      :: i                                   ! index of variable dictionary where variable name is stored
 integer                      :: ios                                 ! I/O error value to check to see if internal reads succeeded
 integer                      :: get_integer_from_string             ! integer value to return if string is converted successfully
-integer                      :: ipos1, ipos2
-
-   ipos1=min(1,len(line))
-   ipos2=len(line)
-   ipos2=min(max(1,ipos2),ipos2)
-   if(len(line).eq.0)then
+   get_integer_from_string=0
+   if(len_trim(line).eq.0)then
       get_integer_from_string=0
-   elseif (line(ipos1:ipos1).ge.'A'.and.line(ipos1:ipos1).le.'Z') then  ! not a number, now assumed to  be a variable name
-      value= line(ipos1:ipos2)                                      ! extract substring that is assumed to be a variable name
-      i=-1                                                          ! this will be index where variable name is found in dictionary
-      do i=1,G_numdef                                               ! scan variable dictionary for the variable name
-        if (G_defvar(i).eq.value) exit
-      enddo
-      if (i.gt.G_numdef.or.i.lt.0)then                              ! if variable name not found in dictionary, stop
-        call stop_prep('*prep* ERROR(044) - UNDEFINED PARAMETER:'//trim(G_source))
-      endif
-      read(G_defval(i),'(i11)',iostat=ios) get_integer_from_string  ! read integer value from the value associated with name
-      if(ios.ne.0)then                                              ! failed reading integer from value, stop
-        call stop_prep('*prep* ERROR(045) - MUST BE INTEGER:'//trim(G_source))
+   elseif (verify(line,'0123456789 +-').eq.0) then                  ! not a number, now assumed to  be a variable name
+      read(line,'(i11)',iostat=ios) get_integer_from_string         ! try to read integer value from input string
+      if(ios.ne.0)then                                              ! failed to convert the string to an integer, so stop
+        call stop_prep('*prep* ERROR(044) - MUST BE INTEGER:"'//trim(line)//'" IN '//trim(G_source))
       endif
    else                                                             ! input is not a variable name, assume it represents an integer
-      read(line(ipos1:ipos2),'(i11)',iostat=ios) get_integer_from_string   ! try to read integer value from input string
-      if(ios.ne.0)then                                              ! failed to convert the string to an integer, so stop
-        call stop_prep('*prep* ERROR(046) - MUST BE INTEGER:'//trim(G_source))
+      i=-1                                                          ! this will be index where variable name is found in dictionary
+      do i=1,G_numdef                                               ! scan variable dictionary for the variable name
+        if (G_defvar(i).eq.line) exit
+      enddo
+      if (i.gt.G_numdef.or.i.lt.0)then                              ! if variable name not found in dictionary, stop
+        call stop_prep('*prep* ERROR(045) - UNDEFINED VARIABLE NAME:"'//trim(line)//'" IN '//trim(G_source))
+      else  
+         read(G_defval(i),'(i11)',iostat=ios) get_integer_from_string  ! read integer value from the value associated with name
+         if(ios.ne.0)then                                              ! failed reading integer from value, stop
+           call stop_prep('*prep* ERROR(046) - MUST BE INTEGER:"'//trim(line)//'" IN '//trim(G_source))
+         endif
       endif
    endif                                                            ! return integer value
 end function get_integer_from_string
@@ -2530,12 +2524,10 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   $IDENT metadata [--language fortran|c|shell]                                 ',&
 '                                                                                ',&
-'   $IDENT is a special-purpose directive generally used only by users of        ',&
-'   SCCS-metadata. This string is generally included for use with the            ',&
-'   what(1) command, and generates a comment if "-ident" is not specified        ',&
-'   on the command line.                                                         ',&
+'   $IDENT is a special-purpose directive useful to users of SCCS-metadata.      ',&
+'   The string generated can be used by the what(1) command,                     ',&
 '                                                                                ',&
-'   When the command line option "--ident" is specified this directive           ',&
+'   When the command line option "--ident [LANGUAGE]" is specified this directive',&
 '   writes a line using SCCS-metadata format of one of the following forms:      ',&
 '                                                                                ',&
 '     language:                                                                  ',&
@@ -2543,13 +2535,19 @@ help_text=[ CHARACTER(LEN=128) :: &
 '     c         #ident "@(#)metadata"                                            ',&
 '     shell     #@(#) metadata                                                   ',&
 '                                                                                ',&
+'   The default language is "fortran".                                           ',&
+'                                                                                ',&
+'   Depending on your compiler and the optimization level used when compiling,   ',&
+'   the output string may not remain in the object files and executables created.',&
+'                                                                                ',&
+'   If the -ident switch is not specified, a Fortran comment line is generated   ',&
+'   of the form                                                                  ',&
+'                                                                                ',&
+'       ! ident_NNN="@(#)this is metadata"                                       ',&
+'                                                                                ',&
 '   "$@(#)" is an alias for "$IDENT" so the source file itself will contain      ',&
 '   SCCS-metadata so the metadata can be displayed with what(1) even for the     ',&
 '   unprocessed files.                                                           ',&
-'                                                                                ',&
-'   The default language is "fortran". Depending on your compiler and the        ',&
-'   optimization level used when compiling, the output strings may or may not    ',&
-'   remain in the object files and executables created.                          ',&
 '                                                                                ',&
 '   Do not use the characters double-quote, greater-than, backslash (ie. ">\)    ',&
 '   in the metadata to remain compatible with SCCS metadata syntax.              ',&
@@ -2557,11 +2555,11 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   $OUTPUT filename [--append [.true.|.false.]]                                 ',&
 '                                                                                ',&
-'   Specify the output file to write to. This overrides the initial output file  ',&
+'   Specifies the output file to write to. This overrides the initial output file',&
 '   specified with command line options. If no output filename is given          ',&
-'   prep(1) reverts back to the initial output file. @ is a synonym for stdout.  ',&
+'   prep(1) reverts back to the initial output file. "@" is a synonym for stdout.',&
 '                                                                                ',&
-'   Files open at the beginning by default. Use the --append switch to           ',&
+'   Files are open at the first line by default. Use the --append switch to      ',&
 '   append to the end of an existing file instead of overwriting it.             ',&
 '                                                                                ',&
 '   $INCLUDE filename                                                            ',&
@@ -2569,19 +2567,19 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   Read in the specified input file. Fifty (50) nesting levels are allowed.     ',&
 '   Following the tradition of cpp(1) if "<filename>" is specified the file is   ',&
 '   only searched for relative to the search directories, otherwise it is        ',&
-'   searched for as specified first. Double-quotes are treated as in Fortran     ',&
-'   list-directed input.                                                         ',&
+'   searched for as specified first. Double-quotes in the filename are treated   ',&
+'   as in Fortran list-directed input.                                           ',&
 '                                                                                ',&
 '   $PARCEL [name] / $ENDPARCEL                                                  ',&
 '                                                                                ',&
-'   The lines between a "$PARCEL name" and "$ENDPARCEL" block are written to a   ',&
-'   scratch file WITHOUT expanding directives. the scratch file can then be read ',&
-'   in with the $POST directive much like a named file can be with $INCLUDE,     ',&
-'   except the scratch file is automatically deleted at program termination.     ',&
+'   The block of lines between a "$PARCEL name" and "$ENDPARCEL" directive are   ',&
+'   written to a scratch file WITHOUT expanding directives. the scratch file can ',&
+'   then be read in with the $POST directive much like a named file can be with  ',&
+'   $INCLUDE except the file is automatically deleted at program termination.    ',&
 '                                                                                ',&
 '   $POST name                                                                   ',&
 '                                                                                ',&
-'   Read in the scratch file created by the $PARCEL directive. Combined with     ',&
+'   Read in a scratch file created by the $PARCEL directive. Combined with       ',&
 '   $SET and $IMPORT directives this allows you to replay a section of input     ',&
 '   and replace strings as a simple templating technique, or to repeat lines     ',&
 '   like copyright information or definitions of (obsolescent) Fortran COMMON    ',&
@@ -2652,10 +2650,10 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   with $PREP_DOCUMENT_DIR/doc/ . If the environment variable                   ',&
 '   $PREP_DOCUMENT_DIR is not set the option is ignored.                         ',&
 '                                                                                ',&
-'   The --file output can easily be processed by other utilities such            ',&
-'   as markdown(1) or txt2man(1) to produce man(1) pages and HTML                ',&
-'   documents. $SYSTEM commands may follow the $BLOCK block text to              ',&
-'   optionally post-process the doc files.                                       ',&
+'   The --file output can easily be processed by other utilities such as         ',&
+'   markdown(1) or txt2man(1) to produce man(1) pages and HTML documents.        ',&
+'   $SYSTEM commands may follow the $BLOCK block text to optionally post-process ',&
+'   the doc files.                                                               ',&
 '                                                                                ',&
 '   $ENDBLOCK ends the block, which is preferred; but a blank value or "END" on  ',&
 '   a $BLOCK directive does as well.                                             ',&
@@ -2918,12 +2916,6 @@ help_text=[ CHARACTER(LEN=128) :: &
 '@(#)DESCRIPTION:    Fortran Pre-processor>',&
 !'@(#)VERSION:        4.0.0: 20170502>',&
 !'@(#)VERSION:        5.0.0: 20201219>',&
-!'@(#)VERSION:        6.0.0: 20210613>',&
-!'@(#)VERSION:        6.0.1: 20220311>',&
-!'@(#)VERSION:        6.1.1: 20220326>',&
-!'@(#)VERSION:        6.1.2: 20220326>',&
-!'@(#)VERSION:        6.2.2: 20220329>',&
-!'@(#)VERSION:        7.0.0: 20220401>',&
 '@(#)VERSION:        8.1.1: 20220405>',&
 '@(#)AUTHOR:         John S. Urban>',&
 '@(#)HOME PAGE       https://github.com/urbanjost/prep.git/>',&
@@ -2940,7 +2932,7 @@ implicit none
 character(len=:),allocatable :: help_text(:)
 integer                        :: i
 help_text=[ CHARACTER(LEN=128) :: &
-"EXPRESSIONS                                                                     ",&    
+"EXPRESSIONS                                                                     ",&
 "  numeric operators are +,-,*,/,**, (). Logical operators are                   ",&
 "   >  | .EQ.| .NE.| .GE.| .GT.| .LE.| .LT.|.NOT.|.AND.| .OR.| .EQV.|.NEQV.|     ",&
 "   >  |  == |  /= |  >= |  >  |  <= |  <  |  !  |  && |  || |  ==  |  !=  |     ",&

@@ -130,7 +130,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 1.6% of total for procedures.">32 statements</a>
+    title=" 1.4% of total for procedures.">28 statements</a>
      </li> 
      
      
@@ -178,12 +178,6 @@
       <a class="list-group-item" href="../proc/get_integer_from_string.html#variable-i">i</a>
       
       <a class="list-group-item" href="../proc/get_integer_from_string.html#variable-ios">ios</a>
-      
-      <a class="list-group-item" href="../proc/get_integer_from_string.html#variable-ipos1">ipos1</a>
-      
-      <a class="list-group-item" href="../proc/get_integer_from_string.html#variable-ipos2">ipos2</a>
-      
-      <a class="list-group-item" href="../proc/get_integer_from_string.html#variable-value">value</a>
       
     </div>
   </div>
@@ -296,12 +290,6 @@ public function get_integer_from_string(line)
       
       <a class="list-group-item" href="../proc/get_integer_from_string.html#variable-ios">ios</a>
       
-      <a class="list-group-item" href="../proc/get_integer_from_string.html#variable-ipos1">ipos1</a>
-      
-      <a class="list-group-item" href="../proc/get_integer_from_string.html#variable-ipos2">ipos2</a>
-      
-      <a class="list-group-item" href="../proc/get_integer_from_string.html#variable-value">value</a>
-      
     </div>
   </div>
 </div>
@@ -380,48 +368,6 @@ public function get_integer_from_string(line)
   
 </tr>
 
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-ipos1"></span>integer,</td>
-  
-  <td>public</td>
-  <td></td><td>::</td>
-  <td><strong>ipos1</strong></td><td></td><td></td><td></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-ipos2"></span>integer,</td>
-  
-  <td>public</td>
-  <td></td><td>::</td>
-  <td><strong>ipos2</strong></td><td></td><td></td><td></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-value"></span>character(len=G_var_len),</td>
-  
-  <td>public</td>
-  <td></td><td>::</td>
-  <td><strong>value</strong></td><td></td><td></td><td></td>
-  
-</tr>
-
 </tbody>
 </table>
 
@@ -445,39 +391,33 @@ public function get_integer_from_string(line)
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="k">function </span><span class="n">get_integer_from_string</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="c">!@(#)get_integer_from_string(3f): read integer value from line(ipos1:ipos2)</span>
+    <div class="highlight"><pre><span></span><span class="k">function </span><span class="n">get_integer_from_string</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="c">!@(#)get_integer_from_string(3f): read integer value from line</span>
                                                                     <span class="c">! assume string is a variable name or an integer value</span>
-<span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span>  <span class="kd">::</span> <span class="n">line</span>                                <span class="c">! string containing substring to read an integer value from</span>
-
-<span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">G_var_len</span><span class="p">)</span>     <span class="kd">::</span> <span class="k">value</span>                               <span class="c">! the substring</span>
+<span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span>  <span class="kd">::</span> <span class="n">line</span>                                <span class="c">! string to read an integer value from</span>
 <span class="kt">integer</span>                      <span class="kd">::</span> <span class="n">i</span>                                   <span class="c">! index of variable dictionary where variable name is stored</span>
 <span class="kt">integer</span>                      <span class="kd">::</span> <span class="n">ios</span>                                 <span class="c">! I/O error value to check to see if internal reads succeeded</span>
 <span class="kt">integer</span>                      <span class="kd">::</span> <span class="n">get_integer_from_string</span>             <span class="c">! integer value to return if string is converted successfully</span>
-<span class="kt">integer</span>                      <span class="kd">::</span> <span class="n">ipos1</span><span class="p">,</span> <span class="n">ipos2</span>
-
-   <span class="n">ipos1</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
-   <span class="n">ipos2</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-   <span class="n">ipos2</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">ipos2</span><span class="p">),</span><span class="n">ipos2</span><span class="p">)</span>
-   <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">).</span><span class="n">eq</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="k">then</span>
+   <span class="n">get_integer_from_string</span><span class="o">=</span><span class="mi">0</span>
+   <span class="k">if</span><span class="p">(</span><span class="nb">len_trim</span><span class="p">(</span><span class="n">line</span><span class="p">).</span><span class="n">eq</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="k">then</span>
 <span class="k">      </span><span class="n">get_integer_from_string</span><span class="o">=</span><span class="mi">0</span>
-   <span class="n">elseif</span> <span class="p">(</span><span class="n">line</span><span class="p">(</span><span class="n">ipos1</span><span class="p">:</span><span class="n">ipos1</span><span class="p">).</span><span class="n">ge</span><span class="p">.</span><span class="s1">&#39;A&#39;</span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="n">line</span><span class="p">(</span><span class="n">ipos1</span><span class="p">:</span><span class="n">ipos1</span><span class="p">).</span><span class="n">le</span><span class="p">.</span><span class="s1">&#39;Z&#39;</span><span class="p">)</span> <span class="k">then</span>  <span class="c">! not a number, now assumed to  be a variable name</span>
-      <span class="k">value</span><span class="o">=</span> <span class="n">line</span><span class="p">(</span><span class="n">ipos1</span><span class="p">:</span><span class="n">ipos2</span><span class="p">)</span>                                      <span class="c">! extract substring that is assumed to be a variable name</span>
-      <span class="n">i</span><span class="o">=-</span><span class="mi">1</span>                                                          <span class="c">! this will be index where variable name is found in dictionary</span>
-      <span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">G_numdef</span>                                               <span class="c">! scan variable dictionary for the variable name</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">G_defvar</span><span class="p">(</span><span class="n">i</span><span class="p">).</span><span class="n">eq</span><span class="p">.</span><span class="k">value</span><span class="p">)</span> <span class="k">exit</span>
-<span class="k">      enddo</span>
-<span class="k">      if</span> <span class="p">(</span><span class="n">i</span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="n">G_numdef</span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="n">i</span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="k">then</span>                              <span class="c">! if variable name not found in dictionary, stop</span>
-        <span class="k">call </span><span class="n">stop_prep</span><span class="p">(</span><span class="s1">&#39;*prep* ERROR(044) - UNDEFINED PARAMETER:&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">G_source</span><span class="p">))</span>
-      <span class="k">endif</span>
-<span class="k">      read</span><span class="p">(</span><span class="n">G_defval</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="s1">&#39;(i11)&#39;</span><span class="p">,</span><span class="n">iostat</span><span class="o">=</span><span class="n">ios</span><span class="p">)</span> <span class="n">get_integer_from_string</span>  <span class="c">! read integer value from the value associated with name</span>
-      <span class="k">if</span><span class="p">(</span><span class="n">ios</span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="k">then</span>                                              <span class="c">! failed reading integer from value, stop</span>
-        <span class="k">call </span><span class="n">stop_prep</span><span class="p">(</span><span class="s1">&#39;*prep* ERROR(045) - MUST BE INTEGER:&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">G_source</span><span class="p">))</span>
+   <span class="n">elseif</span> <span class="p">(</span><span class="nb">verify</span><span class="p">(</span><span class="n">line</span><span class="p">,</span><span class="s1">&#39;0123456789 +-&#39;</span><span class="p">).</span><span class="n">eq</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span> <span class="k">then</span>                  <span class="c">! not a number, now assumed to  be a variable name</span>
+      <span class="k">read</span><span class="p">(</span><span class="n">line</span><span class="p">,</span><span class="s1">&#39;(i11)&#39;</span><span class="p">,</span><span class="n">iostat</span><span class="o">=</span><span class="n">ios</span><span class="p">)</span> <span class="n">get_integer_from_string</span>         <span class="c">! try to read integer value from input string</span>
+      <span class="k">if</span><span class="p">(</span><span class="n">ios</span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="k">then</span>                                              <span class="c">! failed to convert the string to an integer, so stop</span>
+        <span class="k">call </span><span class="n">stop_prep</span><span class="p">(</span><span class="s1">&#39;*prep* ERROR(044) - MUST BE INTEGER:&quot;&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">line</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;&quot; IN &#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">G_source</span><span class="p">))</span>
       <span class="k">endif</span>
 <span class="k">   else</span>                                                             <span class="c">! input is not a variable name, assume it represents an integer</span>
-      <span class="k">read</span><span class="p">(</span><span class="n">line</span><span class="p">(</span><span class="n">ipos1</span><span class="p">:</span><span class="n">ipos2</span><span class="p">),</span><span class="s1">&#39;(i11)&#39;</span><span class="p">,</span><span class="n">iostat</span><span class="o">=</span><span class="n">ios</span><span class="p">)</span> <span class="n">get_integer_from_string</span>   <span class="c">! try to read integer value from input string</span>
-      <span class="k">if</span><span class="p">(</span><span class="n">ios</span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="k">then</span>                                              <span class="c">! failed to convert the string to an integer, so stop</span>
-        <span class="k">call </span><span class="n">stop_prep</span><span class="p">(</span><span class="s1">&#39;*prep* ERROR(046) - MUST BE INTEGER:&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">G_source</span><span class="p">))</span>
-      <span class="k">endif</span>
+      <span class="n">i</span><span class="o">=-</span><span class="mi">1</span>                                                          <span class="c">! this will be index where variable name is found in dictionary</span>
+      <span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">G_numdef</span>                                               <span class="c">! scan variable dictionary for the variable name</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">G_defvar</span><span class="p">(</span><span class="n">i</span><span class="p">).</span><span class="n">eq</span><span class="p">.</span><span class="n">line</span><span class="p">)</span> <span class="k">exit</span>
+<span class="k">      enddo</span>
+<span class="k">      if</span> <span class="p">(</span><span class="n">i</span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="n">G_numdef</span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="n">i</span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="k">then</span>                              <span class="c">! if variable name not found in dictionary, stop</span>
+        <span class="k">call </span><span class="n">stop_prep</span><span class="p">(</span><span class="s1">&#39;*prep* ERROR(045) - UNDEFINED VARIABLE NAME:&quot;&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">line</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;&quot; IN &#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">G_source</span><span class="p">))</span>
+      <span class="k">else  </span>
+<span class="k">         read</span><span class="p">(</span><span class="n">G_defval</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="s1">&#39;(i11)&#39;</span><span class="p">,</span><span class="n">iostat</span><span class="o">=</span><span class="n">ios</span><span class="p">)</span> <span class="n">get_integer_from_string</span>  <span class="c">! read integer value from the value associated with name</span>
+         <span class="k">if</span><span class="p">(</span><span class="n">ios</span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="k">then</span>                                              <span class="c">! failed reading integer from value, stop</span>
+           <span class="k">call </span><span class="n">stop_prep</span><span class="p">(</span><span class="s1">&#39;*prep* ERROR(046) - MUST BE INTEGER:&quot;&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">line</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;&quot; IN &#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">G_source</span><span class="p">))</span>
+         <span class="k">endif</span>
+<span class="k">      endif</span>
 <span class="k">   endif</span>                                                            <span class="c">! return integer value</span>
 <span class="k">end function </span><span class="n">get_integer_from_string</span>
 </pre></div>
@@ -501,7 +441,7 @@ public function get_integer_from_string(line)
           <p class="text-right">
             Documentation generated by 
             <a href="https://github.com/cmacmackin/ford">FORD</a>
-             on 2022-04-05 00:51  
+             on 2022-04-05 08:53  
           </p>
         </div>
         <div class="col-xs-12 col-md-4 col-md-pull-4"><p class="text-center"> prep was developed by John S. Urban</p></div>
