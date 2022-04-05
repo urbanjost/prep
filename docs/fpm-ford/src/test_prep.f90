@@ -785,7 +785,7 @@ expected=[ character(len=132) :: &
 'GOOD 6                                                                  ', &
 'last line']
 
-call teardown('CONDITIONALS3')
+call teardown('CONDITIONALS_3')
 end subroutine conditionals_3
 !===============================================================================
 end program test_prep

@@ -130,7 +130,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 2.5% of total for procedures.">52 statements</a>
+    title=" 1.7% of total for procedures.">35 statements</a>
      </li> 
      
      
@@ -179,13 +179,9 @@
       
       <a class="list-group-item" href="../proc/print_comment_block.html#variable-iend~2">iend</a>
       
-      <a class="list-group-item" href="../proc/print_comment_block.html#variable-ilength">ilength</a>
-      
       <a class="list-group-item" href="../proc/print_comment_block.html#variable-ios~11">ios</a>
       
-      <a class="list-group-item" href="../proc/print_comment_block.html#variable-istatus">istatus</a>
-      
-      <a class="list-group-item" href="../proc/print_comment_block.html#variable-varname">varname</a>
+      <a class="list-group-item" href="../proc/print_comment_block.html#variable-lun~2">lun</a>
       
       <a class="list-group-item" href="../proc/print_comment_block.html#variable-varvalue~2">varvalue</a>
       
@@ -265,13 +261,9 @@ public subroutine print_comment_block()
       
       <a class="list-group-item" href="../proc/print_comment_block.html#variable-iend~2">iend</a>
       
-      <a class="list-group-item" href="../proc/print_comment_block.html#variable-ilength">ilength</a>
-      
       <a class="list-group-item" href="../proc/print_comment_block.html#variable-ios~11">ios</a>
       
-      <a class="list-group-item" href="../proc/print_comment_block.html#variable-istatus">istatus</a>
-      
-      <a class="list-group-item" href="../proc/print_comment_block.html#variable-varname">varname</a>
+      <a class="list-group-item" href="../proc/print_comment_block.html#variable-lun~2">lun</a>
       
       <a class="list-group-item" href="../proc/print_comment_block.html#variable-varvalue~2">varvalue</a>
       
@@ -359,20 +351,6 @@ public subroutine print_comment_block()
   
 <tr>
   
-  <td><span class="anchor" id="variable-ilength"></span>integer,</td>
-  
-  <td>public</td>
-  <td></td><td>::</td>
-  <td><strong>ilength</strong></td><td></td><td></td><td></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
   <td><span class="anchor" id="variable-ios~11"></span>integer,</td>
   
   <td>public</td>
@@ -387,25 +365,11 @@ public subroutine print_comment_block()
   
 <tr>
   
-  <td><span class="anchor" id="variable-istatus"></span>integer,</td>
+  <td><span class="anchor" id="variable-lun~2"></span>integer,</td>
   
   <td>public</td>
   <td></td><td>::</td>
-  <td><strong>istatus</strong></td><td></td><td></td><td></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-varname"></span>character(len=*),</td>
-  
-  <td>public,</td>
-  <td>parameter</td><td>::</td>
-  <td><strong>varname</strong></td><td> =</td><td>'PREP_DOCUMENT_DIR'</td><td></td>
+  <td><strong>lun</strong></td><td></td><td></td><td></td>
   
 </tr>
 
@@ -449,49 +413,32 @@ public subroutine print_comment_block()
     <div class="highlight"><pre><span></span><span class="k">subroutine </span><span class="n">print_comment_block</span><span class="p">()</span> <span class="c">!@(#)print_comment_block(3f): format comment block to file in document directory and output</span>
 <span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="k">allocatable</span> <span class="kd">::</span> <span class="n">filename</span>
 <span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="k">allocatable</span> <span class="kd">::</span> <span class="n">varvalue</span>
-<span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="k">parameter</span>   <span class="kd">::</span> <span class="n">varname</span><span class="o">=</span><span class="s1">&#39;PREP_DOCUMENT_DIR&#39;</span>
-<span class="kt">integer</span>                      <span class="kd">::</span> <span class="n">ios</span><span class="p">,</span><span class="n">iend</span><span class="p">,</span><span class="n">istatus</span><span class="p">,</span><span class="n">ilength</span>
+<span class="kt">integer</span>                      <span class="kd">::</span> <span class="n">ios</span><span class="p">,</span><span class="n">iend</span><span class="p">,</span><span class="n">lun</span>
 
    <span class="k">if</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="nb">allocated</span><span class="p">(</span><span class="n">G_MAN</span><span class="p">))</span><span class="k">then</span>
 <span class="k">      return</span>
 <span class="k">   endif</span>
 
-<span class="k">   call </span><span class="nb">get_environment_variable</span><span class="p">(</span><span class="n">varname</span><span class="p">,</span><span class="n">length</span><span class="o">=</span><span class="n">ilength</span><span class="p">,</span><span class="n">status</span><span class="o">=</span><span class="n">istatus</span><span class="p">)</span>
-   <span class="k">if</span><span class="p">(</span><span class="n">istatus</span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="n">ilength</span><span class="o">=</span><span class="mi">0</span>
-   <span class="k">if</span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">varvalue</span><span class="p">))</span><span class="k">deallocate</span><span class="p">(</span><span class="n">varvalue</span><span class="p">)</span>
-   <span class="k">allocate</span><span class="p">(</span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ilength</span><span class="p">)</span> <span class="kd">::</span> <span class="n">varvalue</span><span class="p">)</span>
-   <span class="k">call </span><span class="nb">get_environment_variable</span><span class="p">(</span><span class="n">varname</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="n">varvalue</span><span class="p">,</span><span class="n">status</span><span class="o">=</span><span class="n">istatus</span><span class="p">)</span>
-   <span class="k">select case</span><span class="p">(</span><span class="n">istatus</span><span class="p">)</span>
-   <span class="k">case</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-   <span class="k">case</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span><span class="k">call </span><span class="n">stop_prep</span><span class="p">(</span><span class="s1">&#39;*prep* ERROR(051) - VARIABLE VALUE TOO LONG:&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">varname</span><span class="p">))</span>
-   <span class="k">case</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span> <span class="c">! VARIABLE DOES NOT EXIST</span>
-   <span class="k">case</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span> <span class="k">call </span><span class="n">stop_prep</span><span class="p">(</span><span class="s1">&#39;*prep* ERROR(052) - COMPILER DOES NOT SUPPORT ENVIRONMENT VARIABLES:&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">varname</span><span class="p">))</span>
-   <span class="k">case </span><span class="n">default</span><span class="p">;</span> <span class="k">call </span><span class="n">stop_prep</span><span class="p">(</span><span class="s1">&#39;*prep* ERROR(053) - UNEXPECTED STATUS VALUE &#39;</span><span class="o">//</span><span class="n">v2s</span><span class="p">(</span><span class="n">istatus</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;:&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">varname</span><span class="p">))</span>
-   <span class="k">end select</span>
+<span class="k">   </span><span class="n">varvalue</span><span class="o">=</span><span class="n">get_env</span><span class="p">(</span><span class="s1">&#39;PREP_DOCUMENT_DIR&#39;</span><span class="p">)</span>
 
-<span class="k">   if</span><span class="p">(</span><span class="n">ilength</span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="mf">0.</span><span class="nb">and</span><span class="p">.</span><span class="n">G_MAN</span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="s1">&#39;&#39;</span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="n">G_MAN_FILE</span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="s1">&#39; &#39;</span><span class="p">)</span><span class="k">then</span> <span class="c">! if $BLOCK ... --file FILE is present generate file in directory/doc</span>
-      <span class="n">filename</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">varvalue</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;/doc/&#39;</span>
+   <span class="k">if</span><span class="p">(</span><span class="n">varvalue</span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="s1">&#39;&#39;</span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="n">G_MAN</span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="s1">&#39;&#39;</span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="n">G_MAN_FILE</span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="s1">&#39; &#39;</span><span class="p">)</span><span class="k">then</span> <span class="c">! if $BLOCK ... --file FILE is present generate file in directory/doc</span>
 
       <span class="n">iend</span><span class="o">=</span><span class="nb">len_trim</span><span class="p">(</span><span class="n">varvalue</span><span class="p">)</span>
-
       <span class="k">if</span><span class="p">(</span><span class="n">varvalue</span><span class="p">(</span><span class="n">iend</span><span class="p">:</span><span class="n">iend</span><span class="p">).</span><span class="n">ne</span><span class="p">.</span><span class="s1">&#39;/&#39;</span><span class="p">)</span><span class="k">then</span>
 <span class="k">         </span><span class="n">filename</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">varvalue</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;/doc/&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">G_MAN_FILE</span><span class="p">)</span>
       <span class="k">else</span>
 <span class="k">         </span><span class="n">filename</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">varvalue</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;doc/&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">G_MAN_FILE</span><span class="p">)</span>
       <span class="k">endif</span>
 
-<span class="k">      if</span><span class="p">(</span><span class="n">filename</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="s1">&#39; &#39;</span><span class="p">)</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;OOPS.txt&#39;</span>
-
-      <span class="k">open</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="mi">70</span><span class="p">,</span><span class="k">file</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span><span class="n">iostat</span><span class="o">=</span><span class="n">ios</span><span class="p">,</span><span class="n">action</span><span class="o">=</span><span class="s1">&#39;write&#39;</span><span class="p">,</span><span class="n">position</span><span class="o">=</span><span class="n">G_MAN_FILE_POSITION</span><span class="p">)</span>
+<span class="k">      open</span><span class="p">(</span><span class="n">newunit</span><span class="o">=</span><span class="n">lun</span><span class="p">,</span><span class="k">file</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span><span class="n">iostat</span><span class="o">=</span><span class="n">ios</span><span class="p">,</span><span class="n">action</span><span class="o">=</span><span class="s1">&#39;write&#39;</span><span class="p">,</span><span class="n">position</span><span class="o">=</span><span class="n">G_MAN_FILE_POSITION</span><span class="p">)</span>
 
       <span class="k">if</span><span class="p">(</span><span class="n">ios</span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="k">then</span>
-
 <span class="k">         call </span><span class="n">stop_prep</span><span class="p">(</span><span class="s1">&#39;*prep* ERROR(054) - FAILED TO OPEN DOCUMENT OUTPUT FILE:&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
       <span class="k">else</span>
 <span class="k">         if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">G_MAN</span><span class="p">).</span><span class="n">gt</span><span class="p">.</span><span class="mi">1</span><span class="p">)</span><span class="k">then</span>                   <span class="c">! the way the string is built it starts with a newline</span>
-            <span class="k">write</span><span class="p">(</span><span class="mi">70</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">,</span><span class="n">iostat</span><span class="o">=</span><span class="n">ios</span><span class="p">)</span> <span class="n">G_MAN</span><span class="p">(</span><span class="mi">2</span><span class="p">:)</span>
+            <span class="k">write</span><span class="p">(</span><span class="n">lun</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">,</span><span class="n">iostat</span><span class="o">=</span><span class="n">ios</span><span class="p">)</span> <span class="n">G_MAN</span><span class="p">(</span><span class="mi">2</span><span class="p">:)</span>
          <span class="k">else</span>
-<span class="k">            write</span><span class="p">(</span><span class="mi">70</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">,</span><span class="n">iostat</span><span class="o">=</span><span class="n">ios</span><span class="p">)</span> <span class="n">G_MAN</span>
+<span class="k">            write</span><span class="p">(</span><span class="n">lun</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">,</span><span class="n">iostat</span><span class="o">=</span><span class="n">ios</span><span class="p">)</span> <span class="n">G_MAN</span>
          <span class="k">endif</span>
 <span class="k">         if</span><span class="p">(</span><span class="n">ios</span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="k">then</span>
 <span class="k">            call </span><span class="n">write_err</span><span class="p">(</span><span class="s1">&#39;G_MAN=&#39;</span><span class="o">//</span><span class="n">G_MAN</span><span class="p">)</span>
@@ -499,7 +446,7 @@ public subroutine print_comment_block()
          <span class="k">endif</span>
 <span class="k">      endif</span>
 
-<span class="k">      close</span><span class="p">(</span><span class="mi">70</span><span class="p">,</span><span class="n">iostat</span><span class="o">=</span><span class="n">ios</span><span class="p">)</span>
+<span class="k">      close</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="n">lun</span><span class="p">,</span><span class="n">iostat</span><span class="o">=</span><span class="n">ios</span><span class="p">)</span>
 
    <span class="k">endif</span>
 
@@ -530,7 +477,7 @@ public subroutine print_comment_block()
           <p class="text-right">
             Documentation generated by 
             <a href="https://github.com/cmacmackin/ford">FORD</a>
-             on 2022-04-04 18:35  
+             on 2022-04-05 00:51  
           </p>
         </div>
         <div class="col-xs-12 col-md-4 col-md-pull-4"><p class="text-center"> prep was developed by John S. Urban</p></div>

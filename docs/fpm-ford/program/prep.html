@@ -575,14 +575,14 @@ subroutine <a href='../proc/auto.html'>auto</a>()
 <span class="s1">   &amp; &#39;</span>
 <span class="kt">logical</span>                       <span class="kd">::</span> <span class="n">isscratch</span>
 
-                                                                        <span class="c">! allow formatting comments for particular post-processors</span>
-   <span class="k">call </span><span class="nb">get_environment_variable</span><span class="p">(</span><span class="s1">&#39;PREP_COMMENT_STYLE&#39;</span><span class="p">,</span><span class="n">G_comment_style</span><span class="p">)</span>  <span class="c">! get environment variable for -comment switch</span>
-   <span class="k">if</span><span class="p">(</span><span class="n">G_comment_style</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="n">G_comment_style</span><span class="o">=</span><span class="s1">&#39;default&#39;</span>                   <span class="c">! if environment variable not set set default</span>
-   <span class="k">call </span><span class="n">substitute</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span><span class="s1">&#39;COMMENT&#39;</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">G_comment_style</span><span class="p">))</span>                 <span class="c">! change command line to have correct default</span>
-                                                                        <span class="c">! this would actually allow any parameter after number</span>
+                                                                 <span class="c">! allow formatting comments for particular post-processors</span>
+   <span class="n">G_comment_style</span><span class="o">=</span><span class="n">get_env</span><span class="p">(</span><span class="s1">&#39;PREP_COMMENT_STYLE&#39;</span><span class="p">)</span>                 <span class="c">! get environment variable for -comment switch</span>
+   <span class="k">if</span><span class="p">(</span><span class="n">G_comment_style</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="n">G_comment_style</span><span class="o">=</span><span class="s1">&#39;default&#39;</span>            <span class="c">! if environment variable not set set default</span>
+   <span class="k">call </span><span class="n">substitute</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span><span class="s1">&#39;COMMENT&#39;</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">G_comment_style</span><span class="p">))</span>          <span class="c">! change command line to have correct default</span>
+                                                                 <span class="c">! this would actually allow any parameter after number</span>
    <span class="n">G_comment</span><span class="o">=</span><span class="s1">&#39;! &#39;</span>
    <span class="n">kracken_comment</span><span class="o">=</span><span class="n">G_comment</span>
-   <span class="k">call </span><span class="n">kracken</span><span class="p">(</span><span class="s1">&#39;prep&#39;</span><span class="p">,</span><span class="n">cmd</span><span class="p">)</span>                                       <span class="c">! define command arguments, default values and crack command line</span>
+   <span class="k">call </span><span class="n">kracken</span><span class="p">(</span><span class="s1">&#39;prep&#39;</span><span class="p">,</span><span class="n">cmd</span><span class="p">)</span>                                      <span class="c">! define command arguments, default values and crack command line</span>
 
    <span class="n">G_inc_files</span><span class="o">=</span><span class="s1">&#39; &#39;</span>
 
@@ -598,7 +598,7 @@ subroutine <a href='../proc/auto.html'>auto</a>()
    <span class="n">letterd</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">)</span>               <span class="o">=</span> <span class="n">sget</span><span class="p">(</span><span class="s1">&#39;prep_d&#39;</span><span class="p">)</span>
    <span class="n">G_noenv</span><span class="o">=</span><span class="n">lget</span><span class="p">(</span><span class="s1">&#39;prep_noenv&#39;</span><span class="p">)</span>
 
-   <span class="k">if</span><span class="p">(</span><span class="n">out_filename</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="k">then</span>                              <span class="c">! open output file</span>
+   <span class="k">if</span><span class="p">(</span><span class="n">out_filename</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="k">then</span>                                    <span class="c">! open output file</span>
       <span class="n">G_iout</span><span class="o">=</span><span class="n">stdout</span>
    <span class="n">elseif</span><span class="p">(</span><span class="n">out_filename</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="s1">&#39;@&#39;</span><span class="p">)</span><span class="k">then</span>
 <span class="k">      </span><span class="n">G_iout</span><span class="o">=</span><span class="n">stdout</span>
@@ -665,14 +665,14 @@ subroutine <a href='../proc/auto.html'>auto</a>()
 
    <span class="n">READLINE</span><span class="p">:</span> <span class="k">do</span>                                            <span class="c">! read loop to read input file</span>
       <span class="k">read</span><span class="p">(</span><span class="n">G_file_dictionary</span><span class="p">(</span><span class="n">G_iocount</span><span class="p">)%</span><span class="n">unit_number</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">,</span><span class="k">end</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span> <span class="n">line</span>
-      <span class="k">if</span><span class="p">(</span><span class="n">G_extract</span><span class="p">)</span><span class="k">then</span>                       <span class="c">! in extract mode</span>
-         <span class="k">if</span><span class="p">(</span><span class="n">line</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="n">G_extract_start</span><span class="p">)</span><span class="k">then</span>      <span class="c">! start extracting</span>
+      <span class="k">if</span><span class="p">(</span><span class="n">G_extract</span><span class="p">)</span><span class="k">then</span>                                    <span class="c">! in extract mode</span>
+         <span class="k">if</span><span class="p">(</span><span class="n">line</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="n">G_extract_start</span><span class="p">)</span><span class="k">then</span>                   <span class="c">! start extracting</span>
             <span class="n">G_extract_flag</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
             <span class="k">cycle </span><span class="n">READLINE</span>
-         <span class="n">elseif</span><span class="p">(</span><span class="n">line</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="n">G_extract_stop</span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="n">G_extract_flag</span><span class="p">)</span><span class="k">then</span>   <span class="c">! stop extracting</span>
+         <span class="n">elseif</span><span class="p">(</span><span class="n">line</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="n">G_extract_stop</span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="n">G_extract_flag</span><span class="p">)</span><span class="k">then</span>        <span class="c">! stop extracting</span>
             <span class="n">G_extract_flag</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
             <span class="k">cycle </span><span class="n">READLINE</span>
-         <span class="n">elseif</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="n">G_extract_flag</span><span class="p">)</span><span class="k">then</span>      <span class="c">! skip if not extracting</span>
+         <span class="n">elseif</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="n">G_extract_flag</span><span class="p">)</span><span class="k">then</span>                   <span class="c">! skip if not extracting</span>
             <span class="k">cycle </span><span class="n">READLINE</span>
          <span class="k">endif</span>
 <span class="k">      endif</span>
@@ -779,7 +779,7 @@ subroutine <a href='../proc/auto.html'>auto</a>()
           <p class="text-right">
             Documentation generated by 
             <a href="https://github.com/cmacmackin/ford">FORD</a>
-             on 2022-04-04 18:35  
+             on 2022-04-05 00:51  
           </p>
         </div>
         <div class="col-xs-12 col-md-4 col-md-pull-4"><p class="text-center"> prep was developed by John S. Urban</p></div>

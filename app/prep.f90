@@ -1606,49 +1606,32 @@ end subroutine document
 subroutine print_comment_block() !@(#)print_comment_block(3f): format comment block to file in document directory and output
 character(len=:),allocatable :: filename
 character(len=:),allocatable :: varvalue
-character(len=*),parameter   :: varname='PREP_DOCUMENT_DIR'
-integer                      :: ios,iend,istatus,ilength
+integer                      :: ios,iend,lun
 
    if(.not.allocated(G_MAN))then
       return
    endif
 
-   call get_environment_variable(varname,length=ilength,status=istatus)
-   if(istatus.ne.0)ilength=0
-   if(allocated(varvalue))deallocate(varvalue)
-   allocate(character(len=ilength) :: varvalue)
-   call get_environment_variable(varname,value=varvalue,status=istatus)
-   select case(istatus)
-   case(0)
-   case(-1);call stop_prep('*prep* ERROR(051) - VARIABLE VALUE TOO LONG:'//trim(varname))
-   case(1); ! VARIABLE DOES NOT EXIST
-   case(2); call stop_prep('*prep* ERROR(052) - COMPILER DOES NOT SUPPORT ENVIRONMENT VARIABLES:'//trim(varname))
-   case default; call stop_prep('*prep* ERROR(053) - UNEXPECTED STATUS VALUE '//v2s(istatus)//':'//trim(varname))
-   end select
+   varvalue=get_env('PREP_DOCUMENT_DIR')
 
-   if(ilength.ne.0.and.G_MAN.ne.''.and.G_MAN_FILE.ne.' ')then ! if $BLOCK ... --file FILE is present generate file in directory/doc
-      filename=trim(varvalue)//'/doc/'
+   if(varvalue.ne.''.and.G_MAN.ne.''.and.G_MAN_FILE.ne.' ')then ! if $BLOCK ... --file FILE is present generate file in directory/doc
 
       iend=len_trim(varvalue)
-
       if(varvalue(iend:iend).ne.'/')then
          filename=trim(varvalue)//'/doc/'//trim(G_MAN_FILE)
       else
          filename=trim(varvalue)//'doc/'//trim(G_MAN_FILE)
       endif
 
-      if(filename.eq.' ') filename='OOPS.txt'
-
-      open(unit=70,file=filename,iostat=ios,action='write',position=G_MAN_FILE_POSITION)
+      open(newunit=lun,file=filename,iostat=ios,action='write',position=G_MAN_FILE_POSITION)
 
       if(ios.ne.0)then
-
          call stop_prep('*prep* ERROR(054) - FAILED TO OPEN DOCUMENT OUTPUT FILE:'//trim(filename))
       else
          if(len(G_MAN).gt.1)then                   ! the way the string is built it starts with a newline
-            write(70,'(a)',iostat=ios) G_MAN(2:)
+            write(lun,'(a)',iostat=ios) G_MAN(2:)
          else
-            write(70,'(a)',iostat=ios) G_MAN
+            write(lun,'(a)',iostat=ios) G_MAN
          endif
          if(ios.ne.0)then
             call write_err('G_MAN='//G_MAN)
@@ -1656,7 +1639,7 @@ integer                      :: ios,iend,istatus,ilength
          endif
       endif
 
-      close(70,iostat=ios)
+      close(unit=lun,iostat=ios)
 
    endif
 
@@ -2155,9 +2138,8 @@ end subroutine warn_prep
 !    o examination of the code
 !    o and documentation for the features subsequently added to the program.
 
-subroutine help_usage(l_help)
+subroutine help_usage(l_help) !@(#)help_usage(3f): prints help information
 implicit none
-!@(#)help_usage(3f): prints help information"
 logical,intent(in)             :: l_help
 character(len=:),allocatable :: help_text(:)
 integer                        :: i
@@ -2922,8 +2904,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 endif
 end subroutine help_usage
 
-subroutine help_version(l_version)
-!@(#)help_version(3f): prints version information"
+subroutine help_version(l_version) !@(#)help_version(3f): prints version information
 logical,intent(in)             :: l_version
 character(len=:),allocatable   :: help_text(:)
 integer                        :: i
@@ -2943,7 +2924,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 !'@(#)VERSION:        6.1.2: 20220326>',&
 !'@(#)VERSION:        6.2.2: 20220329>',&
 !'@(#)VERSION:        7.0.0: 20220401>',&
-'@(#)VERSION:        8.0.0: 20220403>',&
+'@(#)VERSION:        8.1.1: 20220405>',&
 '@(#)AUTHOR:         John S. Urban>',&
 '@(#)HOME PAGE       https://github.com/urbanjost/prep.git/>',&
 '']
@@ -2954,9 +2935,8 @@ end subroutine help_version
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine short_help()
+subroutine short_help() !@(#)short_help(3f): prints help information
 implicit none
-!@(#)short_help(3f): prints help information"
 character(len=:),allocatable :: help_text(:)
 integer                        :: i
 help_text=[ CHARACTER(LEN=128) :: &
@@ -3097,10 +3077,9 @@ end subroutine www
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine write_err(msg)
+subroutine write_err(msg) !@(#)M_verify::write_err(3f): writes a message to standard error using a standard f2003 method
 character(len=*),intent(in) :: msg
 integer                     :: ios
-! ident_2="@(#)M_verify::write_err(3f): writes a message to standard error using a standard f2003 method"
 
    write(stderr,'(a)',iostat=ios) trim(msg)
    call flushit()
@@ -3108,13 +3087,12 @@ end subroutine write_err
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine dissect2(verb,init,pars,error_return)
-! "@(#)dissect2(3f): convenient call to parse() -- define defaults, then process"
+subroutine dissect2(verb,init,pars,error_return) !@(#)dissect2(3f): convenient call to parse() -- define defaults, then process
 !
-character(len=*),intent(in)  :: verb            ! the name of the command to be reset/defined  and then set
-character(len=*),intent(in)  :: init            ! used to define or reset command options; usually hard-set in the program.
-character(len=*),intent(in)  :: pars            ! defines the command options to be set, usually from a user input file
-integer                      :: ipars           ! length of the user-input string pars.
+character(len=*),intent(in)  :: verb             ! the name of the command to be reset/defined  and then set
+character(len=*),intent(in)  :: init             ! used to define or reset command options; usually hard-set in the program.
+character(len=*),intent(in)  :: pars             ! defines the command options to be set, usually from a user input file
+integer                      :: ipars            ! length of the user-input string pars.
 integer,intent(out),optional :: error_return
    ipars=len(pars)
    call dissect(verb,init,pars,ipars,error_return)
@@ -3267,7 +3245,7 @@ integer, parameter :: OS_SOLARIS = 5
 integer, parameter :: OS_FREEBSD = 6
 integer, parameter :: OS_OPENBSD = 7
 character(len=G_var_len) :: val
-integer           :: length, rc, r
+integer           :: r
 logical           :: file_exists
 character(len=80) :: scratch
 
@@ -3282,13 +3260,13 @@ character(len=80) :: scratch
 
    r = OS_UNKNOWN
    ! Check environment variable `OS`.
-   call get_environment_variable('OS', val, length, rc)
-   if (rc == 0 .and. length > 0 .and. index(val, 'Windows_NT') > 0) then
+   val=get_env('OS')
+   if ( index(val, 'Windows_NT') > 0) then
        r = OS_WINDOWS
    else
       ! Check environment variable `OSTYPE`.
-      call get_environment_variable('OSTYPE', val, length, rc)
-      if (rc == 0 .and. length > 0) then
+      val=get_env('OSTYPE')
+      if (val.ne.'') then
           if (index(val, 'linux') > 0) then      ! Linux
               r = OS_LINUX
           elseif (index(val, 'darwin') > 0) then ! macOS
@@ -3384,14 +3362,14 @@ character(len=1024)          :: cmd=' &
    & '
 logical                       :: isscratch
 
-                                                                        ! allow formatting comments for particular post-processors
-   call get_environment_variable('PREP_COMMENT_STYLE',G_comment_style)  ! get environment variable for -comment switch
-   if(G_comment_style.eq.'')G_comment_style='default'                   ! if environment variable not set set default
-   call substitute(cmd,'COMMENT',trim(G_comment_style))                 ! change command line to have correct default
-                                                                        ! this would actually allow any parameter after number
+                                                                 ! allow formatting comments for particular post-processors
+   G_comment_style=get_env('PREP_COMMENT_STYLE')                 ! get environment variable for -comment switch
+   if(G_comment_style.eq.'')G_comment_style='default'            ! if environment variable not set set default
+   call substitute(cmd,'COMMENT',trim(G_comment_style))          ! change command line to have correct default
+                                                                 ! this would actually allow any parameter after number
    G_comment='! '
    kracken_comment=G_comment
-   call kracken('prep',cmd)                                       ! define command arguments, default values and crack command line
+   call kracken('prep',cmd)                                      ! define command arguments, default values and crack command line
 
    G_inc_files=' '
 
@@ -3407,7 +3385,7 @@ logical                       :: isscratch
    letterd(1:1)               = sget('prep_d')
    G_noenv=lget('prep_noenv')
 
-   if(out_filename.eq.'')then                              ! open output file
+   if(out_filename.eq.'')then                                    ! open output file
       G_iout=stdout
    elseif(out_filename.eq.'@')then
       G_iout=stdout
@@ -3474,14 +3452,14 @@ logical                       :: isscratch
 
    READLINE: do                                            ! read loop to read input file
       read(G_file_dictionary(G_iocount)%unit_number,'(a)',end=7) line
-      if(G_extract)then                       ! in extract mode
-         if(line.eq.G_extract_start)then      ! start extracting
+      if(G_extract)then                                    ! in extract mode
+         if(line.eq.G_extract_start)then                   ! start extracting
             G_extract_flag=.true.
             cycle READLINE
-         elseif(line.eq.G_extract_stop.and.G_extract_flag)then   ! stop extracting
+         elseif(line.eq.G_extract_stop.and.G_extract_flag)then        ! stop extracting
             G_extract_flag=.false.
             cycle READLINE
-         elseif(.not.G_extract_flag)then      ! skip if not extracting
+         elseif(.not.G_extract_flag)then                   ! skip if not extracting
             cycle READLINE
          endif
       endif
