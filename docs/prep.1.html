@@ -105,7 +105,7 @@ a.existingWikiWord[title]{ //border: 1px dashed #BBB; }
 </A>
 <BLOCKQUOTE>
 <P>
-A preprocessor conditionally perform operations on input files before they
+A preprocessor conditionally performs operations on input files before they
 are passed to a compiler, including machine-specific selection of input
 lines. This makes it possible to use a single source file even when different
 code is required for different execution environments.
@@ -121,8 +121,8 @@ o
 </TD><TD>
 Conditionally output parts of the source file (controlled by expressions
 on the directives $if, $ifdef, $ifndef, and $endif. The expressions may
-include variables defined on the command line and the directives $define,
-$redefine, and $undefine).
+include variables defined on the command line or via the directives
+$define, $redefine, and $undefine).
 </TD></TR>
 <TR valign=top><TD width=3%>
 o
@@ -737,8 +737,7 @@ The <B>--file</B> output can easily be processed by other utilities such as
 $SYSTEM commands may follow the $BLOCK block text to optionally post-process
 the doc files.
 <P>
-$ENDBLOCK ends the block, which is preferred; but a blank value or "END" on
-a $BLOCK directive does as well.
+$ENDBLOCK ends the block.
 <P>
 $SHOW [variable_name][;&#46;&#46;&#46;]
 <P>

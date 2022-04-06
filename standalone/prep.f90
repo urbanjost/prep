@@ -1,4 +1,3 @@
-
 !>>>>> build/dependencies/M_kracken95/src/M_kracken95.f90
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -1141,7 +1140,6 @@ end module M_kracken95
 ! updated 20131029
 ! read environment variable DEFAULT_CMD
 !-----------------------------------------------------------------------------------------------------------------------------------
-
 
 !>>>>> build/dependencies/M_io/src/M_io.f90
 !===================================================================================================================================
@@ -5782,7 +5780,6 @@ end module m_io
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-
 
 !>>>>> build/dependencies/M_strings/src/M_strings.f90
 !>
@@ -15606,7 +15603,6 @@ end subroutine matching_delimiter
 !===================================================================================================================================
 end module M_strings
 
-
 !>>>>> build/dependencies/M_list/src/M_list.f90
 !>
 !!##NAME
@@ -17116,7 +17112,6 @@ end module M_list
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
 
-
 !>>>>> app/prep.f90
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -17328,7 +17323,7 @@ logical                      :: ifound
       case('IDENT','@(#)');     call ident(options)
       case('SHOW') ;            call debug_state(upper(options),msg='')
       case('SYSTEM');           call exe()
-      case('MESSAGE');          call write_err(options)               ! trustingly trim MESSAGE from directive
+      case('MESSAGE');          call write_err(unquote(options))      ! trustingly trim MESSAGE from directive
       case('STOP');             call stop(options)
       case('QUIT');             call stop('0 '//options)
       case('ERROR');            call stop('1 '//options)
@@ -19285,7 +19280,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '        [--help]                                                                ',&
 'DESCRIPTION                                                                     ',&
 '                                                                                ',&
-'   A preprocessor conditionally perform operations on input files before they   ',&
+'   A preprocessor conditionally performs operations on input files before they  ',&
 '   are passed to a compiler, including machine-specific selection of input      ',&
 '   lines. This makes it possible to use a single source file even when different',&
 '   code is required for different execution environments.                       ',&
@@ -19296,8 +19291,8 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   * Conditionally output parts of the source file (controlled by expressions   ',&
 '     on the directives $if, $ifdef, $ifndef, and $endif. The expressions may    ',&
-'     include variables defined on the command line and the directives $define,  ',&
-'     $redefine, and $undefine).                                                 ',&
+'     include variables defined on the command line or via the directives        ',&
+'     $define, $redefine, and $undefine).                                        ',&
 '                                                                                ',&
 '   * Include other files (provided by directive $include).                      ',&
 '                                                                                ',&
@@ -19772,8 +19767,8 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   $SYSTEM commands may follow the $BLOCK block text to optionally post-process ',&
 '   the doc files.                                                               ',&
 '                                                                                ',&
-'   $ENDBLOCK ends the block, which is preferred; but a blank value or "END" on  ',&
-'   a $BLOCK directive does as well.                                             ',&
+'   $ENDBLOCK ends the block.                                                    ',&
+!!!!$! which is preferred; but a blank value or "END" on a $BLOCK directive does as well.
 '                                                                                ',&
 '   $SHOW [variable_name][;...]                                                  ',&
 '                                                                                ',&
