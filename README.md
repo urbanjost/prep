@@ -3,28 +3,27 @@
 
 ## Documentation   ![docs](docs/images/docs.gif)
  + [man-pages](https://urbanjost.github.io/prep/prep.1.html) reformatted as HTML.
- + the [demos/](https://github.com/urbanjost/prep/demos/) directory has example input files for a variety of cases
- + The [CHANGELOG](https://github.com/urbanjost/prep/docs/CHANGELOG.md)
- + The [CI/CD](https://github.com/urbajost/prep/docs/STATUS.md) results
+ + the [demos/](https://github.com/urbanjost/prep/tree/main/demos/) directory has example input files for a variety of cases
+ + The [CHANGELOG](https://github.com/urbanjost/prep/blob/main/docs/CHANGELOG.md)
+ + The [CI/CD](https://github.com/urbanjost/prep/blob/main/docs/STATUS.md) results
  + Developer [ford(1) output](https://urbanjost.github.io/prep/fpm-ford/index.html)
 
 ## Description
 `prep(1)` is a streamlined pre-processor primarily designed for use with
 Fortran. It does not support procedural macros but does support variable
 substitution and reusable free-format text blocks which allows for basic
-templating as well as easy construction of multi-line CHARACTER variables;
+templating and easy construction of multi-line CHARACTER variables;
 and is quite capable of supporting traditional conditional compilation.
 
-It is written in standard Fortran so those in the Fortran community
-will find it easy to modify and to use portably wherever modern Fortran
-compilers are found.
+It is written in standard Fortran so those in the Fortran community will
+find it easy to modify and to use portably.
 
-It is intentionally simple enough to be well described with a one-page
-crib sheet, and should take no more than an hour to master. Fortran-like
-(and some POSIX shell-like) syntax is used to leverage familiarity
-with Fortran.
+`prep(1)` is intentionally simple enough to be well described with
+a one-page crib sheet, and should take no more than an hour to
+master. Fortran-like (and some POSIX shell-like) syntax is used to
+leverage familiarity with Fortran.
 
-In particular, prep(1) allows for maintaining documentation in the body
+In particular, `prep(1)` allows for maintaining documentation in the body
 of the source code in a variety of formats via the __$BLOCK__ directive.
 
 ## Example Showing Templating
@@ -65,20 +64,6 @@ $post ex1
 $set kind real128
 $post ex1
 end module M_testit
-
-$! a POST can be done within a $BLOCK to apply special processing
-$block comment  ! convert parcel to comments
-  any text placed here in free form will be converted to
-  comments, as well as anything from a $POST. For example:
-
-$post ex1
-
-  $BLOCK can do other special processing, such as converting a block
-  to a CHARACTER variable,
-  writing the lines to an external file for generating documentation,
-  and so on.
-
-$endblock
 ```
 The output looks like
 ```fortran
@@ -109,26 +94,12 @@ contains
       write(*,*)'big subroutine with type real128 and value=',value
    end subroutine testit_real128
 end module M_testit
-
-!   any text placed here in free form will be converted to
-!   comments, as well as anything from a $POST. For example:
-!
-!    ! created by urbanjs on Jun 19 2021 at 11:55:43
-!    subroutine testit_real128(value)
-!    real(kind=real128) :: value
-!       write(*,*)'big subroutine with type real128 and value=',value
-!    end subroutine testit_real128
-!
-!  $BLOCK can do other special processing, such as converting a block
-!  to a CHARACTER variable,
-!  writing the lines to an external file for generating documentation,
-!  and so on.
-!
 ```
 ## Building
 To build it requires `git`, `fpm`(Fortran Package Manager), a modern
 Fortran compiler and WWW access or you will need to compile the single-file
-[bootstrap version](bootstrap/prep.f90). It was tested with
+[bootstrap version](https://raw.githubusercontent.com/urbanjost/prep/main/standalone/prep.f90).
+It was tested with
 
    + GNU Fortran (GCC) 8.3.1         on 20191121
    + GNU Fortran 9.3.0               on 20210612
