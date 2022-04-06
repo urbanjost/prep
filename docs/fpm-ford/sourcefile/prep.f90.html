@@ -130,7 +130,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title="93.5% of total for source files.">2163 statements</a>
+    title="93.5% of total for source files.">2168 statements</a>
      </li> 
      
      
@@ -428,7 +428,7 @@
 <a name="ln-133"></a><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="k">allocatable</span><span class="p">,</span><span class="k">save</span>    <span class="kd">::</span> <span class="n">G_extract_start</span>
 <a name="ln-134"></a><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="k">allocatable</span><span class="p">,</span><span class="k">save</span>    <span class="kd">::</span> <span class="n">G_extract_stop</span>
 <a name="ln-135"></a><span class="kt">logical</span><span class="p">,</span><span class="k">save</span>                         <span class="kd">::</span> <span class="n">G_extract</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
-<a name="ln-136"></a><span class="kt">logical</span><span class="p">,</span><span class="k">save</span>                         <span class="kd">::</span> <span class="n">G_extract_auto</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a name="ln-136"></a><span class="kt">logical</span><span class="p">,</span><span class="k">save</span>                         <span class="kd">::</span> <span class="n">G_extract_auto</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
 <a name="ln-137"></a><span class="kt">logical</span><span class="p">,</span><span class="k">save</span>                         <span class="kd">::</span> <span class="n">G_extract_flag</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
 <a name="ln-138"></a>
 <a name="ln-139"></a><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="k">allocatable</span>         <span class="kd">::</span> <span class="n">keywords</span><span class="p">(:)</span>
@@ -3641,7 +3641,7 @@
 <a name="ln-3346"></a><span class="s1">   &amp; --width            1024     &amp;</span>
 <a name="ln-3347"></a><span class="s1">   &amp; --start            &quot; &quot;      &amp;</span>
 <a name="ln-3348"></a><span class="s1">   &amp; --stop             &quot; &quot;      &amp;</span>
-<a name="ln-3349"></a><span class="s1">   &amp; --type             &quot; &quot;      &amp;</span>
+<a name="ln-3349"></a><span class="s1">   &amp; --type             auto     &amp;</span>
 <a name="ln-3350"></a><span class="s1">   &amp; &#39;</span>
 <a name="ln-3351"></a><span class="kt">logical</span>                       <span class="kd">::</span> <span class="n">isscratch</span>
 <a name="ln-3352"></a>
@@ -3825,13 +3825,18 @@
 <a name="ln-3530"></a>         <span class="n">G_extract_start</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">sget</span><span class="p">(</span><span class="s1">&#39;prep_start&#39;</span><span class="p">))</span>
 <a name="ln-3531"></a>         <span class="n">G_extract_stop</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">sget</span><span class="p">(</span><span class="s1">&#39;prep_stop&#39;</span><span class="p">))</span>
 <a name="ln-3532"></a>      <span class="k">end select</span>
-<a name="ln-3533"></a><span class="k">   endif</span>
-<a name="ln-3534"></a><span class="k">end subroutine </span><span class="n">auto</span>
-<a name="ln-3535"></a>
-<a name="ln-3536"></a><span class="k">end program </span><span class="n">prep</span>
-<a name="ln-3537"></a><span class="c">!===================================================================================================================================</span>
-<a name="ln-3538"></a><span class="c">!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!</span>
-<a name="ln-3539"></a><span class="c">!===================================================================================================================================</span>
+<a name="ln-3533"></a><span class="k">      if</span><span class="p">(</span><span class="n">G_extract_start</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="s1">&#39;&#39;</span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="n">G_extract_stop</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="k">then</span>
+<a name="ln-3534"></a><span class="k">         </span><span class="n">G_extract</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a name="ln-3535"></a>      <span class="k">else</span>
+<a name="ln-3536"></a><span class="k">         </span><span class="n">G_extract</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<a name="ln-3537"></a>      <span class="k">endif</span>
+<a name="ln-3538"></a><span class="k">   endif</span>
+<a name="ln-3539"></a><span class="k">end subroutine </span><span class="n">auto</span>
+<a name="ln-3540"></a>
+<a name="ln-3541"></a><span class="k">end program </span><span class="n">prep</span>
+<a name="ln-3542"></a><span class="c">!===================================================================================================================================</span>
+<a name="ln-3543"></a><span class="c">!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!</span>
+<a name="ln-3544"></a><span class="c">!===================================================================================================================================</span>
 </pre></div>
 
     </section>
@@ -3850,7 +3855,7 @@
           <p class="text-right">
             Documentation generated by 
             <a href="https://github.com/cmacmackin/ford">FORD</a>
-             on 2022-04-06 04:50  
+             on 2022-04-06 09:22  
           </p>
         </div>
         <div class="col-xs-12 col-md-4 col-md-pull-4"><p class="text-center"> prep was developed by John S. Urban</p></div>

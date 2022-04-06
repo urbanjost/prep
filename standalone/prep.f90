@@ -2,6 +2,15 @@
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
+! The M_KRACKEN95(3f) interface file is free and unencumbered software released into the public domain.
+! For further details see the file UNLICENSE.txt or refer to <http;//unlicense.org/>
+!
+! Even so, I ask that you send me interesting alterations that are available for public use; and
+! that you include a note in the source acknowledging the original author (1989,1996,2013 John S. Urban).
+!
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!===================================================================================================================================
 module M_kracken95
 implicit none
 ! "@(#)M_kracken95(3f,module):parse command line options of Fortran programs using Unix-like syntax"
@@ -1034,23 +1043,23 @@ end subroutine menu
 ! From: "Felix Becker" <felix.becker@zih.tu-dresden.de>
 ! Subject: Variable-length string interface for "retrev".
 ! Date: Tuesday, May 28, 2013 11:51 AM
-!
+! 
 ! Hello John Urban,
-!
+! 
 ! using your Fortran "M_kracken95" module, I wrote a small wrapper that
 ! allows for "val" to be of unknown length, and that allows just getting
 ! the length of val without getting val and vice versa.
-!
+! 
 ! (using allocatable strings, and optional arguments).
-!
+! 
 ! Tested with gfortran version '4.8.0 20130502 (prerelease)'.
-!
+! 
 ! I am aware that M_kracken95 itself uses fixed length strings, and I did
 ! not fiddle with that; just providing a more flexible user interface on
 ! top of that.
-!
+! 
 ! Find my quick hack attached, use it if you want.
-!
+! 
 !-----------------------------------------------------------------------------------------------------------------------------------
 !-!subroutine retrev_string_variable_length(name,val,len,ier)
 !-!  !!! @(#)retrev_string_variable_length: A wrapper for "retrev" from the module "M_kracken95":
@@ -1066,13 +1075,13 @@ end subroutine menu
 !-!  character(len=:),intent(out),allocatable,OPTIONAL ::  val
 !-!  integer,intent(out),OPTIONAL                      ::  llen
 !-!  integer,intent(out),OPTIONAL                      ::  ier
-!-!
+!-!  
 !-!  integer                                           ::  len_internal
 !-!  integer                                           ::  ier_internal
 !-!  character(llen=0)                                 ::  dummystring
-!-!
+!-!  
 !-!  call retrev(name,dummystring,len_internal,ier_internal)
-!-!
+!-!  
 !-!  if (present(val)) then
 !-!    if (allocated(val)) then
 !-!      deallocate(val)
@@ -1080,11 +1089,11 @@ end subroutine menu
 !-!    call allocate_string(int(len_internal,kind=8),val)
 !-!    call retrev(name,val,len_internal,ier_internal)
 !-!  end if
-!-!
+!-!  
 !-!  if (present(llen)) then
 !-!    llen = len_internal
 !-!  end if
-!-!
+!-!  
 !-!  if (present(ier)) then
 !-!    ier = ier_internal
 !-!  end if
@@ -1096,7 +1105,7 @@ end subroutine menu
 !-!  !!! @(#)allocate_string: allocate string
 !-!  integer(kind=8),intent(in)                  :: stringlength
 !-!  character(len=:),allocatable,intent(out)    :: stringvariable
-!-!
+!-!  
 !-!  allocate(character(len=stringlength) :: stringvariable)
 !-!
 !-!end subroutine allocate_string
@@ -1131,8 +1140,8 @@ end module M_kracken95
 ! updated 20131029
 ! read environment variable DEFAULT_CMD
 !-----------------------------------------------------------------------------------------------------------------------------------
-
-
+ 
+ 
 !>>>>> build/dependencies/M_io/src/M_io.f90
 !===================================================================================================================================
 MODULE M_io
@@ -5772,8 +5781,8 @@ end module m_io
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-
-
+ 
+ 
 !>>>>> build/dependencies/M_strings/src/M_strings.f90
 !>
 !!##NAME
@@ -15595,8 +15604,8 @@ end subroutine matching_delimiter
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
 end module M_strings
-
-
+ 
+ 
 !>>>>> build/dependencies/M_list/src/M_list.f90
 !>
 !!##NAME
@@ -17105,6 +17114,8 @@ end module M_list
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
+ 
+ 
 !>>>>> app/prep.f90
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -17241,7 +17252,7 @@ integer,save                         :: G_scratch_lun=-1
 character(len=:),allocatable,save    :: G_extract_start
 character(len=:),allocatable,save    :: G_extract_stop
 logical,save                         :: G_extract=.false.
-logical,save                         :: G_extract_auto=.false.
+logical,save                         :: G_extract_auto=.true.
 logical,save                         :: G_extract_flag=.false.
 
 character(len=:),allocatable         :: keywords(:)
@@ -20454,7 +20465,7 @@ character(len=1024)          :: cmd=' &
    & --width            1024     &
    & --start            " "      &
    & --stop             " "      &
-   & --type             " "      &
+   & --type             auto     &
    & '
 logical                       :: isscratch
 
@@ -20638,6 +20649,11 @@ subroutine auto()
          G_extract_start=trim(sget('prep_start'))
          G_extract_stop=trim(sget('prep_stop'))
       end select
+      if(G_extract_start.eq.''.and.G_extract_stop.eq.'')then
+         G_extract=.false.
+      else
+         G_extract=.true.
+      endif
    endif
 end subroutine auto
 

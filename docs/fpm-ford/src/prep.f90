@@ -133,7 +133,7 @@ integer,save                         :: G_scratch_lun=-1
 character(len=:),allocatable,save    :: G_extract_start
 character(len=:),allocatable,save    :: G_extract_stop
 logical,save                         :: G_extract=.false.
-logical,save                         :: G_extract_auto=.false.
+logical,save                         :: G_extract_auto=.true.
 logical,save                         :: G_extract_flag=.false.
 
 character(len=:),allocatable         :: keywords(:)
@@ -3346,7 +3346,7 @@ character(len=1024)          :: cmd=' &
    & --width            1024     &
    & --start            " "      &
    & --stop             " "      &
-   & --type             " "      &
+   & --type             auto     &
    & '
 logical                       :: isscratch
 
@@ -3530,6 +3530,11 @@ subroutine auto()
          G_extract_start=trim(sget('prep_start'))
          G_extract_stop=trim(sget('prep_stop'))
       end select
+      if(G_extract_start.eq.''.and.G_extract_stop.eq.'')then
+         G_extract=.false.
+      else
+         G_extract=.true.
+      endif
    endif
 end subroutine auto
 
