@@ -1,8 +1,8 @@
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-!  @(#)prep: FORTRAN pre-processor
-!  Fortran preprocessor originally based on public-domain FPP pre-processor from Lahey Fortran Code Repository
+!  @(#)prep: FORTRAN preprocessor
+!  Fortran preprocessor originally based on public-domain FPP preprocessor from Lahey Fortran Code Repository
 !     http://www.lahey.com/code.htm
 !  Extensively rewritten since under a MIT License.
 !     2013-10-03,2020-12-19,2021-06-12 : John S. Urban
@@ -522,7 +522,7 @@ character(len=*)          :: line
 integer                   :: i
 
    if (line(1:1).lt.'A'.or.line(1:1).gt.'Z'.and.line(1:1).ne.'_')then                         ! variable names start with a-z
-    call stop_prep("*prep* ERROR(016) - VARIABLE NAME DOES NOT START WITH ALPHAMERIC(OR GENERAL SYNTAX ERROR):"//trim(G_source))
+    call stop_prep("*prep* ERROR(016) - NAME DOES NOT START WITH ALPHAMERIC OR '_' (OR GENERAL SYNTAX ERROR):"//trim(G_source))
    endif
 
    if(len_trim(line).gt.G_var_len)then
@@ -557,7 +557,7 @@ integer                                :: ivalue
       call stop_prep('*prep* ERROR(019) - INCOMPLETE STATEMENT.'//trim(G_SOURCE))
    endif
 
-   if (temp(1:1).ge.'A'.and.temp(1:1).le.'Z') then                          ! appears to be a variable name (not number or logical)
+   if (temp(1:1).ge.'A'.and.temp(1:1).le.'Z'.or.temp(1:1).eq.'_') then      ! appears to be a variable name (not number or logical)
 
      value=temp(:G_var_len)
      do i=1,G_numdef                                                        ! find defined parameter in dictionary
@@ -662,7 +662,7 @@ character(len=G_line_length) :: expression
    call normalize_logical_operators(expression)
    call parens(expression)
    if (index(expression,'.').eq.0) then                            ! if line should be a variable only
-      if (expression(1:1).ge.'A'.and.expression(1:1).le.'Z') then  ! check that variable name starts with a valid character
+      if (expression(1:1).ge.'A'.and.expression(1:1).le.'Z'.or.expression(1:1).eq.'_') then ! check name starts with valid character
          call checkname(expression)                        ! check that expression contains only a legitimate variable name
          value=expression(:G_var_len)                      ! set VALUE to variable name
          do i=1,G_numdef                                   ! find variable in variable dictionary
@@ -1608,7 +1608,7 @@ integer                      :: ios,iend,lun
 
    varvalue=get_env('PREP_DOCUMENT_DIR')
 
-   if(varvalue.ne.''.and.G_MAN.ne.''.and.G_MAN_FILE.ne.' ')then ! if $BLOCK ... --file FILE is present generate file in directory/doc
+   if(varvalue.ne.''.and.G_MAN.ne.''.and.G_MAN_FILE.ne.' ')then ! if $BLOCK --file FILE is present generate file in directory/doc
 
       iend=len_trim(varvalue)
       if(varvalue(iend:iend).ne.'/')then
@@ -2143,7 +2143,7 @@ if(l_help)then
 !-------------------------------------------------------------------------------
 help_text=[ CHARACTER(LEN=128) :: &
 'NAME                                                                            ',&
-'   prep(1) - [DEVELOPER] pre-process FORTRAN source files                       ',&
+'   prep(1) - [DEVELOPER] preprocess FORTRAN source files                        ',&
 '   (LICENSE:MIT)                                                                ',&
 '                                                                                ',&
 'SYNOPSIS                                                                        ',&
@@ -2165,19 +2165,19 @@ help_text=[ CHARACTER(LEN=128) :: &
 '        [--help]                                                                ',&
 'DESCRIPTION                                                                     ',&
 '                                                                                ',&
-'   A preprocessor is used to conditionally perform operations on input files    ',&
-'   before they are passed to a compiler, including machine-specific selection   ',&
-'   of input lines. This makes it possible to use a single source file even when ',&
-'   different code is required for different execution environments.             ',&
+'   A preprocessor conditionally perform operations on input files before they   ',&
+'   are passed to a compiler, including machine-specific selection of input      ',&
+'   lines. This makes it possible to use a single source file even when different',&
+'   code is required for different execution environments.                       ',&
 '                                                                                ',&
 '   The prep(1) preprocessor has additional features that help to include        ',&
 '   documentation in the same file as the source and to generate generic code    ',&
 '   using a simple templating technique. The basic directives ....               ',&
 '                                                                                ',&
 '   * Conditionally output parts of the source file (controlled by expressions   ',&
-'     on the directives $if, $ifdef, $ifndef, $else, $elif, and $endif. The      ',&
-'     expressions may include variables defined on the command line and the      ',&
-'     directives $define, $redefine, and $undefine).                             ',&
+'     on the directives $if, $ifdef, $ifndef, and $endif. The expressions may    ',&
+'     include variables defined on the command line and the directives $define,  ',&
+'     $redefine, and $undefine).                                                 ',&
 '                                                                                ',&
 '   * Include other files (provided by directive $include).                      ',&
 '                                                                                ',&
@@ -2198,18 +2198,17 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   * Call system commands (using the $system directive).                        ',&
 '                                                                                ',&
-'   * Generate multiple output files from a single input file (using             ',&
-'     directive $output).                                                        ',&
+'   * Generate multiple output files from a single input file (using $output).   ',&
 '                                                                                ',&
-'   * Record the parameters used and the date and time executed                  ',&
-'     as Fortran comments in the output (using $show).                           ',&
+'   * Record the parameters used and the date and time executed as Fortran       ',&
+'     comments in the output (using $show).                                      ',&
 '                                                                                ',&
 '   * Cause an error (controlled by directive $stop or $error) and produce       ',&
 '     messages on stderr (using $message).                                       ',&
 '                                                                                ',&
 '   DIRECTIVE SYNTAX                                                             ',&
 '                                                                                ',&
-'   The prep(1) pre-processor directives begin with "$" (by default) in column   ',&
+'   The prep(1) preprocessor directives begin with "$" (by default) in column    ',&
 '   one, and will output no such lines. Other input is conditionally written     ',&
 '   to the output file(s) based on the case-insensitive command names.           ',&
 '                                                                                ',&
@@ -2293,7 +2292,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '      $MESSAGE  message_to_stderr                                               ',&
 '      $SHOW [defined_variable_name[;...]]                  [! comment ]         ',&
 '                                                                                ',&
-'  System Commands (See also: $BLOCK SHELL)                                      ',&
+'  System Commands (See also: $BLOCK SYSTEM)                                     ',&
 '                                                                                ',&
 '      $SYSTEM   system_command                                                  ',&
 '                                                                                ',&
@@ -2339,15 +2338,16 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                        auto                                                    ',&
 '                        none                                                    ',&
 '                                                                                ',&
-'                    The special type "auto" may be specified, in which case     ',&
-'                    files will be processed according to their file suffix.     ',&
-'                    This allows for easily extracting code from common          ',&
-'                    document formats. This is particularly useful with extended ',&
-'                    markdown formats, allowing for code source to be easily     ',&
-'                    documented and for tests in documents to be able to be      ',&
-'                    extracted and tested. "auto" switches processing mode       ',&
-'                    depending on input file suffix, treating supported file     ',&
-'                    prefixes ("md","html") appropriately.                       ',&
+'                    The default type is "auto", in which case files will be     ',&
+'                    processed according to their file suffix.                   ',&
+'                                                                                ',&
+'                    This allows for easily extracting code from common document ',&
+'                    formats. This is particularly useful with extended markdown ',&
+'                    formats, allowing for code source to be easily documented   ',&
+'                    and for tests in documents to be able to be extracted and   ',&
+'                    tested. "auto" switches processing mode depending on input  ',&
+'                    file suffix, treating supported file suffixes               ',&
+'                    ("md","html","tex") appropriately.                          ',&
 '                                                                                ',&
 '   --start STRING   Same as --type except along with --stop allows for custom   ',&
 '                    strings to be specified.                                    ',&
@@ -2355,14 +2355,12 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   --stop STRING    Same as --type except along with --start allows for custom  ',&
 '                    strings to be specified.                                    ',&
 '                                                                                ',&
-'   --system         Allow system commands on $SYSTEM directives to              ',&
-'                    be executed.                                                ',&
+'   --system         Allow system commands on $SYSTEM directives to be executed. ',&
 '                                                                                ',&
-'   --keeptabs       By default tab characters are expanded assuming             ',&
-'                    a stop has been set every eight columns; and                ',&
-'                    trailing carriage-return characters are removed.            ',&
-'                    Use this flag to prevent this processing from               ',&
-'                    occurring.                                                  ',&
+'   --keeptabs       By default tab characters are expanded assuming a stop has  ',&
+'                    been set every eight columns; and trailing carriage-return  ',&
+'                    are removed. Use this flag to prevent this processing from  ',&
+'                    Use this flag to prevent this processing from occurring.    ',&
 '                                                                                ',&
 '   --comment        try to style comments generated in $BLOCK COMMENT blocks    ',&
 '                    for other utilities such as doxygen. Default is to          ',&
@@ -2391,11 +2389,10 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                code that contains comments or "ident" labels past column 72    ',&
 '                when compiling fixed-format Fortran code.                       ',&
 '                                                                                ',&
-'   --verbose    All commands on a $SYSTEM directive are echoed                  ',&
-'                to stderr with a + prefix. Text following the                   ',&
-'                string "@(#)" is printed to stderr similar to                   ',&
-'                the Unix command what(1) but is otherwise                       ',&
-'                treated as other text input.                                    ',&
+'   --verbose    All commands on a $SYSTEM directive are echoed to stderr with a ',&
+'                + prefix. Text following the string "@(#)" is printed to stderr ',&
+'                similar to the Unix command what(1) but is otherwise treated as ',&
+'                other text input. Additional descriptive messages are produced. ',&
 '                                                                                ',&
 '   --version    Display version and exit                                        ',&
 '                                                                                ',&
@@ -2778,8 +2775,8 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   Variable names                                                               ',&
 '                                                                                ',&
-'   o are limited to 31 characters.                                              ',&
-'   o must start with a letter (A-Z).                                            ',&
+'   o are limited to 63 characters.                                              ',&
+'   o must start with a letter (A-Z) or underscore(_).                           ',&
 '   o are composed of the letters A-Z, digits 0-9 and _ and $.                   ',&
 '   o 2048 variable names may be defined at a time.                              ',&
 '                                                                                ',&
@@ -2835,7 +2832,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   > $BLOCK COMMENT--file conditional_compile.man                               ',&
 '   > NAME                                                                       ',&
-'   >    conditional_compile - basic example for prep(1) pre-processor.          ',&
+'   >    conditional_compile - basic example for prep(1) preprocessor.           ',&
 '   > SYNOPSIS                                                                   ',&
 '   >    conditional_example [--help] [--version]                                ',&
 '   > DESCRIPTION                                                                ',&
@@ -2913,7 +2910,7 @@ if(l_version)then
 help_text=[ CHARACTER(LEN=128) :: &
 '@(#)PRODUCT:        GPF (General Purpose Fortran) utilities and examples>',&
 '@(#)PROGRAM:        prep(1f)>',&
-'@(#)DESCRIPTION:    Fortran Pre-processor>',&
+'@(#)DESCRIPTION:    Fortran Preprocessor>',&
 !'@(#)VERSION:        4.0.0: 20170502>',&
 !'@(#)VERSION:        5.0.0: 20201219>',&
 '@(#)VERSION:        8.1.1: 20220405>',&
@@ -2965,7 +2962,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 "INFORMATION                                                                     ",&
 "  $MESSAGE message_to_stderr                                                    ",&
 "  $SHOW [defined_variable_name][;...]                                           ",&
-"SYSTEM COMMANDS (see also: $BLOCK SHELL)                                        ",&
+"SYSTEM COMMANDS (see also: $BLOCK SYSTEM)                                       ",&
 "  $SYSTEM command                                                               ",&
 "  $STOP [stop_value[ ""message""]] | $QUIT [""message""]| $ERROR [""message""]        "]
    WRITE(stderr,'(a)')(trim(help_text(i)),i=1,size(help_text))

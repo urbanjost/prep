@@ -1,6 +1,5 @@
-Project is up to date
 NAME
-   prep(1) - [DEVELOPER] pre-process FORTRAN source files
+   prep(1) - [DEVELOPER] preprocess FORTRAN source files
    (LICENSE:MIT)
 
 SYNOPSIS
@@ -22,19 +21,19 @@ SYNOPSIS
         [--help]
 DESCRIPTION
 
-   A preprocessor is used to conditionally perform operations on input files
-   before they are passed to a compiler, including machine-specific selection
-   of input lines. This makes it possible to use a single source file even when
-   different code is required for different execution environments.
+   A preprocessor conditionally perform operations on input files before they
+   are passed to a compiler, including machine-specific selection of input
+   lines. This makes it possible to use a single source file even when different
+   code is required for different execution environments.
 
    The prep(1) preprocessor has additional features that help to include
    documentation in the same file as the source and to generate generic code
    using a simple templating technique. The basic directives ....
 
    * Conditionally output parts of the source file (controlled by expressions
-     on the directives $if, $ifdef, $ifndef, $else, $elif, and $endif. The
-     expressions may include variables defined on the command line and the
-     directives $define, $redefine, and $undefine).
+     on the directives $if, $ifdef, $ifndef, and $endif. The expressions may
+     include variables defined on the command line and the directives $define,
+     $redefine, and $undefine).
 
    * Include other files (provided by directive $include).
 
@@ -55,18 +54,17 @@ DESCRIPTION
 
    * Call system commands (using the $system directive).
 
-   * Generate multiple output files from a single input file (using
-     directive $output).
+   * Generate multiple output files from a single input file (using $output).
 
-   * Record the parameters used and the date and time executed
-     as Fortran comments in the output (using $show).
+   * Record the parameters used and the date and time executed as Fortran
+     comments in the output (using $show).
 
    * Cause an error (controlled by directive $stop or $error) and produce
      messages on stderr (using $message).
 
    DIRECTIVE SYNTAX
 
-   The prep(1) pre-processor directives begin with "$" (by default) in column
+   The prep(1) preprocessor directives begin with "$" (by default) in column
    one, and will output no such lines. Other input is conditionally written
    to the output file(s) based on the case-insensitive command names.
 
@@ -149,7 +147,7 @@ DIRECTIVE SYNTAX SUMMARY
       $MESSAGE  message_to_stderr
       $SHOW [defined_variable_name[;...]]                  [! comment ]
 
-  System Commands (See also: $BLOCK SHELL)
+  System Commands (See also: $BLOCK SYSTEM)
 
       $SYSTEM   system_command
 
@@ -195,15 +193,16 @@ OPTIONS
                         auto
                         none
 
-                    The special type "auto" may be specified, in which case
-                    files will be processed according to their file suffix.
-                    This allows for easily extracting code from common
-                    document formats. This is particularly useful with extended
-                    markdown formats, allowing for code source to be easily
-                    documented and for tests in documents to be able to be
-                    extracted and tested. "auto" switches processing mode
-                    depending on input file suffix, treating supported file
-                    prefixes ("md","html") appropriately.
+                    The default type is "auto", in which case files will be
+                    processed according to their file suffix.
+
+                    This allows for easily extracting code from common document
+                    formats. This is particularly useful with extended markdown
+                    formats, allowing for code source to be easily documented
+                    and for tests in documents to be able to be extracted and
+                    tested. "auto" switches processing mode depending on input
+                    file suffix, treating supported file suffixes
+                    ("md","html","tex") appropriately.
 
    --start STRING   Same as --type except along with --stop allows for custom
                     strings to be specified.
@@ -211,14 +210,12 @@ OPTIONS
    --stop STRING    Same as --type except along with --start allows for custom
                     strings to be specified.
 
-   --system         Allow system commands on $SYSTEM directives to
-                    be executed.
+   --system         Allow system commands on $SYSTEM directives to be executed.
 
-   --keeptabs       By default tab characters are expanded assuming
-                    a stop has been set every eight columns; and
-                    trailing carriage-return characters are removed.
-                    Use this flag to prevent this processing from
-                    occurring.
+   --keeptabs       By default tab characters are expanded assuming a stop has
+                    been set every eight columns; and trailing carriage-return
+                    are removed. Use this flag to prevent this processing from
+                    Use this flag to prevent this processing from occurring.
 
    --comment        try to style comments generated in $BLOCK COMMENT blocks
                     for other utilities such as doxygen. Default is to
@@ -247,11 +244,10 @@ OPTIONS
                 code that contains comments or "ident" labels past column 72
                 when compiling fixed-format Fortran code.
 
-   --verbose    All commands on a $SYSTEM directive are echoed
-                to stderr with a + prefix. Text following the
-                string "@(#)" is printed to stderr similar to
-                the Unix command what(1) but is otherwise
-                treated as other text input.
+   --verbose    All commands on a $SYSTEM directive are echoed to stderr with a
+                + prefix. Text following the string "@(#)" is printed to stderr
+                similar to the Unix command what(1) but is otherwise treated as
+                other text input. Additional descriptive messages are produced.
 
    --version    Display version and exit
 
@@ -634,8 +630,8 @@ LIMITATIONS
 
    Variable names
 
-   o are limited to 31 characters.
-   o must start with a letter (A-Z).
+   o are limited to 63 characters.
+   o must start with a letter (A-Z) or underscore(_).
    o are composed of the letters A-Z, digits 0-9 and _ and $.
    o 2048 variable names may be defined at a time.
 
@@ -691,7 +687,7 @@ EXAMPLES
 
    > $BLOCK COMMENT--file conditional_compile.man
    > NAME
-   >    conditional_compile - basic example for prep(1) pre-processor.
+   >    conditional_compile - basic example for prep(1) preprocessor.
    > SYNOPSIS
    >    conditional_example [--help] [--version]
    > DESCRIPTION

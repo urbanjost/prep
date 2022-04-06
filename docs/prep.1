@@ -11,9 +11,8 @@
 .nr IN 0.2i
 ." -----------------------------------------------------------------
 .RS
-Project is up to date
 .SH NAME
-\fBprep\fP(1) - [DEVELOPER] pre-process FORTRAN source files
+\fBprep\fP(1) - [DEVELOPER] preprocess FORTRAN source files
 (LICENSE:MIT)
 
 .SH SYNOPSIS
@@ -37,19 +36,19 @@ Project is up to date
 .fi
 .SH DESCRIPTION
 
-A preprocessor is used to conditionally perform operations on input files
-before they are passed to a compiler, including machine-specific selection
-of input lines. This makes it possible to use a single source file even when
-different code is required for different execution environments.
+A preprocessor conditionally perform operations on input files before they
+are passed to a compiler, including machine-specific selection of input
+lines. This makes it possible to use a single source file even when different
+code is required for different execution environments.
 .PP
 The \fBprep\fP(1) preprocessor has additional features that help to include
 documentation in the same file as the source and to generate generic code
 using a simple templating technique. The basic directives \.\.\..
 .IP \(bu 3
 Conditionally output parts of the source file (controlled by expressions
-on the directives $if, $ifdef, $ifndef, $else, $elif, and $endif. The
-expressions may include variables defined on the command line and the
-directives $define, $redefine, and $undefine).
+on the directives $if, $ifdef, $ifndef, and $endif. The expressions may
+include variables defined on the command line and the directives $define,
+$redefine, and $undefine).
 .IP \(bu 3
 Include other files (provided by directive $include).
 .IP \(bu 3
@@ -72,17 +71,16 @@ typically for use as documentation.
 .IP \(bu 3
 Call system commands (using the $system directive).
 .IP \(bu 3
-Generate multiple output files from a single input file (using
-directive $output).
+Generate multiple output files from a single input file (using $output).
 .IP \(bu 3
-Record the parameters used and the date and time executed
-as Fortran comments in the output (using $show).
+Record the parameters used and the date and time executed as Fortran
+comments in the output (using $show).
 .IP \(bu 3
 Cause an error (controlled by directive $stop or $error) and produce
 messages on stderr (using $message).
 .SS   DIRECTIVE SYNTAX
 
-The \fBprep\fP(1) pre-processor directives begin with "$" (by default) in column
+The \fBprep\fP(1) preprocessor directives begin with "$" (by default) in column
 one, and will output no such lines. Other input is conditionally written
 to the output \fBfile\fP(s) based on the case-insensitive command names.
 .PP
@@ -199,7 +197,7 @@ Information
 
 .fam T
 .fi
-System Commands (See also: $BLOCK SHELL)
+System Commands (See also: $BLOCK SYSTEM)
 .PP
 .nf
 .fam C
@@ -266,15 +264,16 @@ themselves.
 .fam T
 .fi
 .RS
-The special type "auto" may be specified, in which case
-files will be processed according to their file suffix.
-This allows for easily extracting code from common
-document formats. This is particularly useful with extended
-markdown formats, allowing for code source to be easily
-documented and for tests in documents to be able to be
-extracted and tested. "auto" switches processing mode
-depending on input file suffix, treating supported file
-prefixes ("md","html") appropriately.
+The default type is "auto", in which case files will be
+processed according to their file suffix.
+.PP
+This allows for easily extracting code from common document
+formats. This is particularly useful with extended markdown
+formats, allowing for code source to be easily documented
+and for tests in documents to be able to be extracted and
+tested. "auto" switches processing mode depending on input
+file suffix, treating supported file suffixes
+("md","html","tex") appropriately.
 .RE
 .TP
 .B \fB--start\fP STRING
@@ -286,15 +285,13 @@ Same as \fB--type\fP except along with \fB--start\fP allows for custom
 strings to be specified.
 .TP
 .B \fB--system\fP
-Allow system commands on $SYSTEM directives to
-be executed.
+Allow system commands on $SYSTEM directives to be executed.
 .TP
 .B \fB--keeptabs\fP
-By default tab characters are expanded assuming
-a stop has been set every eight columns; and
-trailing carriage-return characters are removed.
-Use this flag to prevent this processing from
-occurring.
+By default tab characters are expanded assuming a stop has
+been set every eight columns; and trailing carriage-return
+are removed. Use this flag to prevent this processing from
+Use this flag to prevent this processing from occurring.
 .TP
 .B \fB--comment\fP
 try to style comments generated in $BLOCK COMMENT blocks
@@ -328,11 +325,13 @@ code that contains comments or "ident" labels past column 72
 when compiling fixed-format Fortran code.
 .TP
 .B \fB--verbose\fP
-All commands on a $SYSTEM directive are echoed
-to stderr with a + prefix. Text following the
-string "@(#)" is printed to stderr similar to
-the Unix command \fBwhat\fP(1) but is otherwise
-treated as other text input.
+All commands on a $SYSTEM directive are echoed to stderr with a
+.RS
+.IP \(bu 3
+prefix. Text following the string "@(#)" is printed to stderr
+similar to the Unix command \fBwhat\fP(1) but is otherwise treated as
+other text input. Additional descriptive messages are produced.
+.RE
 .TP
 .B \fB--version\fP
 Display version and exit
@@ -773,9 +772,9 @@ filenames cannot contain spaces on the command line.
 .PP
 Variable names
 .IP \(bu 3
-are limited to 31 characters.
+are limited to 63 characters.
 .IP \(bu 3
-must start with a letter (A-Z).
+must start with a letter (A-Z) or \fBunderscore\fP(_).
 .IP \(bu 3
 are composed of the letters A-Z, digits 0-9 and _ and $.
 .IP \(bu 3
@@ -846,7 +845,7 @@ appended to a $PREP_DOCUMENT_DIR/doc/ file when $PREP_DOCUMENT_DIR is set.
 .fam C
    > $BLOCK COMMENT--file conditional_compile.man
    > NAME
-   >    conditional_compile - basic example for prep(1) pre-processor.
+   >    conditional_compile - basic example for prep(1) preprocessor.
    > SYNOPSIS
    >    conditional_example [--help] [--version]
    > DESCRIPTION
