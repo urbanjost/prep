@@ -23,7 +23,7 @@ $BLOCK
 
 $! if the document directory is defined make sure it and the doc/ directory exists
 $IFDEF PREP_DOCUMENT_DIR
-$   IF SYSTEMON==1
+$   IF SYSTEMON     
 $      IF OS .ne. WINDOWS
 $         SYSTEM mkdir -p $PREP_DOCUMENT_DIR/doc
 $      ELSE
@@ -60,7 +60,7 @@ $BLOCK
 
 $! convert the help text from a flat text file to a roff file using txt2man(1)
 $IFDEF PREP_DOCUMENT_DIR
-$   IF SYSTEMON==1
+$   IF SYSTEMON    
 $      SYSTEM mkdir -p man/man1                                                                        
 $      SYSTEM txt2man $PREP_DOCUMENT_DIR/doc/conditional_compile.1.man >man/man1/conditional_compile.1
 $   ELSE
