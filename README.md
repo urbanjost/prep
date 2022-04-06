@@ -44,7 +44,7 @@ $parcel ex1
    real(kind=${kind}) :: value
       write(*,*)'big subroutine with type ${kind} and value=',value
    end subroutine testit_${KIND}
-$parcel
+$endparcel
 $!
 module M_testit
 use, intrinsic :: iso_fortran_env, only : real32, real64, real128
@@ -78,7 +78,7 @@ $post ex1
   writing the lines to an external file for generating documentation,
   and so on.
 
-$block
+$endblock
 ```
 The output looks like
 ```fortran
