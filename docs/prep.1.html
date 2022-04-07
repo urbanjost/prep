@@ -48,6 +48,7 @@ a.existingWikiWord[title]{ //border: 1px dashed #BBB; }
 <H1><HR><I>User Commands  &nbsp;-&nbsp;</I><NOBR>Fortran preprocessor (1)</NOBR><HR></H1>
 </CENTER>
 <BLOCKQUOTE>
+Project is up to date
 </BLOCKQUOTE>
 <A name=0>
 
@@ -142,70 +143,45 @@ Include other files (provided by directive $<B>INCLUDE</B>).
 o
 </TD><TD>
 Define parcels of text that may be replayed multiple times with
-<TABLE width=100% cellpadding=3><!-- tsb: Define parcels of text that may be replayed multiple times with
- -->
-<TR></TR><TR></TR>
-<TR valign=top><TD colspan=2>
-<B>expansion, allowing for basic templating</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-(controlled by directives
+expansion, allowing for basic templating (controlled by directives
 $<B>PARCEL</B>/$<B>ENDPARCEL</B> and $<B>POST</B>). The mechanism supported is to replace
 text of the form ${NAME} with user-supplied strings similar to the
 POSIX shell (controlled by directives $<B>SET</B> and $<B>IMPORT</B>).
 </TD></TR>
-<TR></TR></TABLE><!-- .IP \(bu 3 -->
-</TD></TR>
-<TR valign=top><TD width=6%>
+<TR valign=top><TD width=3%>
 o
 </TD><TD>
 Filter blocks of text and convert them to comments, a CHARACTER array,
-<TABLE width=100% cellpadding=3><!-- tsb: Filter blocks of text and convert them to comments, a CHARACTER array,
- -->
-<TR></TR><TR></TR>
-<TR valign=top><TD colspan=2>
-<B>Fortran WRITE statements, &#46;&#46;&#46;</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-(provided by the $<B>BLOCK</B> directive.)
-</TD></TR>
-<TR></TR></TABLE>The blocks of text may also be written to a file and executed, with
+Fortran WRITE statements, &#46;&#46;&#46; (provided by the $<B>BLOCK</B> directive.)
+<P>
+The blocks of text may also be written to a file and executed, with
 stdout captured and included in the <B>prep</B>(1) output file.
 <P>
 Blocked text may optionally be simultaneously written to a separate file,
 typically for use as documentation.
 </TD></TR>
-<TR valign=top><TD width=6%>
+<TR valign=top><TD width=3%>
 o
 </TD><TD>
 Call system commands (using the $<B>SYSTEM</B> directive).
 </TD></TR>
-<TR valign=top><TD width=6%>
+<TR valign=top><TD width=3%>
 o
 </TD><TD>
 Generate multiple output files from a single input file (using $<B>OUTPUT</B>).
 </TD></TR>
-<TR valign=top><TD width=6%>
+<TR valign=top><TD width=3%>
 o
 </TD><TD>
 Record the parameters used and the date and time executed as Fortran
-<TABLE width=100% cellpadding=3><!-- tsb: Record the parameters used and the date and time executed as Fortran
- -->
-<TR></TR><TR></TR>
-<TR valign=top><TD colspan=2>
-<B>comments in the output</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-(using $<B>SHOW</B>).
+comments in the output (using $<B>SHOW</B>).
 </TD></TR>
-<TR></TR></TABLE><!-- .IP \(bu 3 -->
-</TD></TR>
-<TR valign=top><TD width=6%>
+<TR valign=top><TD width=3%>
 o
 </TD><TD>
 Cause an error (controlled by directive $<B>STOP</B> or $<B>ERROR</B>) and produce
-<TABLE width=100% cellpadding=3><!-- tsb: Cause an error (controlled by directive $<B>STOP</B> or $<B>ERROR</B>) and produce
- -->
-<TR></TR><TR></TR>
-<TR valign=top><TD colspan=2>
-<B>messages on stderr</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-(using $<B>MESSAGE</B>).
+messages on stderr (using $<B>MESSAGE</B>).
 </TD></TR>
-<TR></TR></TABLE></TD></TR>
 <TR></TR></TABLE></BLOCKQUOTE>
 <A name=3>
 
@@ -215,26 +191,26 @@ Cause an error (controlled by directive $<B>STOP</B> or $<B>ERROR</B>) and produ
 <BLOCKQUOTE>
 <TABLE cellpadding=3>
 <TR valign=top><TD colspan=2>
-<B></B><I>define_list</I>, <B>-D</B> <I>define_list</I> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+<B></B><I>define_list</I>, <B>-D</B> <I>define_list</I> </TD></TR><TR valign=top><TD width=3%>&nbsp;</TD><TD>
 An optional space-delimited list of expressions
 used to define variables before file processing
 commences.
 </TD></TR>
 <TR valign=top><TD colspan=2>
-<B></B><B>-i</B> <I>input_file(s)</I> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+<B></B><B>-i</B> <I>input_file(s)</I> </TD></TR><TR valign=top><TD width=3%>&nbsp;</TD><TD>
 The default input file is stdin. Filenames are
 space-delimited. In a list, @ represents stdin.
 </TD></TR>
-<TR><TD colspan=2>
-The suggested suffix for Fortran input files is ".ff" for code files unless
+<TR></TR></TABLE>The suggested suffix for Fortran input files is ".ff" for code files unless
 they contain $<B>SYSTEM</B> directives in which case ".FF" is preferred. $<B>INCLUDE</B>
 files should use ".ffinc" and ".FFINC" if they include <B>prep</B>(1) directives.
 This naming convention is not required.
-</TD></TR>
-<TR><TD colspan=2>
+<P>
 Files may also end in supported suffixes such as ".md", as explained under
 the <B>--type</B> option description.
-</TD></TR>
+<TABLE cellpadding=3><!-- tsb: Files may also end in supported suffixes such as ".md", as explained under
+ -->
+<TR></TR><TR></TR>
 <TR valign=top><TD colspan=2>
 <B></B><B>-o</B> <I>output_file</I> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
 The default output file is stdout.

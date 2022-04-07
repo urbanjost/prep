@@ -2174,21 +2174,21 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   in the same file as the source and the generation of generic code using a    ',&
 '   simple templating technique. The basic directives ....                       ',&
 '                                                                                ',&
-'   * Conditionally output parts of the source file  (controlled by expressions   ',&
+'   * Conditionally output parts of the source file (controlled by expressions   ',&
 '     on the directives $IF, $IFDEF, $IFNDEF, and $ENDIF. The expressions may    ',&
 '     include variables defined on the command line or via the directives        ',&
 '     $DEFINE, $REDEFINE, and $UNDEFINE).                                        ',&
 '                                                                                ',&
-'   * Include other files            (provided by directive $INCLUDE).                      ',&
+'   * Include other files (provided by directive $INCLUDE).                      ',&
 '                                                                                ',&
 '   * Define parcels of text that may be replayed multiple times with            ',&
-'     expansion, allowing for basic templating  (controlled by directives         ',&
+'     expansion, allowing for basic templating (controlled by directives         ',&
 '     $PARCEL/$ENDPARCEL and $POST). The mechanism supported is to replace       ',&
 '     text of the form ${NAME} with user-supplied strings similar to the         ',&
 '     POSIX shell (controlled by directives $SET and $IMPORT).                   ',&
 '                                                                                ',&
 '   * Filter blocks of text and convert them to comments, a CHARACTER array,     ',&
-'     Fortran WRITE statements, ...  (provided by the $BLOCK directive.)          ',&
+'     Fortran WRITE statements, ... (provided by the $BLOCK directive.)          ',&
 '                                                                                ',&
 '     The blocks of text may also be written to a file and executed, with        ',&
 '     stdout captured and included in the prep(1) output file.                   ',&
@@ -2196,15 +2196,15 @@ help_text=[ CHARACTER(LEN=128) :: &
 '     Blocked text may optionally be simultaneously written to a separate file,  ',&
 '     typically for use as documentation.                                        ',&
 '                                                                                ',&
-'   * Call system commands  (using the $SYSTEM directive).                        ',&
+'   * Call system commands (using the $SYSTEM directive).                        ',&
 '                                                                                ',&
-'   * Generate multiple output files from a single input file  (using $OUTPUT).   ',&
+'   * Generate multiple output files from a single input file (using $OUTPUT).   ',&
 '                                                                                ',&
 '   * Record the parameters used and the date and time executed as Fortran       ',&
-'     comments in the output  (using $SHOW).                                      ',&
+'     comments in the output (using $SHOW).                                      ',&
 '                                                                                ',&
-'   * Cause an error  (controlled by directive $STOP or $ERROR) and produce       ',&
-'     messages on stderr  (using $MESSAGE).                                       ',&
+'   * Cause an error (controlled by directive $STOP or $ERROR) and produce       ',&
+'     messages on stderr (using $MESSAGE).                                       ',&
 '                                                                                ',&
 'OPTIONS                                                                         ',&
 '   define_list, -D define_list  An optional space-delimited list of expressions ',&

@@ -11,6 +11,7 @@
 .nr IN 0.2i
 ." -----------------------------------------------------------------
 .RS
+Project is up to date
 .SH NAME
 \fBprep\fP(1) - [DEVELOPER] preprocess FORTRAN source files
 (LICENSE:MIT)
@@ -53,20 +54,14 @@ $\fBDEFINE\fP, $\fBREDEFINE\fP, and $\fBUNDEFINE\fP).
 Include other files (provided by directive $\fBINCLUDE\fP).
 .IP \(bu 3
 Define parcels of text that may be replayed multiple times with
-.RS
-.TP
-.B expansion, allowing for basic templating
-(controlled by directives
+expansion, allowing for basic templating (controlled by directives
 $\fBPARCEL\fP/$\fBENDPARCEL\fP and $\fBPOST\fP). The mechanism supported is to replace
 text of the form ${NAME} with user-supplied strings similar to the
 POSIX shell (controlled by directives $\fBSET\fP and $\fBIMPORT\fP).
-.RE
 .IP \(bu 3
 Filter blocks of text and convert them to comments, a CHARACTER array,
+Fortran WRITE statements, \.\.\. (provided by the $\fBBLOCK\fP directive.)
 .RS
-.TP
-.B Fortran WRITE statements, \.\.\.
-(provided by the $\fBBLOCK\fP directive.)
 .PP
 The blocks of text may also be written to a file and executed, with
 stdout captured and included in the \fBprep\fP(1) output file.
@@ -80,17 +75,10 @@ Call system commands (using the $\fBSYSTEM\fP directive).
 Generate multiple output files from a single input file (using $\fBOUTPUT\fP).
 .IP \(bu 3
 Record the parameters used and the date and time executed as Fortran
-.RS
-.TP
-.B comments in the output
-(using $\fBSHOW\fP).
-.RE
+comments in the output (using $\fBSHOW\fP).
 .IP \(bu 3
 Cause an error (controlled by directive $\fBSTOP\fP or $\fBERROR\fP) and produce
-.RS
-.TP
-.B messages on stderr
-(using $\fBMESSAGE\fP).
+messages on stderr (using $\fBMESSAGE\fP).
 .SH OPTIONS
 .TP
 .B \fIdefine_list\fP, \fB-D\fP \fIdefine_list\fP
