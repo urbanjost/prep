@@ -2,15 +2,6 @@
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-! The M_KRACKEN95(3f) interface file is free and unencumbered software released into the public domain.
-! For further details see the file UNLICENSE.txt or refer to <http;//unlicense.org/>
-!
-! Even so, I ask that you send me interesting alterations that are available for public use; and
-! that you include a note in the source acknowledging the original author (1989,1996,2013 John S. Urban).
-!
-!===================================================================================================================================
-!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
-!===================================================================================================================================
 module M_kracken95
 implicit none
 ! "@(#)M_kracken95(3f,module):parse command line options of Fortran programs using Unix-like syntax"
@@ -19289,21 +19280,21 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   in the same file as the source and the generation of generic code using a    ',&
 '   simple templating technique. The basic directives ....                       ',&
 '                                                                                ',&
-'   * Conditionally output parts of the source file  (controlled by expressions   ',&
+'   * Conditionally output parts of the source file (controlled by expressions   ',&
 '     on the directives $IF, $IFDEF, $IFNDEF, and $ENDIF. The expressions may    ',&
 '     include variables defined on the command line or via the directives        ',&
 '     $DEFINE, $REDEFINE, and $UNDEFINE).                                        ',&
 '                                                                                ',&
-'   * Include other files            (provided by directive $INCLUDE).                      ',&
+'   * Include other files (provided by directive $INCLUDE).                      ',&
 '                                                                                ',&
 '   * Define parcels of text that may be replayed multiple times with            ',&
-'     expansion, allowing for basic templating  (controlled by directives         ',&
+'     expansion, allowing for basic templating (controlled by directives         ',&
 '     $PARCEL/$ENDPARCEL and $POST). The mechanism supported is to replace       ',&
 '     text of the form ${NAME} with user-supplied strings similar to the         ',&
 '     POSIX shell (controlled by directives $SET and $IMPORT).                   ',&
 '                                                                                ',&
 '   * Filter blocks of text and convert them to comments, a CHARACTER array,     ',&
-'     Fortran WRITE statements, ...  (provided by the $BLOCK directive.)          ',&
+'     Fortran WRITE statements, ... (provided by the $BLOCK directive.)          ',&
 '                                                                                ',&
 '     The blocks of text may also be written to a file and executed, with        ',&
 '     stdout captured and included in the prep(1) output file.                   ',&
@@ -19311,15 +19302,15 @@ help_text=[ CHARACTER(LEN=128) :: &
 '     Blocked text may optionally be simultaneously written to a separate file,  ',&
 '     typically for use as documentation.                                        ',&
 '                                                                                ',&
-'   * Call system commands  (using the $SYSTEM directive).                        ',&
+'   * Call system commands (using the $SYSTEM directive).                        ',&
 '                                                                                ',&
-'   * Generate multiple output files from a single input file  (using $OUTPUT).   ',&
+'   * Generate multiple output files from a single input file (using $OUTPUT).   ',&
 '                                                                                ',&
 '   * Record the parameters used and the date and time executed as Fortran       ',&
-'     comments in the output  (using $SHOW).                                      ',&
+'     comments in the output (using $SHOW).                                      ',&
 '                                                                                ',&
-'   * Cause an error  (controlled by directive $STOP or $ERROR) and produce       ',&
-'     messages on stderr  (using $MESSAGE).                                       ',&
+'   * Cause an error (controlled by directive $STOP or $ERROR) and produce       ',&
+'     messages on stderr (using $MESSAGE).                                       ',&
 '                                                                                ',&
 'OPTIONS                                                                         ',&
 '   define_list, -D define_list  An optional space-delimited list of expressions ',&
@@ -19387,9 +19378,9 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   --keeptabs       By default tab characters are expanded assuming a stop has  ',&
 '                    been set every eight columns; and trailing carriage-return  ',&
 '                    are removed. Use this flag to prevent this processing from  ',&
-'                    Use this flag to prevent this processing from occurring.    ',&
+'                    from occurring.                                             ',&
 '                                                                                ',&
-'   --comment        try to style comments generated in $BLOCK COMMENT blocks    ',&
+'   --comment        Try to style comments generated in $BLOCK COMMENT blocks    ',&
 '                    for other utilities such as doxygen. Default is to          ',&
 '                    prefix lines with ''! ''. Allowed keywords are              ',&
 '                    currently "default", "doxygen","none","ford".               ',&
@@ -19428,8 +19419,8 @@ help_text=[ CHARACTER(LEN=128) :: &
 'INPUT FILE SYNTAX                                                               ',&
 '                                                                                ',&
 '   The prep(1) preprocessor directives begin with "$" (by default) in column    ',&
-'   one, and will output no such lines. Other input is conditionally written     ',&
-'   to the output file(s) based on the case-insensitive command names.           ',&
+'   one, and prep(1) will output no such lines. Other input is conditionally     ',&
+'   written to the output file(s) based on the case-insensitive command names.   ',&
 '                                                                                ',&
 '   An exclamation character FOLLOWED BY A SPACE on most directives              ',&
 '   begins an in-line comment that is terminated by an end-of-line. The space    ',&
@@ -19495,6 +19486,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '    > $if ( A + B ) / C .eq. 1                                                  ',&
 '    >    (a+b)/c is one                                                         ',&
 '    > $endif                                                                    ',&
+'   Note expressions are not case-sensitive.                                     ',&
 '                                                                                ',&
 '       $UNDEFINE variable_name[; ...]                                           ',&
 '                                                                                ',&
@@ -19623,20 +19615,37 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   $SET and $IMPORT directives this allows you to replay a section of input     ',&
 '   and replace strings as a simple templating technique, or to repeat lines     ',&
 '   like copyright information or definitions of (obsolescent) Fortran COMMON    ',&
-'   blocks, put contained in source files without the need for separate          ',&
+'   blocks, but contained in source files without the need for separate          ',&
 '   INCLUDE files or error-prone repetition of the declarations.                 ',&
 '                                                                                ',&
 '       $SET varname  string                                                     ',&
 '                                                                                ',&
-'   If a $SET directive defines a name prep(1) enters expansion mode. In this    ',&
-'   mode anywhere the string "${NAME}" is encountered in subsequent output it    ',&
-'   is replaced by "string". Comments should not be used on a $SET directive.    ',&
-'   Note expansion of a line may cause it to be longer than allowed by some      ',&
-'   compilers. Automatic breaking into continuation lines does not occur.        ',&
+'   If a $SET or $IMPORT directive defines a name prep(1) enters expansion mode. ',&
+'   In this mode anywhere the string "${NAME}" is encountered in subsequent      ',&
+'   output it is replaced by "string".                                           ',&
 '                                                                                ',&
-'   IF A $SET DIRECTIVE HAS BEEN DEFINED the "standard" preprocessor values      ',&
-'   ${FILE}, ${LINE}, ${DATE}, and ${TIME} are also available. The time          ',&
-'   refers to the time of processing, not the time of compilation or loading.    ',&
+'   o values are case-sensitive but variable names are not.                      ',&
+'   o expansion of a line may cause it to be longer than allowed by some         ',&
+'     compilers. Automatic breaking into continuation lines does not occur.      ',&
+'   o comments are not supported on a $SET directive because everything past the ',&
+'     variable name becomes part of the value.                                   ',&
+'   o The pre-defined values $FILE, $LINE, $DATE, and $TIME ( for input file,    ',&
+'     line in input file, date and time ) are NOT ACTIVE until at least one      ',&
+'     one $SET or $IMPORT directive is processed. That is, unless a variable     ',&
+'     is defined no ${NAME} expansion occurs.                                    ',&
+'   o The time and date refers to the time of processing, not the time of        ',&
+'     compilation or loading.                                                    ',&
+'                                                                                ',&
+'   Example:                                                                     ',&
+'                                                                                ',&
+'    > $set author  William Shakespeare                                          ',&
+'    > write(*,*)''By ${AUTHOR}''                                                ',&
+'    > write(*,*)''File ${FILE}''                                                ',&
+'    > write(*,*)''Line ${LINE}''                                                ',&
+'    > write(*,*)''Date ${DATE}''                                                ',&
+'    > write(*,*)''Time ${TIME}''                                                ',&
+'                                                                                ',&
+'   Details ...                                                                  ',&
 '                                                                                ',&
 '       $IMPORT   envname[;...]                              [! comment ]        ',&
 '                                                                                ',&
@@ -19646,6 +19655,10 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   values, but the names because case-insensitive in prep(). That is,           ',&
 '   "import home" gets the lowercase environment variable "home" and then sets   ',&
 '   the associated value and then sets the prep(1) variable "HOME" to the value. ',&
+'                                                                                ',&
+'    > $import HOME USER                                                         ',&
+'    > write(*,*)''HOME ${HOME}''                                                ',&
+'    > write(*,*)''USER ${USER}''                                                ',&
 '                                                                                ',&
 ' EXTERNAL FILES                                                                 ',&
 '   Directives for reading and writing external files ...                        ',&
@@ -19731,7 +19744,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   $ENDBLOCK ends the block.                                                    ',&
 !!!!$! which is preferred; but a blank value or "END" on a $BLOCK directive does as well.
 '                                                                                ',&
-' see also: "$BLOCK ... --file"                                                  ',&
+'   see also: "$BLOCK ... --file"                                                ',&
 '                                                                                ',&
 ' IDENTIFIERS                                                                    ',&
 '   Directives for producing metadata ...                                        ',&
@@ -19976,21 +19989,6 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   >    --version  output version information and exit                          ',&
 '   > $ENDBLOCK                                                                  ',&
 '                                                                                ',&
-' SET USAGE                                                                      ',&
-'  Note values are case-sensitive but variable names are not, and there are      ',&
-'  pre-defined values for input file, line in input file, date and time that     ',&
-'  are NOT ACTIVE until at least one $SET or $IMPORT directive is processed.     ',&
-'  That is, unless a variable name is defined no ${NAME} expansion occurs.       ',&
-'                                                                                ',&
-'   > $set author  William Shakespeare                                           ',&
-'   > $import HOME                                                               ',&
-'   > write(*,*)''By ${AUTHOR}''                                                 ',&
-'   > write(*,*)''File ${FILE}''                                                 ',&
-'   > write(*,*)''Line ${LINE}''                                                 ',&
-'   > write(*,*)''Date ${DATE}''                                                 ',&
-'   > write(*,*)''Time ${TIME}''                                                 ',&
-'   > write(*,*)''HOME ${HOME}''                                                 ',&
-'                                                                                ',&
 'GENERAL TEMPLATING                                                              ',&
 '  A parcel can be posted multiple times, changing the value of variables        ',&
 '  before each post.                                                             ',&
@@ -20000,10 +19998,10 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   > use, intrinsic :: iso_fortran_env, only : &                                ',&
 '   > & real_kinds, real32,real64,real128                                        ',&
 '   > implicit none                                                              ',&
-'   > integer,parameter  :: wp=${type}                                           ',&
-'   > real(kind=${TYPE}) :: a,b                                                  ',&
+'   > integer,parameter  :: wp=${TYPE}                                           ',&
+'   > real(kind=wp) :: a,b                                                       ',&
 '   >    write(*,*)10.0_wp                                                       ',&
-'   >    write(*,*) "for type ${type}"                                           ',&
+'   >    write(*,*) "this is for type ${TYPE}"                                   ',&
 '   > end subroutine mysub_${TYPE}                                               ',&
 '   >                                                                            ',&
 '   > $ENDPARCEL                                                                 ',&

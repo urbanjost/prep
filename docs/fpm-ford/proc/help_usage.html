@@ -542,9 +542,9 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;   --keeptabs       By default tab characters are expanded assuming a stop has  &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                    been set every eight columns; and trailing carriage-return  &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                    are removed. Use this flag to prevent this processing from  &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                    Use this flag to prevent this processing from occurring.    &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                    from occurring.                                             &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   --comment        try to style comments generated in $BLOCK COMMENT blocks    &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   --comment        Try to style comments generated in $BLOCK COMMENT blocks    &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                    for other utilities such as doxygen. Default is to          &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                    prefix lines with &#39;&#39;! &#39;&#39;. Allowed keywords are              &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                    currently &quot;default&quot;, &quot;doxygen&quot;,&quot;none&quot;,&quot;ford&quot;.               &#39;</span><span class="p">,&amp;</span>
@@ -583,8 +583,8 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;INPUT FILE SYNTAX                                                               &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   The prep(1) preprocessor directives begin with &quot;$&quot; (by default) in column    &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   one, and will output no such lines. Other input is conditionally written     &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   to the output file(s) based on the case-insensitive command names.           &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   one, and prep(1) will output no such lines. Other input is conditionally     &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   written to the output file(s) based on the case-insensitive command names.   &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   An exclamation character FOLLOWED BY A SPACE on most directives              &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   begins an in-line comment that is terminated by an end-of-line. The space    &#39;</span><span class="p">,&amp;</span>
@@ -650,6 +650,7 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;    &gt; $if ( A + B ) / C .eq. 1                                                  &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;    &gt;    (a+b)/c is one                                                         &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;    &gt; $endif                                                                    &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   Note expressions are not case-sensitive.                                     &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;       $UNDEFINE variable_name[; ...]                                           &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
@@ -778,20 +779,37 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;   $SET and $IMPORT directives this allows you to replay a section of input     &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   and replace strings as a simple templating technique, or to repeat lines     &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   like copyright information or definitions of (obsolescent) Fortran COMMON    &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   blocks, put contained in source files without the need for separate          &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   blocks, but contained in source files without the need for separate          &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   INCLUDE files or error-prone repetition of the declarations.                 &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;       $SET varname  string                                                     &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   If a $SET directive defines a name prep(1) enters expansion mode. In this    &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   mode anywhere the string &quot;${NAME}&quot; is encountered in subsequent output it    &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   is replaced by &quot;string&quot;. Comments should not be used on a $SET directive.    &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   Note expansion of a line may cause it to be longer than allowed by some      &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   compilers. Automatic breaking into continuation lines does not occur.        &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   If a $SET or $IMPORT directive defines a name prep(1) enters expansion mode. &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   In this mode anywhere the string &quot;${NAME}&quot; is encountered in subsequent      &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   output it is replaced by &quot;string&quot;.                                           &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   IF A $SET DIRECTIVE HAS BEEN DEFINED the &quot;standard&quot; preprocessor values      &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   ${FILE}, ${LINE}, ${DATE}, and ${TIME} are also available. The time          &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   refers to the time of processing, not the time of compilation or loading.    &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   o values are case-sensitive but variable names are not.                      &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   o expansion of a line may cause it to be longer than allowed by some         &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;     compilers. Automatic breaking into continuation lines does not occur.      &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   o comments are not supported on a $SET directive because everything past the &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;     variable name becomes part of the value.                                   &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   o The pre-defined values $FILE, $LINE, $DATE, and $TIME ( for input file,    &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;     line in input file, date and time ) are NOT ACTIVE until at least one      &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;     one $SET or $IMPORT directive is processed. That is, unless a variable     &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;     is defined no ${NAME} expansion occurs.                                    &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   o The time and date refers to the time of processing, not the time of        &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;     compilation or loading.                                                    &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   Example:                                                                     &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;    &gt; $set author  William Shakespeare                                          &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;    &gt; write(*,*)&#39;&#39;By ${AUTHOR}&#39;&#39;                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;    &gt; write(*,*)&#39;&#39;File ${FILE}&#39;&#39;                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;    &gt; write(*,*)&#39;&#39;Line ${LINE}&#39;&#39;                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;    &gt; write(*,*)&#39;&#39;Date ${DATE}&#39;&#39;                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;    &gt; write(*,*)&#39;&#39;Time ${TIME}&#39;&#39;                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   Details ...                                                                  &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;       $IMPORT   envname[;...]                              [! comment ]        &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
@@ -801,6 +819,10 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;   values, but the names because case-insensitive in prep(). That is,           &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   &quot;import home&quot; gets the lowercase environment variable &quot;home&quot; and then sets   &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   the associated value and then sets the prep(1) variable &quot;HOME&quot; to the value. &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;    &gt; $import HOME USER                                                         &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;    &gt; write(*,*)&#39;&#39;HOME ${HOME}&#39;&#39;                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;    &gt; write(*,*)&#39;&#39;USER ${USER}&#39;&#39;                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39; EXTERNAL FILES                                                                 &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   Directives for reading and writing external files ...                        &#39;</span><span class="p">,&amp;</span>
@@ -886,7 +908,7 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;   $ENDBLOCK ends the block.                                                    &#39;</span><span class="p">,&amp;</span>
 <span class="c">!!!!$! which is preferred; but a blank value or &quot;END&quot; on a $BLOCK directive does as well.</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39; see also: &quot;$BLOCK ... --file&quot;                                                  &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   see also: &quot;$BLOCK ... --file&quot;                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39; IDENTIFIERS                                                                    &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   Directives for producing metadata ...                                        &#39;</span><span class="p">,&amp;</span>
@@ -1131,21 +1153,6 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;   &gt;    --version  output version information and exit                          &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   &gt; $ENDBLOCK                                                                  &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39; SET USAGE                                                                      &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;  Note values are case-sensitive but variable names are not, and there are      &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;  pre-defined values for input file, line in input file, date and time that     &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;  are NOT ACTIVE until at least one $SET or $IMPORT directive is processed.     &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;  That is, unless a variable name is defined no ${NAME} expansion occurs.       &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   &gt; $set author  William Shakespeare                                           &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   &gt; $import HOME                                                               &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   &gt; write(*,*)&#39;&#39;By ${AUTHOR}&#39;&#39;                                                 &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   &gt; write(*,*)&#39;&#39;File ${FILE}&#39;&#39;                                                 &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   &gt; write(*,*)&#39;&#39;Line ${LINE}&#39;&#39;                                                 &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   &gt; write(*,*)&#39;&#39;Date ${DATE}&#39;&#39;                                                 &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   &gt; write(*,*)&#39;&#39;Time ${TIME}&#39;&#39;                                                 &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   &gt; write(*,*)&#39;&#39;HOME ${HOME}&#39;&#39;                                                 &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;GENERAL TEMPLATING                                                              &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;  A parcel can be posted multiple times, changing the value of variables        &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;  before each post.                                                             &#39;</span><span class="p">,&amp;</span>
@@ -1155,10 +1162,10 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;   &gt; use, intrinsic :: iso_fortran_env, only : &amp;                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   &gt; &amp; real_kinds, real32,real64,real128                                        &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   &gt; implicit none                                                              &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   &gt; integer,parameter  :: wp=${type}                                           &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   &gt; real(kind=${TYPE}) :: a,b                                                  &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   &gt; integer,parameter  :: wp=${TYPE}                                           &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   &gt; real(kind=wp) :: a,b                                                       &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   &gt;    write(*,*)10.0_wp                                                       &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   &gt;    write(*,*) &quot;for type ${type}&quot;                                           &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   &gt;    write(*,*) &quot;this is for type ${TYPE}&quot;                                   &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   &gt; end subroutine mysub_${TYPE}                                               &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   &gt;                                                                            &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   &gt; $ENDPARCEL                                                                 &#39;</span><span class="p">,&amp;</span>
@@ -1207,7 +1214,7 @@ public subroutine help_usage(l_help)
           <p class="text-right">
             Documentation generated by 
             <a href="https://github.com/cmacmackin/ford">FORD</a>
-             on 2022-04-06 22:22  
+             on 2022-04-07 09:09  
           </p>
         </div>
         <div class="col-xs-12 col-md-4 col-md-pull-4"><p class="text-center"> prep was developed by John S. Urban</p></div>

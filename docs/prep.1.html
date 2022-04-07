@@ -48,6 +48,7 @@ a.existingWikiWord[title]{ //border: 1px dashed #BBB; }
 <H1><HR><I>User Commands  &nbsp;-&nbsp;</I><NOBR>Fortran preprocessor (1)</NOBR><HR></H1>
 </CENTER>
 <BLOCKQUOTE>
+Project is up to date
 </BLOCKQUOTE>
 <A name=0>
 
@@ -78,13 +79,12 @@ a.existingWikiWord[title]{ //border: 1px dashed #BBB; }
 &nbsp; &nbsp; &nbsp;<A HREF=#15>Program Termination</A><BR>
 <A HREF=#16>Limitations</A><BR>
 <A HREF=#17>Examples</A><BR>
-&nbsp; &nbsp; &nbsp;<A HREF=#18>Set Usage</A><BR>
-<A HREF=#19>General Templating</A><BR>
-<A HREF=#20>Note</A><BR>
-<A HREF=#21>Author</A><BR>
-<A HREF=#22>License</A><BR>
+<A HREF=#18>General Templating</A><BR>
+<A HREF=#19>Note</A><BR>
+<A HREF=#20>Author</A><BR>
+<A HREF=#21>License</A><BR>
 </BLOCKQUOTE>
-<A name=23>
+<A name=22>
 
      <H3>SYNOPSIS</H3>
 
@@ -283,11 +283,11 @@ Allow system commands on $<B>SYSTEM</B> directives to be executed.
 By default tab characters are expanded assuming a <B>stop</B> has
 been set every eight columns; and trailing carriage-return
 are removed. Use this flag to prevent this processing from
-Use this flag to prevent this processing from occurring.
+from occurring.
 </TD></TR>
 <TR valign=top><TD colspan=2>
 <B></B><B>--comment</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-try to style comments generated in $<B>BLOCK</B> COMMENT blocks
+Try to style comments generated in $<B>BLOCK</B> COMMENT blocks
 for other utilities such as doxygen. Default is to
 prefix lines with &#146;! &#146;. Allowed keywords are
 currently "default", "doxygen","none","ford".
@@ -344,8 +344,8 @@ Display documentation and exit.
 <BLOCKQUOTE>
 <P>
 The <B>prep</B>(1) preprocessor directives begin with "$" (by default) in column
-one, and will output no such lines. Other input is conditionally written
-to the output <B>file</B>(s) based on the case-insensitive command names.
+one, and <B>prep</B>(1) will output no such lines. Other input is conditionally
+written to the output <B>file</B>(s) based on the case-insensitive command names.
 <P>
 An exclamation character FOLLOWED BY A SPACE on most directives
 begins an in-line comment that is terminated by an end-of-line. The space
@@ -432,7 +432,10 @@ Example:
     &gt; $if ( A + B ) / C .eq. 1
     &gt;    (a+b)/c is one
     &gt; $endif
+</PRE>
+Note expressions are not case-sensitive.
 <P>
+<PRE>
        $UNDEFINE variable_name[; &#46;&#46;&#46;]
 <P>
 </PRE>
@@ -592,22 +595,62 @@ Read in a scratch file created by the $<B>PARCEL</B> directive. Combined with
 $<B>SET</B> and $<B>IMPORT</B> directives this allows you to replay a section of input
 and replace strings as a simple templating technique, or to repeat lines
 like copyright information or definitions of (obsolescent) Fortran COMMON
-blocks, put contained in source files without the need for separate
+blocks, but contained in source files without the need for separate
 <B>INCLUDE</B> files or error-prone repetition of the declarations.
 <P>
 <PRE>
        $SET varname  string
 <P>
 </PRE>
-If a $<B>SET</B> directive defines a name <B>prep</B>(1) enters expansion mode. In this
-mode anywhere the string "${NAME}" is encountered in subsequent output it
-is replaced by "string". Comments should not be used on a $<B>SET</B> directive.
-Note expansion of a line may cause it to be longer than allowed by some
+If a $<B>SET</B> or $<B>IMPORT</B> directive defines a name <B>prep</B>(1) enters expansion mode.
+In this mode anywhere the string "${NAME}" is encountered in subsequent
+output it is replaced by "string".
+<TABLE cellpadding=3><!-- tsb: If a $<B>SET</B> or $<B>IMPORT</B> directive defines a name <B>prep</B>(1) enters expansion mode.
+ -->
+<TR></TR><TR></TR>
+<TR valign=top><TD width=3%>
+o
+</TD><TD>
+values are case-sensitive but variable names are not.
+</TD></TR>
+<TR valign=top><TD width=3%>
+o
+</TD><TD>
+expansion of a line may cause it to be longer than allowed by some
 compilers. Automatic breaking into continuation lines does not occur.
+</TD></TR>
+<TR valign=top><TD width=3%>
+o
+</TD><TD>
+comments are not supported on a $<B>SET</B> directive because everything past the
+variable name becomes part of the value.
+</TD></TR>
+<TR valign=top><TD width=3%>
+o
+</TD><TD>
+The pre-defined values $FILE, $LINE, $DATE, and $TIME ( for input file,
+line in input file, date and time ) are NOT ACTIVE until at least one
+one $<B>SET</B> or $<B>IMPORT</B> directive is processed. That is, unless a variable
+is defined no ${NAME} expansion occurs.
+</TD></TR>
+<TR valign=top><TD width=3%>
+o
+</TD><TD>
+The time and date refers to the time of processing, not the time of
+compilation or loading.
+</TD></TR>
+<TR></TR></TABLE>Example:
 <P>
-<B>IF</B> A $<B>SET</B> DIRECTIVE HAS BEEN DEFINED the "standard" preprocessor values
-${FILE}, ${LINE}, ${DATE}, and ${TIME} are also available. The time
-refers to the time of processing, not the time of compilation or loading.
+<PRE>
+    &gt; $set author  William Shakespeare
+    &gt; write(*,*)&#146;By ${AUTHOR}&#146;
+    &gt; write(*,*)&#146;File ${FILE}&#146;
+    &gt; write(*,*)&#146;Line ${LINE}&#146;
+    &gt; write(*,*)&#146;Date ${DATE}&#146;
+    &gt; write(*,*)&#146;Time ${TIME}&#146;
+<P>
+</PRE>
+Details &#46;&#46;&#46;
 <P>
 <PRE>
        $IMPORT   envname[;&#46;&#46;&#46;]                              [! comment ]
@@ -619,6 +662,13 @@ case-sensitive in regards to obtaining the values, but the names become
 values, but the names because case-insensitive in <B>prep</B>(). That is,
 "import home" gets the lowercase environment variable "home" and then sets
 the associated value and then sets the <B>prep</B>(1) variable "HOME" to the value.
+<P>
+<PRE>
+    &gt; $import HOME USER
+    &gt; write(*,*)&#146;HOME ${HOME}&#146;
+    &gt; write(*,*)&#146;USER ${USER}&#146;
+<P>
+</PRE>
 </BLOCKQUOTE>
 <A name=10>
 
@@ -722,9 +772,9 @@ $<B>SYSTEM</B> commands may follow the $<B>BLOCK</B> block text to optionally po
 the doc files.
 <P>
 $<B>ENDBLOCK</B> ends the block.
-</BLOCKQUOTE>
 <P>
 see also: "$<B>BLOCK</B> &#46;&#46;&#46; <B>--file</B>"
+</BLOCKQUOTE>
 <A name=12>
 
     <H4>&nbsp; &nbsp; IDENTIFIERS</H4>
@@ -1083,28 +1133,6 @@ appended to a $<B>PREP_DOCUMENT_DIR</B>/doc/ file when $<B>PREP_DOCUMENT_DIR</B>
 </BLOCKQUOTE>
 <A name=18>
 
-    <H4>&nbsp; &nbsp; SET USAGE</H4>
-</A>
-<BLOCKQUOTE>
-Note values are case-sensitive but variable names are not, and there are
-pre-defined values for input file, line in input file, date and time that
-are NOT ACTIVE until at least one $<B>SET</B> or $<B>IMPORT</B> directive is processed.
-That is, unless a variable name is defined no ${NAME} expansion occurs.
-<P>
-<PRE>
-   &gt; $set author  William Shakespeare
-   &gt; $import HOME
-   &gt; write(*,*)&#146;By ${AUTHOR}&#146;
-   &gt; write(*,*)&#146;File ${FILE}&#146;
-   &gt; write(*,*)&#146;Line ${LINE}&#146;
-   &gt; write(*,*)&#146;Date ${DATE}&#146;
-   &gt; write(*,*)&#146;Time ${TIME}&#146;
-   &gt; write(*,*)&#146;HOME ${HOME}&#146;
-<P>
-</PRE>
-</BLOCKQUOTE>
-<A name=19>
-
      <H3>GENERAL TEMPLATING</H3>
 
 </A>
@@ -1118,10 +1146,10 @@ before each post.
    &gt; use, intrinsic :: iso_fortran_env, only : &
    &gt; & real_kinds, real32,real64,real128
    &gt; implicit none
-   &gt; integer,parameter  :: wp=${type}
-   &gt; real(kind=${TYPE}) :: a,b
+   &gt; integer,parameter  :: wp=${TYPE}
+   &gt; real(kind=wp) :: a,b
    &gt;    write(*,*)10.0_wp
-   &gt;    write(*,*) "for type ${type}"
+   &gt;    write(*,*) "this is for type ${TYPE}"
    &gt; end subroutine mysub_${TYPE}
    &gt;
    &gt; $ENDPARCEL
@@ -1134,7 +1162,7 @@ before each post.
 <P>
 </PRE>
 </BLOCKQUOTE>
-<A name=20>
+<A name=19>
 
      <H3>NOTE</H3>
 
@@ -1146,7 +1174,7 @@ production). Among other things it deactivates the termination of the program
 upon detection of an error. This mode thus allows for simple interactive use.
 In addition, when in this mode entering "$HELP" produces a cribsheet.
 </BLOCKQUOTE>
-<A name=21>
+<A name=20>
 
      <H3>AUTHOR</H3>
 
@@ -1154,7 +1182,7 @@ In addition, when in this mode entering "$HELP" produces a cribsheet.
 <BLOCKQUOTE>
 John S. Urban
 </BLOCKQUOTE>
-<A name=22>
+<A name=21>
 
      <H3>LICENSE</H3>
 
@@ -1169,7 +1197,7 @@ John S. Urban
 <P>
 </BLOCKQUOTE>
 <P><HR>
-<TABLE width=100%><TR> <TD width=33%><I>8.1.1</I></TD> <TD width=33% align=center>Fortran preprocessor (1)</TD> <TD align=right width=33%><I>April 06, 2022</I></TD> </TR></TABLE><FONT SIZE=-1>Generated by <A HREF="http://www.squarebox.co.uk/download/manServer.shtml">manServer 1.08</A> from docs/prep.1 using man macros.</FONT>
+<TABLE width=100%><TR> <TD width=33%><I>8.1.1</I></TD> <TD width=33% align=center>Fortran preprocessor (1)</TD> <TD align=right width=33%><I>April 07, 2022</I></TD> </TR></TABLE><FONT SIZE=-1>Generated by <A HREF="http://www.squarebox.co.uk/download/manServer.shtml">manServer 1.08</A> from docs/prep.1 using man macros.</FONT>
 <br><br><center><img src="images/prep.1.gif"></center>
 </div>
 </div>
