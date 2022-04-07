@@ -1043,23 +1043,23 @@ end subroutine menu
 ! From: "Felix Becker" <felix.becker@zih.tu-dresden.de>
 ! Subject: Variable-length string interface for "retrev".
 ! Date: Tuesday, May 28, 2013 11:51 AM
-! 
+!
 ! Hello John Urban,
-! 
+!
 ! using your Fortran "M_kracken95" module, I wrote a small wrapper that
 ! allows for "val" to be of unknown length, and that allows just getting
 ! the length of val without getting val and vice versa.
-! 
+!
 ! (using allocatable strings, and optional arguments).
-! 
+!
 ! Tested with gfortran version '4.8.0 20130502 (prerelease)'.
-! 
+!
 ! I am aware that M_kracken95 itself uses fixed length strings, and I did
 ! not fiddle with that; just providing a more flexible user interface on
 ! top of that.
-! 
+!
 ! Find my quick hack attached, use it if you want.
-! 
+!
 !-----------------------------------------------------------------------------------------------------------------------------------
 !-!subroutine retrev_string_variable_length(name,val,len,ier)
 !-!  !!! @(#)retrev_string_variable_length: A wrapper for "retrev" from the module "M_kracken95":
@@ -1075,13 +1075,13 @@ end subroutine menu
 !-!  character(len=:),intent(out),allocatable,OPTIONAL ::  val
 !-!  integer,intent(out),OPTIONAL                      ::  llen
 !-!  integer,intent(out),OPTIONAL                      ::  ier
-!-!  
+!-!
 !-!  integer                                           ::  len_internal
 !-!  integer                                           ::  ier_internal
 !-!  character(llen=0)                                 ::  dummystring
-!-!  
+!-!
 !-!  call retrev(name,dummystring,len_internal,ier_internal)
-!-!  
+!-!
 !-!  if (present(val)) then
 !-!    if (allocated(val)) then
 !-!      deallocate(val)
@@ -1089,11 +1089,11 @@ end subroutine menu
 !-!    call allocate_string(int(len_internal,kind=8),val)
 !-!    call retrev(name,val,len_internal,ier_internal)
 !-!  end if
-!-!  
+!-!
 !-!  if (present(llen)) then
 !-!    llen = len_internal
 !-!  end if
-!-!  
+!-!
 !-!  if (present(ier)) then
 !-!    ier = ier_internal
 !-!  end if
@@ -1105,7 +1105,7 @@ end subroutine menu
 !-!  !!! @(#)allocate_string: allocate string
 !-!  integer(kind=8),intent(in)                  :: stringlength
 !-!  character(len=:),allocatable,intent(out)    :: stringvariable
-!-!  
+!-!
 !-!  allocate(character(len=stringlength) :: stringvariable)
 !-!
 !-!end subroutine allocate_string
@@ -1140,8 +1140,7 @@ end module M_kracken95
 ! updated 20131029
 ! read environment variable DEFAULT_CMD
 !-----------------------------------------------------------------------------------------------------------------------------------
- 
- 
+
 !>>>>> build/dependencies/M_io/src/M_io.f90
 !===================================================================================================================================
 MODULE M_io
@@ -5781,8 +5780,7 @@ end module m_io
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
- 
- 
+
 !>>>>> build/dependencies/M_strings/src/M_strings.f90
 !>
 !!##NAME
@@ -15604,8 +15602,7 @@ end subroutine matching_delimiter
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
 end module M_strings
- 
- 
+
 !>>>>> build/dependencies/M_list/src/M_list.f90
 !>
 !!##NAME
@@ -17114,8 +17111,7 @@ end module M_list
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
- 
- 
+
 !>>>>> app/prep.f90
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -19248,8 +19244,8 @@ end subroutine warn_prep
 
 ! This documentation is a combination of
 !    o the original Lahey documentation of fpp(1) from "LAHEY FORTRAN REFERENCE MANUAL"; Revision C, 1992;
-!    o examination of the code
-!    o and documentation for the features subsequently added to the program.
+!    o documentation for the features subsequently added to the program.
+!    o examination of the code.
 
 subroutine help_usage(l_help) !@(#)help_usage(3f): prints help information
 implicit none
@@ -19293,21 +19289,21 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   in the same file as the source and the generation of generic code using a    ',&
 '   simple templating technique. The basic directives ....                       ',&
 '                                                                                ',&
-'   * Conditionally output parts of the source file (controlled by expressions   ',&
+'   * Conditionally output parts of the source file  (controlled by expressions   ',&
 '     on the directives $IF, $IFDEF, $IFNDEF, and $ENDIF. The expressions may    ',&
 '     include variables defined on the command line or via the directives        ',&
 '     $DEFINE, $REDEFINE, and $UNDEFINE).                                        ',&
 '                                                                                ',&
-'   * Include other files (provided by directive $INCLUDE).                      ',&
+'   * Include other files            (provided by directive $INCLUDE).                      ',&
 '                                                                                ',&
 '   * Define parcels of text that may be replayed multiple times with            ',&
-'     expansion, allowing for basic templating (controlled by directives         ',&
+'     expansion, allowing for basic templating  (controlled by directives         ',&
 '     $PARCEL/$ENDPARCEL and $POST). The mechanism supported is to replace       ',&
 '     text of the form ${NAME} with user-supplied strings similar to the         ',&
 '     POSIX shell (controlled by directives $SET and $IMPORT).                   ',&
 '                                                                                ',&
 '   * Filter blocks of text and convert them to comments, a CHARACTER array,     ',&
-'     Fortran WRITE statements, ... (provided by the $BLOCK directive.)          ',&
+'     Fortran WRITE statements, ...  (provided by the $BLOCK directive.)          ',&
 '                                                                                ',&
 '     The blocks of text may also be written to a file and executed, with        ',&
 '     stdout captured and included in the prep(1) output file.                   ',&
@@ -19315,111 +19311,15 @@ help_text=[ CHARACTER(LEN=128) :: &
 '     Blocked text may optionally be simultaneously written to a separate file,  ',&
 '     typically for use as documentation.                                        ',&
 '                                                                                ',&
-'   * Call system commands (using the $SYSTEM directive).                        ',&
+'   * Call system commands  (using the $SYSTEM directive).                        ',&
 '                                                                                ',&
-'   * Generate multiple output files from a single input file (using $OUTPUT).   ',&
+'   * Generate multiple output files from a single input file  (using $OUTPUT).   ',&
 '                                                                                ',&
 '   * Record the parameters used and the date and time executed as Fortran       ',&
-'     comments in the output (using $SHOW).                                      ',&
+'     comments in the output  (using $SHOW).                                      ',&
 '                                                                                ',&
-'   * Cause an error (controlled by directive $STOP or $ERROR) and produce       ',&
-'     messages on stderr (using $MESSAGE).                                       ',&
-'                                                                                ',&
-'SUMMARY                                                                         ',&
-'                                                                                ',&
-'   The prep(1) preprocessor directives begin with "$" (by default) in column    ',&
-'   one, and will output no such lines. Other input is conditionally written     ',&
-'   to the output file(s) based on the case-insensitive command names.           ',&
-'                                                                                ',&
-'   An exclamation character FOLLOWED BY A SPACE on most directives              ',&
-'   begins an in-line comment that is terminated by an end-of-line. The space    ',&
-'   is required so comments are not confused with C-style logical operators such ',&
-'   as "!", which may NOT be followed by a space.                                ',&
-'                                                                                ',&
-'   INTEGER or LOGICAL expressions are used on the family of $IF directives      ',&
-'   to conditionally select output lines. An expression is composed of INTEGER   ',&
-'   and LOGICAL constants, variable names, and operators. Operators are processed',&
-'   as in Fortran and/or C expressions. The supported operators are ...          ',&
-'                                                                                ',&
-'       #-----#-----#-----#-----#-----#-----#-----#                              ',&
-'       |  +  |  -  |  *  |  /  |  ** |  (  |  )  |  Math Operators              ',&
-'       #-----#-----#-----#-----#-----#-----#-----#                              ',&
-'       Logical Operators                                                        ',&
-'       #-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#------#     ',&
-'       | .EQ.| .NE.| .GE.| .GT.| .LE.| .LT.|.NOT.|.AND.| .OR.|.EQV.|.NEQV.|     ',&
-'       |  == |  /= |  >= |  >  |  <= |  <  |  !  |  && |  || | ==  |  !=  |     ',&
-'       #-----#  != #-----#-----#-----#-----#-----#-----#-----#-----#------#     ',&
-'             #-----#                                                            ',&
-! C-STYLE NOT SUPPORTED:   %,  <<,  >>, &,  ~
-' SUGGESTED INPUT FILE SUFFIX                                                    ',&
-'                                                                                ',&
-'   The suggested suffix for Fortran input files is ".ff" for code files unless  ',&
-'   they contain $SYSTEM directives in which case ".FF" is preferred. $INCLUDE   ',&
-'   files should use ".ffinc" and ".FFINC" if they include prep(1) directives.   ',&
-'   This naming convention is not required.                                      ',&
-'                                                                                ',&
-'   If files end in ".md" they may be extended markdown files, as explained      ',&
-'   under the --type option description.                                         ',&
-'                                                                                ',&
-' DIRECTIVE SYNTAX SUMMARY                                                       ',&
-' The directives fall into the following categories:                             ',&
-'                                                                                ',&
-' Variable Definition For Conditionals                                           ',&
-'                                                                                ',&
-'      $DEFINE   variable_name[=expression] [;...]          [! comment ]         ',&
-'      $REDEFINE variable_name[=expression] [;...]          [! comment ]         ',&
-'      $UNDEFINE|$UNDEF variable_name [;...]                [! comment ]         ',&
-'                                                                                ',&
-' Conditional Code Selection                                                     ',&
-'                                                                                ',&
-'      $IF  logical_integer-based expression |                                   ',&
-'      $IFDEF [variable_name|environment_variable] |                             ',&
-'      $IFNDEF [variable_name|environment_variable]         [! comment ]         ',&
-'              { sequence of source statements}                                  ',&
-'      [$ELSEIF|$ELIF logical_integer-based expression      [! comment ]         ',&
-'              { sequence of source statements}]                                 ',&
-'      [$ELSE                                               [! comment ]         ',&
-'              { sequence of source statements}]                                 ',&
-'      $ENDIF                                               [! comment ]         ',&
-'                                                                                ',&
-' Macro String Expansion and Text Replay                                         ',&
-'                                                                                ',&
-'      $SET      varname  string                                                 ',&
-'      $IMPORT   envname[;...]                              [! comment ]         ',&
-'      $PARCEL   blockname                                  [! comment ]         ',&
-'      $ENDPARCEL                                           [! comment ]         ',&
-'      $POST     blockname                                  [! comment ]         ',&
-'                                                                                ',&
-' External Files (see $BLOCK ... --file also)                                    ',&
-'                                                                                ',&
-'      $OUTPUT   filename  [--append]                       [! comment ]         ',&
-'      $INCLUDE  filename                                   [! comment ]         ',&
-'                                                                                ',&
-' Text Block Filters (--file is ignored unless $PREP_DOCUMENT_DIR is set)        ',&
-'                                                                                ',&
-'      $BLOCK   [null|comment|write|variable [--varname NAME]|                   ',&
-'               set|system|message|define|redefine|                              ',&
-'               help|version] [--file NAME [--append]]      [! comment ]         ',&
-'      $ENDBLOCK                                            [! comment ]         ',&
-'                                                                                ',&
-' Identifiers                                                                    ',&
-'                                                                                ',&
-'      $IDENT | $@(#)    metadata                           [! comment ]         ',&
-'                                                                                ',&
-' Information                                                                    ',&
-'                                                                                ',&
-'      $MESSAGE  message_to_stderr                                               ',&
-'      $SHOW [defined_variable_name[;...]]                  [! comment ]         ',&
-'                                                                                ',&
-' System Commands (See also: $BLOCK SYSTEM)                                      ',&
-'                                                                                ',&
-'      $SYSTEM   system_command                                                  ',&
-'                                                                                ',&
-' Program Termination                                                            ',&
-'                                                                                ',&
-'      $STOP     [stop_value ["message"]]                   [! comment ]         ',&
-'      $QUIT     ["message"]                                [! comment ]         ',&
-'      $ERROR    ["message"]                                [! comment ]         ',&
+'   * Cause an error  (controlled by directive $STOP or $ERROR) and produce       ',&
+'     messages on stderr  (using $MESSAGE).                                       ',&
 '                                                                                ',&
 'OPTIONS                                                                         ',&
 '   define_list, -D define_list  An optional space-delimited list of expressions ',&
@@ -19428,6 +19328,14 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   -i input_files               The default input file is stdin. Filenames are  ',&
 '                                space-delimited. In a list, @ represents stdin. ',&
+'                                                                                ',&
+'   The suggested suffix for Fortran input files is ".ff" for code files unless  ',&
+'   they contain $SYSTEM directives in which case ".FF" is preferred. $INCLUDE   ',&
+'   files should use ".ffinc" and ".FFINC" if they include prep(1) directives.   ',&
+'   This naming convention is not required.                                      ',&
+'                                                                                ',&
+'   Files may also end in supported suffixes such as ".md", as explained under   ',&
+'   the --type option description.                                               ',&
 '                                                                                ',&
 '   -o output_file               The default output file is stdout.              ',&
 '                                                                                ',&
@@ -19517,13 +19425,53 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   --help      Display documentation and exit.                                  ',&
 '                                                                                ',&
+'INPUT FILE SYNTAX                                                               ',&
+'                                                                                ',&
+'   The prep(1) preprocessor directives begin with "$" (by default) in column    ',&
+'   one, and will output no such lines. Other input is conditionally written     ',&
+'   to the output file(s) based on the case-insensitive command names.           ',&
+'                                                                                ',&
+'   An exclamation character FOLLOWED BY A SPACE on most directives              ',&
+'   begins an in-line comment that is terminated by an end-of-line. The space    ',&
+'   is required so comments are not confused with C-style logical operators such ',&
+'   as "!", which may NOT be followed by a space.                                ',&
+'                                                                                ',&
+' VARIABLES AND EXPRESSIONS                                                      ',&
+'                                                                                ',&
+'   INTEGER or LOGICAL expressions are used to conditionally select              ',&
+'   output lines. An expression is composed of INTEGER and LOGICAL               ',&
+'   constants, variable names, and operators. Operators are processed            ',&
+'   as in Fortran and/or C expressions. The supported operators are ...          ',&
+'                                                                                ',&
+'       #-----#-----#-----#-----#-----#                #-----#-----#             ',&
+'       |  +  |  -  |  *  |  /  |  ** | Math Operators #  (  |  )  | Grouping    ',&
+'       #-----#-----#-----#-----#-----#                #-----#-----#             ',&
+'       Logical Operators                                                        ',&
+'       #-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#------#     ',&
+'       | .EQ.| .NE.| .GE.| .GT.| .LE.| .LT.|.NOT.|.AND.| .OR.|.EQV.|.NEQV.|     ',&
+'       |  == |  /= |  >= |  >  |  <= |  <  |  !  |  && |  || | ==  |  !=  |     ',&
+'       #-----#  != #-----#-----#-----#-----#-----#-----#-----#-----#------#     ',&
+'             #-----#                                                            ',&
+'       C-style operators NOT supported:   %,  <<,  >>, &,  ~                    ',&
+'                                                                                ',&
 'DIRECTIVES                                                                      ',&
 '                                                                                ',&
-'   $DEFINE|$REDEFINE variable_name [=expression]; ...                           ',&
+' The directives fall into the following categories:                             ',&
+'                                                                                ',&
+' VARIABLE DEFINITION FOR CONDITIONALS                                           ',&
+'   Directives for defining variables ...                                        ',&
+'                                                                                ',&
+'      $DEFINE   variable_name[=expression] [;...]          [! comment ]         ',&
+'      $REDEFINE variable_name[=expression] [;...]          [! comment ]         ',&
+'      $UNDEFINE|$UNDEF variable_name [;...]                [! comment ]         ',&
+'                                                                                ',&
+'   Details ...                                                                  ',&
+'                                                                                ',&
+'      $DEFINE|$REDEFINE variable_name [=expression]; ... [! comment ]           ',&
 '                                                                                ',&
 '   Defines a numeric or logical variable name and its value. The variable       ',&
-'   name may be used in the expressions on the conditional output selector       ',&
-'   directives $IF, $ELSEIF, $IFDEF, and $IFNDEF.                                ',&
+'   names may subsequently be used in the expressions on the conditional output  ',&
+'   selector directives $IF, $ELSEIF, $IFDEF, and $IFNDEF.                       ',&
 '                                                                                ',&
 '   If the result of the expression is ".TRUE." or ".FALSE." then the variable   ',&
 '   will be of type LOGICAL, otherwise the variable is of type INTEGER (and the  ',&
@@ -19548,7 +19496,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '    >    (a+b)/c is one                                                         ',&
 '    > $endif                                                                    ',&
 '                                                                                ',&
-'   $UNDEFINE variable_name[; ...]                                               ',&
+'       $UNDEFINE variable_name[; ...]                                           ',&
 '                                                                                ',&
 '   A symbol defined with $DEFINE can be removed with the $UNDEFINE directive.   ',&
 '   Multiple names may be specified, preferably separated by semi-colons.        ',&
@@ -19556,7 +19504,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   Basic globbing is supported, where "*" represents any string, and "?"        ',&
 '   represents any single character.                                             ',&
 '                                                                                ',&
-'   DEFINED(variable_name[,...])                                                 ',&
+'       DEFINED(variable_name[,...])                                             ',&
 '                                                                                ',&
 '   A special function called DEFINED() may appear only in a $IF or $ELSEIF.     ',&
 '   If "variable_name" has been defined at that point in the source code,        ',&
@@ -19598,7 +19546,22 @@ help_text=[ CHARACTER(LEN=128) :: &
 '     >    write(*,*)"System type is unknown"                                    ',&
 '     > $endif                                                                   ',&
 '                                                                                ',&
-'   $IF/$ELSEIF/$ELSE/$ENDIF directives                                          ',&
+' CONDITIONAL CODE SELECTION                                                     ',&
+'   directives for conditionally selecting input lines ...                       ',&
+'                                                                                ',&
+'       $IF  logical_integer-based expression |                                  ',&
+'       $IFDEF [variable_name|environment_variable] |                            ',&
+'       $IFNDEF [variable_name|environment_variable]         [! comment ]        ',&
+'               { sequence of source statements}                                 ',&
+'       [$ELSEIF|$ELIF logical_integer-based expression      [! comment ]        ',&
+'               { sequence of source statements}]                                ',&
+'       [$ELSE                                               [! comment ]        ',&
+'               { sequence of source statements}]                                ',&
+'       $ENDIF                                               [! comment ]        ',&
+'                                                                                ',&
+'   Details ...                                                                  ',&
+'                                                                                ',&
+'       $IF/$ELSEIF/$ELSE/$ENDIF directives ...                                  ',&
 '                                                                                ',&
 '   Each of these control lines delineates a block of source lines. If the       ',&
 '   expression following the $IF is ".TRUE.", then the following lines of        ',&
@@ -19608,7 +19571,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   source following the optional $ELSE are output. A matching $ENDIF ends the   ',&
 '   conditional block.                                                           ',&
 '                                                                                ',&
-'   $IFDEF/$IFNDEF directives                                                    ',&
+'       $IFDEF/$IFNDEF directives ...                                            ',&
 '                                                                                ',&
 '   $IFDEF and $IFNDEF are special forms of the $IF directive that simply test   ',&
 '   if a variable name is defined or not.                                        ',&
@@ -19627,8 +19590,8 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   Essentially, these are equivalent:                                           ',&
 '                                                                                ',&
-'     $IFDEF varname  ==> $IF DEFINED(varname)                                   ',&
-'     $IFNDEF varname ==> $IF .NOT. DEFINED(varname)                             ',&
+'       $IFDEF varname  ==> $IF DEFINED(varname)                                 ',&
+'       $IFNDEF varname ==> $IF .NOT. DEFINED(varname)                           ',&
 '                                                                                ',&
 '   except that environment variables are tested as well by $IFDEF and $IFNDEF   ',&
 '   if the --noenv option is not specified, but never by the function DEFINED(), ',&
@@ -19637,62 +19600,24 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   For the purposes of prep(1) an environment variable is defined if it is      ',&
 '   returned by the system and has a non-blank value.                            ',&
 '                                                                                ',&
-'   $IDENT metadata [--language fortran|c|shell]                                 ',&
+' MACRO STRING EXPANSION AND TEXT REPLAY                                         ',&
+'   Directives for defining replayable text blocks ...                           ',&
 '                                                                                ',&
-'   $IDENT is a special-purpose directive useful to users of SCCS-metadata.      ',&
-'   The string generated can be used by the what(1) command,                     ',&
+'       $PARCEL [blockname] / $ENDPARCEL                     [! comment ]        ',&
+'       $POST     blockname                                  [! comment ]        ',&
+'       $SET varname  string                                                     ',&
+'       $IMPORT   envname[;...]                              [! comment ]        ',&
 '                                                                                ',&
-'   When the command line option "--ident [LANGUAGE]" is specified this directive',&
-'   writes a line using SCCS-metadata format of one of the following forms:      ',&
+'   Details ...                                                                  ',&
 '                                                                                ',&
-'     language:                                                                  ',&
-'     fortran   character(len=*),parameter::ident="@(#)metadata"                 ',&
-'     c         #ident "@(#)metadata"                                            ',&
-'     shell     #@(#) metadata                                                   ',&
-'                                                                                ',&
-'   The default language is "fortran".                                           ',&
-'                                                                                ',&
-'   Depending on your compiler and the optimization level used when compiling,   ',&
-'   the output string may not remain in the object files and executables created.',&
-'                                                                                ',&
-'   If the -ident switch is not specified, a Fortran comment line is generated   ',&
-'   of the form                                                                  ',&
-'                                                                                ',&
-'       ! ident_NNN="@(#)this is metadata"                                       ',&
-'                                                                                ',&
-'   "$@(#)" is an alias for "$IDENT" so the source file itself will contain      ',&
-'   SCCS-metadata so the metadata can be displayed with what(1) even for the     ',&
-'   unprocessed files.                                                           ',&
-'                                                                                ',&
-'   Do not use the characters double-quote, greater-than, backslash (ie. ">\)    ',&
-'   in the metadata to remain compatible with SCCS metadata syntax.              ',&
-'   Do not use strings starting with " -" either.                                ',&
-'                                                                                ',&
-'   $OUTPUT filename [--append [.true.|.false.]]                                 ',&
-'                                                                                ',&
-'   Specifies the output file to write to. This overrides the initial output file',&
-'   specified with command line options. If no output filename is given          ',&
-'   prep(1) reverts back to the initial output file. "@" is a synonym for stdout.',&
-'                                                                                ',&
-'   Files are open at the first line by default. Use the --append switch to      ',&
-'   append to the end of an existing file instead of overwriting it.             ',&
-'                                                                                ',&
-'   $INCLUDE filename                                                            ',&
-'                                                                                ',&
-'   Read in the specified input file. Fifty (50) nesting levels are allowed.     ',&
-'   Following the tradition of cpp(1) if "<filename>" is specified the file is   ',&
-'   only searched for relative to the search directories, otherwise it is        ',&
-'   searched for as specified first. Double-quotes in the filename are treated   ',&
-'   as in Fortran list-directed input.                                           ',&
-'                                                                                ',&
-'   $PARCEL [name] / $ENDPARCEL                                                  ',&
+'       $PARCEL [blockname] / $ENDPARCEL                     [! comment ]        ',&
 '                                                                                ',&
 '   The block of lines between a "$PARCEL name" and "$ENDPARCEL" directive are   ',&
 '   written to a scratch file WITHOUT expanding directives. the scratch file can ',&
 '   then be read in with the $POST directive much like a named file can be with  ',&
 '   $INCLUDE except the file is automatically deleted at program termination.    ',&
 '                                                                                ',&
-'   $POST name                                                                   ',&
+'       $POST     blockname                                  [! comment ]        ',&
 '                                                                                ',&
 '   Read in a scratch file created by the $PARCEL directive. Combined with       ',&
 '   $SET and $IMPORT directives this allows you to replay a section of input     ',&
@@ -19701,7 +19626,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   blocks, put contained in source files without the need for separate          ',&
 '   INCLUDE files or error-prone repetition of the declarations.                 ',&
 '                                                                                ',&
-'   $SET name string                                                             ',&
+'       $SET varname  string                                                     ',&
 '                                                                                ',&
 '   If a $SET directive defines a name prep(1) enters expansion mode. In this    ',&
 '   mode anywhere the string "${NAME}" is encountered in subsequent output it    ',&
@@ -19713,7 +19638,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   ${FILE}, ${LINE}, ${DATE}, and ${TIME} are also available. The time          ',&
 '   refers to the time of processing, not the time of compilation or loading.    ',&
 '                                                                                ',&
-'   $IMPORT name[;...]                                                           ',&
+'       $IMPORT   envname[;...]                              [! comment ]        ',&
 '                                                                                ',&
 '   The values of environment variables may be imported just like their names    ',&
 '   and values were used on a $SET directive. The names of the variables are     ',&
@@ -19722,7 +19647,40 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   "import home" gets the lowercase environment variable "home" and then sets   ',&
 '   the associated value and then sets the prep(1) variable "HOME" to the value. ',&
 '                                                                                ',&
-'   $BLOCK / $ENDBLOCK                                                           ',&
+' EXTERNAL FILES                                                                 ',&
+'   Directives for reading and writing external files ...                        ',&
+'                                                                                ',&
+'       $OUTPUT   filename  [--append]                          [! comment ]     ',&
+'       $INCLUDE filename                                                        ',&
+'                                                                                ',&
+'   Details ...                                                                  ',&
+'                                                                                ',&
+'       $OUTPUT   filename  [--append]                          [! comment ]     ',&
+'                                                                                ',&
+'   Specifies the output file to write to. This overrides the initial output file',&
+'   specified with command line options. If no output filename is given          ',&
+'   prep(1) reverts back to the initial output file. "@" is a synonym for stdout.',&
+'                                                                                ',&
+'   Files are open at the first line by default. Use the --append switch to      ',&
+'   append to the end of an existing file instead of overwriting it.             ',&
+'                                                                                ',&
+'       $INCLUDE filename                                                        ',&
+'                                                                                ',&
+'   Read in the specified input file. Fifty (50) nesting levels are allowed.     ',&
+'   Following the tradition of cpp(1) if "<filename>" is specified the file is   ',&
+'   only searched for relative to the search directories, otherwise it is        ',&
+'   searched for as specified first. Double-quotes in the filename are treated   ',&
+'   as in Fortran list-directed input.                                           ',&
+'                                                                                ',&
+' TEXT BLOCK FILTERS                                                             ',&
+'   (--file is ignored unless $PREP_DOCUMENT_DIR is set)                         ',&
+'                                                                                ',&
+'      $BLOCK   [null|comment|write|variable [--varname NAME]|                   ',&
+'               set|system|message|define|redefine|                              ',&
+'               help|version] [--file NAME [--append]]      [! comment ]         ',&
+'      $ENDBLOCK                                            [! comment ]         ',&
+'                                                                                ',&
+'   Details ...                                                                  ',&
 '                                                                                ',&
 '   $BLOCK has several forms but in all cases operates on a block of lines:      ',&
 '                                                                                ',&
@@ -19773,7 +19731,57 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   $ENDBLOCK ends the block.                                                    ',&
 !!!!$! which is preferred; but a blank value or "END" on a $BLOCK directive does as well.
 '                                                                                ',&
-'   $SHOW [variable_name][;...]                                                  ',&
+' see also: "$BLOCK ... --file"                                                  ',&
+'                                                                                ',&
+' IDENTIFIERS                                                                    ',&
+'   Directives for producing metadata ...                                        ',&
+'                                                                                ',&
+'       $IDENT|$@(#) metadata [--language fortran|c|shell]      [! comment ]     ',&
+'                                                                                ',&
+'   $IDENT is a special-purpose directive useful to users of SCCS-metadata.      ',&
+'   The string generated can be used by the what(1) command,                     ',&
+'                                                                                ',&
+'   When the command line option "--ident [LANGUAGE]" is specified this directive',&
+'   writes a line using SCCS-metadata format of one of the following forms:      ',&
+'                                                                                ',&
+'     language:                                                                  ',&
+'     fortran   character(len=*),parameter::ident="@(#)metadata"                 ',&
+'     c         #ident "@(#)metadata"                                            ',&
+'     shell     #@(#) metadata                                                   ',&
+'                                                                                ',&
+'   The default language is "fortran".                                           ',&
+'                                                                                ',&
+'   Depending on your compiler and the optimization level used when compiling,   ',&
+'   the output string may not remain in the object files and executables created.',&
+'                                                                                ',&
+'   If the -ident switch is not specified, a Fortran comment line is generated   ',&
+'   of the form                                                                  ',&
+'                                                                                ',&
+'       ! ident_NNN="@(#)this is metadata"                                       ',&
+'                                                                                ',&
+'   "$@(#)" is an alias for "$IDENT" so the source file itself will contain      ',&
+'   SCCS-metadata so the metadata can be displayed with what(1) even for the     ',&
+'   unprocessed files.                                                           ',&
+'                                                                                ',&
+'   Do not use the characters double-quote, greater-than, backslash (ie. ">\)    ',&
+'   in the metadata to remain compatible with SCCS metadata syntax.              ',&
+'   Do not use strings starting with " -" either.                                ',&
+'                                                                                ',&
+' INFORMATION                                                                    ',&
+'   Informative directives for writing messages to stderr or inserting           ',&
+'   state information into the output file ...                                   ',&
+'                                                                                ',&
+'       $SHOW [variable_name[;...]]                          [! comment ]        ',&
+'       $MESSAGE  message_to_stderr                                              ',&
+'                                                                                ',&
+'   Details ...                                                                  ',&
+'                                                                                ',&
+'       $MESSAGE  message_to_stderr                                              ',&
+'                                                                                ',&
+'   Write message to stderr.                                                     ',&
+'   Note that messages for $MESSAGE do not treat "! " as starting a comment      ',&
+'                                                                                ',&
+'       $SHOW [variable_name[;...]]                          [! comment ]        ',&
 '                                                                                ',&
 '   Shows current state of prep(1); including variable names and values and      ',&
 '   the name of the current input files. All output is preceded by an            ',&
@@ -19827,24 +19835,10 @@ help_text=[ CHARACTER(LEN=128) :: &
 '    > ! Parcels:                                                                ',&
 '    > !================================================================         ',&
 '                                                                                ',&
-'   $STOP [stop_value ["message"]]                                               ',&
+' SYSTEM COMMANDS                                                                ',&
+'   Directives that execute system commands ...                                  ',&
 '                                                                                ',&
-'   Stops the prep(1) program. An optional integer value will be returned        ',&
-'   as a status value to the system where supported.                             ',&
-'                                                                                ',&
-'   o A value of "0" causes normal program termination.                          ',&
-'   o The default value is "1".                                                  ',&
-'   o If a message is supplied it is displayed to stderr.                        ',&
-'   o The default message if the value is not "0" is to display the program      ',&
-'     state like a "$SHOW" directive.                                            ',&
-'                                                                                ',&
-'   "$QUIT" is an alias for "$STOP 0". "$ERROR" is a synonym for "$STOP 1"       ',&
-'                                                                                ',&
-'     >$IFNDEF TYPE                                                              ',&
-'     >$STOP 10 "ERROR: ""TYPE"" not defined"                                    ',&
-'     >$ENDIF                                                                    ',&
-'                                                                                ',&
-'   $SYSTEM system_command                                                       ',&
+'       $SYSTEM system_command                                                   ',&
 '                                                                                ',&
 '   If system command processing is enabled using the --system switch system     ',&
 '   commands can be executed for such tasks as creating files to be read or to   ',&
@@ -19866,12 +19860,33 @@ help_text=[ CHARACTER(LEN=128) :: &
 '    > $   INCLUDE _tmp.f90                                                      ',&
 '    > $   SYSTEM  rm _tmp.f90                                                   ',&
 '    > $endif                                                                    ',&
+' See also: $BLOCK SYSTEM                                                        ',&
 '                                                                                ',&
-'   $MESSAGE message                                                             ',&
+' PROGRAM TERMINATION                                                            ',&
+'   Directives for stopping file processing                                        ',&
 '                                                                                ',&
-'   Write message to stderr.                                                     ',&
+'      $STOP     [stop_value ["message"]]                   [! comment ]         ',&
+'      $QUIT     ["message"]                                [! comment ]         ',&
+'      $ERROR    ["message"]                                [! comment ]         ',&
 '                                                                                ',&
-'   Note that messages for $MESSAGE do not treat "! " as starting a comment      ',&
+'   Details ...                                                                  ',&
+'                                                                                ',&
+'      $STOP     [stop_value ["message"]]                   [! comment ]         ',&
+'                                                                                ',&
+'   Stops the prep(1) program. An optional integer value will be returned        ',&
+'   as a status value to the system where supported.                             ',&
+'                                                                                ',&
+'   o A value of "0" causes normal program termination.                          ',&
+'   o The default value is "1".                                                  ',&
+'   o If a message is supplied it is displayed to stderr.                        ',&
+'   o The default message if the value is not "0" is to display the program      ',&
+'     state like a "$SHOW" directive.                                            ',&
+'                                                                                ',&
+'   "$QUIT" is an alias for "$STOP 0". "$ERROR" is a synonym for "$STOP 1"       ',&
+'                                                                                ',&
+'     >$IFNDEF TYPE                                                              ',&
+'     >$STOP 10 "ERROR: ""TYPE"" not defined"                                    ',&
+'     >$ENDIF                                                                    ',&
 '                                                                                ',&
 'LIMITATIONS                                                                     ',&
 '                                                                                ',&

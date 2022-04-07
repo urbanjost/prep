@@ -142,25 +142,24 @@ website:
 <h2 id="documentation">Documentation   <img alt="docs" src="docs/images/docs.gif"></h2>
 <ul>
 <li><a href="https://urbanjost.github.io/prep/prep.1.html">man-pages</a> reformatted as HTML.</li>
-<li>the <a href="https://github.com/urbanjost/prep/demos/">demos/</a> directory has example input files for a variety of cases</li>
-<li>The <a href="https://github.com/urbanjost/prep/docs/CHANGELOG.md">CHANGELOG</a></li>
-<li>The <a href="https://github.com/urbajost/prep/docs/STATUS.md">CI/CD</a> results</li>
+<li>the <a href="https://github.com/urbanjost/prep/tree/main/demos/">demos/</a> directory has example input files for a variety of cases</li>
+<li>The <a href="https://github.com/urbanjost/prep/blob/main/docs/CHANGELOG.md">CHANGELOG</a></li>
+<li>The <a href="https://github.com/urbanjost/prep/blob/main/docs/STATUS.md">CI/CD</a> results</li>
 <li>Developer <a href="https://urbanjost.github.io/prep/fpm-ford/index.html">ford(1) output</a></li>
 </ul>
 <h2 id="description">Description</h2>
 <p><code>prep(1)</code> is a streamlined pre-processor primarily designed for use with
 Fortran. It does not support procedural macros but does support variable
 substitution and reusable free-format text blocks which allows for basic
-templating as well as easy construction of multi-line CHARACTER variables;
+templating and easy construction of multi-line CHARACTER variables;
 and is quite capable of supporting traditional conditional compilation.</p>
-<p>It is written in standard Fortran so those in the Fortran community
-will find it easy to modify and to use portably wherever modern Fortran
-compilers are found.</p>
-<p>It is intentionally simple enough to be well described with a one-page
-crib sheet, and should take no more than an hour to master. Fortran-like
-(and some POSIX shell-like) syntax is used to leverage familiarity
-with Fortran.</p>
-<p>In particular, prep(1) allows for maintaining documentation in the body
+<p>It is written in standard Fortran so those in the Fortran community will
+find it easy to modify and to use portably.</p>
+<p><code>prep(1)</code> is intentionally simple enough to be well described with
+a one-page crib sheet, and should take no more than an hour to
+master. Fortran-like (and some POSIX shell-like) syntax is used to
+leverage familiarity with Fortran.</p>
+<p>In particular, <code>prep(1)</code> allows for maintaining documentation in the body
 of the source code in a variety of formats via the <strong>$BLOCK</strong> directive.</p>
 <h2 id="example-showing-templating">Example Showing Templating</h2>
 <p>The most distinct feature of <strong>prep(1)</strong> compared to basic preprocessors
@@ -197,20 +196,6 @@ $post ex1
 $set kind real128
 $post ex1
 end module M_testit
-
-$! a POST can be done within a $BLOCK to apply special processing
-$block comment  ! convert parcel to comments
-  any text placed here in free form will be converted to
-  comments, as well as anything from a $POST. For example:
-
-$post ex1
-
-  $BLOCK can do other special processing, such as converting a block
-  to a CHARACTER variable,
-  writing the lines to an external file for generating documentation,
-  and so on.
-
-$endblock
 </code></pre></div>
 
 <p>The output looks like</p>
@@ -241,27 +226,13 @@ $endblock
 <span class="k">      write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;big subroutine with type real128 and value=&#39;</span><span class="p">,</span><span class="k">value</span>
 <span class="k">   end subroutine </span><span class="n">testit_real128</span>
 <span class="k">end module </span><span class="n">M_testit</span>
-
-<span class="c">!   any text placed here in free form will be converted to</span>
-<span class="c">!   comments, as well as anything from a $POST. For example:</span>
-<span class="c">!</span>
-<span class="c">!    ! created by urbanjs on Jun 19 2021 at 11:55:43</span>
-<span class="c">!    subroutine testit_real128(value)</span>
-<span class="c">!    real(kind=real128) :: value</span>
-<span class="c">!       write(*,*)&#39;big subroutine with type real128 and value=&#39;,value</span>
-<span class="c">!    end subroutine testit_real128</span>
-<span class="c">!</span>
-<span class="c">!  $BLOCK can do other special processing, such as converting a block</span>
-<span class="c">!  to a CHARACTER variable,</span>
-<span class="c">!  writing the lines to an external file for generating documentation,</span>
-<span class="c">!  and so on.</span>
-<span class="c">!</span>
 </code></pre></div>
 
 <h2 id="building">Building</h2>
 <p>To build it requires <code>git</code>, <code>fpm</code>(Fortran Package Manager), a modern
 Fortran compiler and WWW access or you will need to compile the single-file
-<a href="bootstrap/prep.f90">bootstrap version</a>. It was tested with</p>
+<a href="https://raw.githubusercontent.com/urbanjost/prep/main/standalone/prep.f90">bootstrap version</a>.
+It was tested with</p>
 <ul>
 <li>GNU Fortran (GCC) 8.3.1         on 20191121</li>
 <li>GNU Fortran 9.3.0               on 20210612</li>
@@ -575,7 +546,7 @@ https://github.com/fortran-lang/fpm/issues/78
           <p class="text-right">
             Documentation generated by 
             <a href="https://github.com/cmacmackin/ford">FORD</a>
-             on 2022-04-06 09:22  
+             on 2022-04-06 22:13  
           </p>
         </div>
         <div class="col-xs-12 col-md-4 col-md-pull-4"><p class="text-center"> prep was developed by John S. Urban</p></div>

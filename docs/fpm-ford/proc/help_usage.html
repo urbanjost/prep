@@ -444,21 +444,21 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;   in the same file as the source and the generation of generic code using a    &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   simple templating technique. The basic directives ....                       &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   * Conditionally output parts of the source file (controlled by expressions   &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   * Conditionally output parts of the source file  (controlled by expressions   &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;     on the directives $IF, $IFDEF, $IFNDEF, and $ENDIF. The expressions may    &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;     include variables defined on the command line or via the directives        &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;     $DEFINE, $REDEFINE, and $UNDEFINE).                                        &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   * Include other files (provided by directive $INCLUDE).                      &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   * Include other files            (provided by directive $INCLUDE).                      &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   * Define parcels of text that may be replayed multiple times with            &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;     expansion, allowing for basic templating (controlled by directives         &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;     expansion, allowing for basic templating  (controlled by directives         &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;     $PARCEL/$ENDPARCEL and $POST). The mechanism supported is to replace       &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;     text of the form ${NAME} with user-supplied strings similar to the         &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;     POSIX shell (controlled by directives $SET and $IMPORT).                   &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   * Filter blocks of text and convert them to comments, a CHARACTER array,     &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;     Fortran WRITE statements, ... (provided by the $BLOCK directive.)          &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;     Fortran WRITE statements, ...  (provided by the $BLOCK directive.)          &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;     The blocks of text may also be written to a file and executed, with        &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;     stdout captured and included in the prep(1) output file.                   &#39;</span><span class="p">,&amp;</span>
@@ -466,111 +466,15 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;     Blocked text may optionally be simultaneously written to a separate file,  &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;     typically for use as documentation.                                        &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   * Call system commands (using the $SYSTEM directive).                        &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   * Call system commands  (using the $SYSTEM directive).                        &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   * Generate multiple output files from a single input file (using $OUTPUT).   &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   * Generate multiple output files from a single input file  (using $OUTPUT).   &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   * Record the parameters used and the date and time executed as Fortran       &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;     comments in the output (using $SHOW).                                      &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;     comments in the output  (using $SHOW).                                      &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   * Cause an error (controlled by directive $STOP or $ERROR) and produce       &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;     messages on stderr (using $MESSAGE).                                       &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;SUMMARY                                                                         &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   The prep(1) preprocessor directives begin with &quot;$&quot; (by default) in column    &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   one, and will output no such lines. Other input is conditionally written     &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   to the output file(s) based on the case-insensitive command names.           &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   An exclamation character FOLLOWED BY A SPACE on most directives              &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   begins an in-line comment that is terminated by an end-of-line. The space    &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   is required so comments are not confused with C-style logical operators such &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   as &quot;!&quot;, which may NOT be followed by a space.                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   INTEGER or LOGICAL expressions are used on the family of $IF directives      &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   to conditionally select output lines. An expression is composed of INTEGER   &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   and LOGICAL constants, variable names, and operators. Operators are processed&#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   as in Fortran and/or C expressions. The supported operators are ...          &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;       #-----#-----#-----#-----#-----#-----#-----#                              &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;       |  +  |  -  |  *  |  /  |  ** |  (  |  )  |  Math Operators              &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;       #-----#-----#-----#-----#-----#-----#-----#                              &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;       Logical Operators                                                        &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;       #-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#------#     &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;       | .EQ.| .NE.| .GE.| .GT.| .LE.| .LT.|.NOT.|.AND.| .OR.|.EQV.|.NEQV.|     &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;       |  == |  /= |  &gt;= |  &gt;  |  &lt;= |  &lt;  |  !  |  &amp;&amp; |  || | ==  |  !=  |     &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;       #-----#  != #-----#-----#-----#-----#-----#-----#-----#-----#------#     &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;             #-----#                                                            &#39;</span><span class="p">,&amp;</span>
-<span class="c">! C-STYLE NOT SUPPORTED:   %,  &lt;&lt;,  &gt;&gt;, &amp;,  ~</span>
-<span class="s1">&#39; SUGGESTED INPUT FILE SUFFIX                                                    &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   The suggested suffix for Fortran input files is &quot;.ff&quot; for code files unless  &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   they contain $SYSTEM directives in which case &quot;.FF&quot; is preferred. $INCLUDE   &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   files should use &quot;.ffinc&quot; and &quot;.FFINC&quot; if they include prep(1) directives.   &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   This naming convention is not required.                                      &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   If files end in &quot;.md&quot; they may be extended markdown files, as explained      &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   under the --type option description.                                         &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39; DIRECTIVE SYNTAX SUMMARY                                                       &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39; The directives fall into the following categories:                             &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39; Variable Definition For Conditionals                                           &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;      $DEFINE   variable_name[=expression] [;...]          [! comment ]         &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;      $REDEFINE variable_name[=expression] [;...]          [! comment ]         &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;      $UNDEFINE|$UNDEF variable_name [;...]                [! comment ]         &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39; Conditional Code Selection                                                     &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;      $IF  logical_integer-based expression |                                   &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;      $IFDEF [variable_name|environment_variable] |                             &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;      $IFNDEF [variable_name|environment_variable]         [! comment ]         &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;              { sequence of source statements}                                  &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;      [$ELSEIF|$ELIF logical_integer-based expression      [! comment ]         &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;              { sequence of source statements}]                                 &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;      [$ELSE                                               [! comment ]         &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;              { sequence of source statements}]                                 &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;      $ENDIF                                               [! comment ]         &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39; Macro String Expansion and Text Replay                                         &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;      $SET      varname  string                                                 &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;      $IMPORT   envname[;...]                              [! comment ]         &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;      $PARCEL   blockname                                  [! comment ]         &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;      $ENDPARCEL                                           [! comment ]         &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;      $POST     blockname                                  [! comment ]         &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39; External Files (see $BLOCK ... --file also)                                    &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;      $OUTPUT   filename  [--append]                       [! comment ]         &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;      $INCLUDE  filename                                   [! comment ]         &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39; Text Block Filters (--file is ignored unless $PREP_DOCUMENT_DIR is set)        &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;      $BLOCK   [null|comment|write|variable [--varname NAME]|                   &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;               set|system|message|define|redefine|                              &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;               help|version] [--file NAME [--append]]      [! comment ]         &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;      $ENDBLOCK                                            [! comment ]         &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39; Identifiers                                                                    &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;      $IDENT | $@(#)    metadata                           [! comment ]         &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39; Information                                                                    &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;      $MESSAGE  message_to_stderr                                               &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;      $SHOW [defined_variable_name[;...]]                  [! comment ]         &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39; System Commands (See also: $BLOCK SYSTEM)                                      &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;      $SYSTEM   system_command                                                  &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39; Program Termination                                                            &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;      $STOP     [stop_value [&quot;message&quot;]]                   [! comment ]         &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;      $QUIT     [&quot;message&quot;]                                [! comment ]         &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;      $ERROR    [&quot;message&quot;]                                [! comment ]         &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   * Cause an error  (controlled by directive $STOP or $ERROR) and produce       &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;     messages on stderr  (using $MESSAGE).                                       &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;OPTIONS                                                                         &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   define_list, -D define_list  An optional space-delimited list of expressions &#39;</span><span class="p">,&amp;</span>
@@ -579,6 +483,14 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   -i input_files               The default input file is stdin. Filenames are  &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                space-delimited. In a list, @ represents stdin. &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   The suggested suffix for Fortran input files is &quot;.ff&quot; for code files unless  &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   they contain $SYSTEM directives in which case &quot;.FF&quot; is preferred. $INCLUDE   &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   files should use &quot;.ffinc&quot; and &quot;.FFINC&quot; if they include prep(1) directives.   &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   This naming convention is not required.                                      &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   Files may also end in supported suffixes such as &quot;.md&quot;, as explained under   &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   the --type option description.                                               &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   -o output_file               The default output file is stdout.              &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
@@ -668,13 +580,53 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   --help      Display documentation and exit.                                  &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;INPUT FILE SYNTAX                                                               &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   The prep(1) preprocessor directives begin with &quot;$&quot; (by default) in column    &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   one, and will output no such lines. Other input is conditionally written     &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   to the output file(s) based on the case-insensitive command names.           &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   An exclamation character FOLLOWED BY A SPACE on most directives              &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   begins an in-line comment that is terminated by an end-of-line. The space    &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   is required so comments are not confused with C-style logical operators such &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   as &quot;!&quot;, which may NOT be followed by a space.                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39; VARIABLES AND EXPRESSIONS                                                      &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   INTEGER or LOGICAL expressions are used to conditionally select              &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   output lines. An expression is composed of INTEGER and LOGICAL               &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   constants, variable names, and operators. Operators are processed            &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   as in Fortran and/or C expressions. The supported operators are ...          &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       #-----#-----#-----#-----#-----#                #-----#-----#             &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       |  +  |  -  |  *  |  /  |  ** | Math Operators #  (  |  )  | Grouping    &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       #-----#-----#-----#-----#-----#                #-----#-----#             &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       Logical Operators                                                        &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       #-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#------#     &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       | .EQ.| .NE.| .GE.| .GT.| .LE.| .LT.|.NOT.|.AND.| .OR.|.EQV.|.NEQV.|     &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       |  == |  /= |  &gt;= |  &gt;  |  &lt;= |  &lt;  |  !  |  &amp;&amp; |  || | ==  |  !=  |     &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       #-----#  != #-----#-----#-----#-----#-----#-----#-----#-----#------#     &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;             #-----#                                                            &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       C-style operators NOT supported:   %,  &lt;&lt;,  &gt;&gt;, &amp;,  ~                    &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;DIRECTIVES                                                                      &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   $DEFINE|$REDEFINE variable_name [=expression]; ...                           &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39; The directives fall into the following categories:                             &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39; VARIABLE DEFINITION FOR CONDITIONALS                                           &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   Directives for defining variables ...                                        &#39;</span><span class="p">,&amp;</span> 
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;      $DEFINE   variable_name[=expression] [;...]          [! comment ]         &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;      $REDEFINE variable_name[=expression] [;...]          [! comment ]         &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;      $UNDEFINE|$UNDEF variable_name [;...]                [! comment ]         &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   Details ...                                                                  &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;      $DEFINE|$REDEFINE variable_name [=expression]; ... [! comment ]           &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   Defines a numeric or logical variable name and its value. The variable       &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   name may be used in the expressions on the conditional output selector       &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   directives $IF, $ELSEIF, $IFDEF, and $IFNDEF.                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   names may subsequently be used in the expressions on the conditional output  &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   selector directives $IF, $ELSEIF, $IFDEF, and $IFNDEF.                       &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   If the result of the expression is &quot;.TRUE.&quot; or &quot;.FALSE.&quot; then the variable   &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   will be of type LOGICAL, otherwise the variable is of type INTEGER (and the  &#39;</span><span class="p">,&amp;</span>
@@ -699,7 +651,7 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;    &gt;    (a+b)/c is one                                                         &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;    &gt; $endif                                                                    &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   $UNDEFINE variable_name[; ...]                                               &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       $UNDEFINE variable_name[; ...]                                           &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   A symbol defined with $DEFINE can be removed with the $UNDEFINE directive.   &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   Multiple names may be specified, preferably separated by semi-colons.        &#39;</span><span class="p">,&amp;</span>
@@ -707,7 +659,7 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;   Basic globbing is supported, where &quot;*&quot; represents any string, and &quot;?&quot;        &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   represents any single character.                                             &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   DEFINED(variable_name[,...])                                                 &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       DEFINED(variable_name[,...])                                             &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   A special function called DEFINED() may appear only in a $IF or $ELSEIF.     &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   If &quot;variable_name&quot; has been defined at that point in the source code,        &#39;</span><span class="p">,&amp;</span>
@@ -749,7 +701,22 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;     &gt;    write(*,*)&quot;System type is unknown&quot;                                    &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;     &gt; $endif                                                                   &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   $IF/$ELSEIF/$ELSE/$ENDIF directives                                          &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39; CONDITIONAL CODE SELECTION                                                     &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   directives for conditionally selecting input lines ...                       &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       $IF  logical_integer-based expression |                                  &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       $IFDEF [variable_name|environment_variable] |                            &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       $IFNDEF [variable_name|environment_variable]         [! comment ]        &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;               { sequence of source statements}                                 &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       [$ELSEIF|$ELIF logical_integer-based expression      [! comment ]        &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;               { sequence of source statements}]                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       [$ELSE                                               [! comment ]        &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;               { sequence of source statements}]                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       $ENDIF                                               [! comment ]        &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   Details ...                                                                  &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       $IF/$ELSEIF/$ELSE/$ENDIF directives ...                                  &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   Each of these control lines delineates a block of source lines. If the       &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   expression following the $IF is &quot;.TRUE.&quot;, then the following lines of        &#39;</span><span class="p">,&amp;</span>
@@ -759,7 +726,7 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;   source following the optional $ELSE are output. A matching $ENDIF ends the   &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   conditional block.                                                           &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   $IFDEF/$IFNDEF directives                                                    &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       $IFDEF/$IFNDEF directives ...                                            &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   $IFDEF and $IFNDEF are special forms of the $IF directive that simply test   &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   if a variable name is defined or not.                                        &#39;</span><span class="p">,&amp;</span>
@@ -778,8 +745,8 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   Essentially, these are equivalent:                                           &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;     $IFDEF varname  ==&gt; $IF DEFINED(varname)                                   &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;     $IFNDEF varname ==&gt; $IF .NOT. DEFINED(varname)                             &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       $IFDEF varname  ==&gt; $IF DEFINED(varname)                                 &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       $IFNDEF varname ==&gt; $IF .NOT. DEFINED(varname)                           &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   except that environment variables are tested as well by $IFDEF and $IFNDEF   &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   if the --noenv option is not specified, but never by the function DEFINED(), &#39;</span><span class="p">,&amp;</span>
@@ -788,62 +755,24 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;   For the purposes of prep(1) an environment variable is defined if it is      &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   returned by the system and has a non-blank value.                            &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   $IDENT metadata [--language fortran|c|shell]                                 &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39; MACRO STRING EXPANSION AND TEXT REPLAY                                         &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   Directives for defining replayable text blocks ...                           &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   $IDENT is a special-purpose directive useful to users of SCCS-metadata.      &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   The string generated can be used by the what(1) command,                     &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       $PARCEL [blockname] / $ENDPARCEL                     [! comment ]        &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       $POST     blockname                                  [! comment ]        &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       $SET varname  string                                                     &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       $IMPORT   envname[;...]                              [! comment ]        &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   When the command line option &quot;--ident [LANGUAGE]&quot; is specified this directive&#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   writes a line using SCCS-metadata format of one of the following forms:      &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   Details ...                                                                  &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;     language:                                                                  &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;     fortran   character(len=*),parameter::ident=&quot;@(#)metadata&quot;                 &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;     c         #ident &quot;@(#)metadata&quot;                                            &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;     shell     #@(#) metadata                                                   &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   The default language is &quot;fortran&quot;.                                           &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   Depending on your compiler and the optimization level used when compiling,   &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   the output string may not remain in the object files and executables created.&#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   If the -ident switch is not specified, a Fortran comment line is generated   &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   of the form                                                                  &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;       ! ident_NNN=&quot;@(#)this is metadata&quot;                                       &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   &quot;$@(#)&quot; is an alias for &quot;$IDENT&quot; so the source file itself will contain      &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   SCCS-metadata so the metadata can be displayed with what(1) even for the     &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   unprocessed files.                                                           &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   Do not use the characters double-quote, greater-than, backslash (ie. &quot;&gt;\)    &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   in the metadata to remain compatible with SCCS metadata syntax.              &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   Do not use strings starting with &quot; -&quot; either.                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   $OUTPUT filename [--append [.true.|.false.]]                                 &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   Specifies the output file to write to. This overrides the initial output file&#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   specified with command line options. If no output filename is given          &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   prep(1) reverts back to the initial output file. &quot;@&quot; is a synonym for stdout.&#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   Files are open at the first line by default. Use the --append switch to      &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   append to the end of an existing file instead of overwriting it.             &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   $INCLUDE filename                                                            &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   Read in the specified input file. Fifty (50) nesting levels are allowed.     &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   Following the tradition of cpp(1) if &quot;&lt;filename&gt;&quot; is specified the file is   &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   only searched for relative to the search directories, otherwise it is        &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   searched for as specified first. Double-quotes in the filename are treated   &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   as in Fortran list-directed input.                                           &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   $PARCEL [name] / $ENDPARCEL                                                  &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       $PARCEL [blockname] / $ENDPARCEL                     [! comment ]        &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   The block of lines between a &quot;$PARCEL name&quot; and &quot;$ENDPARCEL&quot; directive are   &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   written to a scratch file WITHOUT expanding directives. the scratch file can &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   then be read in with the $POST directive much like a named file can be with  &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   $INCLUDE except the file is automatically deleted at program termination.    &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   $POST name                                                                   &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       $POST     blockname                                  [! comment ]        &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   Read in a scratch file created by the $PARCEL directive. Combined with       &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   $SET and $IMPORT directives this allows you to replay a section of input     &#39;</span><span class="p">,&amp;</span>
@@ -852,7 +781,7 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;   blocks, put contained in source files without the need for separate          &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   INCLUDE files or error-prone repetition of the declarations.                 &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   $SET name string                                                             &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       $SET varname  string                                                     &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   If a $SET directive defines a name prep(1) enters expansion mode. In this    &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   mode anywhere the string &quot;${NAME}&quot; is encountered in subsequent output it    &#39;</span><span class="p">,&amp;</span>
@@ -864,7 +793,7 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;   ${FILE}, ${LINE}, ${DATE}, and ${TIME} are also available. The time          &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   refers to the time of processing, not the time of compilation or loading.    &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   $IMPORT name[;...]                                                           &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       $IMPORT   envname[;...]                              [! comment ]        &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   The values of environment variables may be imported just like their names    &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   and values were used on a $SET directive. The names of the variables are     &#39;</span><span class="p">,&amp;</span>
@@ -873,7 +802,40 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;   &quot;import home&quot; gets the lowercase environment variable &quot;home&quot; and then sets   &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   the associated value and then sets the prep(1) variable &quot;HOME&quot; to the value. &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   $BLOCK / $ENDBLOCK                                                           &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39; EXTERNAL FILES                                                                 &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   Directives for reading and writing external files ...                        &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       $OUTPUT   filename  [--append]                          [! comment ]     &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       $INCLUDE filename                                                        &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   Details ...                                                                  &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       $OUTPUT   filename  [--append]                          [! comment ]     &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   Specifies the output file to write to. This overrides the initial output file&#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   specified with command line options. If no output filename is given          &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   prep(1) reverts back to the initial output file. &quot;@&quot; is a synonym for stdout.&#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   Files are open at the first line by default. Use the --append switch to      &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   append to the end of an existing file instead of overwriting it.             &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       $INCLUDE filename                                                        &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   Read in the specified input file. Fifty (50) nesting levels are allowed.     &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   Following the tradition of cpp(1) if &quot;&lt;filename&gt;&quot; is specified the file is   &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   only searched for relative to the search directories, otherwise it is        &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   searched for as specified first. Double-quotes in the filename are treated   &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   as in Fortran list-directed input.                                           &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39; TEXT BLOCK FILTERS                                                             &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   (--file is ignored unless $PREP_DOCUMENT_DIR is set)                         &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;      $BLOCK   [null|comment|write|variable [--varname NAME]|                   &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;               set|system|message|define|redefine|                              &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;               help|version] [--file NAME [--append]]      [! comment ]         &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;      $ENDBLOCK                                            [! comment ]         &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   Details ...                                                                  &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   $BLOCK has several forms but in all cases operates on a block of lines:      &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
@@ -924,7 +886,57 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;   $ENDBLOCK ends the block.                                                    &#39;</span><span class="p">,&amp;</span>
 <span class="c">!!!!$! which is preferred; but a blank value or &quot;END&quot; on a $BLOCK directive does as well.</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   $SHOW [variable_name][;...]                                                  &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39; see also: &quot;$BLOCK ... --file&quot;                                                  &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39; IDENTIFIERS                                                                    &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   Directives for producing metadata ...                                        &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       $IDENT|$@(#) metadata [--language fortran|c|shell]      [! comment ]     &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   $IDENT is a special-purpose directive useful to users of SCCS-metadata.      &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   The string generated can be used by the what(1) command,                     &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   When the command line option &quot;--ident [LANGUAGE]&quot; is specified this directive&#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   writes a line using SCCS-metadata format of one of the following forms:      &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;     language:                                                                  &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;     fortran   character(len=*),parameter::ident=&quot;@(#)metadata&quot;                 &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;     c         #ident &quot;@(#)metadata&quot;                                            &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;     shell     #@(#) metadata                                                   &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   The default language is &quot;fortran&quot;.                                           &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   Depending on your compiler and the optimization level used when compiling,   &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   the output string may not remain in the object files and executables created.&#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   If the -ident switch is not specified, a Fortran comment line is generated   &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   of the form                                                                  &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       ! ident_NNN=&quot;@(#)this is metadata&quot;                                       &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   &quot;$@(#)&quot; is an alias for &quot;$IDENT&quot; so the source file itself will contain      &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   SCCS-metadata so the metadata can be displayed with what(1) even for the     &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   unprocessed files.                                                           &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   Do not use the characters double-quote, greater-than, backslash (ie. &quot;&gt;\)    &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   in the metadata to remain compatible with SCCS metadata syntax.              &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   Do not use strings starting with &quot; -&quot; either.                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39; INFORMATION                                                                    &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   Informative directives for writing messages to stderr or inserting           &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   state information into the output file ...                                   &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       $SHOW [variable_name[;...]]                          [! comment ]        &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       $MESSAGE  message_to_stderr                                              &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   Details ...                                                                  &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       $MESSAGE  message_to_stderr                                              &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   Write message to stderr.                                                     &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   Note that messages for $MESSAGE do not treat &quot;! &quot; as starting a comment      &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       $SHOW [variable_name[;...]]                          [! comment ]        &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   Shows current state of prep(1); including variable names and values and      &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   the name of the current input files. All output is preceded by an            &#39;</span><span class="p">,&amp;</span>
@@ -978,24 +990,10 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;    &gt; ! Parcels:                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;    &gt; !================================================================         &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   $STOP [stop_value [&quot;message&quot;]]                                               &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39; SYSTEM COMMANDS                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   Directives that execute system commands ...                                  &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   Stops the prep(1) program. An optional integer value will be returned        &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   as a status value to the system where supported.                             &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   o A value of &quot;0&quot; causes normal program termination.                          &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   o The default value is &quot;1&quot;.                                                  &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   o If a message is supplied it is displayed to stderr.                        &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   o The default message if the value is not &quot;0&quot; is to display the program      &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;     state like a &quot;$SHOW&quot; directive.                                            &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   &quot;$QUIT&quot; is an alias for &quot;$STOP 0&quot;. &quot;$ERROR&quot; is a synonym for &quot;$STOP 1&quot;       &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;     &gt;$IFNDEF TYPE                                                              &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;     &gt;$STOP 10 &quot;ERROR: &quot;&quot;TYPE&quot;&quot; not defined&quot;                                    &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;     &gt;$ENDIF                                                                    &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   $SYSTEM system_command                                                       &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;       $SYSTEM system_command                                                   &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   If system command processing is enabled using the --system switch system     &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   commands can be executed for such tasks as creating files to be read or to   &#39;</span><span class="p">,&amp;</span>
@@ -1017,12 +1015,33 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;    &gt; $   INCLUDE _tmp.f90                                                      &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;    &gt; $   SYSTEM  rm _tmp.f90                                                   &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;    &gt; $endif                                                                    &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39; See also: $BLOCK SYSTEM                                                        &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   $MESSAGE message                                                             &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39; PROGRAM TERMINATION                                                            &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   Directives for stopping file processing                                        &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   Write message to stderr.                                                     &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;      $STOP     [stop_value [&quot;message&quot;]]                   [! comment ]         &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;      $QUIT     [&quot;message&quot;]                                [! comment ]         &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;      $ERROR    [&quot;message&quot;]                                [! comment ]         &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   Note that messages for $MESSAGE do not treat &quot;! &quot; as starting a comment      &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   Details ...                                                                  &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;      $STOP     [stop_value [&quot;message&quot;]]                   [! comment ]         &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   Stops the prep(1) program. An optional integer value will be returned        &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   as a status value to the system where supported.                             &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   o A value of &quot;0&quot; causes normal program termination.                          &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   o The default value is &quot;1&quot;.                                                  &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   o If a message is supplied it is displayed to stderr.                        &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   o The default message if the value is not &quot;0&quot; is to display the program      &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;     state like a &quot;$SHOW&quot; directive.                                            &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   &quot;$QUIT&quot; is an alias for &quot;$STOP 0&quot;. &quot;$ERROR&quot; is a synonym for &quot;$STOP 1&quot;       &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;     &gt;$IFNDEF TYPE                                                              &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;     &gt;$STOP 10 &quot;ERROR: &quot;&quot;TYPE&quot;&quot; not defined&quot;                                    &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;     &gt;$ENDIF                                                                    &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;LIMITATIONS                                                                     &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
@@ -1188,7 +1207,7 @@ public subroutine help_usage(l_help)
           <p class="text-right">
             Documentation generated by 
             <a href="https://github.com/cmacmackin/ford">FORD</a>
-             on 2022-04-06 09:22  
+             on 2022-04-06 22:13  
           </p>
         </div>
         <div class="col-xs-12 col-md-4 col-md-pull-4"><p class="text-center"> prep was developed by John S. Urban</p></div>
