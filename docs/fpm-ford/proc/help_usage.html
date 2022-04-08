@@ -808,17 +808,16 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;    &gt; write(*,*)&#39;&#39;Line ${LINE}&#39;&#39;                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;    &gt; write(*,*)&#39;&#39;Date ${DATE}&#39;&#39;                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;    &gt; write(*,*)&#39;&#39;Time ${TIME}&#39;&#39;                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   Details ...                                                                  &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   ...                                                                          &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;       $IMPORT   envname[;...]                              [! comment ]        &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   The values of environment variables may be imported just like their names    &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   and values were used on a $SET directive. The names of the variables are     &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   case-sensitive in regards to obtaining the values, but the names become      &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   values, but the names because case-insensitive in prep(). That is,           &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   &quot;import home&quot; gets the lowercase environment variable &quot;home&quot; and then sets   &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   the associated value and then sets the prep(1) variable &quot;HOME&quot; to the value. &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   case-insensitive in prep(). That is, &quot;import home&quot; gets the lowercase        &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   environment variable &quot;home&quot; and then sets the associated value for the       &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   variable &quot;HOME&quot; to the value.                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;    &gt; $import HOME USER                                                         &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;    &gt; write(*,*)&#39;&#39;HOME ${HOME}&#39;&#39;                                                &#39;</span><span class="p">,&amp;</span>
@@ -900,15 +899,13 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;   with $PREP_DOCUMENT_DIR/doc/ . If the environment variable                   &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   $PREP_DOCUMENT_DIR is not set the option is ignored.                         &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   The --file output can easily be processed by other utilities such as         &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   markdown(1) or txt2man(1) to produce man(1) pages and HTML documents.        &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   The --file output can subsequently easily be processed by other utilities    &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   such as markdown(1) or txt2man(1) to produce man(1) pages and HTML documents.&#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   $SYSTEM commands may follow the $BLOCK block text to optionally post-process &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   the doc files.                                                               &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   $ENDBLOCK ends the block.                                                    &#39;</span><span class="p">,&amp;</span>
 <span class="c">!!!!$! which is preferred; but a blank value or &quot;END&quot; on a $BLOCK directive does as well.</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   see also: &quot;$BLOCK ... --file&quot;                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39; IDENTIFIERS                                                                    &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   Directives for producing metadata ...                                        &#39;</span><span class="p">,&amp;</span>
@@ -1037,10 +1034,36 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;    &gt; $   INCLUDE _tmp.f90                                                      &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;    &gt; $   SYSTEM  rm _tmp.f90                                                   &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;    &gt; $endif                                                                    &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39; See also: $BLOCK SYSTEM                                                        &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   System commands may also appear in a $BLOCK section. Combining several       &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   features this uses the Linux getconf(1) command to write some lines          &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   into a scratch file that are then read back in to define variables describing&#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   the current platform.                                                        &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;    &gt; $IF OS == LINUX                                                           &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;    &gt; $                                                                         &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;    &gt; $block system ! use getconf(1) command to get system values               &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;    &gt; (                                                                         &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;    &gt; echo LEVEL_2_CACHE_SIZE $(getconf LEVEL2_CACHE_SIZE)                      &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;    &gt; echo LEVEL_3_CACHE_SIZE $(getconf LEVEL3_CACHE_SIZE)                      &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;    &gt; ) &gt;_getconf.inc                                                           &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;    &gt; $endblock                                                                 &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;    &gt; $block set                 ! read in output of getconf(1)                 &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;    &gt; $include _getconf.inc                                                     &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;    &gt; $endblock                                                                 &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;    &gt; $system rm -f _getconf.inc ! cleanup                                      &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;    &gt; $                                                                         &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;    &gt; $ELSE                                                                     &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;    &gt; $                                                                         &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;    &gt; $error &quot; ERROR: Not Linux. did not obtain system values&quot;                  &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;    &gt; $                                                                         &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;    &gt; $ENDIF                                                                    &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;    &gt; $! create code using values for this platform                             &#39;</span><span class="p">,&amp;</span>          
+<span class="s1">&#39;    &gt;    integer, parameter :: L2_CACHE_SZ=${LEVEL2_CACHE_SIZE}                 &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;    &gt;    integer, parameter :: L3_CACHE_SZ=${LEVEL3_CACHE_SIZE}                 &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39; PROGRAM TERMINATION                                                            &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   Directives for stopping file processing                                        &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   Directives for stopping file processing                                      &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;      $STOP     [stop_value [&quot;message&quot;]]                   [! comment ]         &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;      $QUIT     [&quot;message&quot;]                                [! comment ]         &#39;</span><span class="p">,&amp;</span>
@@ -1056,10 +1079,10 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;   o A value of &quot;0&quot; causes normal program termination.                          &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   o The default value is &quot;1&quot;.                                                  &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   o If a message is supplied it is displayed to stderr.                        &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   o The default message if the value is not &quot;0&quot; is to display the program      &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;     state like a &quot;$SHOW&quot; directive.                                            &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   &quot;$QUIT&quot; is an alias for &quot;$STOP 0&quot;. &quot;$ERROR&quot; is a synonym for &quot;$STOP 1&quot;       &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   o The default message to display if the value is not zero (&quot;0&quot;) is the       &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;     program state information produced by a &quot;$SHOW&quot; directive.                 &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   o &quot;$QUIT&quot; is an alias for &quot;$STOP 0&quot;.                                         &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   o &quot;$ERROR&quot; is a synonym for &quot;$STOP 1&quot;                                        &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;     &gt;$IFNDEF TYPE                                                              &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;     &gt;$STOP 10 &quot;ERROR: &quot;&quot;TYPE&quot;&quot; not defined&quot;                                    &#39;</span><span class="p">,&amp;</span>
@@ -1214,7 +1237,7 @@ public subroutine help_usage(l_help)
           <p class="text-right">
             Documentation generated by 
             <a href="https://github.com/cmacmackin/ford">FORD</a>
-             on 2022-04-07 09:09  
+             on 2022-04-07 21:30  
           </p>
         </div>
         <div class="col-xs-12 col-md-4 col-md-pull-4"><p class="text-center"> prep was developed by John S. Urban</p></div>

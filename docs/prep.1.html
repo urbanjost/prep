@@ -48,6 +48,7 @@ a.existingWikiWord[title]{ //border: 1px dashed #BBB; }
 <H1><HR><I>User Commands  &nbsp;-&nbsp;</I><NOBR>Fortran preprocessor (1)</NOBR><HR></H1>
 </CENTER>
 <BLOCKQUOTE>
+Project is up to date
 </BLOCKQUOTE>
 <A name=0>
 
@@ -647,9 +648,8 @@ compilation or loading.
     &gt; write(*,*)&#146;Line ${LINE}&#146;
     &gt; write(*,*)&#146;Date ${DATE}&#146;
     &gt; write(*,*)&#146;Time ${TIME}&#146;
-<P>
 </PRE>
-Details &#46;&#46;&#46;
+&#46;&#46;&#46;
 <P>
 <PRE>
        $IMPORT   envname[;&#46;&#46;&#46;]                              [! comment ]
@@ -658,9 +658,9 @@ Details &#46;&#46;&#46;
 The values of environment variables may be imported just like their names
 and values were used on a $<B>SET</B> directive. The names of the variables are
 case-sensitive in regards to obtaining the values, but the names become
-values, but the names because case-insensitive in <B>prep</B>(). That is,
-"import home" gets the lowercase environment variable "home" and then sets
-the associated value and then sets the <B>prep</B>(1) variable "HOME" to the value.
+case-insensitive in <B>prep</B>(). That is, "import home" gets the lowercase
+environment variable "home" and then sets the associated value for the
+variable "HOME" to the value.
 <P>
 <PRE>
     &gt; $import HOME USER
@@ -765,14 +765,12 @@ tex, html, markdown or any plain text. The filename will be prefixed
 with $<B>PREP_DOCUMENT_DIR</B>/doc/ . If the environment variable
 $<B>PREP_DOCUMENT_DIR</B> is not set the option is ignored.
 <P>
-The <B>--file</B> output can easily be processed by other utilities such as
-<B>markdown</B>(1) or <B>txt2man</B>(1) to produce <B>man</B>(1) pages and HTML documents.
+The <B>--file</B> output can subsequently easily be processed by other utilities
+such as <B>markdown</B>(1) or <B>txt2man</B>(1) to produce <B>man</B>(1) pages and HTML documents.
 $<B>SYSTEM</B> commands may follow the $<B>BLOCK</B> block text to optionally post-process
 the doc files.
 <P>
 $<B>ENDBLOCK</B> ends the block.
-<P>
-see also: "$<B>BLOCK</B> &#46;&#46;&#46; <B>--file</B>"
 </BLOCKQUOTE>
 <A name=12>
 
@@ -931,8 +929,37 @@ Examples:
     &gt; $   INCLUDE _tmp.f90
     &gt; $   SYSTEM  rm _tmp.f90
     &gt; $endif
+<P>
 </PRE>
-See also: $<B>BLOCK</B> <B>SYSTEM</B>
+System commands may also appear in a $<B>BLOCK</B> section. Combining several
+features this uses the Linux <B>getconf</B>(1) command to write some lines
+into a scratch file that are then read back in to define variables describing
+the current platform.
+<P>
+<PRE>
+    &gt; $IF OS == LINUX
+    &gt; $
+    &gt; $block system ! use getconf(1) command to get system values
+    &gt; (
+    &gt; echo LEVEL_2_CACHE_SIZE $(getconf LEVEL2_CACHE_SIZE)
+    &gt; echo LEVEL_3_CACHE_SIZE $(getconf LEVEL3_CACHE_SIZE)
+    &gt; ) &gt;_getconf.inc
+    &gt; $endblock
+    &gt; $block set                 ! read in output of getconf(1)
+    &gt; $include _getconf.inc
+    &gt; $endblock
+    &gt; $system rm -f _getconf.inc ! cleanup
+    &gt; $
+    &gt; $ELSE
+    &gt; $
+    &gt; $error " ERROR: Not Linux. did not obtain system values"
+    &gt; $
+    &gt; $ENDIF
+    &gt; $! create code using values for this platform
+    &gt;    integer, parameter :: L2_CACHE_SZ=${LEVEL2_CACHE_SIZE}
+    &gt;    integer, parameter :: L3_CACHE_SZ=${LEVEL3_CACHE_SIZE}
+<P>
+</PRE>
 </BLOCKQUOTE>
 <A name=15>
 
@@ -976,11 +1003,20 @@ If a message is supplied it is displayed to stderr.
 <TR valign=top><TD width=3%>
 o
 </TD><TD>
-The default message if the value is not "0" is to display the program
-state like a "$<B>SHOW</B>" directive.
+The default message to display if the value is not zero ("0") is the
+program state information produced by a "$<B>SHOW</B>" directive.
 </TD></TR>
-<TR></TR></TABLE>"$<B>QUIT</B>" is an alias for "$<B>STOP</B> 0". "$<B>ERROR</B>" is a synonym for "$<B>STOP</B> 1"
-<P>
+<TR valign=top><TD width=3%>
+o
+</TD><TD>
+"$<B>QUIT</B>" is an alias for "$<B>STOP</B> 0".
+</TD></TR>
+<TR valign=top><TD width=3%>
+o
+</TD><TD>
+"$<B>ERROR</B>" is a synonym for "$<B>STOP</B> 1"
+</TD></TR>
+<TR></TR></TABLE><!-- .nf -->
 <PRE>
      &gt;$IFNDEF TYPE
      &gt;$STOP 10 "ERROR: ""TYPE"" not defined"

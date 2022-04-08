@@ -2538,17 +2538,16 @@ help_text=[ CHARACTER(LEN=128) :: &
 '    > write(*,*)''Line ${LINE}''                                                ',&
 '    > write(*,*)''Date ${DATE}''                                                ',&
 '    > write(*,*)''Time ${TIME}''                                                ',&
-'                                                                                ',&
-'   Details ...                                                                  ',&
+'   ...                                                                          ',&
 '                                                                                ',&
 '       $IMPORT   envname[;...]                              [! comment ]        ',&
 '                                                                                ',&
 '   The values of environment variables may be imported just like their names    ',&
 '   and values were used on a $SET directive. The names of the variables are     ',&
 '   case-sensitive in regards to obtaining the values, but the names become      ',&
-'   values, but the names because case-insensitive in prep(). That is,           ',&
-'   "import home" gets the lowercase environment variable "home" and then sets   ',&
-'   the associated value and then sets the prep(1) variable "HOME" to the value. ',&
+'   case-insensitive in prep(). That is, "import home" gets the lowercase        ',&
+'   environment variable "home" and then sets the associated value for the       ',&
+'   variable "HOME" to the value.                                                ',&
 '                                                                                ',&
 '    > $import HOME USER                                                         ',&
 '    > write(*,*)''HOME ${HOME}''                                                ',&
@@ -2630,15 +2629,13 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   with $PREP_DOCUMENT_DIR/doc/ . If the environment variable                   ',&
 '   $PREP_DOCUMENT_DIR is not set the option is ignored.                         ',&
 '                                                                                ',&
-'   The --file output can easily be processed by other utilities such as         ',&
-'   markdown(1) or txt2man(1) to produce man(1) pages and HTML documents.        ',&
+'   The --file output can subsequently easily be processed by other utilities    ',&
+'   such as markdown(1) or txt2man(1) to produce man(1) pages and HTML documents.',&
 '   $SYSTEM commands may follow the $BLOCK block text to optionally post-process ',&
 '   the doc files.                                                               ',&
 '                                                                                ',&
 '   $ENDBLOCK ends the block.                                                    ',&
 !!!!$! which is preferred; but a blank value or "END" on a $BLOCK directive does as well.
-'                                                                                ',&
-'   see also: "$BLOCK ... --file"                                                ',&
 '                                                                                ',&
 ' IDENTIFIERS                                                                    ',&
 '   Directives for producing metadata ...                                        ',&
@@ -2767,10 +2764,36 @@ help_text=[ CHARACTER(LEN=128) :: &
 '    > $   INCLUDE _tmp.f90                                                      ',&
 '    > $   SYSTEM  rm _tmp.f90                                                   ',&
 '    > $endif                                                                    ',&
-' See also: $BLOCK SYSTEM                                                        ',&
+'                                                                                ',&
+'   System commands may also appear in a $BLOCK section. Combining several       ',&
+'   features this uses the Linux getconf(1) command to write some lines          ',&
+'   into a scratch file that are then read back in to define variables describing',&
+'   the current platform.                                                        ',&
+'                                                                                ',&
+'    > $IF OS == LINUX                                                           ',&
+'    > $                                                                         ',&
+'    > $block system ! use getconf(1) command to get system values               ',&
+'    > (                                                                         ',&
+'    > echo LEVEL_2_CACHE_SIZE $(getconf LEVEL2_CACHE_SIZE)                      ',&
+'    > echo LEVEL_3_CACHE_SIZE $(getconf LEVEL3_CACHE_SIZE)                      ',&
+'    > ) >_getconf.inc                                                           ',&
+'    > $endblock                                                                 ',&
+'    > $block set                 ! read in output of getconf(1)                 ',&
+'    > $include _getconf.inc                                                     ',&
+'    > $endblock                                                                 ',&
+'    > $system rm -f _getconf.inc ! cleanup                                      ',&
+'    > $                                                                         ',&
+'    > $ELSE                                                                     ',&
+'    > $                                                                         ',&
+'    > $error " ERROR: Not Linux. did not obtain system values"                  ',&
+'    > $                                                                         ',&
+'    > $ENDIF                                                                    ',&
+'    > $! create code using values for this platform                             ',&          
+'    >    integer, parameter :: L2_CACHE_SZ=${LEVEL2_CACHE_SIZE}                 ',&
+'    >    integer, parameter :: L3_CACHE_SZ=${LEVEL3_CACHE_SIZE}                 ',&
 '                                                                                ',&
 ' PROGRAM TERMINATION                                                            ',&
-'   Directives for stopping file processing                                        ',&
+'   Directives for stopping file processing                                      ',&
 '                                                                                ',&
 '      $STOP     [stop_value ["message"]]                   [! comment ]         ',&
 '      $QUIT     ["message"]                                [! comment ]         ',&
@@ -2786,10 +2809,10 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   o A value of "0" causes normal program termination.                          ',&
 '   o The default value is "1".                                                  ',&
 '   o If a message is supplied it is displayed to stderr.                        ',&
-'   o The default message if the value is not "0" is to display the program      ',&
-'     state like a "$SHOW" directive.                                            ',&
-'                                                                                ',&
-'   "$QUIT" is an alias for "$STOP 0". "$ERROR" is a synonym for "$STOP 1"       ',&
+'   o The default message to display if the value is not zero ("0") is the       ',&
+'     program state information produced by a "$SHOW" directive.                 ',&
+'   o "$QUIT" is an alias for "$STOP 0".                                         ',&
+'   o "$ERROR" is a synonym for "$STOP 1"                                        ',&
 '                                                                                ',&
 '     >$IFNDEF TYPE                                                              ',&
 '     >$STOP 10 "ERROR: ""TYPE"" not defined"                                    ',&
@@ -3214,24 +3237,27 @@ integer,parameter             :: toomany=1000
 integer                       :: i, j
 character(len=4096)           :: scratch
 
-write(scratch,'(i0)')G_file_dictionary(G_iocount)%line_number
+if(index(line,'${').ne.0)then
+   write(scratch,'(i0)')G_file_dictionary(G_iocount)%line_number
+   
+   call set('LINE ' // scratch)
+   call set('FILE ' // G_file_dictionary(G_iocount)%filename )
+   call set('TIME ' // getdate('time'))
+   call set('DATE ' // getdate('cdate'))
+   temp=trim(line)
+   INFINITE: do i=1,toomany
+      do j=1,size(keywords)
+         if(index(temp,'${').ne.0)then
+            search='${'//trim(keywords(j))//'}'
+            temp=str_replace(temp,search,values(j)(:counts(j)),ignorecase=.true.)
+         else
+            exit INFINITE
+         endif
+      enddo
+   enddo INFINITE
+   line=temp
+endif
 
-call set('LINE ' // scratch)
-call set('FILE ' // G_file_dictionary(G_iocount)%filename )
-call set('TIME ' // getdate('time'))
-call set('DATE ' // getdate('cdate'))
-temp=trim(line)
-do i=1,toomany
-   do j=1,size(keywords)
-      if(index(temp,'${').ne.0)then
-         search='${'//trim(keywords(j))//'}'
-         temp=str_replace(temp,search,values(j)(:counts(j)),ignorecase=.true.)
-      else
-         exit
-      endif
-   enddo
-enddo
-line=temp
 end subroutine expand_variables
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!

@@ -11,6 +11,7 @@
 .nr IN 0.2i
 ." -----------------------------------------------------------------
 .RS
+Project is up to date
 .SH NAME
 \fBprep\fP(1) - [DEVELOPER] preprocess FORTRAN source files
 (LICENSE:MIT)
@@ -507,10 +508,9 @@ Example:
     > write(*,*)'Line ${LINE}'
     > write(*,*)'Date ${DATE}'
     > write(*,*)'Time ${TIME}'
-
 .fam T
 .fi
-Details \.\.\.
+\.\.\.
 .PP
 .nf
 .fam C
@@ -521,9 +521,9 @@ Details \.\.\.
 The values of environment variables may be imported just like their names
 and values were used on a $\fBSET\fP directive. The names of the variables are
 case-sensitive in regards to obtaining the values, but the names become
-values, but the names because case-insensitive in \fBprep\fP(). That is,
-"import home" gets the lowercase environment variable "home" and then sets
-the associated value and then sets the \fBprep\fP(1) variable "HOME" to the value.
+case-insensitive in \fBprep\fP(). That is, "import home" gets the lowercase
+environment variable "home" and then sets the associated value for the
+variable "HOME" to the value.
 .PP
 .nf
 .fam C
@@ -632,14 +632,12 @@ tex, html, markdown or any plain text. The filename will be prefixed
 with $\fBPREP_DOCUMENT_DIR\fP/doc/ . If the environment variable
 $\fBPREP_DOCUMENT_DIR\fP is not set the option is ignored.
 .PP
-The \fB--file\fP output can easily be processed by other utilities such as
-\fBmarkdown\fP(1) or \fBtxt2man\fP(1) to produce \fBman\fP(1) pages and HTML documents.
+The \fB--file\fP output can subsequently easily be processed by other utilities
+such as \fBmarkdown\fP(1) or \fBtxt2man\fP(1) to produce \fBman\fP(1) pages and HTML documents.
 $\fBSYSTEM\fP commands may follow the $\fBBLOCK\fP block text to optionally post-process
 the doc files.
 .PP
 $\fBENDBLOCK\fP ends the block.
-.PP
-see also: "$\fBBLOCK\fP \.\.\. \fB--file\fP"
 .SS IDENTIFIERS
 Directives for producing metadata \.\.\.
 .PP
@@ -800,9 +798,40 @@ Examples:
     > $   INCLUDE _tmp.f90
     > $   SYSTEM  rm _tmp.f90
     > $endif
+
 .fam T
 .fi
-See also: $\fBBLOCK\fP \fBSYSTEM\fP
+System commands may also appear in a $\fBBLOCK\fP section. Combining several
+features this uses the Linux \fBgetconf\fP(1) command to write some lines
+into a scratch file that are then read back in to define variables describing
+the current platform.
+.PP
+.nf
+.fam C
+    > $IF OS == LINUX
+    > $
+    > $block system ! use getconf(1) command to get system values
+    > (
+    > echo LEVEL_2_CACHE_SIZE $(getconf LEVEL2_CACHE_SIZE)
+    > echo LEVEL_3_CACHE_SIZE $(getconf LEVEL3_CACHE_SIZE)
+    > ) >_getconf.inc
+    > $endblock
+    > $block set                 ! read in output of getconf(1)
+    > $include _getconf.inc
+    > $endblock
+    > $system rm -f _getconf.inc ! cleanup
+    > $
+    > $ELSE
+    > $
+    > $error " ERROR: Not Linux. did not obtain system values"
+    > $
+    > $ENDIF
+    > $! create code using values for this platform
+    >    integer, parameter :: L2_CACHE_SZ=${LEVEL2_CACHE_SIZE}
+    >    integer, parameter :: L3_CACHE_SZ=${LEVEL3_CACHE_SIZE}
+
+.fam T
+.fi
 .SS PROGRAM TERMINATION
 Directives for stopping file processing
 .PP
@@ -831,10 +860,12 @@ The default value is "1".
 .IP \(bu 3
 If a message is supplied it is displayed to stderr.
 .IP \(bu 3
-The default message if the value is not "0" is to display the program
-state like a "$\fBSHOW\fP" directive.
-.PP
-"$\fBQUIT\fP" is an alias for "$\fBSTOP\fP 0". "$\fBERROR\fP" is a synonym for "$\fBSTOP\fP 1"
+The default message to display if the value is not zero ("0") is the
+program state information produced by a "$\fBSHOW\fP" directive.
+.IP \(bu 3
+"$\fBQUIT\fP" is an alias for "$\fBSTOP\fP 0".
+.IP \(bu 3
+"$\fBERROR\fP" is a synonym for "$\fBSTOP\fP 1"
 .PP
 .nf
 .fam C

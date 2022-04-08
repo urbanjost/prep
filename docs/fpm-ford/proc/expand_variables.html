@@ -130,7 +130,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 1.2% of total for procedures.">24 statements</a>
+    title=" 1.3% of total for procedures.">26 statements</a>
      </li> 
      
      
@@ -465,24 +465,27 @@ public subroutine expand_variables(line)
 <span class="kt">integer</span>                       <span class="kd">::</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span>
 <span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">4096</span><span class="p">)</span>           <span class="kd">::</span> <span class="n">scratch</span>
 
-<span class="k">write</span><span class="p">(</span><span class="n">scratch</span><span class="p">,</span><span class="s1">&#39;(i0)&#39;</span><span class="p">)</span><span class="n">G_file_dictionary</span><span class="p">(</span><span class="n">G_iocount</span><span class="p">)%</span><span class="n">line_number</span>
+<span class="k">if</span><span class="p">(</span><span class="nb">index</span><span class="p">(</span><span class="n">line</span><span class="p">,</span><span class="s1">&#39;${&#39;</span><span class="p">).</span><span class="n">ne</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="k">then</span>
+<span class="k">   write</span><span class="p">(</span><span class="n">scratch</span><span class="p">,</span><span class="s1">&#39;(i0)&#39;</span><span class="p">)</span><span class="n">G_file_dictionary</span><span class="p">(</span><span class="n">G_iocount</span><span class="p">)%</span><span class="n">line_number</span>
+   
+   <span class="k">call </span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;LINE &#39;</span> <span class="o">//</span> <span class="n">scratch</span><span class="p">)</span>
+   <span class="k">call </span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;FILE &#39;</span> <span class="o">//</span> <span class="n">G_file_dictionary</span><span class="p">(</span><span class="n">G_iocount</span><span class="p">)%</span><span class="n">filename</span> <span class="p">)</span>
+   <span class="k">call </span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;TIME &#39;</span> <span class="o">//</span> <span class="n">getdate</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">))</span>
+   <span class="k">call </span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;DATE &#39;</span> <span class="o">//</span> <span class="n">getdate</span><span class="p">(</span><span class="s1">&#39;cdate&#39;</span><span class="p">))</span>
+   <span class="n">temp</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+   <span class="n">INFINITE</span><span class="p">:</span> <span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">toomany</span>
+      <span class="k">do </span><span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">keywords</span><span class="p">)</span>
+         <span class="k">if</span><span class="p">(</span><span class="nb">index</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span><span class="s1">&#39;${&#39;</span><span class="p">).</span><span class="n">ne</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="k">then</span>
+<span class="k">            </span><span class="n">search</span><span class="o">=</span><span class="s1">&#39;${&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">keywords</span><span class="p">(</span><span class="n">j</span><span class="p">))</span><span class="o">//</span><span class="s1">&#39;}&#39;</span>
+            <span class="n">temp</span><span class="o">=</span><span class="n">str_replace</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span><span class="n">search</span><span class="p">,</span><span class="n">values</span><span class="p">(</span><span class="n">j</span><span class="p">)(:</span><span class="n">counts</span><span class="p">(</span><span class="n">j</span><span class="p">)),</span><span class="n">ignorecase</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.)</span>
+         <span class="k">else</span>
+<span class="k">            exit </span><span class="n">INFINITE</span>
+         <span class="k">endif</span>
+<span class="k">      enddo</span>
+<span class="k">   enddo </span><span class="n">INFINITE</span>
+   <span class="n">line</span><span class="o">=</span><span class="n">temp</span>
+<span class="k">endif</span>
 
-<span class="k">call </span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;LINE &#39;</span> <span class="o">//</span> <span class="n">scratch</span><span class="p">)</span>
-<span class="k">call </span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;FILE &#39;</span> <span class="o">//</span> <span class="n">G_file_dictionary</span><span class="p">(</span><span class="n">G_iocount</span><span class="p">)%</span><span class="n">filename</span> <span class="p">)</span>
-<span class="k">call </span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;TIME &#39;</span> <span class="o">//</span> <span class="n">getdate</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">))</span>
-<span class="k">call </span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;DATE &#39;</span> <span class="o">//</span> <span class="n">getdate</span><span class="p">(</span><span class="s1">&#39;cdate&#39;</span><span class="p">))</span>
-<span class="n">temp</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-<span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">toomany</span>
-   <span class="k">do </span><span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">keywords</span><span class="p">)</span>
-      <span class="k">if</span><span class="p">(</span><span class="nb">index</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span><span class="s1">&#39;${&#39;</span><span class="p">).</span><span class="n">ne</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="k">then</span>
-<span class="k">         </span><span class="n">search</span><span class="o">=</span><span class="s1">&#39;${&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">keywords</span><span class="p">(</span><span class="n">j</span><span class="p">))</span><span class="o">//</span><span class="s1">&#39;}&#39;</span>
-         <span class="n">temp</span><span class="o">=</span><span class="n">str_replace</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span><span class="n">search</span><span class="p">,</span><span class="n">values</span><span class="p">(</span><span class="n">j</span><span class="p">)(:</span><span class="n">counts</span><span class="p">(</span><span class="n">j</span><span class="p">)),</span><span class="n">ignorecase</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.)</span>
-      <span class="k">else</span>
-<span class="k">         exit</span>
-<span class="k">      endif</span>
-<span class="k">   enddo</span>
-<span class="k">enddo</span>
-<span class="n">line</span><span class="o">=</span><span class="n">temp</span>
 <span class="k">end subroutine </span><span class="n">expand_variables</span>
 </pre></div>
 
@@ -505,7 +508,7 @@ public subroutine expand_variables(line)
           <p class="text-right">
             Documentation generated by 
             <a href="https://github.com/cmacmackin/ford">FORD</a>
-             on 2022-04-07 09:09  
+             on 2022-04-07 21:30  
           </p>
         </div>
         <div class="col-xs-12 col-md-4 col-md-pull-4"><p class="text-center"> prep was developed by John S. Urban</p></div>

@@ -1,0 +1,26 @@
+$IF OS == LINUX
+$   block system ! use getconf(1) command to get system values
+#!/bin/bash
+   (
+      for NAME in \
+       _NPROCESSORS_ONLN  LEVEL1_ICACHE_SIZE LEVEL1_DCACHE_SIZE \
+       LEVEL2_CACHE_SIZE  LEVEL3_CACHE_SIZE  LEVEL4_CACHE_SIZE
+      do
+         echo $NAME "$(getconf $NAME)"
+      done
+   ) >_getconf.inc
+$   endblock
+$
+$   block set                 ! read in output of getconf(1)
+$   include _getconf.inc
+$   endblock
+$
+$   system rm -f _getconf.inc ! cleanup
+$
+$! create code using values for this platform
+   integer, parameter :: CORES=${_NPROCESSORS_ONLN}
+   integer, parameter :: L2_CACHE_SZ=${LEVEL2_CACHE_SIZE}
+   integer, parameter :: L3_CACHE_SZ=${LEVEL3_CACHE_SIZE}
+$ELSE
+$   error " WARNING: Not Linux. did not obtain system values"
+$ENDIF
