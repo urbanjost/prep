@@ -1440,7 +1440,6 @@ subroutine document(opts)                    !@(#)document(3f): process BLOCK co
 character(len=*),intent(in)  :: opts
 integer                      :: ierr
 integer                      :: ios
-integer                      :: i
 character(len=G_line_length) :: options                 ! everything after first word of command till end of line or !
 
 ! CHECK COMMAND SYNTAX
