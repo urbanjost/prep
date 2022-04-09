@@ -148,6 +148,7 @@ subroutine cond()       !@(#)cond(3f): process conditional directive assumed to 
 character(len=G_line_length) :: line                       ! directive line with leading prefix character (default is $) removed
 character(len=G_line_length) :: verb                       ! first word of command converted to uppercase
 character(len=G_line_length) :: options                    ! everything after first word of command till end of line or !
+character(len=G_line_length) :: all_options                ! everything after first word of command till end of line or !
 character(len=G_line_length) :: upopts                     ! directive line with leading prefix removed; uppercase; no spaces
 logical,save                 :: eb=.false.
 integer,save                 :: noelse=0
@@ -171,6 +172,7 @@ logical                      :: ifound
       verb=line(:verblen-1)
       options=adjustl(line(verblen:))
    endif
+   all_options=adjustl(G_source(verblen+1:))
    verb=upper(verb)
    upopts=nospace(upper(options))                          ! remove spaces from directive
 
@@ -179,6 +181,7 @@ logical                      :: ifound
       write(stderr,*)'LINE='//trim(line)
       write(stderr,*)'VERB='//trim(verb)
       write(stderr,*)'OPTIONS='//trim(options)
+      write(stderr,*)'ALL_OPTIONS='//trim(all_options)
       write(stderr,*)'UPOPTS='//trim(upopts)
       call flushit()
    endif
@@ -208,12 +211,12 @@ logical                      :: ifound
       case('IDENT','@(#)');     call ident(options)
       case('SHOW') ;            call debug_state(upper(options),msg='')
       case('SYSTEM');           call exe()
-      case('MESSAGE');          call write_err(unquote(options))      ! trustingly trim MESSAGE from directive
-      case('STOP');             call stop(options)
-      case('QUIT');             call stop('0 '//options)
-      case('ERROR');            call stop('1 '//options)
+      case('MESSAGE');          call write_err(unquote(all_options))      ! trustingly trim MESSAGE from directive
+      case('STOP');             call stop(all_options)
+      case('QUIT');             call stop('0 '//all_options)
+      case('ERROR');            call stop('1 '//all_options)
       CASE('GET_ARGUMENTS');    call write_get_arguments()
-      CASE('HELP');             call short_help()
+      CASE('HELP');             call short_help(stderr)
       case default
          ifound=.false.
       end select
@@ -739,11 +742,6 @@ integer,intent(in)                   :: ipos1
 character(len=G_line_length)         :: newl
 character(len=G_var_len),allocatable :: ifvars(:)
 integer                              :: i, j
-   if(G_debug.and.G_verbose)then
-      write(stderr,*)'*IFDEF* TOP'
-      write(stderr,*)'        LINE=',trim(line)
-      call flushit()
-   endif
 
    newl=line(ipos1+7:) ! defined(
 
@@ -765,18 +763,9 @@ integer                              :: i, j
       enddo
       G_dc=.false.
       line(ipos1:ipos1+6+index(newl,')'))='.FALSE.'
-      if(G_debug.and.G_verbose)then
-              write(stderr,*)'*IFDEF* FALSE  LINE=',trim(line),' for ',ifvars(j)
-         call flushit()
-      endif
       exit LIST
 
    enddo LIST
-   if(G_debug.and.G_verbose)then
-      write(stderr,*)'*IFDEF* BOTTOM'
-      write(stderr,*)'        G_DC=',G_dc
-      call flushit()
-   endif
 
 end subroutine ifdefined
 !===================================================================================================================================
@@ -789,16 +778,6 @@ integer                       :: noelse
 integer                       :: ithen
 logical                       :: eb
 character(len=G_line_length)  :: expression
-
-   if(G_debug.and.G_verbose)then
-      write(stderr,*)'*ELSE* TOP'
-      write(stderr,*)'        G_NESTL =',g_nestl
-      write(stderr,*)'        EB      =',eb
-      write(stderr,*)'        NOELSE  =',noelse
-      write(stderr,*)'        G_WRITE =',g_write
-      write(stderr,*)'        G_CONDOP=',g_condop
-      call flushit()
-   endif
 
    expression=opts
    ithen=len_trim(opts)  ! trim off ")THEN"
@@ -827,15 +806,6 @@ character(len=G_line_length)  :: expression
      G_write=.true.
    endif
 
-   if(G_debug.and.G_verbose)then
-      write(stderr,*)'*ELSE* BOTTOM'
-      write(stderr,*)'        G_NESTL =',g_nestl
-      write(stderr,*)'        EB      =',eb
-      write(stderr,*)'        NOELSE  =',noelse
-      write(stderr,*)'        G_WRITE =',g_write
-      write(stderr,*)'        G_CONDOP=',g_condop
-      call flushit()
-   endif
 end subroutine else
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -843,16 +813,6 @@ end subroutine else
 subroutine endif(noelse,eb)                             !@(#)endif(3f): process ENDIF directive
 integer,intent(out)           :: noelse
 logical,intent(out)           :: eb
-
-   if(G_debug.and.G_verbose)then
-      write(stderr,*)'*ENDIF* TOP'
-      write(stderr,*)'        G_NESTL =',g_nestl
-      write(stderr,*)'        EB      =',eb
-      write(stderr,*)'        NOELSE  =',noelse
-      write(stderr,*)'        G_WRITE =',g_write
-      write(stderr,*)'        G_CONDOP=',g_condop
-      call flushit()
-   endif
 
    ! if no ELSE or ELSEIF present insert ELSE to simplify logic
    if(noelse.eq.0)then
@@ -873,16 +833,6 @@ logical,intent(out)           :: eb
    if(G_nestl.eq.0)then
       G_write=.true.
       eb=.false.
-   endif
-
-   if(G_debug.and.G_verbose)then
-      write(stderr,*)'*ENDIF* BOTTOM'
-      write(stderr,*)'        G_NESTL =',g_nestl
-      write(stderr,*)'        EB      =',eb
-      write(stderr,*)'        NOELSE  =',noelse
-      write(stderr,*)'        G_WRITE =',g_write
-      write(stderr,*)'        G_CONDOP=',g_condop
-      call flushit()
    endif
 
 end subroutine endif
@@ -2151,15 +2101,15 @@ help_text=[ CHARACTER(LEN=128) :: &
 '        [-i input_file(s)]                                                      ',&
 '        [-o output_file]                                                        ',&
 '        [--system]                                                              ',&
-'        [--verbose]                                                             ',&
+'        [--type FILE_TYPE | --start START_STRING --stop STOP_STRING]            ',&
 '        [--prefix character|ADE]                                                ',&
 '        [--keeptabs]                                                            ',&
 '        [--noenv]                                                               ',&
 '        [--width n]                                                             ',&
 '        [-d ignore|remove|blank]                                                ',&
 '        [--comment default|doxygen|ford|none]                                   ',&
-'        [--type FILE_TYPE | --start START_STRING --stop STOP_STRING]            ',&
 '        [--ident]                                                               ',&
+'        [--verbose]                                                             ',&
 '        [--version]                                                             ',&
 '        [--help]                                                                ',&
 'DESCRIPTION                                                                     ',&
@@ -2226,15 +2176,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   -I include_directories  The directories to search for files specified on     ',&
 '                           $INCLUDE directives.                                 ',&
 '                                                                                ',&
-'   --prefix ADE|letter  The directive prefix character. The default is "$".     ',&
-'                        If the value is numeric it is assumed to be an ASCII    ',&
-'                        Decimal Equivalent (Common values are 37=% 42=* 35=#    ',&
-'                        36=$ 64=@).                                             ',&
-'                                                                                ',&
-'   --noenv          The $IFDEF and $IFNDEF directives test for an internal      ',&
-'                    prep(1) variable and then an environment variable by        ',&
-'                    default. This option turns off testing for environment      ',&
-'                    variables.                                                  ',&
+'   --system         Allow system commands on $SYSTEM directives to be executed. ',&
 '                                                                                ',&
 '   --type FILETYPE  This flag indicates to skip input lines until after a       ',&
 '                    specific start string is encountered and to stop once a     ',&
@@ -2266,18 +2208,26 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   --stop STRING    Same as --type except along with --start allows for custom  ',&
 '                    strings to be specified.                                    ',&
 '                                                                                ',&
-'   --system         Allow system commands on $SYSTEM directives to be executed. ',&
-'                                                                                ',&
-'   --keeptabs       By default tab characters are expanded assuming a stop has  ',&
-'                    been set every eight columns; and trailing carriage-return  ',&
-'                    are removed. Use this flag to prevent this processing from  ',&
-'                    from occurring.                                             ',&
-'                                                                                ',&
 '   --comment        Try to style comments generated in $BLOCK COMMENT blocks    ',&
 '                    for other utilities such as doxygen. Default is to          ',&
 '                    prefix lines with ''! ''. Allowed keywords are              ',&
 '                    currently "default", "doxygen","none","ford".               ',&
 '                    THIS IS AN ALPHA FEATURE AND NOT FULLY IMPLEMENTED.         ',&
+'                                                                                ',&
+'   --prefix ADE|letter  The directive prefix character. The default is "$".     ',&
+'                        If the value is numeric it is assumed to be an ASCII    ',&
+'                        Decimal Equivalent (Common values are 37=% 42=* 35=#    ',&
+'                        36=$ 64=@).                                             ',&
+'                                                                                ',&
+'   --noenv          The $IFDEF and $IFNDEF directives test for an internal      ',&
+'                    prep(1) variable and then an environment variable by        ',&
+'                    default. This option turns off testing for environment      ',&
+'                    variables.                                                  ',&
+'                                                                                ',&
+'   --keeptabs       By default tab characters are expanded assuming a stop has  ',&
+'                    been set every eight columns; and trailing carriage-return  ',&
+'                    are removed. Use this flag to prevent this processing from  ',&
+'                    from occurring.                                             ',&
 '                                                                                ',&
 '   --ident          The output of the $IDENT directive is in the form of a      ',&
 '                    comment by default. If this flag is set the output is       ',&
@@ -2792,24 +2742,26 @@ help_text=[ CHARACTER(LEN=128) :: &
 '    >    integer, parameter :: L3_CACHE_SZ=${LEVEL3_CACHE_SIZE}                 ',&
 '                                                                                ',&
 ' PROGRAM TERMINATION                                                            ',&
-'   Directives for stopping file processing                                      ',&
+'   Directives for stopping file processing (note there is no comment field):    ',&
 '                                                                                ',&
-'      $STOP     [stop_value ["message"]]                   [! comment ]         ',&
-'      $QUIT     ["message"]                                [! comment ]         ',&
-'      $ERROR    ["message"]                                [! comment ]         ',&
+'      $STOP     [stop_value ["message"]]                                        ',&
+'      $QUIT     ["message"]                                                     ',&
+'      $ERROR    ["message"]                                                     ',&
 '                                                                                ',&
 '   Details ...                                                                  ',&
 '                                                                                ',&
-'      $STOP     [stop_value ["message"]]                   [! comment ]         ',&
+'      $STOP     [stop_value ["message"]]                                        ',&
 '                                                                                ',&
-'   Stops the prep(1) program. An optional integer value will be returned        ',&
-'   as a status value to the system where supported.                             ',&
+'   Stops the prep(1) program. The integer value will be returned as an exit     ',&
+'   status value by the system where supported.                                  ',&
 '                                                                                ',&
 '   o A value of "0" causes normal program termination.                          ',&
 '   o The default value is "1".                                                  ',&
+'   o comments are not supported on these directives; the entire line following  ',&
+'     the directive command becomes part of the message.                         ',&
 '   o If a message is supplied it is displayed to stderr.                        ',&
-'   o The default message to display if the value is not zero ("0") is the       ',&
-'     program state information produced by a "$SHOW" directive.                 ',&
+'     If the value is not zero ("0") and no message is supplied the "$SHOW"      ',&
+'     directive is called before stopping.                                       ',&
 '   o "$QUIT" is an alias for "$STOP 0".                                         ',&
 '   o "$ERROR" is a synonym for "$STOP 1"                                        ',&
 '                                                                                ',&
@@ -2930,10 +2882,11 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 'NOTE                                                                            ',&
 '  Not documented elsewhere, note that there is a developer flag (--debug) that  ',&
-'  can be useful when learning proper prep(1) usage (but it should not be used in',&
+'  can be useful when learning prep(1) usage (but it should not be used in       ',&
 '  production). Among other things it deactivates the termination of the program ',&
 '  upon detection of an error. This mode thus allows for simple interactive use. ',&
-'  In addition, when in this mode entering "$HELP" produces a cribsheet.         ',&
+'  In addition, when in this mode entering "$HELP" produces a cribsheet, which   ',&
+'  may also be displayed by "prep --crib".                                       ',&
 'AUTHOR                                                                          ',&
 '   John S. Urban                                                                ',&
 '                                                                                ',&
@@ -2971,8 +2924,9 @@ end subroutine help_version
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine short_help() !@(#)short_help(3f): prints help information
+subroutine short_help(lun) !@(#)short_help(3f): prints help information
 implicit none
+integer,intent(in) :: lun
 character(len=:),allocatable :: help_text(:)
 integer                        :: i
 help_text=[ CHARACTER(LEN=128) :: &
@@ -3012,7 +2966,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 "SYSTEM COMMANDS (see also: $BLOCK SYSTEM)                                       ",&
 "  $SYSTEM command                                                               ",&
 "  $STOP [stop_value[ ""message""]] | $QUIT [""message""]| $ERROR [""message""]        "]
-   WRITE(stderr,'(a)')(trim(help_text(i)),i=1,size(help_text))
+   WRITE(lun,'(a)')(trim(help_text(i)),i=1,size(help_text))
 end subroutine short_help
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -3390,6 +3344,7 @@ character(len=1024)          :: cmd=' &
    & --verbose          .false.  &
    & --system           .false.  &
    & --version          .false.  &
+   & --crib             .false.  &
    & --debug            .false.  &
    & --noenv            .false.  &
    & --comment          COMMENT  &
@@ -3441,6 +3396,10 @@ logical                       :: isscratch
 
    call help_version(lget('prep_version'))                 ! if version switch is present display version and exit
    call help_usage(lget('prep_help'))                      ! if help switch is present display help and exit
+   if(lget('prep_crib'))then
+      call short_help(stdout)
+      stop
+   endif
    G_debug=lget('prep_debug')                              ! turn on debug mode for developer
 
    keeptabs=lget('prep_keeptabs')

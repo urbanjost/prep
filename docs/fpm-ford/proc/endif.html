@@ -130,7 +130,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 1.8% of total for procedures.">37 statements</a>
+    title=" 0.9% of total for procedures.">19 statements</a>
      </li> 
      
      
@@ -327,16 +327,6 @@ public subroutine endif(noelse, eb)
 <span class="kt">integer</span><span class="p">,</span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>           <span class="kd">::</span> <span class="n">noelse</span>
 <span class="kt">logical</span><span class="p">,</span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>           <span class="kd">::</span> <span class="n">eb</span>
 
-   <span class="k">if</span><span class="p">(</span><span class="n">G_debug</span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="n">G_verbose</span><span class="p">)</span><span class="k">then</span>
-<span class="k">      write</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;*ENDIF* TOP&#39;</span>
-      <span class="k">write</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;        G_NESTL =&#39;</span><span class="p">,</span><span class="n">g_nestl</span>
-      <span class="k">write</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;        EB      =&#39;</span><span class="p">,</span><span class="n">eb</span>
-      <span class="k">write</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;        NOELSE  =&#39;</span><span class="p">,</span><span class="n">noelse</span>
-      <span class="k">write</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;        G_WRITE =&#39;</span><span class="p">,</span><span class="n">g_write</span>
-      <span class="k">write</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;        G_CONDOP=&#39;</span><span class="p">,</span><span class="n">g_condop</span>
-      <span class="k">call </span><span class="n">flushit</span><span class="p">()</span>
-   <span class="k">endif</span>
-
    <span class="c">! if no ELSE or ELSEIF present insert ELSE to simplify logic</span>
    <span class="k">if</span><span class="p">(</span><span class="n">noelse</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="k">then</span>
 <span class="k">      call else</span><span class="p">(</span><span class="s1">&#39;ELSE&#39;</span><span class="p">,</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="n">noelse</span><span class="p">,</span><span class="n">eb</span><span class="p">)</span>
@@ -356,16 +346,6 @@ public subroutine endif(noelse, eb)
    <span class="k">if</span><span class="p">(</span><span class="n">G_nestl</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="k">then</span>
 <span class="k">      </span><span class="n">G_write</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
       <span class="n">eb</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
-   <span class="k">endif</span>
-
-<span class="k">   if</span><span class="p">(</span><span class="n">G_debug</span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="n">G_verbose</span><span class="p">)</span><span class="k">then</span>
-<span class="k">      write</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;*ENDIF* BOTTOM&#39;</span>
-      <span class="k">write</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;        G_NESTL =&#39;</span><span class="p">,</span><span class="n">g_nestl</span>
-      <span class="k">write</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;        EB      =&#39;</span><span class="p">,</span><span class="n">eb</span>
-      <span class="k">write</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;        NOELSE  =&#39;</span><span class="p">,</span><span class="n">noelse</span>
-      <span class="k">write</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;        G_WRITE =&#39;</span><span class="p">,</span><span class="n">g_write</span>
-      <span class="k">write</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;        G_CONDOP=&#39;</span><span class="p">,</span><span class="n">g_condop</span>
-      <span class="k">call </span><span class="n">flushit</span><span class="p">()</span>
    <span class="k">endif</span>
 
 <span class="k">end subroutine endif</span>
@@ -390,7 +370,7 @@ public subroutine endif(noelse, eb)
           <p class="text-right">
             Documentation generated by 
             <a href="https://github.com/cmacmackin/ford">FORD</a>
-             on 2022-04-07 21:30  
+             on 2022-04-08 13:08  
           </p>
         </div>
         <div class="col-xs-12 col-md-4 col-md-pull-4"><p class="text-center"> prep was developed by John S. Urban</p></div>

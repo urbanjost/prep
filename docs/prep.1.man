@@ -648,24 +648,26 @@ DIRECTIVES
     >    integer, parameter :: L3_CACHE_SZ=${LEVEL3_CACHE_SIZE}
 
  PROGRAM TERMINATION
-   Directives for stopping file processing
+   Directives for stopping file processing (note there is no comment field):
 
-      $STOP     [stop_value ["message"]]                   [! comment ]
-      $QUIT     ["message"]                                [! comment ]
-      $ERROR    ["message"]                                [! comment ]
+      $STOP     [stop_value ["message"]]
+      $QUIT     ["message"]
+      $ERROR    ["message"]
 
    Details ...
 
-      $STOP     [stop_value ["message"]]                   [! comment ]
+      $STOP     [stop_value ["message"]]
 
-   Stops the prep(1) program. An optional integer value will be returned
-   as a status value to the system where supported.
+   Stops the prep(1) program. The integer value will be returned as an exit
+   status value by the system where supported.
 
    o A value of "0" causes normal program termination.
    o The default value is "1".
+   o comments are not supported on these directives; the entire line following
+     the directive command becomes part of the message.
    o If a message is supplied it is displayed to stderr.
-   o The default message to display if the value is not zero ("0") is the
-     program state information produced by a "$SHOW" directive.
+     If the value is not zero ("0") and no message is supplied the "$SHOW"
+     directive is called before stopping.
    o "$QUIT" is an alias for "$STOP 0".
    o "$ERROR" is a synonym for "$STOP 1"
 
@@ -786,10 +788,11 @@ GENERAL TEMPLATING
 
 NOTE
   Not documented elsewhere, note that there is a developer flag (--debug) that
-  can be useful when learning proper prep(1) usage (but it should not be used in
+  can be useful when learning prep(1) usage (but it should not be used in
   production). Among other things it deactivates the termination of the program
   upon detection of an error. This mode thus allows for simple interactive use.
-  In addition, when in this mode entering "$HELP" produces a cribsheet.
+  In addition, when in this mode entering "$HELP" produces a cribsheet, which
+  may also be displayed by "prep --crib".
 AUTHOR
    John S. Urban
 

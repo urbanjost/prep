@@ -130,7 +130,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 0.3% of total for procedures.">7 statements</a>
+    title=" 0.4% of total for procedures.">8 statements</a>
      </li> 
      
      
@@ -177,7 +177,7 @@
       
       <a class="list-group-item" href="../proc/short_help.html#variable-help_text~3">help_text</a>
       
-      <a class="list-group-item" href="../proc/short_help.html#variable-i~26">i</a>
+      <a class="list-group-item" href="../proc/short_help.html#variable-i~25">i</a>
       
     </div>
   </div>
@@ -217,7 +217,7 @@
     
     <div class="col-md-9" id='text'>
     <h2>
-public subroutine short_help()
+public subroutine short_help(lun)
     
     
    
@@ -230,8 +230,34 @@ public subroutine short_help()
 
     <h3>Arguments</h3>
     
-    <em>None</em>
-    <br>
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" id="variable-lun~3"></span>integer,</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>lun</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
     
     
     
@@ -253,7 +279,7 @@ public subroutine short_help()
       
       <a class="list-group-item" href="../proc/short_help.html#variable-help_text~3">help_text</a>
       
-      <a class="list-group-item" href="../proc/short_help.html#variable-i~26">i</a>
+      <a class="list-group-item" href="../proc/short_help.html#variable-i~25">i</a>
       
     </div>
   </div>
@@ -325,7 +351,7 @@ public subroutine short_help()
   
 <tr>
   
-  <td><span class="anchor" id="variable-i~26"></span>integer,</td>
+  <td><span class="anchor" id="variable-i~25"></span>integer,</td>
   
   <td>public</td>
   <td></td><td>::</td>
@@ -356,8 +382,9 @@ public subroutine short_help()
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="k">subroutine </span><span class="n">short_help</span><span class="p">()</span> <span class="c">!@(#)short_help(3f): prints help information</span>
+    <div class="highlight"><pre><span></span><span class="k">subroutine </span><span class="n">short_help</span><span class="p">(</span><span class="n">lun</span><span class="p">)</span> <span class="c">!@(#)short_help(3f): prints help information</span>
 <span class="k">implicit none</span>
+<span class="kt">integer</span><span class="p">,</span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span> <span class="kd">::</span> <span class="n">lun</span>
 <span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="k">allocatable</span> <span class="kd">::</span> <span class="n">help_text</span><span class="p">(:)</span>
 <span class="kt">integer</span>                        <span class="kd">::</span> <span class="n">i</span>
 <span class="n">help_text</span><span class="o">=</span><span class="p">[</span> <span class="kt">CHARACTER</span><span class="p">(</span><span class="nb">LEN</span><span class="o">=</span><span class="mi">128</span><span class="p">)</span> <span class="kd">::</span> <span class="p">&amp;</span>
@@ -397,7 +424,7 @@ public subroutine short_help()
 <span class="s2">&quot;SYSTEM COMMANDS (see also: $BLOCK SYSTEM)                                       &quot;</span><span class="p">,&amp;</span>
 <span class="s2">&quot;  $SYSTEM command                                                               &quot;</span><span class="p">,&amp;</span>
 <span class="s2">&quot;  $STOP [stop_value[ &quot;&quot;message&quot;&quot;]] | $QUIT [&quot;&quot;message&quot;&quot;]| $ERROR [&quot;&quot;message&quot;&quot;]        &quot;</span><span class="p">]</span>
-   <span class="k">WRITE</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)(</span><span class="nb">trim</span><span class="p">(</span><span class="n">help_text</span><span class="p">(</span><span class="n">i</span><span class="p">)),</span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">help_text</span><span class="p">))</span>
+   <span class="k">WRITE</span><span class="p">(</span><span class="n">lun</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)(</span><span class="nb">trim</span><span class="p">(</span><span class="n">help_text</span><span class="p">(</span><span class="n">i</span><span class="p">)),</span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">help_text</span><span class="p">))</span>
 <span class="k">end subroutine </span><span class="n">short_help</span>
 </pre></div>
 
@@ -420,7 +447,7 @@ public subroutine short_help()
           <p class="text-right">
             Documentation generated by 
             <a href="https://github.com/cmacmackin/ford">FORD</a>
-             on 2022-04-07 21:30  
+             on 2022-04-08 13:08  
           </p>
         </div>
         <div class="col-xs-12 col-md-4 col-md-pull-4"><p class="text-center"> prep was developed by John S. Urban</p></div>

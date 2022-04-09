@@ -177,7 +177,7 @@
       
       <a class="list-group-item" href="../proc/help_usage.html#variable-help_text">help_text</a>
       
-      <a class="list-group-item" href="../proc/help_usage.html#variable-i~15">i</a>
+      <a class="list-group-item" href="../proc/help_usage.html#variable-i~14">i</a>
       
       <a class="list-group-item" href="../proc/help_usage.html#variable-stopit">stopit</a>
       
@@ -283,7 +283,7 @@ public subroutine help_usage(l_help)
       
       <a class="list-group-item" href="../proc/help_usage.html#variable-help_text">help_text</a>
       
-      <a class="list-group-item" href="../proc/help_usage.html#variable-i~15">i</a>
+      <a class="list-group-item" href="../proc/help_usage.html#variable-i~14">i</a>
       
       <a class="list-group-item" href="../proc/help_usage.html#variable-stopit">stopit</a>
       
@@ -357,7 +357,7 @@ public subroutine help_usage(l_help)
   
 <tr>
   
-  <td><span class="anchor" id="variable-i~15"></span>integer,</td>
+  <td><span class="anchor" id="variable-i~14"></span>integer,</td>
   
   <td>public</td>
   <td></td><td>::</td>
@@ -1063,24 +1063,26 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;    &gt;    integer, parameter :: L3_CACHE_SZ=${LEVEL3_CACHE_SIZE}                 &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39; PROGRAM TERMINATION                                                            &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   Directives for stopping file processing                                      &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   Directives for stopping file processing (note there is no comment field):    &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;      $STOP     [stop_value [&quot;message&quot;]]                   [! comment ]         &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;      $QUIT     [&quot;message&quot;]                                [! comment ]         &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;      $ERROR    [&quot;message&quot;]                                [! comment ]         &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;      $STOP     [stop_value [&quot;message&quot;]]                                        &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;      $QUIT     [&quot;message&quot;]                                                     &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;      $ERROR    [&quot;message&quot;]                                                     &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   Details ...                                                                  &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;      $STOP     [stop_value [&quot;message&quot;]]                   [! comment ]         &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;      $STOP     [stop_value [&quot;message&quot;]]                                        &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   Stops the prep(1) program. An optional integer value will be returned        &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   as a status value to the system where supported.                             &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   Stops the prep(1) program. The integer value will be returned as an exit     &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   status value by the system where supported.                                  &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   o A value of &quot;0&quot; causes normal program termination.                          &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   o The default value is &quot;1&quot;.                                                  &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   o comments are not supported on these directives; the entire line following  &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;     the directive command becomes part of the message.                         &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   o If a message is supplied it is displayed to stderr.                        &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   o The default message to display if the value is not zero (&quot;0&quot;) is the       &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;     program state information produced by a &quot;$SHOW&quot; directive.                 &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;     If the value is not zero (&quot;0&quot;) and no message is supplied the &quot;$SHOW&quot;      &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;     directive is called before stopping.                                       &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   o &quot;$QUIT&quot; is an alias for &quot;$STOP 0&quot;.                                         &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   o &quot;$ERROR&quot; is a synonym for &quot;$STOP 1&quot;                                        &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
@@ -1201,10 +1203,11 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;NOTE                                                                            &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;  Not documented elsewhere, note that there is a developer flag (--debug) that  &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;  can be useful when learning proper prep(1) usage (but it should not be used in&#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;  can be useful when learning prep(1) usage (but it should not be used in       &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;  production). Among other things it deactivates the termination of the program &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;  upon detection of an error. This mode thus allows for simple interactive use. &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;  In addition, when in this mode entering &quot;$HELP&quot; produces a cribsheet.         &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;  In addition, when in this mode entering &quot;$HELP&quot; produces a cribsheet, which   &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;  may also be displayed by &quot;prep --crib&quot;.                                       &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;AUTHOR                                                                          &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   John S. Urban                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
@@ -1237,7 +1240,7 @@ public subroutine help_usage(l_help)
           <p class="text-right">
             Documentation generated by 
             <a href="https://github.com/cmacmackin/ford">FORD</a>
-             on 2022-04-07 21:30  
+             on 2022-04-08 13:08  
           </p>
         </div>
         <div class="col-xs-12 col-md-4 col-md-pull-4"><p class="text-center"> prep was developed by John S. Urban</p></div>
