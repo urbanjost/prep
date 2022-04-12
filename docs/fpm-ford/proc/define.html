@@ -130,7 +130,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 3.1% of total for procedures.">62 statements</a>
+    title=" 2.0% of total for procedures.">40 statements</a>
      </li> 
      
      
@@ -175,9 +175,9 @@
   <div id="vars-0" class="panel-collapse collapse">
     <div class="list-group">
       
-      <a class="list-group-item" href="../proc/define.html#variable-array~2">array</a>
+      <a class="list-group-item" href="../proc/define.html#variable-array">array</a>
       
-      <a class="list-group-item" href="../proc/define.html#variable-i~6">i</a>
+      <a class="list-group-item" href="../proc/define.html#variable-i~4">i</a>
       
       <a class="list-group-item" href="../proc/define.html#variable-iequ">iequ</a>
       
@@ -185,7 +185,7 @@
       
       <a class="list-group-item" href="../proc/define.html#variable-istore">istore</a>
       
-      <a class="list-group-item" href="../proc/define.html#variable-j~2">j</a>
+      <a class="list-group-item" href="../proc/define.html#variable-j">j</a>
       
       <a class="list-group-item" href="../proc/define.html#variable-opts~2">opts</a>
       
@@ -229,7 +229,7 @@
     
     <div class="col-md-9" id='text'>
     <h2>
-public subroutine define(allopts, ireset)
+public subroutine define(allopts)
     
     
    
@@ -267,21 +267,6 @@ public subroutine define(allopts, ireset)
   
 </tr>
 
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-ireset"></span>integer,</td>
-  <td>intent(in)</td>
-  <td></td>
-  
-  <td></td><td>::</td>
-  <td><strong>ireset</strong></td><td></td>
-  
-</tr>
-
 </tbody>
 </table>
 
@@ -304,9 +289,9 @@ public subroutine define(allopts, ireset)
   <div id="vars-1" class="panel-collapse collapse">
     <div class="list-group">
       
-      <a class="list-group-item" href="../proc/define.html#variable-array~2">array</a>
+      <a class="list-group-item" href="../proc/define.html#variable-array">array</a>
       
-      <a class="list-group-item" href="../proc/define.html#variable-i~6">i</a>
+      <a class="list-group-item" href="../proc/define.html#variable-i~4">i</a>
       
       <a class="list-group-item" href="../proc/define.html#variable-iequ">iequ</a>
       
@@ -314,7 +299,7 @@ public subroutine define(allopts, ireset)
       
       <a class="list-group-item" href="../proc/define.html#variable-istore">istore</a>
       
-      <a class="list-group-item" href="../proc/define.html#variable-j~2">j</a>
+      <a class="list-group-item" href="../proc/define.html#variable-j">j</a>
       
       <a class="list-group-item" href="../proc/define.html#variable-opts~2">opts</a>
       
@@ -376,7 +361,7 @@ public subroutine define(allopts, ireset)
   
 <tr>
   
-  <td><span class="anchor" id="variable-array~2"></span>character(len=:),</td>
+  <td><span class="anchor" id="variable-array"></span>character(len=:),</td>
   
   <td>public,</td>
   <td>allocatable</td><td>::</td>
@@ -390,7 +375,7 @@ public subroutine define(allopts, ireset)
   
 <tr>
   
-  <td><span class="anchor" id="variable-i~6"></span>integer,</td>
+  <td><span class="anchor" id="variable-i~4"></span>integer,</td>
   
   <td>public</td>
   <td></td><td>::</td>
@@ -446,7 +431,7 @@ public subroutine define(allopts, ireset)
   
 <tr>
   
-  <td><span class="anchor" id="variable-j~2"></span>integer,</td>
+  <td><span class="anchor" id="variable-j"></span>integer,</td>
   
   <td>public</td>
   <td></td><td>::</td>
@@ -505,9 +490,8 @@ public subroutine define(allopts, ireset)
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="k">subroutine </span><span class="n">define</span><span class="p">(</span><span class="n">allopts</span><span class="p">,</span><span class="n">ireset</span><span class="p">)</span>                           <span class="c">!@(#)define(3f): process &#39;DEFINE variablename[=expression]&#39; directive</span>
+    <div class="highlight"><pre><span></span><span class="k">subroutine </span><span class="n">define</span><span class="p">(</span><span class="n">allopts</span><span class="p">)</span>                                  <span class="c">!@(#)define(3f): process &#39;DEFINE variablename[=expression]&#39; directive</span>
 <span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span>    <span class="kd">::</span> <span class="n">allopts</span>                   <span class="c">! packed uppercase working copy of input line with leading $verb removed</span>
-<span class="kt">integer</span><span class="p">,</span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span>             <span class="kd">::</span> <span class="n">ireset</span>                    <span class="c">! 0= can redefine variable, anything else fail on redefine</span>
 
 <span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">G_line_length</span><span class="p">)</span><span class="kd">::</span> <span class="n">temp</span>                         <span class="c">! scratch</span>
 <span class="kt">integer</span>                     <span class="kd">::</span> <span class="n">iequ</span>                         <span class="c">! location of &quot;=&quot; in the directive, if any</span>
@@ -518,69 +502,40 @@ public subroutine define(allopts, ireset)
 <span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="k">allocatable</span> <span class="kd">::</span> <span class="k">array</span><span class="p">(:)</span>
 <span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="k">allocatable</span> <span class="kd">::</span> <span class="n">opts</span>
 
-   <span class="c">!x!if(allopts.eq.&#39;&#39;)then                                    ! if no options show all variables.</span>
-   <span class="c">!x!   call debug_state(&#39;*&#39;,msg=&#39;&#39;)</span>
-   <span class="c">!x!   return</span>
-   <span class="c">!x!endif</span>
-
-   <span class="k">CALL </span><span class="n">split</span><span class="p">(</span><span class="n">allopts</span><span class="p">,</span><span class="k">array</span><span class="p">,</span><span class="n">delimiters</span><span class="o">=</span><span class="s1">&#39;;&#39;</span><span class="p">)</span>                 <span class="c">! parse string to an array parsing on delimiters</span>
+   <span class="k">call </span><span class="n">split</span><span class="p">(</span><span class="n">allopts</span><span class="p">,</span><span class="k">array</span><span class="p">,</span><span class="n">delimiters</span><span class="o">=</span><span class="s1">&#39;;&#39;</span><span class="p">)</span>                 <span class="c">! parse string to an array parsing on delimiters</span>
 
    <span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="k">array</span><span class="p">)</span>
      <span class="n">opts</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="k">array</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
      <span class="k">if</span><span class="p">(</span><span class="n">opts</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="k">cycle</span>
-   <span class="c">! CHECK COMMAND SYNTAX</span>
+      <span class="c">! CHECK COMMAND SYNTAX</span>
       <span class="n">iequ</span><span class="o">=</span><span class="nb">index</span><span class="p">(</span><span class="n">opts</span><span class="p">,</span><span class="s1">&#39;=&#39;</span><span class="p">)</span>                                     <span class="c">! find &quot;=&quot; in &quot;variable_name=expression&quot; if any</span>
-      <span class="k">if</span> <span class="p">(</span><span class="n">opts</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">).</span><span class="n">eq</span><span class="p">.</span><span class="s1">&#39; &#39;</span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="n">iequ</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="nb">len_trim</span><span class="p">(</span><span class="n">opts</span><span class="p">))</span> <span class="k">then</span>     <span class="c">! no variable name in packed string or string after = is null</span>
-         <span class="k">call </span><span class="n">stop_prep</span><span class="p">(</span><span class="s1">&#39;*prep* ERROR(008) - INCOMPLETE STATEMENT:&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">opts</span><span class="p">))</span>
-      <span class="k">endif</span>
-<span class="k">      if</span> <span class="p">(</span><span class="n">iequ</span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="n">G_var_len</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="k">then</span>                            <span class="c">! variable name too long</span>
-         <span class="k">call </span><span class="n">stop_prep</span><span class="p">(</span><span class="s1">&#39;*prep* ERROR(009) - MISSPELLING OR NAME LENGTH EXCEEDS &#39;</span><span class="o">//</span><span class="n">v2s</span><span class="p">(</span><span class="n">G_var_len</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39; CHARACTERS:&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">opts</span><span class="p">))</span>
-      <span class="k">endif</span>
+      <span class="n">iname</span><span class="o">=</span><span class="nb">merge</span><span class="p">(</span><span class="nb">len_trim</span><span class="p">(</span><span class="n">opts</span><span class="p">),</span><span class="n">iequ</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">iequ</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span>             <span class="c">! find end of variable name</span>
+      <span class="k">call </span><span class="n">checkname</span><span class="p">(</span><span class="n">opts</span><span class="p">(:</span><span class="n">iname</span><span class="p">))</span>                             <span class="c">! check that variable name is composed of allowed characters</span>
 
-<span class="k">      if</span><span class="p">(</span><span class="n">iequ</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="k">then</span>                                        <span class="c">! find end of variable name</span>
-         <span class="n">iname</span><span class="o">=</span><span class="nb">len_trim</span><span class="p">(</span><span class="n">opts</span><span class="p">)</span>
-      <span class="k">else</span>
-<span class="k">         </span><span class="n">iname</span><span class="o">=</span><span class="n">iequ</span><span class="o">-</span><span class="mi">1</span>
-      <span class="k">endif</span>
-
-<span class="k">      call </span><span class="n">checkname</span><span class="p">(</span><span class="n">opts</span><span class="p">(:</span><span class="n">iname</span><span class="p">))</span>                             <span class="c">! check that variable name is composed of allowed characters</span>
-
-      <span class="n">istore</span><span class="o">=</span><span class="mi">0</span>
-      <span class="k">if</span> <span class="p">(</span><span class="n">G_numdef</span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span> <span class="k">then</span>                                  <span class="c">! test for redefinition of defined name</span>
-         <span class="k">do </span><span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">G_numdef</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">opts</span><span class="p">(:</span><span class="n">iname</span><span class="p">).</span><span class="n">eq</span><span class="p">.</span><span class="n">G_defvar</span><span class="p">(</span><span class="n">j</span><span class="p">))</span> <span class="k">then</span>
-<span class="k">               </span><span class="n">istore</span><span class="o">=</span><span class="n">j</span>
-               <span class="k">if</span><span class="p">(</span><span class="n">ireset</span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="k">then</span>                             <span class="c">! fail if redefinitions are not allowed on this call</span>
-                  <span class="k">call </span><span class="n">warn_prep</span><span class="p">(</span><span class="s1">&#39;*prep* WARNING(010) - REDEFINITION OF DEFINED NAME :&#39;</span> <span class="p">&amp;</span>
-                  <span class="p">&amp;</span> <span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">G_defvar</span><span class="p">(</span><span class="n">j</span><span class="p">))</span><span class="o">//</span><span class="s1">&#39;=&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="nb">adjustl</span><span class="p">(</span><span class="n">G_defval</span><span class="p">(</span><span class="n">j</span><span class="p">)))</span><span class="o">//</span><span class="s1">&#39; with &#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">opts</span><span class="p">))</span>
-               <span class="k">endif</span>
-<span class="k">            endif</span>
-<span class="k">         enddo</span>
-<span class="k">      endif</span>
-
-<span class="k">      if</span><span class="p">(</span><span class="n">istore</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="k">then</span>                                      <span class="c">! new variable name</span>
-         <span class="n">G_numdef</span><span class="o">=</span><span class="n">G_numdef</span><span class="o">+</span><span class="mi">1</span>                                   <span class="c">! increment number of defined variables</span>
-         <span class="n">istore</span><span class="o">=</span><span class="n">G_numdef</span>
-         <span class="n">temp</span><span class="o">=</span><span class="s1">&#39;&#39;</span>
-      <span class="k">endif</span>
-<span class="k">      if</span> <span class="p">(</span><span class="n">iequ</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span> <span class="k">then</span>                                      <span class="c">! if no = then variable assumes value of 1</span>
-         <span class="n">G_defvar</span><span class="p">(</span><span class="n">istore</span><span class="p">)</span><span class="o">=</span><span class="n">opts</span>                                 <span class="c">! store variable name from line with no =value string</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">iequ</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span> <span class="k">then</span>                                      <span class="c">! if no = then variable assumes value of 1</span>
          <span class="n">temp</span><span class="o">=</span><span class="s1">&#39;1&#39;</span>                                              <span class="c">! set string to default value</span>
       <span class="k">else</span>                                                     <span class="c">! =value string trails name on directive</span>
-         <span class="n">G_defvar</span><span class="p">(</span><span class="n">istore</span><span class="p">)</span><span class="o">=</span><span class="n">opts</span><span class="p">(:</span><span class="n">iequ</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>                        <span class="c">! store variable name from line with =value string</span>
          <span class="n">temp</span><span class="o">=</span><span class="n">opts</span><span class="p">(</span><span class="n">iequ</span><span class="o">+</span><span class="mi">1</span><span class="p">:)</span>                                    <span class="c">! get expression</span>
       <span class="k">endif</span>
-<span class="k">      call </span><span class="n">normalize_logical_operators</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
-      <span class="k">call </span><span class="n">parens</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>                                        <span class="c">!</span>
-      <span class="k">if</span> <span class="p">(</span><span class="n">iequ</span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span> <span class="k">then</span>
-<span class="k">         </span><span class="n">temp</span><span class="o">=</span><span class="n">opts</span><span class="p">(:</span><span class="n">iequ</span><span class="p">)</span><span class="o">//</span><span class="n">temp</span>
-      <span class="k">endif</span>
 
-<span class="k">      call </span><span class="n">math</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span><span class="n">iequ</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="nb">len_trim</span><span class="p">(</span><span class="n">temp</span><span class="p">))</span>
-      <span class="k">call </span><span class="n">doop</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span><span class="n">iequ</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="nb">len_trim</span><span class="p">(</span><span class="n">temp</span><span class="p">))</span>
-      <span class="k">call </span><span class="n">logic</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span><span class="n">iequ</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="nb">len_trim</span><span class="p">(</span><span class="n">temp</span><span class="p">))</span>
-      <span class="k">call </span><span class="n">getval</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span><span class="n">iequ</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="nb">len_trim</span><span class="p">(</span><span class="n">temp</span><span class="p">),</span><span class="n">G_defval</span><span class="p">(</span><span class="n">istore</span><span class="p">))</span>
-   <span class="k">enddo</span>
+<span class="k">      call </span><span class="n">normalize_logical_operators</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
+      <span class="k">call </span><span class="n">parens</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>                                         
+      <span class="k">call </span><span class="n">math</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="nb">len_trim</span><span class="p">(</span><span class="n">temp</span><span class="p">))</span>
+      <span class="k">call </span><span class="n">doop</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="nb">len_trim</span><span class="p">(</span><span class="n">temp</span><span class="p">))</span>
+      <span class="k">call </span><span class="n">logic</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="nb">len_trim</span><span class="p">(</span><span class="n">temp</span><span class="p">))</span>
+
+      <span class="n">temp</span><span class="o">=</span><span class="n">nospace</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
+      <span class="k">select case</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
+      <span class="k">case</span><span class="p">(</span><span class="s1">&#39;.FALSE.&#39;</span><span class="p">,</span><span class="s1">&#39;.TRUE.&#39;</span><span class="p">)</span>
+         <span class="k">call </span><span class="n">table</span><span class="p">%</span><span class="n">set</span><span class="p">(</span><span class="n">opts</span><span class="p">(:</span><span class="n">iname</span><span class="p">),</span><span class="n">temp</span><span class="p">)</span>
+      <span class="k">case </span><span class="n">default</span> <span class="c">! assumed a number </span>
+         <span class="k">if</span> <span class="p">(</span> <span class="nb">verify</span><span class="p">(</span><span class="n">temp</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">),</span><span class="s1">&#39;0123456789+-&#39;</span><span class="p">).</span><span class="n">eq</span><span class="p">.</span><span class="mi">0</span> <span class="p">.</span><span class="nb">and</span><span class="p">.</span>  <span class="nb">verify</span><span class="p">(</span><span class="n">temp</span><span class="p">(</span><span class="mi">2</span><span class="p">:</span><span class="nb">len_trim</span><span class="p">(</span><span class="n">temp</span><span class="p">)),</span><span class="s1">&#39;0123456789&#39;</span><span class="p">).</span><span class="n">eq</span><span class="p">.</span><span class="mi">0</span> <span class="p">)</span> <span class="k">then </span>
+<span class="k">            call </span><span class="n">table</span><span class="p">%</span><span class="n">set</span><span class="p">(</span><span class="n">opts</span><span class="p">(:</span><span class="n">iname</span><span class="p">),</span><span class="n">temp</span><span class="p">)</span>
+         <span class="k">else</span>
+<span class="k">            call </span><span class="n">stop_prep</span><span class="p">(</span><span class="s1">&#39;*prep* ERROR(008) - NOT LOGICAL OR INTEGER EXPRESSION:&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">allopts</span><span class="p">))</span>
+         <span class="k">endif</span>
+<span class="k">      end select</span>
+<span class="k">   enddo</span>
 
 <span class="k">end subroutine </span><span class="n">define</span>
 </pre></div>
@@ -604,7 +559,7 @@ public subroutine define(allopts, ireset)
           <p class="text-right">
             Documentation generated by 
             <a href="https://github.com/cmacmackin/ford">FORD</a>
-             on 2022-04-08 13:08  
+             on 2022-04-12 03:08  
           </p>
         </div>
         <div class="col-xs-12 col-md-4 col-md-pull-4"><p class="text-center"> prep was developed by John S. Urban</p></div>

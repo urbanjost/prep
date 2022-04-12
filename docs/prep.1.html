@@ -48,6 +48,7 @@ a.existingWikiWord[title]{ //border: 1px dashed #BBB; }
 <H1><HR><I>User Commands  &nbsp;-&nbsp;</I><NOBR>Fortran preprocessor (1)</NOBR><HR></H1>
 </CENTER>
 <BLOCKQUOTE>
+Project is up to date
 </BLOCKQUOTE>
 <A name=0>
 
@@ -94,15 +95,15 @@ a.existingWikiWord[title]{ //border: 1px dashed #BBB; }
 [-i <B>input_file</B>(s)]
 [-o <I>output_file</I>]
 [-<B>-system</B>]
-[-<B>-verbose</B>]
+[-<B>-type</B> <I>FILE_TYPE</I> | <B>--start</B> <I>START_STRING</I> --<B>stop</B> <I>STOP_STRING</I>]
 [-<B>-prefix</B> character|ADE]
 [-<B>-keeptabs</B>]
 [-<B>-noenv</B>]
 [-<B>-width</B> <I>n</I>]
 [-d ignore|remove|blank]
 [-<B>-comment</B> default|doxygen|ford|none]
-[-<B>-type</B> <I>FILE_TYPE</I> | <B>--start</B> <I>START_STRING</I> --<B>stop</B> <I>STOP_STRING</I>]
 [-<B>-ident</B>]
+[-<B>-verbose</B>]
 [-<B>-version</B>]
 [-<B>-help</B>]
 </BLOCKQUOTE>
@@ -130,7 +131,7 @@ o
 Conditionally output parts of the source file (controlled by expressions
 on the directives $<B>IF</B>, $<B>IFDEF</B>, $<B>IFNDEF</B>, and $<B>ENDIF</B>. The expressions may
 include variables defined on the command line or via the directives
-$<B>DEFINE</B>, $<B>REDEFINE</B>, and $<B>UNDEFINE</B>).
+$<B>DEFINE</B>, and $<B>UNDEFINE</B>).
 </TD></TR>
 <TR valign=top><TD width=3%>
 o
@@ -219,18 +220,8 @@ The directories to search for files specified on
 $<B>INCLUDE</B> directives.
 </TD></TR>
 <TR valign=top><TD colspan=2>
-<B></B><B>--prefix</B> ADE|letter </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-The directive prefix character. The default is "$".
-If the value is numeric it is assumed to be an ASCII
-Decimal Equivalent (Common values are 37=% 42=* 35=#
-36=$ 64=@).
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B></B><B>--noenv</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-The $<B>IFDEF</B> and $<B>IFNDEF</B> directives test for an internal
-<B>prep</B>(1) variable and then an environment variable by
-default. This option turns off testing for environment
-variables.
+<B></B><B>--system</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+Allow system commands on $<B>SYSTEM</B> directives to be executed.
 </TD></TR>
 <TR valign=top><TD colspan=2>
 <B></B><B>--type</B> FILETYPE </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
@@ -274,8 +265,26 @@ Same as <B>--type</B> except along with <B>--start</B> allows for custom
 strings to be specified.
 </TD></TR>
 <TR valign=top><TD colspan=2>
-<B></B><B>--system</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-Allow system commands on $<B>SYSTEM</B> directives to be executed.
+<B></B><B>--comment</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+Try to style comments generated in $<B>BLOCK</B> COMMENT blocks
+for other utilities such as doxygen. Default is to
+prefix lines with &#146;! &#146;. Allowed keywords are
+currently "default", "doxygen","none","ford".
+THIS IS AN ALPHA FEATURE AND NOT FULLY IMPLEMENTED.
+</TD></TR>
+<TR valign=top><TD colspan=2>
+<B></B><B>--prefix</B> ADE|letter </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+The directive prefix character. The default is "$".
+If the value is numeric it is assumed to be an ASCII
+Decimal Equivalent (Common values are 37=% 42=* 35=#
+36=$ 64=@).
+</TD></TR>
+<TR valign=top><TD colspan=2>
+<B></B><B>--noenv</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+The $<B>IFDEF</B> and $<B>IFNDEF</B> directives test for an internal
+<B>prep</B>(1) variable and then an environment variable by
+default. This option turns off testing for environment
+variables.
 </TD></TR>
 <TR valign=top><TD colspan=2>
 <B></B><B>--keeptabs</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
@@ -283,14 +292,6 @@ By default tab characters are expanded assuming a <B>stop</B> has
 been set every eight columns; and trailing carriage-return
 are removed. Use this flag to prevent this processing from
 from occurring.
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B></B><B>--comment</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-Try to style comments generated in $<B>BLOCK</B> COMMENT blocks
-for other utilities such as doxygen. Default is to
-prefix lines with &#146;! &#146;. Allowed keywords are
-currently "default", "doxygen","none","ford".
-THIS IS AN ALPHA FEATURE AND NOT FULLY IMPLEMENTED.
 </TD></TR>
 <TR valign=top><TD colspan=2>
 <B></B><B>--ident</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
@@ -394,14 +395,13 @@ Directives for defining variables &#46;&#46;&#46;
 <P>
 <PRE>
       $DEFINE   variable_name[=expression] [;&#46;&#46;&#46;]          [! comment ]
-      $REDEFINE variable_name[=expression] [;&#46;&#46;&#46;]          [! comment ]
       $UNDEFINE|$UNDEF variable_name [;&#46;&#46;&#46;]                [! comment ]
 <P>
 </PRE>
 Details &#46;&#46;&#46;
 <P>
 <PRE>
-      $DEFINE|$REDEFINE variable_name [=expression]; &#46;&#46;&#46; [! comment ]
+      $DEFINE variable_name [=expression]; &#46;&#46;&#46; [! comment ]
 <P>
 </PRE>
 Defines a numeric or logical variable name and its value. The variable
@@ -416,10 +416,6 @@ the variable is given the INTEGER value "1".
 Variables are defined from the point they are declared in a $<B>DEFINE</B>
 directive or the command line until program termination unless explicitly
 undefined with a $<B>UNDEFINE</B> directive.
-<P>
-If a variable is already defined a $<B>DEFINE</B> generates a warning on stderr.
-The $<B>REDEFINE</B> directive is identical to the $<B>DEFINE</B> directive accept no
-warning is produced if the variable is already defined.
 <P>
 Example:
 <P>
@@ -712,7 +708,7 @@ as in Fortran list-directed input.
 <P>
 <PRE>
       $BLOCK   [null|comment|write|variable [--varname NAME]|
-               set|system|message|define|redefine|
+               set|system|message|define
                help|version] [--file NAME [--append]]      [! comment ]
       $ENDBLOCK                                            [! comment ]
 <P>
@@ -727,7 +723,7 @@ $<B>BLOCK</B> has several forms but in all cases operates on a block of lines:
      creating a CHARACTER array:
       $BLOCK VARIABLE --varname NAME             [--file NAME [--append]]
      block versions of prep(1) commands:
-      $BLOCK set|system|message|define|redefine  [--file NAME [--append]]
+      $BLOCK set|system|message|define           [--file NAME [--append]]
      specialized procedure construction:
       $BLOCK help|version                        [--file NAME [--append]]
 <P>
@@ -743,7 +739,6 @@ $<B>BLOCK</B> has several forms but in all cases operates on a block of lines:
       MESSAGE:   All the lines in the block are treated as options to $MESSAGE
       SET:       All the lines in the block are treated as options to $SET
       DEFINE:    All the lines in the block are treated as options to $DEFINE
-      REDEFINE   All the lines in the block are treated as options to $REDEFINE
       SYSTEM:    The lines are gathered into a file and executed by the shell
                  with the stdout being written to a scratch file and then read
       END:       End block of specially processed text
@@ -1234,7 +1229,7 @@ John S. Urban
 <P>
 </BLOCKQUOTE>
 <P><HR>
-<TABLE width=100%><TR> <TD width=33%><I>8.1.1</I></TD> <TD width=33% align=center>Fortran preprocessor (1)</TD> <TD align=right width=33%><I>April 08, 2022</I></TD> </TR></TABLE><FONT SIZE=-1>Generated by <A HREF="http://www.squarebox.co.uk/download/manServer.shtml">manServer 1.08</A> from docs/prep.1 using man macros.</FONT>
+<TABLE width=100%><TR> <TD width=33%><I>8.1.1</I></TD> <TD width=33% align=center>Fortran preprocessor (1)</TD> <TD align=right width=33%><I>April 12, 2022</I></TD> </TR></TABLE><FONT SIZE=-1>Generated by <A HREF="http://www.squarebox.co.uk/download/manServer.shtml">manServer 1.08</A> from docs/prep.1 using man macros.</FONT>
 <br><br><center><img src="images/prep.1.gif"></center>
 </div>
 </div>

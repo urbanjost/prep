@@ -130,7 +130,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 0.7% of total for procedures.">15 statements</a>
+    title=" 0.8% of total for procedures.">16 statements</a>
      </li> 
      
      
@@ -175,7 +175,7 @@
   <div id="vars-0" class="panel-collapse collapse">
     <div class="list-group">
       
-      <a class="list-group-item" href="../proc/checkname.html#variable-i~3">i</a>
+      <a class="list-group-item" href="../proc/checkname.html#variable-i~2">i</a>
       
     </div>
   </div>
@@ -275,7 +275,7 @@ public subroutine checkname(line)
   <div id="vars-1" class="panel-collapse collapse">
     <div class="list-group">
       
-      <a class="list-group-item" href="../proc/checkname.html#variable-i~3">i</a>
+      <a class="list-group-item" href="../proc/checkname.html#variable-i~2">i</a>
       
     </div>
   </div>
@@ -333,7 +333,7 @@ public subroutine checkname(line)
   
 <tr>
   
-  <td><span class="anchor" id="variable-i~3"></span>integer,</td>
+  <td><span class="anchor" id="variable-i~2"></span>integer,</td>
   
   <td>public</td>
   <td></td><td>::</td>
@@ -368,11 +368,11 @@ public subroutine checkname(line)
 <span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span>          <span class="kd">::</span> <span class="n">line</span>
 <span class="kt">integer</span>                   <span class="kd">::</span> <span class="n">i</span>
 
-   <span class="k">if</span> <span class="p">(</span><span class="n">line</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">).</span><span class="n">lt</span><span class="p">.</span><span class="s1">&#39;A&#39;</span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="n">line</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">).</span><span class="n">gt</span><span class="p">.</span><span class="s1">&#39;Z&#39;</span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="n">line</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">).</span><span class="n">ne</span><span class="p">.</span><span class="s1">&#39;_&#39;</span><span class="p">)</span><span class="k">then</span>                         <span class="c">! variable names start with a-z</span>
+   <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">).</span><span class="n">eq</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="k">then</span>
+<span class="k">    call </span><span class="n">stop_prep</span><span class="p">(</span><span class="s2">&quot;*prep* ERROR(028) - NULL VARIABLE NAME:&quot;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">G_source</span><span class="p">))</span>
+   <span class="k">else if</span> <span class="p">(</span><span class="n">line</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">).</span><span class="n">lt</span><span class="p">.</span><span class="s1">&#39;A&#39;</span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="n">line</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">).</span><span class="n">gt</span><span class="p">.</span><span class="s1">&#39;Z&#39;</span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="n">line</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">).</span><span class="n">ne</span><span class="p">.</span><span class="s1">&#39;_&#39;</span><span class="p">)</span><span class="k">then</span>                         <span class="c">! variable names start with a-z</span>
     <span class="k">call </span><span class="n">stop_prep</span><span class="p">(</span><span class="s2">&quot;*prep* ERROR(016) - NAME DOES NOT START WITH ALPHAMERIC OR &#39;_&#39; (OR GENERAL SYNTAX ERROR):&quot;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">G_source</span><span class="p">))</span>
-   <span class="k">endif</span>
-
-<span class="k">   if</span><span class="p">(</span><span class="nb">len_trim</span><span class="p">(</span><span class="n">line</span><span class="p">).</span><span class="n">gt</span><span class="p">.</span><span class="n">G_var_len</span><span class="p">)</span><span class="k">then</span>
+   <span class="n">elseif</span><span class="p">(</span><span class="nb">len_trim</span><span class="p">(</span><span class="n">line</span><span class="p">).</span><span class="n">gt</span><span class="p">.</span><span class="n">G_var_len</span><span class="p">)</span><span class="k">then</span>
 <span class="k">     call </span><span class="n">stop_prep</span><span class="p">(</span><span class="s1">&#39;*prep* ERROR(017) - VARIABLE NAME EXCEEDS &#39;</span><span class="o">//</span><span class="n">v2s</span><span class="p">(</span><span class="n">G_var_len</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39; CHARACTERS:&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">G_source</span><span class="p">))</span>
    <span class="k">endif</span>
 
@@ -406,7 +406,7 @@ public subroutine checkname(line)
           <p class="text-right">
             Documentation generated by 
             <a href="https://github.com/cmacmackin/ford">FORD</a>
-             on 2022-04-08 13:08  
+             on 2022-04-12 03:08  
           </p>
         </div>
         <div class="col-xs-12 col-md-4 col-md-pull-4"><p class="text-center"> prep was developed by John S. Urban</p></div>

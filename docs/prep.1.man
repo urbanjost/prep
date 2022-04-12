@@ -1,3 +1,4 @@
+Project is up to date
 NAME
    prep(1) - [DEVELOPER] preprocess FORTRAN source files
    (LICENSE:MIT)
@@ -8,15 +9,15 @@ SYNOPSIS
         [-i input_file(s)]
         [-o output_file]
         [--system]
-        [--verbose]
+        [--type FILE_TYPE | --start START_STRING --stop STOP_STRING]
         [--prefix character|ADE]
         [--keeptabs]
         [--noenv]
         [--width n]
         [-d ignore|remove|blank]
         [--comment default|doxygen|ford|none]
-        [--type FILE_TYPE | --start START_STRING --stop STOP_STRING]
         [--ident]
+        [--verbose]
         [--version]
         [--help]
 DESCRIPTION
@@ -33,7 +34,7 @@ DESCRIPTION
    * Conditionally output parts of the source file (controlled by expressions
      on the directives $IF, $IFDEF, $IFNDEF, and $ENDIF. The expressions may
      include variables defined on the command line or via the directives
-     $DEFINE, $REDEFINE, and $UNDEFINE).
+     $DEFINE, and $UNDEFINE).
 
    * Include other files (provided by directive $INCLUDE).
 
@@ -83,15 +84,7 @@ OPTIONS
    -I include_directories  The directories to search for files specified on
                            $INCLUDE directives.
 
-   --prefix ADE|letter  The directive prefix character. The default is "$".
-                        If the value is numeric it is assumed to be an ASCII
-                        Decimal Equivalent (Common values are 37=% 42=* 35=#
-                        36=$ 64=@).
-
-   --noenv          The $IFDEF and $IFNDEF directives test for an internal
-                    prep(1) variable and then an environment variable by
-                    default. This option turns off testing for environment
-                    variables.
+   --system         Allow system commands on $SYSTEM directives to be executed.
 
    --type FILETYPE  This flag indicates to skip input lines until after a
                     specific start string is encountered and to stop once a
@@ -123,18 +116,26 @@ OPTIONS
    --stop STRING    Same as --type except along with --start allows for custom
                     strings to be specified.
 
-   --system         Allow system commands on $SYSTEM directives to be executed.
-
-   --keeptabs       By default tab characters are expanded assuming a stop has
-                    been set every eight columns; and trailing carriage-return
-                    are removed. Use this flag to prevent this processing from
-                    from occurring.
-
    --comment        Try to style comments generated in $BLOCK COMMENT blocks
                     for other utilities such as doxygen. Default is to
                     prefix lines with '! '. Allowed keywords are
                     currently "default", "doxygen","none","ford".
                     THIS IS AN ALPHA FEATURE AND NOT FULLY IMPLEMENTED.
+
+   --prefix ADE|letter  The directive prefix character. The default is "$".
+                        If the value is numeric it is assumed to be an ASCII
+                        Decimal Equivalent (Common values are 37=% 42=* 35=#
+                        36=$ 64=@).
+
+   --noenv          The $IFDEF and $IFNDEF directives test for an internal
+                    prep(1) variable and then an environment variable by
+                    default. This option turns off testing for environment
+                    variables.
+
+   --keeptabs       By default tab characters are expanded assuming a stop has
+                    been set every eight columns; and trailing carriage-return
+                    are removed. Use this flag to prevent this processing from
+                    from occurring.
 
    --ident          The output of the $IDENT directive is in the form of a
                     comment by default. If this flag is set the output is
@@ -203,12 +204,11 @@ DIRECTIVES
    Directives for defining variables ...
 
       $DEFINE   variable_name[=expression] [;...]          [! comment ]
-      $REDEFINE variable_name[=expression] [;...]          [! comment ]
       $UNDEFINE|$UNDEF variable_name [;...]                [! comment ]
 
    Details ...
 
-      $DEFINE|$REDEFINE variable_name [=expression]; ... [! comment ]
+      $DEFINE variable_name [=expression]; ... [! comment ]
 
    Defines a numeric or logical variable name and its value. The variable
    names may subsequently be used in the expressions on the conditional output
@@ -222,10 +222,6 @@ DIRECTIVES
    Variables are defined from the point they are declared in a $DEFINE
    directive or the command line until program termination unless explicitly
    undefined with a $UNDEFINE directive.
-
-   If a variable is already defined a $DEFINE generates a warning on stderr.
-   The $REDEFINE directive is identical to the $DEFINE directive accept no
-   warning is produced if the variable is already defined.
 
    Example:
 
@@ -438,7 +434,7 @@ DIRECTIVES
    (--file is ignored unless $PREP_DOCUMENT_DIR is set)
 
       $BLOCK   [null|comment|write|variable [--varname NAME]|
-               set|system|message|define|redefine|
+               set|system|message|define
                help|version] [--file NAME [--append]]      [! comment ]
       $ENDBLOCK                                            [! comment ]
 
@@ -451,7 +447,7 @@ DIRECTIVES
      creating a CHARACTER array:
       $BLOCK VARIABLE --varname NAME             [--file NAME [--append]]
      block versions of prep(1) commands:
-      $BLOCK set|system|message|define|redefine  [--file NAME [--append]]
+      $BLOCK set|system|message|define           [--file NAME [--append]]
      specialized procedure construction:
       $BLOCK help|version                        [--file NAME [--append]]
 
@@ -467,7 +463,6 @@ DIRECTIVES
       MESSAGE:   All the lines in the block are treated as options to $MESSAGE
       SET:       All the lines in the block are treated as options to $SET
       DEFINE:    All the lines in the block are treated as options to $DEFINE
-      REDEFINE   All the lines in the block are treated as options to $REDEFINE
       SYSTEM:    The lines are gathered into a file and executed by the shell
                  with the stdout being written to a scratch file and then read
       END:       End block of specially processed text

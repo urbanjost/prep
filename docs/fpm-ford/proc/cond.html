@@ -130,7 +130,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 5.2% of total for procedures.">105 statements</a>
+    title=" 5.5% of total for procedures.">109 statements</a>
      </li> 
      
      
@@ -179,7 +179,7 @@
       
       <a class="list-group-item" href="../proc/cond.html#variable-eb">eb</a>
       
-      <a class="list-group-item" href="../proc/cond.html#variable-ifound~2">ifound</a>
+      <a class="list-group-item" href="../proc/cond.html#variable-ifound">ifound</a>
       
       <a class="list-group-item" href="../proc/cond.html#variable-line~5">line</a>
       
@@ -269,7 +269,7 @@ public subroutine cond()
       
       <a class="list-group-item" href="../proc/cond.html#variable-eb">eb</a>
       
-      <a class="list-group-item" href="../proc/cond.html#variable-ifound~2">ifound</a>
+      <a class="list-group-item" href="../proc/cond.html#variable-ifound">ifound</a>
       
       <a class="list-group-item" href="../proc/cond.html#variable-line~5">line</a>
       
@@ -367,7 +367,7 @@ public subroutine cond()
   
 <tr>
   
-  <td><span class="anchor" id="variable-ifound~2"></span>logical,</td>
+  <td><span class="anchor" id="variable-ifound"></span>logical,</td>
   
   <td>public</td>
   <td></td><td>::</td>
@@ -500,9 +500,12 @@ public subroutine cond()
       <span class="n">line</span><span class="o">=</span><span class="n">line</span><span class="p">(:</span><span class="nb">index</span><span class="p">(</span><span class="n">line</span><span class="o">//</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="n">G_comment</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>             <span class="c">! trim trailing comment from directive</span>
    <span class="k">endif</span>
 <span class="k">   if</span> <span class="p">(</span><span class="n">line</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">).</span><span class="n">eq</span><span class="p">.</span><span class="n">G_comment</span><span class="p">)</span><span class="n">line</span><span class="o">=</span><span class="s1">&#39;&#39;</span>
-
-   <span class="n">verblen</span><span class="o">=</span><span class="nb">scan</span><span class="p">(</span><span class="n">line</span><span class="p">,</span><span class="s1">&#39; (&#39;</span><span class="p">)</span>
-   <span class="k">if</span><span class="p">(</span><span class="n">verblen</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="k">then</span>
+   <span class="k">if</span><span class="p">(</span><span class="n">line</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">4</span><span class="p">).</span><span class="n">eq</span><span class="p">.</span><span class="s1">&#39;@(#)&#39;</span><span class="p">)</span><span class="k">then</span>
+<span class="k">      </span><span class="n">verblen</span><span class="o">=</span><span class="mi">5</span>
+   <span class="k">else</span>
+<span class="k">      </span><span class="n">verblen</span><span class="o">=</span><span class="nb">scan</span><span class="p">(</span><span class="n">line</span><span class="p">,</span><span class="s1">&#39; (&#39;</span><span class="p">)</span>
+   <span class="k">endif</span>
+<span class="k">   if</span><span class="p">(</span><span class="n">verblen</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="k">then</span>
 <span class="k">      </span><span class="n">verblen</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
       <span class="n">verb</span><span class="o">=</span><span class="n">line</span>
       <span class="k">options</span><span class="o">=</span><span class="s1">&#39; &#39;</span>
@@ -534,8 +537,8 @@ public subroutine cond()
                                                                       <span class="c">! process the directive</span>
       <span class="k">select case</span><span class="p">(</span><span class="n">VERB</span><span class="p">)</span>
       <span class="k">case</span><span class="p">(</span><span class="s1">&#39;  &#39;</span><span class="p">)</span>                                                      <span class="c">! entire line is a comment</span>
-      <span class="k">case</span><span class="p">(</span><span class="s1">&#39;DEFINE&#39;</span><span class="p">,</span><span class="s1">&#39;DEF&#39;</span><span class="p">,</span><span class="s1">&#39;LET&#39;</span><span class="p">);</span>     <span class="k">call </span><span class="n">define</span><span class="p">(</span><span class="n">upopts</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>                 <span class="c">! only process DEFINE if not skipping data lines</span>
-      <span class="k">case</span><span class="p">(</span><span class="s1">&#39;REDEFINE&#39;</span><span class="p">,</span><span class="s1">&#39;REDEF&#39;</span><span class="p">);</span> <span class="k">call </span><span class="n">define</span><span class="p">(</span><span class="n">upopts</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>                 <span class="c">! only process DEFINE if not skipping data lines</span>
+      <span class="k">case</span><span class="p">(</span><span class="s1">&#39;DEFINE&#39;</span><span class="p">,</span><span class="s1">&#39;DEF&#39;</span><span class="p">,</span><span class="s1">&#39;LET&#39;</span><span class="p">);</span>     <span class="k">call </span><span class="n">define</span><span class="p">(</span><span class="n">upopts</span><span class="p">)</span>             <span class="c">! only process DEFINE if not skipping data lines</span>
+      <span class="k">case</span><span class="p">(</span><span class="s1">&#39;REDEFINE&#39;</span><span class="p">,</span><span class="s1">&#39;REDEF&#39;</span><span class="p">);</span> <span class="k">call </span><span class="n">define</span><span class="p">(</span><span class="n">upopts</span><span class="p">)</span>                   <span class="c">! only process DEFINE if not skipping data lines</span>
       <span class="k">case</span><span class="p">(</span><span class="s1">&#39;UNDEF&#39;</span><span class="p">,</span><span class="s1">&#39;UNDEFINE&#39;</span><span class="p">,</span><span class="s1">&#39;DELETE&#39;</span><span class="p">);</span> <span class="k">call </span><span class="n">undef</span><span class="p">(</span><span class="n">upper</span><span class="p">(</span><span class="k">options</span><span class="p">))</span>   <span class="c">! only process UNDEF if not skipping data lines</span>
       <span class="k">case</span><span class="p">(</span><span class="s1">&#39;INCLUDE&#39;</span><span class="p">,</span><span class="s1">&#39;READ&#39;</span><span class="p">);</span>   <span class="k">call include</span><span class="p">(</span><span class="k">options</span><span class="p">,</span><span class="mi">50</span><span class="o">+</span><span class="n">G_iocount</span><span class="p">)</span>    <span class="c">! Filenames can be case sensitive</span>
       <span class="k">case</span><span class="p">(</span><span class="s1">&#39;OUTPUT&#39;</span><span class="p">);</span>           <span class="k">call </span><span class="n">output_case</span><span class="p">(</span><span class="k">options</span><span class="p">)</span>             <span class="c">! Filenames can be case sensitive</span>
@@ -547,7 +550,7 @@ public subroutine cond()
       <span class="k">case</span><span class="p">(</span><span class="s1">&#39;SET&#39;</span><span class="p">);</span>              <span class="k">call </span><span class="n">set</span><span class="p">(</span><span class="k">options</span><span class="p">)</span>
       <span class="k">case</span><span class="p">(</span><span class="s1">&#39;IMPORT&#39;</span><span class="p">);</span>           <span class="k">call import</span><span class="p">(</span><span class="k">options</span><span class="p">)</span>
       <span class="k">case</span><span class="p">(</span><span class="s1">&#39;IDENT&#39;</span><span class="p">,</span><span class="s1">&#39;@(#)&#39;</span><span class="p">);</span>     <span class="k">call </span><span class="n">ident</span><span class="p">(</span><span class="k">options</span><span class="p">)</span>
-      <span class="k">case</span><span class="p">(</span><span class="s1">&#39;SHOW&#39;</span><span class="p">)</span> <span class="p">;</span>            <span class="k">call </span><span class="n">debug_state</span><span class="p">(</span><span class="n">upper</span><span class="p">(</span><span class="k">options</span><span class="p">),</span><span class="n">msg</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+      <span class="k">case</span><span class="p">(</span><span class="s1">&#39;SHOW&#39;</span><span class="p">)</span> <span class="p">;</span>            <span class="k">call </span><span class="n">show_state</span><span class="p">(</span><span class="n">upper</span><span class="p">(</span><span class="k">options</span><span class="p">),</span><span class="n">msg</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
       <span class="k">case</span><span class="p">(</span><span class="s1">&#39;SYSTEM&#39;</span><span class="p">);</span>           <span class="k">call </span><span class="n">exe</span><span class="p">()</span>
       <span class="k">case</span><span class="p">(</span><span class="s1">&#39;MESSAGE&#39;</span><span class="p">);</span>          <span class="k">call </span><span class="n">write_err</span><span class="p">(</span><span class="n">unquote</span><span class="p">(</span><span class="n">all_options</span><span class="p">))</span>      <span class="c">! trustingly trim MESSAGE from directive</span>
       <span class="k">case</span><span class="p">(</span><span class="s1">&#39;STOP&#39;</span><span class="p">);</span>             <span class="k">call stop</span><span class="p">(</span><span class="n">all_options</span><span class="p">)</span>
@@ -573,7 +576,7 @@ public subroutine cond()
          <span class="c">!if(index(upopts,&#39;=&#39;).gt.1.and.G_write)then  ! maybe try it as a simple expression instead; but should do it earlier</span>
          <span class="c">!                                ! to behave like fortran and not have reserved words, and only if LHS is</span>
          <span class="c">!                                ! an acceptable variable name</span>
-         <span class="c">!   call define(upopts,0)        ! only process DEFINE if not skipping data lines</span>
+         <span class="c">!   call define(upopts)          ! only process DEFINE if not skipping data lines</span>
          <span class="c">!else</span>
          <span class="c">!   call stop_prep(&#39;*prep* ERROR(001) - UNKNOWN COMPILER DIRECTIVE [&#39;//trim(verb)//&#39;]: &#39;//trim(G_SOURCE))</span>
          <span class="c">!endif</span>
@@ -606,7 +609,7 @@ public subroutine cond()
           <p class="text-right">
             Documentation generated by 
             <a href="https://github.com/cmacmackin/ford">FORD</a>
-             on 2022-04-08 13:08  
+             on 2022-04-12 03:08  
           </p>
         </div>
         <div class="col-xs-12 col-md-4 col-md-pull-4"><p class="text-center"> prep was developed by John S. Urban</p></div>

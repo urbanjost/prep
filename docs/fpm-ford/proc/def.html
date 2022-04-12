@@ -130,7 +130,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 1.9% of total for procedures.">38 statements</a>
+    title=" 1.9% of total for procedures.">37 statements</a>
      </li> 
      
      
@@ -175,9 +175,11 @@
   <div id="vars-0" class="panel-collapse collapse">
     <div class="list-group">
       
-      <a class="list-group-item" href="../proc/def.html#variable-i~5">i</a>
+      <a class="list-group-item" href="../proc/def.html#variable-i~3">i</a>
       
-      <a class="list-group-item" href="../proc/def.html#variable-value~2">value</a>
+      <a class="list-group-item" href="../proc/def.html#variable-name~3">name</a>
+      
+      <a class="list-group-item" href="../proc/def.html#variable-value~3">value</a>
       
       <a class="list-group-item" href="../proc/def.html#variable-varvalue">varvalue</a>
       
@@ -324,9 +326,11 @@ public subroutine def(verb, opts, noelse, eb)
   <div id="vars-1" class="panel-collapse collapse">
     <div class="list-group">
       
-      <a class="list-group-item" href="../proc/def.html#variable-i~5">i</a>
+      <a class="list-group-item" href="../proc/def.html#variable-i~3">i</a>
       
-      <a class="list-group-item" href="../proc/def.html#variable-value~2">value</a>
+      <a class="list-group-item" href="../proc/def.html#variable-name~3">name</a>
+      
+      <a class="list-group-item" href="../proc/def.html#variable-value~3">value</a>
       
       <a class="list-group-item" href="../proc/def.html#variable-varvalue">varvalue</a>
       
@@ -386,7 +390,7 @@ public subroutine def(verb, opts, noelse, eb)
   
 <tr>
   
-  <td><span class="anchor" id="variable-i~5"></span>integer,</td>
+  <td><span class="anchor" id="variable-i~3"></span>integer,</td>
   
   <td>public</td>
   <td></td><td>::</td>
@@ -400,7 +404,21 @@ public subroutine def(verb, opts, noelse, eb)
   
 <tr>
   
-  <td><span class="anchor" id="variable-value~2"></span>character(len=G_var_len),</td>
+  <td><span class="anchor" id="variable-name~3"></span>character(len=G_var_len),</td>
+  
+  <td>public</td>
+  <td></td><td>::</td>
+  <td><strong>name</strong></td><td></td><td></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" id="variable-value~3"></span>character(len=G_var_len),</td>
   
   <td>public</td>
   <td></td><td>::</td>
@@ -450,6 +468,7 @@ public subroutine def(verb, opts, noelse, eb)
 <span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span>  <span class="kd">::</span> <span class="n">opts</span>
 <span class="kt">integer</span><span class="p">,</span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>          <span class="kd">::</span> <span class="n">noelse</span>
 <span class="kt">logical</span>                      <span class="kd">::</span> <span class="n">eb</span>
+<span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">G_var_len</span><span class="p">)</span>     <span class="kd">::</span> <span class="n">name</span>  
 <span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">G_var_len</span><span class="p">)</span>     <span class="kd">::</span> <span class="k">value</span>
 <span class="kt">integer</span>                      <span class="kd">::</span> <span class="n">i</span>
 <span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="k">allocatable</span> <span class="kd">::</span> <span class="n">varvalue</span>
@@ -463,10 +482,9 @@ public subroutine def(verb, opts, noelse, eb)
 <span class="k">   call </span><span class="n">checkname</span><span class="p">(</span><span class="n">opts</span><span class="p">)</span>                              <span class="c">! check that opts contains only a legitimate variable name</span>
    <span class="k">value</span><span class="o">=</span><span class="n">opts</span>                                        <span class="c">! set VALUE to variable name</span>
    <span class="n">G_dc</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span>                                       <span class="c">! initialize</span>
-   <span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">G_numdef</span>                                   <span class="c">! find variable in variable dictionary</span>
-      <span class="k">if</span> <span class="p">(</span><span class="n">G_defvar</span><span class="p">(</span><span class="n">i</span><span class="p">).</span><span class="n">eq</span><span class="p">.</span><span class="k">value</span><span class="p">)</span> <span class="k">exit</span>
-<span class="k">   enddo</span>
-<span class="k">   if</span> <span class="p">(</span><span class="n">i</span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="n">G_numdef</span><span class="p">)</span> <span class="k">then</span>                           <span class="c">! if failed to find variable name</span>
+    
+   <span class="n">name</span><span class="o">=</span><span class="n">table</span><span class="p">%</span><span class="n">get</span><span class="p">(</span><span class="k">value</span><span class="p">)</span>
+   <span class="k">if</span> <span class="p">(</span><span class="n">name</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">then</span>                           <span class="c">! if failed to find variable name</span>
       <span class="n">G_dc</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
    <span class="k">endif</span>
 <span class="k">   if</span><span class="p">((.</span><span class="nb">not</span><span class="p">.</span><span class="n">G_noenv</span><span class="p">).</span><span class="nb">and</span><span class="p">.(.</span><span class="nb">not</span><span class="p">.</span><span class="n">G_dc</span><span class="p">))</span><span class="k">then</span>            <span class="c">! if not found in variable dictionary check environment variables if allowed</span>
@@ -505,7 +523,7 @@ public subroutine def(verb, opts, noelse, eb)
           <p class="text-right">
             Documentation generated by 
             <a href="https://github.com/cmacmackin/ford">FORD</a>
-             on 2022-04-08 13:08  
+             on 2022-04-12 03:08  
           </p>
         </div>
         <div class="col-xs-12 col-md-4 col-md-pull-4"><p class="text-center"> prep was developed by John S. Urban</p></div>

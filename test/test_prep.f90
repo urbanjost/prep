@@ -1,5 +1,6 @@
 program test_prep
 use M_io, only : filewrite, filedelete, gulp
+use M_strings, only : upper
 implicit none
 character(len=:),allocatable :: data(:)
 character(len=:),allocatable :: expected(:)
@@ -56,21 +57,22 @@ allocate(tally(0))
    call block_2()
    call block_3()
 
+!>> SYSTEM COMMANDS
+!>>   $SYSTEM command
+   !TODO!call system()
+
+   call env()
+
+   call misc()
+
 !>> INFORMATION
 !>>   $MESSAGE message_to_stderr
 !>>   $SHOW [defined_variable_name][;...]
    call message()
 
-!>> SYSTEM COMMANDS
-!>>   $SYSTEM command
-   !TODO!call system()
-
 !>>   $STOP [stop_value[ "message"]] | $QUIT ["message"]
    call stop()
    call quit()
-   call misc()
-
-   call env()
 
    if(all(tally))then
       write(*,'(a)')'ALL PREP TESTS PASSED'
@@ -243,13 +245,13 @@ character(len=*),intent(in) :: name
    CHECK : block
       if(size(expected).eq.size(result))then
          if( all(expected.eq.result) )then
-            write(*,'(*(g0,1x))')name// ' PASSED'
+            write(*,'("....................",T1,(a,T21,a))')trim(upper(name)),'PASSED'
             tally=[tally,.true.]
             exit CHECK
          endif
       endif
       tally=[tally,.false.]
-      write(*,'(*(g0,1x))')name// ' FAILED'
+      write(*,'("....................",T1,*(a,T21,a))')upper(name),'FAILED'
       write(*,'(/,a)')'RESULT'
       if(allocated(result))write(*,'(i3.3,1x,a)')(i,trim(result(i)),i=1,size(result))
       write(*,'(/,a)')'EXPECTED'
@@ -403,10 +405,10 @@ data=[ character(len=132) :: &
 '$!-------------------------------',&
 '$BLOCK set                       ',&
 'one   This is the one            ',&
-'two   two plus two is four       ',&
-'three pennies                    ',&
-'four  calling birds              ',&
-'five  1 +1+ 1+4-2                ',&
+'    two   two plus two is four   ',&
+'    three pennies                ',&
+'Four  calling birds              ',&
+'FIVE  1 +1+ 1+4-2                ',&
 '$ENDBLOCK                        ',&
 '$!-------------------------------',&
 '$BLOCK DEFINE                    ',&

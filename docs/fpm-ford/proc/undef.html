@@ -130,7 +130,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 1.3% of total for procedures.">27 statements</a>
+    title=" 1.0% of total for procedures.">19 statements</a>
      </li> 
      
      
@@ -175,9 +175,7 @@
   <div id="vars-0" class="panel-collapse collapse">
     <div class="list-group">
       
-      <a class="list-group-item" href="../proc/undef.html#variable-i~26">i</a>
-      
-      <a class="list-group-item" href="../proc/undef.html#variable-j~11">j</a>
+      <a class="list-group-item" href="../proc/undef.html#variable-i~24">i</a>
       
       <a class="list-group-item" href="../proc/undef.html#variable-k~3">k</a>
       
@@ -281,9 +279,7 @@ public subroutine undef(opts)
   <div id="vars-1" class="panel-collapse collapse">
     <div class="list-group">
       
-      <a class="list-group-item" href="../proc/undef.html#variable-i~26">i</a>
-      
-      <a class="list-group-item" href="../proc/undef.html#variable-j~11">j</a>
+      <a class="list-group-item" href="../proc/undef.html#variable-i~24">i</a>
       
       <a class="list-group-item" href="../proc/undef.html#variable-k~3">k</a>
       
@@ -345,25 +341,11 @@ public subroutine undef(opts)
   
 <tr>
   
-  <td><span class="anchor" id="variable-i~26"></span>integer,</td>
+  <td><span class="anchor" id="variable-i~24"></span>integer,</td>
   
   <td>public</td>
   <td></td><td>::</td>
   <td><strong>i</strong></td><td></td><td></td><td></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-j~11"></span>integer,</td>
-  
-  <td>public</td>
-  <td></td><td>::</td>
-  <td><strong>j</strong></td><td></td><td></td><td></td>
   
 </tr>
 
@@ -419,12 +401,12 @@ public subroutine undef(opts)
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
     <div class="highlight"><pre><span></span><span class="k">subroutine </span><span class="n">undef</span><span class="p">(</span><span class="n">opts</span><span class="p">)</span>                                     <span class="c">!@(#)undef(3f): process UNDEFINE directive</span>
-<span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span>     <span class="kd">::</span> <span class="n">opts</span>                               <span class="c">! directive with no spaces, leading prefix removed, and all uppercase</span>
+<span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span>             <span class="kd">::</span> <span class="n">opts</span>                       <span class="c">! directive with no spaces, leading prefix removed, and all uppercase</span>
 <span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="k">allocatable</span> <span class="kd">::</span> <span class="n">names</span><span class="p">(:)</span>
-<span class="kt">integer</span>                     <span class="kd">::</span> <span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span>
+<span class="kt">integer</span>                      <span class="kd">::</span> <span class="n">i</span><span class="p">,</span><span class="n">k</span>
 
-<span class="c">! REMOVE VARIABLE IF FOUND IN VARIABLE NAME DICTIONARY</span>
-<span class="c">! allow basic globbing where * is any string and ? is any character</span>
+   <span class="c">! REMOVE VARIABLE IF FOUND IN VARIABLE NAME DICTIONARY</span>
+   <span class="c">! allow basic globbing where * is any string and ? is any character</span>
    <span class="k">if</span> <span class="p">(</span><span class="nb">len_trim</span><span class="p">(</span><span class="n">opts</span><span class="p">).</span><span class="n">eq</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span> <span class="k">then</span>                           <span class="c">! if no variable name</span>
       <span class="k">call </span><span class="n">stop_prep</span><span class="p">(</span><span class="s1">&#39;*prep* ERROR(023) - $UNDEFINE MISSING TARGETS:&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">G_source</span><span class="p">))</span>
    <span class="k">endif</span>
@@ -434,17 +416,9 @@ public subroutine undef(opts)
       <span class="k">if</span><span class="p">(</span><span class="n">G_verbose</span><span class="p">)</span><span class="k">then</span>
 <span class="k">         call </span><span class="n">write_err</span><span class="p">(</span><span class="s1">&#39;+ $UNDEFINE &#39;</span><span class="o">//</span><span class="n">names</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
       <span class="k">endif</span>
-<span class="k">      </span><span class="n">i</span><span class="o">=</span><span class="mi">0</span>
-      <span class="k">do</span>                                                   <span class="c">! find defined variable to be undefined by searching dictionary</span>
-         <span class="n">i</span><span class="o">=</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span>
-         <span class="k">if</span><span class="p">(</span><span class="n">i</span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="n">G_numdef</span><span class="p">)</span><span class="k">exit</span>
-<span class="k">         if</span> <span class="p">(</span><span class="n">glob</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">G_defvar</span><span class="p">(</span><span class="n">i</span><span class="p">)),</span><span class="nb">trim</span><span class="p">(</span><span class="n">names</span><span class="p">(</span><span class="n">k</span><span class="p">))))</span><span class="k">then</span>   <span class="c">! found the requested variable name</span>
-            <span class="k">do </span><span class="n">j</span><span class="o">=</span><span class="n">i</span><span class="p">,</span><span class="n">G_numdef</span><span class="o">-</span><span class="mi">1</span>                              <span class="c">! remove variable name and value from list of variable names and values</span>
-              <span class="n">G_defvar</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">=</span><span class="n">G_defvar</span><span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>                    <span class="c">! replace the value to be removed with the one above it and then repeat</span>
-              <span class="n">G_defval</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">=</span><span class="n">G_defval</span><span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
-            <span class="k">enddo</span>
-<span class="k">            </span><span class="n">G_numdef</span><span class="o">=</span><span class="n">G_numdef</span><span class="o">-</span><span class="mi">1</span>                            <span class="c">! decrement number of defined variables</span>
-            <span class="n">i</span><span class="o">=</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span>
+<span class="k">      do </span><span class="n">i</span><span class="o">=</span><span class="n">size</span><span class="p">(</span><span class="n">table</span><span class="p">%</span><span class="n">key</span><span class="p">),</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span>                           <span class="c">! find defined variable to be undefined by searching dictionary</span>
+         <span class="k">if</span> <span class="p">(</span><span class="n">glob</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">table</span><span class="p">%</span><span class="n">key</span><span class="p">(</span><span class="n">i</span><span class="p">)),</span><span class="nb">trim</span><span class="p">(</span><span class="n">names</span><span class="p">(</span><span class="n">k</span><span class="p">))))</span><span class="k">then</span>   <span class="c">! found the requested variable name</span>
+            <span class="k">call  </span><span class="n">table</span><span class="p">%</span><span class="n">del</span><span class="p">(</span><span class="n">table</span><span class="p">%</span><span class="n">key</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
          <span class="k">endif</span>
 <span class="k">      enddo</span>
 <span class="k">   enddo</span>
@@ -471,7 +445,7 @@ public subroutine undef(opts)
           <p class="text-right">
             Documentation generated by 
             <a href="https://github.com/cmacmackin/ford">FORD</a>
-             on 2022-04-08 13:08  
+             on 2022-04-12 03:08  
           </p>
         </div>
         <div class="col-xs-12 col-md-4 col-md-pull-4"><p class="text-center"> prep was developed by John S. Urban</p></div>

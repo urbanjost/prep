@@ -20,6 +20,13 @@ new features, changes, and relevant notifications.
   - [ ] registered in fpm(1) repository
 
 ---
+**2022-04-11**  John S. Urban <https://github.com/urbanjost>
+
+### :orange_circle: DIFF:
+  + No longer produce warning message if variable is redefined, to be more
+    compatible with fpp(1) and cpp(1)
+  + deprecating $REDEFINE. Removed from documentation.
+---
 **2022-04-02**  John S. Urban <https://github.com/urbanjost>
 
 ### :orange_circle: DIFF:

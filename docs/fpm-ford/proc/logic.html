@@ -130,7 +130,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 4.7% of total for procedures.">94 statements</a>
+    title=" 4.8% of total for procedures.">94 statements</a>
      </li> 
      
      
@@ -175,7 +175,7 @@
   <div id="vars-0" class="panel-collapse collapse">
     <div class="list-group">
       
-      <a class="list-group-item" href="../proc/logic.html#variable-i~19">i</a>
+      <a class="list-group-item" href="../proc/logic.html#variable-i~16">i</a>
       
       <a class="list-group-item" href="../proc/logic.html#variable-i1~2">i1</a>
       
@@ -185,7 +185,7 @@
       
       <a class="list-group-item" href="../proc/logic.html#variable-iop">iop</a>
       
-      <a class="list-group-item" href="../proc/logic.html#variable-j~7">j</a>
+      <a class="list-group-item" href="../proc/logic.html#variable-j~6">j</a>
       
       <a class="list-group-item" href="../proc/logic.html#variable-k~2">k</a>
       
@@ -335,7 +335,7 @@ public subroutine logic(line, ipos1, ipos2)
   <div id="vars-1" class="panel-collapse collapse">
     <div class="list-group">
       
-      <a class="list-group-item" href="../proc/logic.html#variable-i~19">i</a>
+      <a class="list-group-item" href="../proc/logic.html#variable-i~16">i</a>
       
       <a class="list-group-item" href="../proc/logic.html#variable-i1~2">i1</a>
       
@@ -345,7 +345,7 @@ public subroutine logic(line, ipos1, ipos2)
       
       <a class="list-group-item" href="../proc/logic.html#variable-iop">iop</a>
       
-      <a class="list-group-item" href="../proc/logic.html#variable-j~7">j</a>
+      <a class="list-group-item" href="../proc/logic.html#variable-j~6">j</a>
       
       <a class="list-group-item" href="../proc/logic.html#variable-k~2">k</a>
       
@@ -423,7 +423,7 @@ public subroutine logic(line, ipos1, ipos2)
   
 <tr>
   
-  <td><span class="anchor" id="variable-i~19"></span>integer,</td>
+  <td><span class="anchor" id="variable-i~16"></span>integer,</td>
   
   <td>public</td>
   <td></td><td>::</td>
@@ -493,7 +493,7 @@ public subroutine logic(line, ipos1, ipos2)
   
 <tr>
   
-  <td><span class="anchor" id="variable-j~7"></span>integer,</td>
+  <td><span class="anchor" id="variable-j~6"></span>integer,</td>
   
   <td>public</td>
   <td></td><td>::</td>
@@ -701,7 +701,7 @@ public subroutine logic(line, ipos1, ipos2)
                 <span class="k">enddo </span><span class="n">INNER</span>
               <span class="k">enddo </span><span class="n">OUTER</span>
               <span class="k">IF</span> <span class="p">(</span><span class="n">J</span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span> <span class="n">LEN1</span><span class="o">=</span><span class="mi">1</span>
-              <span class="n">ONE</span><span class="o">=</span><span class="n">TRUFAL</span><span class="p">(</span><span class="n">NEWL</span><span class="p">,</span><span class="n">J</span><span class="o">+</span><span class="n">LEN1</span><span class="p">,</span><span class="n">I1</span><span class="p">)</span>
+              <span class="n">ONE</span><span class="o">=</span><span class="n">true_or_false</span><span class="p">(</span><span class="n">NEWL</span><span class="p">,</span><span class="n">J</span><span class="o">+</span><span class="n">LEN1</span><span class="p">,</span><span class="n">I1</span><span class="p">)</span>
            <span class="k">endif</span>
 
 <span class="k">           </span><span class="n">OUT</span><span class="p">:</span> <span class="k">DO </span><span class="n">L</span><span class="o">=</span><span class="n">I1</span><span class="o">+</span><span class="nb">LEN</span><span class="p">,</span><span class="nb">len_trim</span><span class="p">(</span><span class="n">NEWL</span><span class="p">)</span>
@@ -713,7 +713,7 @@ public subroutine logic(line, ipos1, ipos2)
            <span class="k">enddo </span><span class="n">OUT</span>
 
            <span class="k">IF</span> <span class="p">(</span><span class="n">L</span><span class="p">.</span><span class="n">GT</span><span class="p">.</span><span class="nb">len_trim</span><span class="p">(</span><span class="n">NEWL</span><span class="p">))</span> <span class="n">LEN2</span><span class="o">=</span><span class="mi">0</span>
-           <span class="n">TWO</span><span class="o">=</span><span class="n">TRUFAL</span><span class="p">(</span><span class="n">NEWL</span><span class="p">,</span><span class="n">I1</span><span class="o">+</span><span class="nb">LEN</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">L</span><span class="o">-</span><span class="n">LEN2</span><span class="p">)</span>
+           <span class="n">TWO</span><span class="o">=</span><span class="n">true_or_false</span><span class="p">(</span><span class="n">NEWL</span><span class="p">,</span><span class="n">I1</span><span class="o">+</span><span class="nb">LEN</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">L</span><span class="o">-</span><span class="n">LEN2</span><span class="p">)</span>
 
            <span class="k">select case</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
            <span class="k">case</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span> <span class="n">G_dc</span><span class="o">=</span><span class="p">.</span><span class="nb">not</span><span class="p">.</span><span class="n">two</span>
@@ -748,12 +748,12 @@ public subroutine logic(line, ipos1, ipos2)
          <span class="k">if</span> <span class="p">(</span><span class="n">newl</span><span class="p">(</span><span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">).</span><span class="n">eq</span><span class="p">.</span><span class="s1">&#39;V.&#39;</span><span class="p">)</span> <span class="k">exit</span>
 <span class="k">      enddo</span>
 <span class="k">      if</span> <span class="p">(</span><span class="n">j</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span> <span class="n">len1</span><span class="o">=</span><span class="mi">1</span>
-      <span class="n">one</span><span class="o">=</span><span class="n">trufal</span><span class="p">(</span><span class="n">newl</span><span class="p">,</span><span class="n">j</span><span class="o">+</span><span class="n">len1</span><span class="p">,</span><span class="n">iop</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+      <span class="n">one</span><span class="o">=</span><span class="n">true_or_false</span><span class="p">(</span><span class="n">newl</span><span class="p">,</span><span class="n">j</span><span class="o">+</span><span class="n">len1</span><span class="p">,</span><span class="n">iop</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
       <span class="k">do </span><span class="n">l</span><span class="o">=</span><span class="n">iop</span><span class="o">+</span><span class="nb">len</span><span class="p">,</span><span class="nb">len_trim</span><span class="p">(</span><span class="n">newl</span><span class="p">)</span>
          <span class="k">if</span> <span class="p">(</span><span class="n">newl</span><span class="p">(</span><span class="n">l</span><span class="p">:</span><span class="n">l</span><span class="o">+</span><span class="mi">1</span><span class="p">).</span><span class="n">eq</span><span class="p">.</span><span class="s1">&#39;.E&#39;</span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="n">newl</span><span class="p">(</span><span class="n">l</span><span class="p">:</span><span class="n">l</span><span class="o">+</span><span class="mi">1</span><span class="p">).</span><span class="n">eq</span><span class="p">.</span><span class="s1">&#39;.N&#39;</span><span class="p">)</span> <span class="k">exit</span>
 <span class="k">      enddo</span>
 <span class="k">      if</span> <span class="p">(</span><span class="n">l</span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="nb">len_trim</span><span class="p">(</span><span class="n">newl</span><span class="p">))</span> <span class="n">len2</span><span class="o">=</span><span class="mi">0</span>
-      <span class="n">two</span><span class="o">=</span><span class="n">trufal</span><span class="p">(</span><span class="n">newl</span><span class="p">,</span><span class="n">iop</span><span class="o">+</span><span class="nb">len</span><span class="p">,</span><span class="n">l</span><span class="o">+</span><span class="n">len2</span><span class="p">)</span>
+      <span class="n">two</span><span class="o">=</span><span class="n">true_or_false</span><span class="p">(</span><span class="n">newl</span><span class="p">,</span><span class="n">iop</span><span class="o">+</span><span class="nb">len</span><span class="p">,</span><span class="n">l</span><span class="o">+</span><span class="n">len2</span><span class="p">)</span>
       <span class="n">G_dc</span><span class="o">=</span><span class="n">one</span><span class="p">.</span><span class="n">eqv</span><span class="p">.</span><span class="n">two</span>
       <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="mi">5</span><span class="p">)</span> <span class="n">G_dc</span><span class="o">=</span><span class="n">one</span><span class="p">.</span><span class="n">neqv</span><span class="p">.</span><span class="n">two</span>
       <span class="n">temp</span><span class="o">=</span><span class="s1">&#39;.FALSE.&#39;</span>
@@ -782,7 +782,7 @@ public subroutine logic(line, ipos1, ipos2)
           <p class="text-right">
             Documentation generated by 
             <a href="https://github.com/cmacmackin/ford">FORD</a>
-             on 2022-04-08 13:08  
+             on 2022-04-12 03:08  
           </p>
         </div>
         <div class="col-xs-12 col-md-4 col-md-pull-4"><p class="text-center"> prep was developed by John S. Urban</p></div>

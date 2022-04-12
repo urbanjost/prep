@@ -130,7 +130,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 0.6% of total for procedures.">13 statements</a>
+    title=" 0.7% of total for procedures.">13 statements</a>
      </li> 
      
      
@@ -177,7 +177,7 @@
       
       <a class="list-group-item" href="../proc/help_usage.html#variable-help_text">help_text</a>
       
-      <a class="list-group-item" href="../proc/help_usage.html#variable-i~14">i</a>
+      <a class="list-group-item" href="../proc/help_usage.html#variable-i~12">i</a>
       
       <a class="list-group-item" href="../proc/help_usage.html#variable-stopit">stopit</a>
       
@@ -283,7 +283,7 @@ public subroutine help_usage(l_help)
       
       <a class="list-group-item" href="../proc/help_usage.html#variable-help_text">help_text</a>
       
-      <a class="list-group-item" href="../proc/help_usage.html#variable-i~14">i</a>
+      <a class="list-group-item" href="../proc/help_usage.html#variable-i~12">i</a>
       
       <a class="list-group-item" href="../proc/help_usage.html#variable-stopit">stopit</a>
       
@@ -357,7 +357,7 @@ public subroutine help_usage(l_help)
   
 <tr>
   
-  <td><span class="anchor" id="variable-i~14"></span>integer,</td>
+  <td><span class="anchor" id="variable-i~12"></span>integer,</td>
   
   <td>public</td>
   <td></td><td>::</td>
@@ -422,15 +422,15 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;        [-i input_file(s)]                                                      &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;        [-o output_file]                                                        &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;        [--system]                                                              &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;        [--verbose]                                                             &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;        [--type FILE_TYPE | --start START_STRING --stop STOP_STRING]            &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;        [--prefix character|ADE]                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;        [--keeptabs]                                                            &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;        [--noenv]                                                               &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;        [--width n]                                                             &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;        [-d ignore|remove|blank]                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;        [--comment default|doxygen|ford|none]                                   &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;        [--type FILE_TYPE | --start START_STRING --stop STOP_STRING]            &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;        [--ident]                                                               &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;        [--verbose]                                                             &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;        [--version]                                                             &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;        [--help]                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;DESCRIPTION                                                                     &#39;</span><span class="p">,&amp;</span>
@@ -447,7 +447,7 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;   * Conditionally output parts of the source file (controlled by expressions   &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;     on the directives $IF, $IFDEF, $IFNDEF, and $ENDIF. The expressions may    &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;     include variables defined on the command line or via the directives        &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;     $DEFINE, $REDEFINE, and $UNDEFINE).                                        &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;     $DEFINE, and $UNDEFINE).                                                   &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   * Include other files (provided by directive $INCLUDE).                      &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
@@ -497,15 +497,7 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;   -I include_directories  The directories to search for files specified on     &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                           $INCLUDE directives.                                 &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   --prefix ADE|letter  The directive prefix character. The default is &quot;$&quot;.     &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                        If the value is numeric it is assumed to be an ASCII    &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                        Decimal Equivalent (Common values are 37=% 42=* 35=#    &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                        36=$ 64=@).                                             &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   --noenv          The $IFDEF and $IFNDEF directives test for an internal      &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                    prep(1) variable and then an environment variable by        &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                    default. This option turns off testing for environment      &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                    variables.                                                  &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   --system         Allow system commands on $SYSTEM directives to be executed. &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   --type FILETYPE  This flag indicates to skip input lines until after a       &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                    specific start string is encountered and to stop once a     &#39;</span><span class="p">,&amp;</span>
@@ -537,18 +529,26 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;   --stop STRING    Same as --type except along with --start allows for custom  &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                    strings to be specified.                                    &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   --system         Allow system commands on $SYSTEM directives to be executed. &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   --keeptabs       By default tab characters are expanded assuming a stop has  &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                    been set every eight columns; and trailing carriage-return  &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                    are removed. Use this flag to prevent this processing from  &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                    from occurring.                                             &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   --comment        Try to style comments generated in $BLOCK COMMENT blocks    &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                    for other utilities such as doxygen. Default is to          &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                    prefix lines with &#39;&#39;! &#39;&#39;. Allowed keywords are              &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                    currently &quot;default&quot;, &quot;doxygen&quot;,&quot;none&quot;,&quot;ford&quot;.               &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                    THIS IS AN ALPHA FEATURE AND NOT FULLY IMPLEMENTED.         &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   --prefix ADE|letter  The directive prefix character. The default is &quot;$&quot;.     &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                        If the value is numeric it is assumed to be an ASCII    &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                        Decimal Equivalent (Common values are 37=% 42=* 35=#    &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                        36=$ 64=@).                                             &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   --noenv          The $IFDEF and $IFNDEF directives test for an internal      &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                    prep(1) variable and then an environment variable by        &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                    default. This option turns off testing for environment      &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                    variables.                                                  &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;   --keeptabs       By default tab characters are expanded assuming a stop has  &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                    been set every eight columns; and trailing carriage-return  &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                    are removed. Use this flag to prevent this processing from  &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                    from occurring.                                             &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   --ident          The output of the $IDENT directive is in the form of a      &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                    comment by default. If this flag is set the output is       &#39;</span><span class="p">,&amp;</span>
@@ -617,12 +617,11 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;   Directives for defining variables ...                                        &#39;</span><span class="p">,&amp;</span> 
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;      $DEFINE   variable_name[=expression] [;...]          [! comment ]         &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;      $REDEFINE variable_name[=expression] [;...]          [! comment ]         &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;      $UNDEFINE|$UNDEF variable_name [;...]                [! comment ]         &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   Details ...                                                                  &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;      $DEFINE|$REDEFINE variable_name [=expression]; ... [! comment ]           &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;      $DEFINE variable_name [=expression]; ... [! comment ]                     &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   Defines a numeric or logical variable name and its value. The variable       &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   names may subsequently be used in the expressions on the conditional output  &#39;</span><span class="p">,&amp;</span>
@@ -636,10 +635,6 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;   Variables are defined from the point they are declared in a $DEFINE          &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   directive or the command line until program termination unless explicitly    &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   undefined with a $UNDEFINE directive.                                        &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   If a variable is already defined a $DEFINE generates a warning on stderr.    &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   The $REDEFINE directive is identical to the $DEFINE directive accept no      &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;   warning is produced if the variable is already defined.                      &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;   Example:                                                                     &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
@@ -852,7 +847,7 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;   (--file is ignored unless $PREP_DOCUMENT_DIR is set)                         &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;      $BLOCK   [null|comment|write|variable [--varname NAME]|                   &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;               set|system|message|define|redefine|                              &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;               set|system|message|define                                        &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;               help|version] [--file NAME [--append]]      [! comment ]         &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;      $ENDBLOCK                                            [! comment ]         &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
@@ -865,7 +860,7 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;     creating a CHARACTER array:                                                &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;      $BLOCK VARIABLE --varname NAME             [--file NAME [--append]]       &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;     block versions of prep(1) commands:                                        &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;      $BLOCK set|system|message|define|redefine  [--file NAME [--append]]       &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;      $BLOCK set|system|message|define           [--file NAME [--append]]       &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;     specialized procedure construction:                                        &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;      $BLOCK help|version                        [--file NAME [--append]]       &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                                                                                &#39;</span><span class="p">,&amp;</span>
@@ -881,7 +876,6 @@ public subroutine help_usage(l_help)
 <span class="s1">&#39;      MESSAGE:   All the lines in the block are treated as options to $MESSAGE  &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;      SET:       All the lines in the block are treated as options to $SET      &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;      DEFINE:    All the lines in the block are treated as options to $DEFINE   &#39;</span><span class="p">,&amp;</span>
-<span class="s1">&#39;      REDEFINE   All the lines in the block are treated as options to $REDEFINE &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;      SYSTEM:    The lines are gathered into a file and executed by the shell   &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;                 with the stdout being written to a scratch file and then read  &#39;</span><span class="p">,&amp;</span>
 <span class="s1">&#39;      END:       End block of specially processed text                          &#39;</span><span class="p">,&amp;</span>
@@ -1240,7 +1234,7 @@ public subroutine help_usage(l_help)
           <p class="text-right">
             Documentation generated by 
             <a href="https://github.com/cmacmackin/ford">FORD</a>
-             on 2022-04-08 13:08  
+             on 2022-04-12 03:08  
           </p>
         </div>
         <div class="col-xs-12 col-md-4 col-md-pull-4"><p class="text-center"> prep was developed by John S. Urban</p></div>
