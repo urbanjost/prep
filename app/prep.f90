@@ -1350,7 +1350,7 @@ character(len=G_line_length) :: options                 ! everything after first
 ! CHECK COMMAND SYNTAX
    if(G_outtype.eq.'help')then  ! if in 'help' mode wrap up the routine
       write(G_iout,'(a)')"'']"
-      write(G_iout,'(a)')"   WRITE(stdout,'(a)')(trim(help_text(i)),i=1,size(help_text))"
+      write(G_iout,'(a)')"   WRITE(*,'(a)')(trim(help_text(i)),i=1,size(help_text))"
       write(G_iout,'(a)')"   stop ! if --help was specified, stop"
       write(G_iout,'(a)')"endif"
       write(G_iout,'(a)')"end subroutine help_usage"
@@ -1366,9 +1366,9 @@ character(len=G_line_length) :: options                 ! everything after first
    elseif(G_outtype.eq.'version')then  ! if in 'version' mode wrap up the routine
       write(G_iout,'("''@(#)COMPILED:       ",a,"'',&")') getdate('long')//'>'
       write(G_iout,'(a)')"'']"
-      write(G_iout,'(a)')"   WRITE(stdout,'(a)')(trim(help_text(i)(5:len_trim(help_text(i))-1)),i=1,size(help_text))"
-      !x!write(G_iout,'(a)')'   write(stdout,*)"COMPILER VERSION=",COMPILER_VERSION()'
-      !x!write(G_iout,'(a)')'   write(stdout,*)"COMPILER OPTIONS=",COMPILER_OPTIONS()'
+      write(G_iout,'(a)')"   WRITE(*,'(a)')(trim(help_text(i)(5:len_trim(help_text(i))-1)),i=1,size(help_text))"
+      !x!write(G_iout,'(a)')'   write(*,*)"COMPILER VERSION=",COMPILER_VERSION()'
+      !x!write(G_iout,'(a)')'   write(*,*)"COMPILER OPTIONS=",COMPILER_OPTIONS()'
       write(G_iout,'(a)')"   stop ! if --version was specified, stop"
       write(G_iout,'(a)')"endif"
       write(G_iout,'(a)')"end subroutine help_version"
