@@ -1,5 +1,5 @@
 #name: Build FORD docs & deploy to main
-name:
+name: FORD(1) docs
 on:
   push:
     branches:

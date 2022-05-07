@@ -211,6 +211,7 @@ logical                      :: ifound
       case('BLOCK');            call document(options)
       case('ENDBLOCK');         call document(' ')
       case('SET');              call set(options)
+      case('UNSET');            call unset(upper(options))   ! only process UNSET if not skipping data lines
       case('IMPORT');           call import(options)
       case('IDENT','@(#)');     call ident(options)
       case('SHOW') ;            call show_state(upper(options),msg='')
@@ -559,6 +560,28 @@ integer                                :: ivalue
    endif
 
 end subroutine getval
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!===================================================================================================================================
+subroutine unset(opts)                                     !@(#)unset(3f): process UNSET directive
+character(len=*)             :: opts                       ! directive with no spaces, leading prefix removed, and all uppercase
+character(len=:),allocatable :: names(:)
+integer                      :: i,k
+
+   ! REMOVE VARIABLE IF FOUND IN VARIABLE NAME DICTIONARY
+   ! allow basic globbing where * is any string and ? is any character
+   if (len_trim(opts).eq.0) then                           ! if no variable name
+      call stop_prep('*prep* ERROR(023) - $UNSET MISSING TARGETS:'//trim(G_source))
+   endif
+   call split(opts,names,delimiters=' ;,')
+
+   do k=1,size(names)
+      if(G_verbose)then
+         call write_err('+ $UNSET '//names(k))
+      endif
+      call prep_update(names(k))
+   enddo
+end subroutine unset
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
@@ -2092,7 +2115,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '     expansion, allowing for basic templating (controlled by directives         ',&
 '     $PARCEL/$ENDPARCEL and $POST). The mechanism supported is to replace       ',&
 '     text of the form ${NAME} with user-supplied strings similar to the         ',&
-'     POSIX shell (controlled by directives $SET and $IMPORT).                   ',&
+'     POSIX shell (controlled by directives $SET, $USET and $IMPORT).            ',&
 '                                                                                ',&
 '   * Filter blocks of text and convert them to comments, a CHARACTER array,     ',&
 '     Fortran WRITE statements, ... (provided by the $BLOCK directive.)          ',&
@@ -2394,6 +2417,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '       $PARCEL [blockname] / $ENDPARCEL                     [! comment ]        ',&
 '       $POST     blockname                                  [! comment ]        ',&
 '       $SET varname  string                                                     ',&
+'       $UNSET varname(s)                                    [! comment ]        ',&
 '       $IMPORT   envname[;...]                              [! comment ]        ',&
 '                                                                                ',&
 '   Details ...                                                                  ',&
@@ -2441,6 +2465,10 @@ help_text=[ CHARACTER(LEN=128) :: &
 '    > write(*,*)''Date ${DATE}''                                                ',&
 '    > write(*,*)''Time ${TIME}''                                                ',&
 '   ...                                                                          ',&
+'                                                                                ',&
+'       $SET varname(s)                                                          ',&
+'                                                                                ',&
+'   Unset variables set with the $SET directive.                                 ',&
 '                                                                                ',&
 '       $IMPORT   envname[;...]                              [! comment ]        ',&
 '                                                                                ',&
@@ -3055,7 +3083,6 @@ end subroutine import
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
 subroutine set(line)
-use M_list,      only : insert, locate, replace, remove                   ! Basic list lookup and maintenance
 character(len=*),intent(in)  :: line
 character(len=:),allocatable :: temp
 character(len=:),allocatable :: name
@@ -3076,13 +3103,33 @@ integer                      :: i
        val=' '
     endif
     ! insert and replace entries
-    call update(name,val)
+    call prep_update(name,val)
   endif
 
 contains
-subroutine update(key,valin)
-! call update('a','the value')     ! update (add or replace) entry
-!call update('a')                  ! remove entry
+
+function get(key) result(valout)
+use M_list,      only : insert, locate, replace, remove                   ! Basic list lookup and maintenance
+character(len=*),intent(in)   :: key
+character(len=:),allocatable  :: valout
+integer                       :: place
+   ! find where string is or should be
+   call locate(keywords,key,place)
+   if(place.lt.1)then
+      valout=''
+   else
+      valout=values(place)(:counts(place))
+   endif
+end function get
+
+end subroutine set
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!===================================================================================================================================
+subroutine prep_update(key,valin)
+use M_list,      only : insert, locate, replace, remove                   ! Basic list lookup and maintenance
+! call prep_update('a','the value')     ! update (add or replace) entry
+!call prep_update('a')                  ! remove entry
 !write(stderr,*)'get b=>',get('b') ! get value
 character(len=*),intent(in)           :: key
 character(len=*),intent(in),optional  :: valin
@@ -3111,22 +3158,7 @@ else
       call remove(counts,place)
    endif
 endif
-end subroutine update
-
-function get(key) result(valout)
-character(len=*),intent(in)   :: key
-character(len=:),allocatable  :: valout
-integer                       :: place
-   ! find where string is or should be
-   call locate(keywords,key,place)
-   if(place.lt.1)then
-      valout=''
-   else
-      valout=values(place)(:counts(place))
-   endif
-end function get
-
-end subroutine set
+end subroutine prep_update
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
