@@ -342,7 +342,7 @@ DIRECTIVES
    Directives for defining replayable text blocks ...
 
        $PARCEL [blockname] / $ENDPARCEL                     [! comment ]
-       $POST     blockname                                  [! comment ]
+       $POST     blockname(s)                               [! comment ]
        $SET varname  string
        $UNSET varname(s)                                    [! comment ]
        $IMPORT   envname[;...]                              [! comment ]
@@ -356,7 +356,7 @@ DIRECTIVES
    then be read in with the $POST directive much like a named file can be with
    $INCLUDE except the file is automatically deleted at program termination.
 
-       $POST     blockname                                  [! comment ]
+       $POST     blockname(s)                               [! comment ]
 
    Read in a scratch file created by the $PARCEL directive. Combined with
    $SET and $IMPORT directives this allows you to replay a section of input

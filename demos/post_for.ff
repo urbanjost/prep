@@ -1,0 +1,116 @@
+$!
+$! create parcels that set TYPE and KIND
+$!
+$!==============================================================================
+$! trying an experimental  $POST -FOR
+$!==============================================================================
+$parcel int8
+$set TYPE integer
+$set KIND int8
+$endparcel
+$!==============================================================================
+$parcel int16
+$set TYPE integer
+$set KIND int16
+$endparcel
+$!==============================================================================
+$parcel int32
+$set TYPE integer
+$set KIND int32
+$endparcel
+$!==============================================================================
+$parcel int64
+$set TYPE integer
+$set KIND int64
+$endparcel
+$!==============================================================================
+$parcel real32
+$set TYPE real
+$set KIND real32
+$endparcel
+$!==============================================================================
+$parcel real64
+$set TYPE real
+$set KIND real64
+$endparcel
+$!==============================================================================
+$parcel real128
+$set TYPE real
+$set KIND real128
+$endparcel
+$!==============================================================================
+$parcel default_logical
+$set TYPE logical
+$set KIND default_logical
+$endparcel
+$!==============================================================================
+$parcel complex32
+$set TYPE complex
+$set KIND real32
+$endparcel
+$!==============================================================================
+$parcel complex64
+$set TYPE complex
+$set KIND real64
+$endparcel
+$!==============================================================================
+$!
+$! create parcels of comments
+$!
+$parcel line
+!------------------------------------------------------------------------------!
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!------------------------------------------------------------------------------!
+$endparcel
+$!==============================================================================
+$parcel copyright
+!
+! MIT License 
+! Copyright  John S. Urban, 2022
+! Compiled on ${DATE} at ${TIME}
+!
+$endparcel
+$!
+$!==============================================================================
+$! create interfaces
+$parcel NAME
+   module procedure ${NAME}_${TYPE}_${KIND}
+$post
+$!==============================================================================
+$!
+$! template code
+$!
+$PARCEL SWAP
+$post line
+elemental subroutine swap_${TYPE}_${KIND}(x,y)
+$@(#) M_sort::swap_${KIND}(3fp): swap two variables of TYPE(${TYPE}(KIND=${KIND}))
+$post copyright
+type(${TYPE}(kind=${KIND})), intent(inout) :: x,y
+type(${TYPE}(kind=${KIND}))                :: temp
+   temp = x
+   x = y
+   y = temp
+end subroutine swap_${TYPE}_${KIND}
+$endparcel
+$!==============================================================================
+$!
+$! call everything
+$!
+$SET LIST int8,int16,int32,int64,real32,real64,real128,default_logical,complex32,complex64 ! list of parcels that define tokens
+$! 
+$! CODE
+$! 
+module M_test
+use,intrinsic :: iso_fortran_env, only : int8,int16,int32,int64,real32,real64,real128
+implicit none
+integer,parameter :: default_logical=kind(.false.)
+                                         
+interface swap
+$set NAME swap
+$post name -for ${LIST}
+end interface swap
+
+contains
+$post swap --for ${LIST}
+$post line
+end module M_test

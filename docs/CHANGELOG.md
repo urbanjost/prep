@@ -20,6 +20,11 @@ new features, changes, and relevant notifications.
   - [ ] registered in fpm(1) repository
 
 ---
+**2022-05-10**  John S. Urban <https://github.com/urbanjost>
+
+### :green_circle: ADD:
+  + The POST command can take multiple parcel names
+---
 **2022-05-07**  John S. Urban <https://github.com/urbanjost>
 
 ### :green_circle: ADD:

@@ -81,7 +81,7 @@ type file_stack
    integer                           ::  line_number=0
    character(len=G_line_length)      ::  filename
 end type
-type(file_stack),public              ::  G_file_dictionary(50)
+type(file_stack),public              ::  G_file_dictionary(250)
 
 type parcel_stack
    integer                           ::  unit_number
@@ -203,25 +203,25 @@ logical                      :: ifound
       case('DEFINE','DEF','LET');     call define(upopts)             ! only process DEFINE if not skipping data lines
       case('REDEFINE','REDEF'); call define(upopts)                   ! only process DEFINE if not skipping data lines
       case('UNDEF','UNDEFINE','DELETE'); call undef(upper(options))   ! only process UNDEF if not skipping data lines
-      case('INCLUDE','READ');   call include(options,50+G_iocount)    ! Filenames can be case sensitive
       case('OUTPUT');           call output_case(options)             ! Filenames can be case sensitive
       case('PARCEL');           call parcel_case(upopts)
       case('ENDPARCEL');        call parcel_case(' ')
-      case('POST');             call post(upopts)
       case('BLOCK');            call document(options)
       case('ENDBLOCK');         call document(' ')
       case('SET');              call set(options)
       case('UNSET');            call unset(upper(options))   ! only process UNSET if not skipping data lines
-      case('IMPORT');           call import(options)
       case('IDENT','@(#)');     call ident(options)
       case('SHOW') ;            call show_state(upper(options),msg='')
-      case('SYSTEM');           call exe()
       case('MESSAGE');          call write_err(unquote(all_options))      ! trustingly trim MESSAGE from directive
-      case('STOP');             call stop(all_options)
       case('QUIT');             call stop('0 '//all_options)
       case('ERROR');            call stop('1 '//all_options)
       CASE('GET_ARGUMENTS');    call write_get_arguments()
       CASE('HELP');             call short_help(stderr)
+      case('STOP');                                        call stop(all_options)
+      case('INCLUDE','READ');                              call include(options,50+G_iocount)    ! Filenames can be case sensitive
+      case('POST','CALL');                                 call prepost(upper(options))
+      case('IMPORT','GET_ENVIRONMENT_VARIABLE');           call import(options)
+      case('SYSTEM','EXECUTE_COMMAND_LINE');               call exe()
       case default
          ifound=.false.
       end select
@@ -373,6 +373,33 @@ character(len=256)            :: message
       endif
    endif
 end subroutine parcel_case
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!===================================================================================================================================
+subroutine prepost(opts)                          !@(#)prepost(3f): process $POST directive
+character(len=*)                          :: opts
+character(len=G_line_length)              :: list
+character(len=:),allocatable              :: names(:)        ! names on $POST command
+character(len=:),allocatable              :: fors(:)         ! names on $POST --for 
+integer                                   :: i
+integer                                   :: j,jsz
+   call dissect2('PARCEL','-oo --FOR ',opts)                 ! parse options and inline comment on input line
+   list=sget('PARCEL_oo')
+   call split(list,names,delimiters=' ,')                    ! parse string to an array parsing on delimiters
+   list=sget('PARCEL_FOR')
+   call split(list,fors,delimiters=' ,')                     ! parse string to an array parsing on delimiters
+   jsz=size(fors)
+   do i=size(names),1,-1
+      if(jsz.eq.0)then
+         call post(names(i))
+      else
+         do j=jsz,1,-1
+            call post(names(i))
+            call post(fors(j))
+         enddo
+      endif
+   enddo
+end subroutine prepost
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
@@ -1427,7 +1454,7 @@ character(len=G_line_length) :: options                 ! everything after first
       G_outtype='comment'
       G_MAN_PRINT=.true.
       G_MAN_COLLECT=.true.
-      if(sget('block_style').ne.'#N#')then 
+      if(sget('block_style').ne.'#N#')then
          G_comment_style=lower(sget('block_style'))             ! allow formatting comments for particular post-processors
       endif
    case('NULL')
@@ -2415,7 +2442,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   Directives for defining replayable text blocks ...                           ',&
 '                                                                                ',&
 '       $PARCEL [blockname] / $ENDPARCEL                     [! comment ]        ',&
-'       $POST     blockname                                  [! comment ]        ',&
+'       $POST     blockname(s)                               [! comment ]        ',&
 '       $SET varname  string                                                     ',&
 '       $UNSET varname(s)                                    [! comment ]        ',&
 '       $IMPORT   envname[;...]                              [! comment ]        ',&
@@ -2429,7 +2456,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   then be read in with the $POST directive much like a named file can be with  ',&
 '   $INCLUDE except the file is automatically deleted at program termination.    ',&
 '                                                                                ',&
-'       $POST     blockname                                  [! comment ]        ',&
+'       $POST     blockname(s)                               [! comment ]        ',&
 '                                                                                ',&
 '   Read in a scratch file created by the $PARCEL directive. Combined with       ',&
 '   $SET and $IMPORT directives this allows you to replay a section of input     ',&
@@ -2933,7 +2960,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 "   > $import HOME                                                               ",&
 "   > write(*,*)'${AUTHOR} ${DATE} ${TIME} File ${FILE} Line ${LINE} HOME ${HOME}",&
 "  $PARCEL [blockname] ... $ENDPARCEL ! a reuseable parcel of expandable text    ",&
-"  $POST   blockname  ! insert a defined parcel of text                          ",&
+"  $POST   blockname(s)  ! insert a defined parcel of text                       ",&
 "EXTERNAL FILES (see $BLOCK ... --file also)                                     ",&
 "  $OUTPUT filename [--append]                                                   ",&
 "  $INCLUDE filename                                                             ",&
@@ -3484,8 +3511,10 @@ logical                       :: isscratch
 7     continue                                                      ! end of file encountered on input
       if(G_file_dictionary(G_iocount)%unit_number.ne.5)then
          inquire(unit=G_file_dictionary(G_iocount)%unit_number,iostat=ios,named=isscratch)
-         if(.not.isscratch.and. (G_file_dictionary(G_iocount)%unit_number.gt.0))then
+         if(.not.isscratch.and.(G_file_dictionary(G_iocount)%unit_number.gt.0))then
             close(G_file_dictionary(G_iocount)%unit_number,iostat=ios)
+         elseif(isscratch.or.(G_file_dictionary(G_iocount)%unit_number.lt.-1))then 
+            rewind(unit=G_file_dictionary(G_iocount)%unit_number,iostat=ios)
          endif
       endif
 

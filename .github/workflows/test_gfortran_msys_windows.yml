@@ -29,7 +29,6 @@ jobs:
       run: |
            wget https://raw.githubusercontent.com/urbanjost/index/main/bootstrap/fpm.F90
            gfortran fpm.F90 -o fpm
-           ls -l
 
     - name: Run tests and demo programs (debug)
       shell: msys2 {0}
