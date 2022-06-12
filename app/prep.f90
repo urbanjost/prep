@@ -208,7 +208,7 @@ logical                      :: ifound
       case('ENDPARCEL');        call parcel_case(' ')
       case('BLOCK');            call document(options)
       case('ENDBLOCK');         call document(' ')
-      case('SET');              call set(options)
+      case('SET','REPLACE');    call set(options)
       case('UNSET');            call unset(upper(options))   ! only process UNSET if not skipping data lines
       case('IDENT','@(#)');     call ident(options)
       case('SHOW') ;            call show_state(upper(options),msg='')
@@ -219,7 +219,7 @@ logical                      :: ifound
       CASE('HELP');             call short_help(stderr)
       case('STOP');                                        call stop(all_options)
       case('INCLUDE','READ');                              call include(options,50+G_iocount)    ! Filenames can be case sensitive
-      case('POST','CALL');                                 call prepost(upper(options))
+      case('POST','CALL','DO');                            call prepost(upper(options))
       case('IMPORT','GET_ENVIRONMENT_VARIABLE');           call import(options)
       case('SYSTEM','EXECUTE_COMMAND_LINE');               call exe()
       case default
@@ -1460,7 +1460,7 @@ character(len=G_line_length) :: options                 ! everything after first
    case('NULL')
       G_outtype='null'
 
-   case('SET')
+   case('SET','REPLACE')
       G_outtype='set'
       G_MAN_PRINT=.false.
       G_MAN_COLLECT=.false.
@@ -3010,7 +3010,7 @@ character(len=256)             :: message
 
    case('null')                                ! do not write
 
-   case('set')                                 ! do not write
+   case('set','replace')                       ! do not write
       call set(line)
 
    case('define')                              ! do not write
