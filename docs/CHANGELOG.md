@@ -20,6 +20,13 @@ new features, changes, and relevant notifications.
   - [ ] registered in fpm(1) repository
 
 ---
+**2022-07-15**  John S. Urban <https://github.com/urbanjost>
+
+### :red_circle: ADD:
+  + The DEFINE command can did not allow the LHS to be assigned a RHS
+    that had no operators or values other than a NAME.
+---
+---
 **2022-05-10**  John S. Urban <https://github.com/urbanjost>
 
 ### :green_circle: ADD:

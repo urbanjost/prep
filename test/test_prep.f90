@@ -720,6 +720,15 @@ data=[ character(len=132) :: &
 '$error "test  F"                                                                ',&
 '$endif                                                                          ',&
 '$!======================                                                        ',&
+'$define VAL1=20                                                                 ',&
+'$define VAL2=VAL1                                                               ',&
+'$if  VAL2 == 20                                                                 ',&
+'OK G                                                                            ',&
+'$else                                                                           ',&
+'$error "test  G"                                                                ',&
+'$endif                                                                          ',&
+'$!======================                                                        ',&
+'$!======================                                                        ',&
 "last line"]
 
 expected=[ character(len=132) :: &
@@ -729,6 +738,7 @@ expected=[ character(len=132) :: &
 'OK D',&
 'OK E',&
 'OK F',&
+'OK G',&
 "last line"]
 
 call teardown('misc')

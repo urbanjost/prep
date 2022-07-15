@@ -455,6 +455,7 @@ integer                     :: iname                        ! length of variable
 integer                     :: istore                       ! location of variable name in dictionary
 character(len=:),allocatable :: array(:)
 character(len=:),allocatable :: opts
+character(len=G_var_len)     :: value                       ! returned variable value
 
    call split(allopts,array,delimiters=';')                 ! parse string to an array parsing on delimiters
 
@@ -471,12 +472,17 @@ character(len=:),allocatable :: opts
       else                                                     ! =value string trails name on directive
          temp=opts(iequ+1:)                                    ! get expression
       endif
-
+      if(G_debug) write(stderr,*)'*define* :LINE:'//trim(temp)
       call normalize_logical_operators(temp)
+      if(G_debug) write(stderr,*)'*define* :LINE:AFTER NORMALIZE:'//trim(temp)
       call parens(temp)
+      if(G_debug) write(stderr,*)'*define* :LINE:AFTER PARENS:'//trim(temp)
       call math(temp,1,len_trim(temp))
+      if(G_debug) write(stderr,*)'*define* :LINE:AFTER MATH:'//trim(temp)
       call doop(temp,1,len_trim(temp))
+      if(G_debug) write(stderr,*)'*define* :LINE:AFTER DOOP:'//trim(temp)
       call logic(temp,1,len_trim(temp))
+      if(G_debug) write(stderr,*)'*define* :LINE:AFTER LOGIC:'//trim(temp)
 
       temp=nospace(temp)
       select case(temp)
@@ -485,6 +491,13 @@ character(len=:),allocatable :: opts
       case default ! assumed a number
          if ( verify(temp(1:1),'0123456789+-').eq.0 .and.  verify(temp(2:len_trim(temp)),'0123456789').eq.0 ) then
             call table%set(opts(:iname),temp)
+         elseif (temp(1:1).ge.'A'.and.temp(1:1).le.'Z'.or.temp(1:1).eq.'_')then ! appears to be variable name not number or logical
+            value=table%get(temp)                                                  ! find defined parameter in dictionary
+           if (value.eq.'')then                                                   ! unknown variable name
+              call stop_prep('*prep* ERROR(120) - UNDEFINED VARIABLE NAME:'//trim(G_source))
+           else
+              call table%set(opts(:iname),value)
+           endif
          else
             call stop_prep('*prep* ERROR(008) - NOT LOGICAL OR INTEGER EXPRESSION:'//trim(allopts))
          endif
@@ -971,7 +984,7 @@ integer                         :: ipos2
 
 character(len=11)               :: temp
 character(len=G_line_length)    :: newl
-character(len=2),save           :: ops(3)= (/'**','*/','+-'/)
+character(len=2),save           :: ops(3)= ['**','*/','+-']
 integer                         :: i
 integer                         :: j
 integer                         :: loc
