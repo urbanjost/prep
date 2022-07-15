@@ -472,17 +472,17 @@ character(len=G_var_len)     :: value                       ! returned variable 
       else                                                     ! =value string trails name on directive
          temp=opts(iequ+1:)                                    ! get expression
       endif
-      if(G_debug) write(stderr,*)'*define* :LINE:'//trim(temp)
+      if(G_debug.and.G_verbose) write(stderr,*)'*define* :LINE:'//trim(temp)
       call normalize_logical_operators(temp)
-      if(G_debug) write(stderr,*)'*define* :LINE:AFTER NORMALIZE:'//trim(temp)
+      if(G_debug.and.G_verbose) write(stderr,*)'*define* :LINE:AFTER NORMALIZE:'//trim(temp)
       call parens(temp)
-      if(G_debug) write(stderr,*)'*define* :LINE:AFTER PARENS:'//trim(temp)
+      if(G_debug.and.G_verbose) write(stderr,*)'*define* :LINE:AFTER PARENS:'//trim(temp)
       call math(temp,1,len_trim(temp))
-      if(G_debug) write(stderr,*)'*define* :LINE:AFTER MATH:'//trim(temp)
+      if(G_debug.and.G_verbose) write(stderr,*)'*define* :LINE:AFTER MATH:'//trim(temp)
       call doop(temp,1,len_trim(temp))
-      if(G_debug) write(stderr,*)'*define* :LINE:AFTER DOOP:'//trim(temp)
+      if(G_debug.and.G_verbose) write(stderr,*)'*define* :LINE:AFTER DOOP:'//trim(temp)
       call logic(temp,1,len_trim(temp))
-      if(G_debug) write(stderr,*)'*define* :LINE:AFTER LOGIC:'//trim(temp)
+      if(G_debug.and.G_verbose) write(stderr,*)'*define* :LINE:AFTER LOGIC:'//trim(temp)
 
       temp=nospace(temp)
       select case(temp)
