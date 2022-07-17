@@ -19,6 +19,7 @@
 ! modularize and modernize calculator expression, if/else/endif
 !
 ! REMOVED $REDEFINE and no longer produce warning message if redefine a variable, more like fpp(1) and cpp(1)
+! some fpp versions allow integer intrinsics, not well documented but things like "#define AND char(34)"
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
@@ -70,6 +71,7 @@ integer,public,parameter             :: G_line_length=4096             ! allowed
 integer,public,parameter             :: G_var_len=63                   ! allowed length of variable names
 
 logical,public                       :: G_ident=.false.                ! whether to write IDENT as a comment or CHARACTER
+logical,public                       :: G_fpp=.false.                  ! change to be more fpp(1) compatible
 
 character(len=G_line_length),public  :: G_source                       ! original source file line
 character(len=G_line_length),public  :: G_outline                      ! message to build for writing to output
@@ -380,7 +382,7 @@ subroutine prepost(opts)                          !@(#)prepost(3f): process $POS
 character(len=*)                          :: opts
 character(len=G_line_length)              :: list
 character(len=:),allocatable              :: names(:)        ! names on $POST command
-character(len=:),allocatable              :: fors(:)         ! names on $POST --for 
+character(len=:),allocatable              :: fors(:)         ! names on $POST --for
 integer                                   :: i
 integer                                   :: j,jsz
    call dissect2('PARCEL','-oo --FOR ',opts)                 ! parse options and inline comment on input line
@@ -692,18 +694,27 @@ character(len=G_line_length) :: expression
    call parens(expression)
    if (index(expression,'.').eq.0) then                            ! if line should be a variable only
       if (expression(1:1).ge.'A'.and.expression(1:1).le.'Z'.or.expression(1:1).eq.'_') then ! check name starts with valid character
-         call checkname(expression)                        ! check that expression contains only a legitimate variable name
+         call checkname(expression)                       ! check that expression contains only a legitimate variable name
          name=expression(:G_var_len)                      ! get variable name
          value=table%get(name)
          if (value.eq.'') then                           ! if failed to find variable name
-            call stop_prep('*prep* ERROR(024) - UNDEFINED PARAMETER IN IF:'//trim(G_source))
+            !CHANGE! act more like cpp(1) and intel fpp(1) and treat "$IF VARNAME" like "$IFDEF VARNAME"
+            if(G_fpp)then
+               value='.F.'
+            else
+               call stop_prep('*prep* ERROR(024) - UNDEFINED PARAMETER IN IF:'//trim(G_source))
+            endif
          endif
          read(value,'(l4)',iostat=ios) G_dc          ! convert variable value to a logical
          if(ios.ne.0)then
             call stop_prep('*prep* ERROR(025) - CONSTANT LOGICAL EXPRESSION REQUIRED.'//trim(G_source))
          endif
       else                                                 ! this should have been a variable name
-         call stop_prep('*prep* ERROR(026) - CONSTANT LOGICAL EXPRESSION REQUIRED:'//trim(G_source))
+         if(G_fpp)then
+            call eval(expression)                                ! evaluate line
+         else
+            call stop_prep('*prep* ERROR(026) - CONSTANT LOGICAL EXPRESSION REQUIRED:'//trim(G_source))
+         endif
       endif
    else                                                    ! a period is present in the expression so it needs evaluated
       call eval(expression)                                ! evaluate line
@@ -1215,7 +1226,11 @@ integer                                 :: ios               ! error code return
       value=table%get(substring)
 
       if (value.eq.'') then                                  ! if not a defined variable name stop program
-         call stop_prep('*prep* ERROR(040) - UNDEFINED VARIABLE.'//trim(G_source))
+         if(G_fpp)then
+            value='.F.'
+         else
+            call stop_prep('*prep* ERROR(040) - UNDEFINED VARIABLE. DIRECTIVE='//trim(G_source)//' VARIABLE='//trim(substring))
+         endif
       else
          read(value,'(l4)',iostat=ios) true_or_false         ! try to read a logical from the value for the variable name
          if(ios.ne.0)then                                    ! not successful in reading string as a logical value
@@ -1340,7 +1355,15 @@ character(len=7)               :: value
    value=line(1:7)
 
    if (value.ne.'.TRUE.'.and.value.ne.'.FALSE.') then
-      call stop_prep('*prep* ERROR(043) - value neither true or false:'//trim(value)//' when evaluating: '//trim(G_source))
+      if(G_fpp)then           ! most fpp(1) silently test if equal to 1 or not
+         if(value.eq.'1')then
+            value='.TRUE.'
+         else
+            value='.FALSE.'
+         endif
+      else
+         call stop_prep('*prep* ERROR(043) - value neither true or false:'//trim(value)//' when evaluating: '//trim(G_source))
+      endif
    endif
 
    read(value,'(l4)') G_dc
@@ -3376,6 +3399,7 @@ character(len=1024)          :: cmd=' &
    & --start            " "      &
    & --stop             " "      &
    & --type             auto     &
+   & --fpp              .false.  &
    & '
 logical                       :: isscratch
 
@@ -3397,10 +3421,12 @@ logical                       :: isscratch
       prefix = sget('prep_prefix')                               ! not a digit so not an ADE so assume a literal character
    endif
    G_ident=lget('prep_ident')                                    ! write IDENT as comment or CHARACTER variable
-   G_iwidth                     = iget('prep_width')
+   G_fpp                      = lget('prep_fpp')
+   if(G_fpp) prefix='#'                                          ! in fpp mode the prefix will alwyas be '#'
+   G_iwidth                   = iget('prep_width')
    G_iwidth=max(0,G_iwidth)
    letterd(1:1)               = sget('prep_d')
-   G_noenv=lget('prep_noenv')
+   G_noenv                    = lget('prep_noenv')
 
    if(out_filename.eq.'')then                                    ! open output file
       G_iout=stdout
@@ -3526,7 +3552,7 @@ logical                       :: isscratch
          inquire(unit=G_file_dictionary(G_iocount)%unit_number,iostat=ios,named=isscratch)
          if(.not.isscratch.and.(G_file_dictionary(G_iocount)%unit_number.gt.0))then
             close(G_file_dictionary(G_iocount)%unit_number,iostat=ios)
-         elseif(isscratch.or.(G_file_dictionary(G_iocount)%unit_number.lt.-1))then 
+         elseif(isscratch.or.(G_file_dictionary(G_iocount)%unit_number.lt.-1))then
             rewind(unit=G_file_dictionary(G_iocount)%unit_number,iostat=ios)
          endif
       endif
