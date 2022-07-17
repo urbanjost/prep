@@ -2153,6 +2153,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '        [-d ignore|remove|blank]                                                ',&
 '        [--comment default|doxygen|ford|none]                                   ',&
 '        [--ident]                                                               ',&
+'        [--fpp]                                                                 ',&
 '        [--verbose]                                                             ',&
 '        [--version]                                                             ',&
 '        [--help]                                                                ',&
@@ -2293,6 +2294,10 @@ help_text=[ CHARACTER(LEN=128) :: &
 '               The parameter is typically used to trim fixed-format FORTRAN     ',&
 '               code that contains comments or "ident" labels past column 72     ',&
 '               when compiling fixed-format Fortran code.                        ',&
+'                                                                                ',&
+'   --fpp       A prototype switch to make prep behave similar to common fpp(1)  ',&
+'               variants. The same behavior occurs if the executable is renamed  ',&
+'               to "fpp". Note --prefix "#" is implied by this switch.           ',&
 '                                                                                ',&
 '   --verbose   All commands on a $SYSTEM directive are echoed to stderr with a  ',&
 '               "+" prefix. Text following the string "@(#)" is printed to stderr',&
@@ -3367,6 +3372,7 @@ end module M_fpp
 program prep                                                 !@(#)prep(1f): preprocessor for Fortran/FORTRAN source code
 use M_kracken95, only : kracken, lget, rget, iget, sget, kracken_comment
 use M_strings,   only : notabs, isdigit, switch
+use M_io, only : getname, basename
 use M_fpp
 
 implicit none
@@ -3402,6 +3408,7 @@ character(len=1024)          :: cmd=' &
    & --fpp              .false.  &
    & '
 logical                       :: isscratch
+character(len=:),allocatable  :: cmdname
 
                                                                  ! allow formatting comments for particular post-processors
    G_comment_style=get_env('PREP_COMMENT_STYLE')                 ! get environment variable for -comment switch
@@ -3421,7 +3428,11 @@ logical                       :: isscratch
       prefix = sget('prep_prefix')                               ! not a digit so not an ADE so assume a literal character
    endif
    G_ident=lget('prep_ident')                                    ! write IDENT as comment or CHARACTER variable
-   G_fpp                      = lget('prep_fpp')
+   if(basename(getname()).eq.'fpp')then
+      G_fpp                      = .true.
+   else
+      G_fpp                      = lget('prep_fpp')
+   endif
    if(G_fpp) prefix='#'                                          ! in fpp mode the prefix will alwyas be '#'
    G_iwidth                   = iget('prep_width')
    G_iwidth=max(0,G_iwidth)

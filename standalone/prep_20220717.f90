@@ -1,3 +1,4 @@
+ 
 !>>>>> build/dependencies/M_kracken95/src/M_kracken95.f90
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -5700,8 +5701,8 @@ integer                       :: increment
 contains
 
 subroutine print_generic(generic)
-!use, intrinsic :: iso_fortran_env, only : int8, int16, int32, biggest=>int64, real32, real64
-use,intrinsic :: iso_fortran_env, only : int8, int16, int32, int64, real32, real64
+!use, intrinsic :: iso_fortran_env, only : int8, int16, int32, biggest=>int64, real32, real64, dp=>real128
+use,intrinsic :: iso_fortran_env, only : int8, int16, int32, int64, real32, real64, real128
 class(*),intent(in) :: generic
    select type(generic)
       type is (integer(kind=int8));     write(line(istart:),'(i0)') generic
@@ -5710,6 +5711,7 @@ class(*),intent(in) :: generic
       type is (integer(kind=int64));    write(line(istart:),'(i0)') generic
       type is (real(kind=real32));      write(line(istart:),'(1pg0)') generic
       type is (real(kind=real64));      write(line(istart:),'(1pg0)') generic
+      type is (real(kind=real128));     write(line(istart:),'(1pg0)') generic
       type is (logical);                write(line(istart:),'(l1)') generic
       type is (character(len=*));       write(line(istart:),'(a)') trim(generic)
       type is (complex);                write(line(istart:),'("(",1pg0,",",1pg0,")")') generic
@@ -5755,8 +5757,8 @@ integer                       :: increment
 contains
 
 subroutine print_generic(generic)
-!use, intrinsic :: iso_fortran_env, only : int8, int16, int32, biggest=>int64, real32, real64
-use,intrinsic :: iso_fortran_env, only : int8, int16, int32, int64, real32, real64
+!use, intrinsic :: iso_fortran_env, only : int8, int16, int32, biggest=>int64, real32, real64, dp=>real128
+use,intrinsic :: iso_fortran_env, only : int8, int16, int32, int64, real32, real64, real128
 class(*),intent(in),optional :: generic(:)
 integer :: i
    select type(generic)
@@ -5766,6 +5768,8 @@ integer :: i
       type is (integer(kind=int64));    write(line(istart:),'("[",*(i0,1x))') generic
       type is (real(kind=real32));      write(line(istart:),'("[",*(1pg0,1x))') generic
       type is (real(kind=real64));      write(line(istart:),'("[",*(1pg0,1x))') generic
+      type is (real(kind=real128));     write(line(istart:),'("[",*(1pg0,1x))') generic
+      !type is (real(kind=real256));     write(error_unit,'(1pg0)',advance='no') generic
       type is (logical);                write(line(istart:),'("[",*(l1,1x))') generic
       type is (character(len=*));       write(line(istart:),'("[",:*("""",a,"""",1x))') (trim(generic(i)),i=1,size(generic))
       type is (complex);                write(line(istart:),'("[",*("(",1pg0,",",1pg0,")",1x))') generic
@@ -14748,8 +14752,8 @@ integer                       :: increment
 contains
 !===================================================================================================================================
 subroutine print_generic(generic)
-!use, intrinsic :: iso_fortran_env, only : int8, int16, int32, biggest=>int64, real32, real64
-use,intrinsic :: iso_fortran_env, only : int8, int16, int32, int64, real32, real64
+!use, intrinsic :: iso_fortran_env, only : int8, int16, int32, biggest=>int64, real32, real64, dp=>real128
+use,intrinsic :: iso_fortran_env, only : int8, int16, int32, int64, real32, real64, real128
 class(*),intent(in) :: generic
    select type(generic)
       type is (integer(kind=int8));     write(line(istart:),'(i0)') generic
@@ -14758,6 +14762,7 @@ class(*),intent(in) :: generic
       type is (integer(kind=int64));    write(line(istart:),'(i0)') generic
       type is (real(kind=real32));      write(line(istart:),'(1pg0)') generic
       type is (real(kind=real64));      write(line(istart:),'(1pg0)') generic
+      !*!type is (real(kind=real128));     write(line(istart:),'(1pg0)') generic
       type is (logical);                write(line(istart:),'(l1)') generic
       type is (character(len=*));       write(line(istart:),'(a)') trim(generic)
       type is (complex);                write(line(istart:),'("(",1pg0,",",1pg0,")")') generic
@@ -14807,8 +14812,8 @@ integer                       :: increment
 contains
 !===================================================================================================================================
 subroutine print_generic(generic)
-!use, intrinsic :: iso_fortran_env, only : int8, int16, int32, biggest=>int64, real32, real64
-use,intrinsic :: iso_fortran_env, only : int8, int16, int32, int64, real32, real64
+!use, intrinsic :: iso_fortran_env, only : int8, int16, int32, biggest=>int64, real32, real64, dp=>real128
+use,intrinsic :: iso_fortran_env, only : int8, int16, int32, int64, real32, real64, real128
 class(*),intent(in),optional :: generic(:)
 integer :: i
    select type(generic)
@@ -14818,6 +14823,7 @@ integer :: i
       type is (integer(kind=int64));    write(line(istart:),'("[",*(i0,1x))') generic
       type is (real(kind=real32));      write(line(istart:),'("[",*(1pg0,1x))') generic
       type is (real(kind=real64));      write(line(istart:),'("[",*(1pg0,1x))') generic
+      !*!type is (real(kind=real128));     write(line(istart:),'("[",*(1pg0,1x))') generic
       type is (logical);                write(line(istart:),'("[",*(l1,1x))') generic
       type is (character(len=*));       write(line(istart:),'("[",:*("""",a,"""",1x))') (trim(generic(i)),i=1,size(generic))
       type is (complex);                write(line(istart:),'("[",*("(",1pg0,",",1pg0,")",1x))') generic
@@ -15377,8 +15383,8 @@ character(len=:),allocatable  :: sep_local
 contains
 !===================================================================================================================================
 subroutine print_generic(generic)
-!use, intrinsic :: iso_fortran_env, only : int8, int16, int32, biggest=>int64, real32, real64
-use,intrinsic :: iso_fortran_env, only : int8, int16, int32, int64, real32, real64
+!use, intrinsic :: iso_fortran_env, only : int8, int16, int32, biggest=>int64, real32, real64, dp=>real128
+use,intrinsic :: iso_fortran_env, only : int8, int16, int32, int64, real32, real64, real128
 class(*),intent(in) :: generic
    select type(generic)
       type is (integer(kind=int8));     write(line(istart:),'(i0)') generic
@@ -15387,6 +15393,7 @@ class(*),intent(in) :: generic
       type is (integer(kind=int64));    write(line(istart:),'(i0)') generic
       type is (real(kind=real32));      write(line(istart:),'(1pg0)') generic
       type is (real(kind=real64));      write(line(istart:),'(1pg0)') generic
+      type is (real(kind=real128));     write(line(istart:),'(1pg0)') generic
       type is (logical);                write(line(istart:),'(l1)') generic
       type is (character(len=*));       write(line(istart:),'(a)') trim(generic)
       type is (complex);                write(line(istart:),'("(",1pg0,",",1pg0,")")') generic
@@ -15432,8 +15439,8 @@ integer                       :: increment
 contains
 
 subroutine print_generic(generic)
-!use, intrinsic :: iso_fortran_env, only : int8, int16, int32, biggest=>int64, real32, real64
-use,intrinsic :: iso_fortran_env, only : int8, int16, int32, int64, real32, real64
+!use, intrinsic :: iso_fortran_env, only : int8, int16, int32, biggest=>int64, real32, real64, dp=>real128
+use,intrinsic :: iso_fortran_env, only : int8, int16, int32, int64, real32, real64, real128
 class(*),intent(in),optional :: generic(:)
 integer :: i
    select type(generic)
@@ -15443,6 +15450,8 @@ integer :: i
       type is (integer(kind=int64));    write(line(istart:),'("[",*(i0,1x))') generic
       type is (real(kind=real32));      write(line(istart:),'("[",*(1pg0,1x))') generic
       type is (real(kind=real64));      write(line(istart:),'("[",*(1pg0,1x))') generic
+      type is (real(kind=real128));     write(line(istart:),'("[",*(1pg0,1x))') generic
+      !type is (real(kind=real256));     write(error_unit,'(1pg0)',advance='no') generic
       type is (logical);                write(line(istart:),'("[",*(l1,1x))') generic
       type is (character(len=*));       write(line(istart:),'("[",:*("""",a,"""",1x))') (trim(generic(i)),i=1,size(generic))
       type is (complex);                write(line(istart:),'("[",*("(",1pg0,",",1pg0,")",1x))') generic
@@ -17140,7 +17149,6 @@ end module M_list
 ! modularize and modernize calculator expression, if/else/endif
 !
 ! REMOVED $REDEFINE and no longer produce warning message if redefine a variable, more like fpp(1) and cpp(1)
-! some fpp versions allow integer intrinsics, not well documented but things like "#define AND char(34)"
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
@@ -17192,7 +17200,6 @@ integer,public,parameter             :: G_line_length=4096             ! allowed
 integer,public,parameter             :: G_var_len=63                   ! allowed length of variable names
 
 logical,public                       :: G_ident=.false.                ! whether to write IDENT as a comment or CHARACTER
-logical,public                       :: G_fpp=.false.                  ! change to be more fpp(1) compatible
 
 character(len=G_line_length),public  :: G_source                       ! original source file line
 character(len=G_line_length),public  :: G_outline                      ! message to build for writing to output
@@ -17503,7 +17510,7 @@ subroutine prepost(opts)                          !@(#)prepost(3f): process $POS
 character(len=*)                          :: opts
 character(len=G_line_length)              :: list
 character(len=:),allocatable              :: names(:)        ! names on $POST command
-character(len=:),allocatable              :: fors(:)         ! names on $POST --for
+character(len=:),allocatable              :: fors(:)         ! names on $POST --for 
 integer                                   :: i
 integer                                   :: j,jsz
    call dissect2('PARCEL','-oo --FOR ',opts)                 ! parse options and inline comment on input line
@@ -17578,7 +17585,6 @@ integer                     :: iname                        ! length of variable
 integer                     :: istore                       ! location of variable name in dictionary
 character(len=:),allocatable :: array(:)
 character(len=:),allocatable :: opts
-character(len=G_var_len)     :: value                       ! returned variable value
 
    call split(allopts,array,delimiters=';')                 ! parse string to an array parsing on delimiters
 
@@ -17595,17 +17601,12 @@ character(len=G_var_len)     :: value                       ! returned variable 
       else                                                     ! =value string trails name on directive
          temp=opts(iequ+1:)                                    ! get expression
       endif
-      if(G_debug.and.G_verbose) write(stderr,*)'*define* :LINE:'//trim(temp)
+
       call normalize_logical_operators(temp)
-      if(G_debug.and.G_verbose) write(stderr,*)'*define* :LINE:AFTER NORMALIZE:'//trim(temp)
       call parens(temp)
-      if(G_debug.and.G_verbose) write(stderr,*)'*define* :LINE:AFTER PARENS:'//trim(temp)
       call math(temp,1,len_trim(temp))
-      if(G_debug.and.G_verbose) write(stderr,*)'*define* :LINE:AFTER MATH:'//trim(temp)
       call doop(temp,1,len_trim(temp))
-      if(G_debug.and.G_verbose) write(stderr,*)'*define* :LINE:AFTER DOOP:'//trim(temp)
       call logic(temp,1,len_trim(temp))
-      if(G_debug.and.G_verbose) write(stderr,*)'*define* :LINE:AFTER LOGIC:'//trim(temp)
 
       temp=nospace(temp)
       select case(temp)
@@ -17614,13 +17615,6 @@ character(len=G_var_len)     :: value                       ! returned variable 
       case default ! assumed a number
          if ( verify(temp(1:1),'0123456789+-').eq.0 .and.  verify(temp(2:len_trim(temp)),'0123456789').eq.0 ) then
             call table%set(opts(:iname),temp)
-         elseif (temp(1:1).ge.'A'.and.temp(1:1).le.'Z'.or.temp(1:1).eq.'_')then ! appears to be variable name not number or logical
-            value=table%get(temp)                                                  ! find defined parameter in dictionary
-           if (value.eq.'')then                                                   ! unknown variable name
-              call stop_prep('*prep* ERROR(120) - UNDEFINED VARIABLE NAME:'//trim(G_source))
-           else
-              call table%set(opts(:iname),value)
-           endif
          else
             call stop_prep('*prep* ERROR(008) - NOT LOGICAL OR INTEGER EXPRESSION:'//trim(allopts))
          endif
@@ -17815,27 +17809,18 @@ character(len=G_line_length) :: expression
    call parens(expression)
    if (index(expression,'.').eq.0) then                            ! if line should be a variable only
       if (expression(1:1).ge.'A'.and.expression(1:1).le.'Z'.or.expression(1:1).eq.'_') then ! check name starts with valid character
-         call checkname(expression)                       ! check that expression contains only a legitimate variable name
+         call checkname(expression)                        ! check that expression contains only a legitimate variable name
          name=expression(:G_var_len)                      ! get variable name
          value=table%get(name)
          if (value.eq.'') then                           ! if failed to find variable name
-            !CHANGE! act more like cpp(1) and intel fpp(1) and treat "$IF VARNAME" like "$IFDEF VARNAME"
-            if(G_fpp)then
-               value='.F.'
-            else
-               call stop_prep('*prep* ERROR(024) - UNDEFINED PARAMETER IN IF:'//trim(G_source))
-            endif
+            call stop_prep('*prep* ERROR(024) - UNDEFINED PARAMETER IN IF:'//trim(G_source))
          endif
          read(value,'(l4)',iostat=ios) G_dc          ! convert variable value to a logical
          if(ios.ne.0)then
             call stop_prep('*prep* ERROR(025) - CONSTANT LOGICAL EXPRESSION REQUIRED.'//trim(G_source))
          endif
       else                                                 ! this should have been a variable name
-         if(G_fpp)then
-            call eval(expression)                                ! evaluate line
-         else
-            call stop_prep('*prep* ERROR(026) - CONSTANT LOGICAL EXPRESSION REQUIRED:'//trim(G_source))
-         endif
+         call stop_prep('*prep* ERROR(026) - CONSTANT LOGICAL EXPRESSION REQUIRED:'//trim(G_source))
       endif
    else                                                    ! a period is present in the expression so it needs evaluated
       call eval(expression)                                ! evaluate line
@@ -18116,7 +18101,7 @@ integer                         :: ipos2
 
 character(len=11)               :: temp
 character(len=G_line_length)    :: newl
-character(len=2),save           :: ops(3)= ['**','*/','+-']
+character(len=2),save           :: ops(3)= (/'**','*/','+-'/)
 integer                         :: i
 integer                         :: j
 integer                         :: loc
@@ -18347,11 +18332,7 @@ integer                                 :: ios               ! error code return
       value=table%get(substring)
 
       if (value.eq.'') then                                  ! if not a defined variable name stop program
-         if(G_fpp)then
-            value='.F.'
-         else
-            call stop_prep('*prep* ERROR(040) - UNDEFINED VARIABLE. DIRECTIVE='//trim(G_source)//' VARIABLE='//trim(substring))
-         endif
+         call stop_prep('*prep* ERROR(040) - UNDEFINED VARIABLE.'//trim(G_source))
       else
          read(value,'(l4)',iostat=ios) true_or_false         ! try to read a logical from the value for the variable name
          if(ios.ne.0)then                                    ! not successful in reading string as a logical value
@@ -18476,15 +18457,7 @@ character(len=7)               :: value
    value=line(1:7)
 
    if (value.ne.'.TRUE.'.and.value.ne.'.FALSE.') then
-      if(G_fpp)then           ! most fpp(1) silently test if equal to 1 or not
-         if(value.eq.'1')then
-            value='.TRUE.'
-         else
-            value='.FALSE.'
-         endif
-      else
-         call stop_prep('*prep* ERROR(043) - value neither true or false:'//trim(value)//' when evaluating: '//trim(G_source))
-      endif
+      call stop_prep('*prep* ERROR(043) - value neither true or false:'//trim(value)//' when evaluating: '//trim(G_source))
    endif
 
    read(value,'(l4)') G_dc
@@ -19274,7 +19247,6 @@ help_text=[ CHARACTER(LEN=128) :: &
 '        [-d ignore|remove|blank]                                                ',&
 '        [--comment default|doxygen|ford|none]                                   ',&
 '        [--ident]                                                               ',&
-'        [--fpp]                                                                 ',&
 '        [--verbose]                                                             ',&
 '        [--version]                                                             ',&
 '        [--help]                                                                ',&
@@ -19415,10 +19387,6 @@ help_text=[ CHARACTER(LEN=128) :: &
 '               The parameter is typically used to trim fixed-format FORTRAN     ',&
 '               code that contains comments or "ident" labels past column 72     ',&
 '               when compiling fixed-format Fortran code.                        ',&
-'                                                                                ',&
-'   --fpp       A prototype switch to make prep behave similar to common fpp(1)  ',&
-'               variants. The same behavior occurs if the executable is renamed  ',&
-'               to "fpp". Note --prefix "#" is implied by this switch.           ',&
 '                                                                                ',&
 '   --verbose   All commands on a $SYSTEM directive are echoed to stderr with a  ',&
 '               "+" prefix. Text following the string "@(#)" is printed to stderr',&
@@ -20493,7 +20461,6 @@ end module M_fpp
 program prep                                                 !@(#)prep(1f): preprocessor for Fortran/FORTRAN source code
 use M_kracken95, only : kracken, lget, rget, iget, sget, kracken_comment
 use M_strings,   only : notabs, isdigit, switch
-use M_io, only : getname, basename
 use M_fpp
 
 implicit none
@@ -20526,10 +20493,8 @@ character(len=1024)          :: cmd=' &
    & --start            " "      &
    & --stop             " "      &
    & --type             auto     &
-   & --fpp              .false.  &
    & '
 logical                       :: isscratch
-character(len=:),allocatable  :: cmdname
 
                                                                  ! allow formatting comments for particular post-processors
    G_comment_style=get_env('PREP_COMMENT_STYLE')                 ! get environment variable for -comment switch
@@ -20549,16 +20514,10 @@ character(len=:),allocatable  :: cmdname
       prefix = sget('prep_prefix')                               ! not a digit so not an ADE so assume a literal character
    endif
    G_ident=lget('prep_ident')                                    ! write IDENT as comment or CHARACTER variable
-   if(basename(getname()).eq.'fpp')then
-      G_fpp                      = .true.
-   else
-      G_fpp                      = lget('prep_fpp')
-   endif
-   if(G_fpp) prefix='#'                                          ! in fpp mode the prefix will alwyas be '#'
-   G_iwidth                   = iget('prep_width')
+   G_iwidth                     = iget('prep_width')
    G_iwidth=max(0,G_iwidth)
    letterd(1:1)               = sget('prep_d')
-   G_noenv                    = lget('prep_noenv')
+   G_noenv=lget('prep_noenv')
 
    if(out_filename.eq.'')then                                    ! open output file
       G_iout=stdout
@@ -20684,7 +20643,7 @@ character(len=:),allocatable  :: cmdname
          inquire(unit=G_file_dictionary(G_iocount)%unit_number,iostat=ios,named=isscratch)
          if(.not.isscratch.and.(G_file_dictionary(G_iocount)%unit_number.gt.0))then
             close(G_file_dictionary(G_iocount)%unit_number,iostat=ios)
-         elseif(isscratch.or.(G_file_dictionary(G_iocount)%unit_number.lt.-1))then
+         elseif(isscratch.or.(G_file_dictionary(G_iocount)%unit_number.lt.-1))then 
             rewind(unit=G_file_dictionary(G_iocount)%unit_number,iostat=ios)
          endif
       endif
@@ -20735,3 +20694,31 @@ end program prep
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
+!        ! create a character string dictionary
+!        call table%set('B','bee')
+!        call table%set('C','see')
+!        call table%set('D','dee')
+!        write(*,*)'A=',table%get('A')
+!        write(*,*)'C=',table%get('C')
+!        write(*,*)'notthere=',table%get('notthere')
+!        call print_dict()
+!        ! delete dictionary entries
+!        call  table%del('A')
+!        call  table%del('C')
+!        call  table%del('z') ! a noop as there is no key of 'z'
+!        call print_dict()
+!        ! clear dictionary
+!        call  table%clr()
+!        call print_dict()
+!      contains
+!      subroutine print_dict()
+!      integer :: i
+!         ! the dictionary is just three arrays
+!         write(*,'("DICTIONARY:")')
+!         write(*,'(*(a,"==>","[",a,"]",/))') &
+!         & (trim(table%key(i)),               &
+!         & table%value(i)(:table%count(i)),    &
+!         & i=1,size(table%key))
+!         !
+!      end subroutine print_dict
+ 
