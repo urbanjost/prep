@@ -202,7 +202,12 @@ logical                      :: ifound
                                                                       ! process the directive
       select case(VERB)
       case('  ')                                                      ! entire line is a comment
-      case('DEFINE','DEF','LET');     call define(upopts)             ! only process DEFINE if not skipping data lines
+      case('DEFINE','DEF','LET')
+         if(G_fpp)then
+            call define_fpp(options)        ! only process DEFINE if not skipping data lines
+         else
+            call define(upopts)             ! only process DEFINE if not skipping data lines
+         endif
       case('REDEFINE','REDEF'); call define(upopts)                   ! only process DEFINE if not skipping data lines
       case('UNDEF','UNDEFINE','DELETE'); call undef(upper(options))   ! only process UNDEF if not skipping data lines
       case('OUTPUT');           call output_case(options)             ! Filenames can be case sensitive
@@ -219,6 +224,8 @@ logical                      :: ifound
       case('ERROR');            call stop('1 '//all_options)
       CASE('GET_ARGUMENTS');    call write_get_arguments()
       CASE('HELP');             call short_help(stderr)
+      case('DEBUG');            G_debug=.not.G_debug      ;write(stderr,*)'DEBUG:',G_debug
+      case('VERBOSE');          G_verbose=.not.G_verbose  ;write(stderr,*)'VERBOSE:',G_verbose
       case('STOP');                                        call stop(all_options)
       case('INCLUDE','READ');                              call include(options,50+G_iocount)    ! Filenames can be case sensitive
       case('POST','CALL','DO');                            call prepost(upper(options))
@@ -443,6 +450,34 @@ integer,save                  :: ident_count=1
    end select
 
 end subroutine ident
+!==================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!===================================================================================================================================
+subroutine define_fpp(line)
+character(len=*),intent(in)  :: line
+character(len=:),allocatable :: temp
+character(len=:),allocatable :: name
+character(len=:),allocatable :: val
+integer                      :: iend
+integer                      :: i
+! create a dictionary with character keywords, values, and value lengths
+! using the routines for maintaining a list
+
+  temp=adjustl(line)
+  iend=index(temp,' ')
+  iend=merge(len(temp),iend,iend.eq.0)
+  name=adjustl(upper(temp(:iend)))
+  if(name.ne.'')then
+    if(len(temp).gt.iend)then
+       val=temp(min(iend+1,len(temp)):)
+    else
+       val='1'
+    endif
+    ! insert and replace entries
+   call table%set(name,val)
+  endif
+
+end subroutine define_fpp
 !==================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
@@ -689,10 +724,11 @@ character(len=G_line_length) :: expression
       endif
       exit                                                        ! no remaining DEFINED() functions so exit loop
    enddo FIND_DEFINED
+   if(G_debug.and.G_verbose) write(stderr,*)'*if* TOP:EXPRESSION:'//trim(expression)
 
    call normalize_logical_operators(expression)
    call parens(expression)
-   if (index(expression,'.').eq.0) then                            ! if line should be a variable only
+   if (index(expression,'.').eq.0) then                           ! if line should be a variable only
       if (expression(1:1).ge.'A'.and.expression(1:1).le.'Z'.or.expression(1:1).eq.'_') then ! check name starts with valid character
          call checkname(expression)                       ! check that expression contains only a legitimate variable name
          name=expression(:G_var_len)                      ! get variable name
@@ -720,10 +756,12 @@ character(len=G_line_length) :: expression
       call eval(expression)                                ! evaluate line
    endif
    if (.not.G_dc.or..not.G_condop(G_nestl-1).or.eb)then
+      if(G_debug.and.G_verbose) write(stderr,*)'*if* PREVIOUS:'
       return                                               ! check to make sure previous IF was true
    endif
    G_condop(G_nestl)=.true.
    G_write=G_condop(G_nestl)
+   if(G_debug.and.G_verbose) write(stderr,*)'*if* BOT:'
 end subroutine if
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -877,9 +915,7 @@ character(len=G_line_length)    :: line       ! line        -
 integer                         :: i
 integer                         :: j
 
-   if(G_debug.and.G_verbose)then
-       write(stderr,*)'*parens* TOP:LINE:'//trim(line)
-   endif
+   if(G_debug.and.G_verbose) write(stderr,*)'*parens* TOP:LINE:'//trim(line)
    TILLDONE: do
       if (index(line,')').ne.0) then          ! closing parens found
          do i=index(line,')'),1,-1            ! find first right paren, then backwards to left paren (find innermost set of parens)
@@ -952,9 +988,7 @@ integer                         :: j
    endif
    exit
    enddo TILLDONE
-   if(G_debug.and.G_verbose)then
-       write(stderr,*)'*parens* BOTTOM:LINE:'//trim(line)
-   endif
+   if(G_debug.and.G_verbose) write(stderr,*)'*parens* BOTTOM:LINE:'//trim(line)
 end subroutine parens
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -966,6 +1000,7 @@ integer                               :: i,j
 character(len=G_line_length)          :: line
 character(len=G_line_length)          :: newl
 
+   if(G_debug.and.G_verbose) write(stderr,*)'*math* :TOP:LINE:'//trim(line)
    newl=line(ipos1:ipos2)
    i=1
 
@@ -985,6 +1020,7 @@ character(len=G_line_length)          :: newl
    line(ipos1:ipos2)=newl
    line=nospace(line)
 
+   if(G_debug.and.G_verbose) write(stderr,*)'*math* :BOT:LINE:'//trim(line)
 end subroutine math
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -1006,7 +1042,11 @@ integer                         :: l
 integer                         :: len
 integer                         :: numop
 
-  if (ipos2.eq.0) return
+  if(G_debug.and.G_verbose)write(stderr,*)'*domath* :TOP:'//trim(line)
+  if (ipos2.eq.0) then
+     if(G_debug.and.G_verbose)write(stderr,*)'*domath* :BLANK:RETURN:'//trim(line)
+     return
+  endif
   loc=0
   j=0
   minus1=1
@@ -1134,6 +1174,7 @@ integer                         :: numop
 
   line(:ipos2)=newl(:len_trim(newl))
 
+  if(G_debug.and.G_verbose)write(stderr,*)'*domath* :BOT:RETURN:'//trim(line)
 end subroutine domath
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -1152,6 +1193,7 @@ character(len=7)                :: temp
 character(len=G_line_length)    :: newl
 integer                         :: i,j,k
 
+   if(G_debug.and.G_verbose)write(stderr,*)'*doop* :TOP:'//trim(line)
    newl=line(ipos1:ipos2)
    CHECK_EACH_OP_TYPE: do i=1,6
       FIND_MORE_OF: do
@@ -1169,6 +1211,10 @@ integer                         :: i,j,k
                endif
             enddo
             call getval(newl,index(newl,ops(i))+4,k-1,val2)
+
+            if(G_fpp)then ! instead of a simple integer it could be an expression
+                call domath(val1,len_trim(val1))
+            endif
             ival1=get_integer_from_string(val1)
             ival2=get_integer_from_string(val2)
             select case(i)                                       ! determine truth
@@ -1201,6 +1247,7 @@ integer                         :: i,j,k
       line=newl(:len_trim(newl))//line(ipos2+1:)
    endif
    line=nospace(line)
+   if(G_debug.and.G_verbose)write(stderr,*)'*doop* :BOT:RETURN:'//trim(line)
 end subroutine doop
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -1261,6 +1308,7 @@ integer                      :: len
 integer                      :: len1
 integer                      :: len2
 
+   if(G_debug.and.G_verbose)write(stderr,*)'*logic* :TOP:'//trim(line)
    newl=line(ipos1:ipos2)
    len1=0
    len2=0
@@ -1317,9 +1365,11 @@ integer                      :: len2
         iop=min(ieqv,ineqv)
       elseif (ipos1.eq.1) then
         line=newl(:len_trim(newl))//line(ipos2+1:)
+        if(G_debug.and.G_verbose)write(stderr,*)'*logic* :RETURN 1:'//trim(line)
         return
       else
         line=line(:ipos1-1)//newl(:len_trim(newl))//line(ipos2+1:)
+        if(G_debug.and.G_verbose)write(stderr,*)'*logic* :RETURN 2:'//trim(line)
         return
       endif
       len=5
@@ -1340,6 +1390,7 @@ integer                      :: len2
       if (G_dc) temp='.TRUE.'
       call rewrit(newl,temp(:len_trim(temp)),j,j+len1-1,l,l-len2+1)
    enddo TILLDONE
+   if(G_debug.and.G_verbose)write(stderr,*)'*logic* :BOT:'//trim(line)
 end subroutine logic
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -1348,6 +1399,7 @@ subroutine eval(line)                                   !@(#)eval(3f): evaluate 
 character(len=G_line_length)   :: line
 character(len=7)               :: value
 
+   if(G_debug.and.G_verbose)write(stderr,*)'*logic* :TOP:'//trim(line)
    call parens(line)
    call math(line,1,len_trim(line))
    call doop(line,1,len_trim(line))
@@ -1367,6 +1419,7 @@ character(len=7)               :: value
    endif
 
    read(value,'(l4)') G_dc
+   if(G_debug.and.G_verbose)write(stderr,*)'*eval* :BOT:'//trim(line)
 
 end subroutine eval
 !===================================================================================================================================
@@ -3173,22 +3226,6 @@ integer                      :: i
     ! insert and replace entries
     call prep_update(name,val)
   endif
-
-contains
-
-function get(key) result(valout)
-use M_list,      only : insert, locate, replace, remove                   ! Basic list lookup and maintenance
-character(len=*),intent(in)   :: key
-character(len=:),allocatable  :: valout
-integer                       :: place
-   ! find where string is or should be
-   call locate(keywords,key,place)
-   if(place.lt.1)then
-      valout=''
-   else
-      valout=values(place)(:counts(place))
-   endif
-end function get
 
 end subroutine set
 !===================================================================================================================================

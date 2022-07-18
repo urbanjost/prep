@@ -317,6 +317,13 @@ data=[ character(len=132) :: &
 '$   stop 2                                          ', &
 '$endif                                              ', &
 '$DEFINE A=10+2                                      ', &
+'$ifndef A                                           ', &
+'$   stop 5                                          ', &
+'$endif                                              ', &
+'$ifdef A                                            ', &
+'$else                                               ', &
+'$   stop 6                                          ', &
+'$endif                                              ', &
 '$show A                                             ', &
 '$define AB ; A_B                                    ', &
 '$define AB_                                         ', &
