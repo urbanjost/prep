@@ -238,9 +238,9 @@ logical                      :: ifound
 
    select case(VERB)                                                  ! process logical flow control even if G_write is false
    case('ELSE','ELSEIF','ELIF');  call else(verb,upopts,noelse,eb)
-   case('ENDIF');          call endif(noelse,eb)
-   case('IF');       call if(upopts,noelse,eb)
-   case('IFDEF','IFNDEF'); call def(verb,upopts,noelse,eb)
+   case('ENDIF','FI');            call endif(noelse,eb)
+   case('IF');                    call if(upopts,noelse,eb)
+   case('IFDEF','IFNDEF');        call def(verb,upopts,noelse,eb)
    case default
       if(.not.ifound)then
          !==========================================================================================================================
@@ -860,6 +860,7 @@ character(len=G_line_length)  :: expression
 
    if(noelse.eq.1.or.G_nestl.eq.0) then                    ! test for else instead of elseif
       call stop_prep("*prep* ERROR(031) - MISPLACED $ELSE OR $ELSEIF DIRECTIVE:"//trim(G_SOURCE))
+      return
    endif
    if(verb.eq.'ELSE')then
       noelse=1
@@ -2015,23 +2016,18 @@ integer                               :: icount                     ! how many t
 integer                               :: ibegin(n)                  ! starting column numbers for the tokens in INLINE
 integer                               :: iterm(n)                   ! ending column numbers for the tokens in INLINE
 integer                               :: ilen                       ! is the position of last non‐blank character in INLINE
-character(len=G_line_length)          :: in_filename1=''            ! input filename, default is stdin
 character(len=G_line_length)          :: in_filename2=''            ! input filename, default is stdin
 integer                               :: i, ii
 integer                               :: ivalue
 character(len=G_line_length)          :: dir                        ! directory used by an input file
 
-   in_filename1(:G_line_length)  = sget('_prep_i')                  ! get values from command line
    in_filename2(:G_line_length)  = sget('prep_i')                   ! get values from command line
-   if(in_filename1.ne.''.and.in_filename2.eq.in_filename1)then
-      in_filename2=''
-   endif
    if(in_filename2.eq.'')then                                       ! read stdin if no -i on command line
       in_filename2  = '@'
    endif
 
    ! break command argument prep_i into single words
-   call delim(adjustl(trim(sget('_prep_i'))//' '//trim(in_filename2)),array,n,icount,ibegin,iterm,ilen,dlim)
+   call delim(adjustl(trim(in_filename2)),array,n,icount,ibegin,iterm,ilen,dlim)
    ivalue=50                                ! starting file unit to use
    do i=icount,1,-1
       G_source='$include '//trim(array(i))  ! for messages
@@ -2070,7 +2066,7 @@ integer                               :: ilen                    ! is the positi
    ! G_inc_count is the number of tokens found
 
    ! break command argument prep_I into single words
-   call delim(adjustl(trim(sget('_prep_I'))//' '//trim(sget('prep_I'))),G_inc_files,n,G_inc_count,ibegin,iterm,ilen,dlim)
+   call delim(adjustl(trim(sget('prep_I'))),G_inc_files,n,G_inc_count,ibegin,iterm,ilen,dlim)
 end subroutine includes
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -2084,8 +2080,7 @@ integer                               :: icount                  ! how many toke
 integer                               :: ibegin(n)               ! starting column numbers for the tokens in INLINE
 integer                               :: iterm(n)                ! ending column numbers for the tokens in INLINE
 integer                               :: ilen                    ! is the position of last non‐blank character in INLINE
-character(len=G_line_length)          :: in_define1=''           ! variable definition from environment variable
-character(len=G_line_length)          :: in_define2=''           ! variable definition from environment variable and command
+character(len=G_line_length)          :: in_define2=''           ! variable definition from command line
 integer                               :: i
 
    if(allocated(keywords))deallocate(keywords)
@@ -2095,13 +2090,9 @@ integer                               :: i
    allocate(character(len=0) :: values(0))
    allocate(counts(0))
 
-   in_define1=sget('_prep_oo')
    in_define2=sget('prep_oo')
-   if(in_define1.ne.''.and.in_define2.eq.in_define1)then            ! if duplicates remove one
-      in_define2=''
-   endif
    ! break command argument prep_oo into single words
-   call delim(adjustl(trim(in_define1)//' '//trim(in_define2))//' '//trim(sget('prep_D')),array,n,icount,ibegin,iterm,ilen,dlim)
+   call delim(adjustl(trim(in_define2))//' '//trim(sget('prep_D')),array,n,icount,ibegin,iterm,ilen,dlim)
    do i=1,icount
       G_source='$redefine '//trim(array(i))
       call cond() ! convert variable name into a "$define variablename" directive and process it
