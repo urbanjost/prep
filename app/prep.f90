@@ -2021,7 +2021,11 @@ integer                               :: i, ii
 integer                               :: ivalue
 character(len=G_line_length)          :: dir                        ! directory used by an input file
 
-   in_filename2(:G_line_length)  = sget('prep_i')                   ! get values from command line
+   if(G_fpp)then
+      in_filename2(:G_line_length)  = sget('prep_oo')               ! get values from command line
+   else
+      in_filename2(:G_line_length)  = sget('prep_i')                ! get values from command line
+   endif
    if(in_filename2.eq.'')then                                       ! read stdin if no -i on command line
       in_filename2  = '@'
    endif
@@ -2029,6 +2033,7 @@ character(len=G_line_length)          :: dir                        ! directory 
    ! break command argument prep_i into single words
    call delim(adjustl(trim(in_filename2)),array,n,icount,ibegin,iterm,ilen,dlim)
    ivalue=50                                ! starting file unit to use
+   if(G_fpp)icount=min(icount,1)
    do i=icount,1,-1
       G_source='$include '//trim(array(i))  ! for messages
       call include(array(i),ivalue)
@@ -2090,7 +2095,11 @@ integer                               :: i
    allocate(character(len=0) :: values(0))
    allocate(counts(0))
 
-   in_define2=sget('prep_oo')
+   if(G_fpp)then
+      in_define2=''
+   else
+      in_define2=sget('prep_oo')
+   endif
    ! break command argument prep_oo into single words
    call delim(adjustl(trim(in_define2))//' '//trim(sget('prep_D')),array,n,icount,ibegin,iterm,ilen,dlim)
    do i=1,icount
@@ -3399,7 +3408,7 @@ end module M_fpp
 !===================================================================================================================================
 program prep                                                 !@(#)prep(1f): preprocessor for Fortran/FORTRAN source code
 use M_kracken95, only : kracken, lget, rget, iget, sget, kracken_comment
-use M_strings,   only : notabs, isdigit, switch
+use M_strings,   only : notabs, isdigit, switch, sep
 use M_io, only : getname, basename
 use M_fpp
 
@@ -3407,6 +3416,7 @@ implicit none
 character(len=G_line_length) :: out_filename=''           ! output filename, default is stdout
 character(len=1)             :: prefix                    ! directive prefix character
 character(len=1)             :: letterd                   !
+character(len=:),allocatable :: fpp_files(:)
 
 character(len=G_line_length) :: line                      ! working copy of input line
 logical                      :: keeptabs=.false.          ! flag whether to retain tabs and carriage returns or not
@@ -3446,22 +3456,27 @@ character(len=:),allocatable  :: cmdname
    G_comment='! '
    kracken_comment=G_comment
    call kracken('prep',cmd)                                      ! define command arguments, default values and crack command line
+   if(basename(getname()).eq.'fpp')then
+      G_fpp  = .true.
+   else
+      G_fpp  = lget('prep_fpp')
+   endif
+   if(G_fpp) prefix='#'                                          ! in fpp mode the prefix will alwyas be '#'
 
    G_inc_files=' '
 
    out_filename(:G_line_length) = sget('prep_o')
+   if(G_fpp.and.out_filename.eq.'')then
+      fpp_files=sep(sget('prep_oo'))
+      fpp_files=fpp_files(size(fpp_files):1:-1)
+      if(size(fpp_files).gt.1)out_filename(:G_line_length)=fpp_files(2)
+   endif
    if ( all(isdigit(switch(trim(sget('prep_prefix'))))) ) then   ! if all characters are numeric digits
       prefix = char(iget('prep_prefix'))                         ! assume this is an ADE
    else
       prefix = sget('prep_prefix')                               ! not a digit so not an ADE so assume a literal character
    endif
    G_ident=lget('prep_ident')                                    ! write IDENT as comment or CHARACTER variable
-   if(basename(getname()).eq.'fpp')then
-      G_fpp                      = .true.
-   else
-      G_fpp                      = lget('prep_fpp')
-   endif
-   if(G_fpp) prefix='#'                                          ! in fpp mode the prefix will alwyas be '#'
    G_iwidth                   = iget('prep_width')
    G_iwidth=max(0,G_iwidth)
    letterd(1:1)               = sget('prep_d')
