@@ -1400,7 +1400,6 @@ subroutine eval(line)                                   !@(#)eval(3f): evaluate 
 character(len=G_line_length)   :: line
 character(len=7)               :: value
 
-   if(G_debug.and.G_verbose)write(stderr,*)'*logic* :TOP:'//trim(line)
    call parens(line)
    call math(line,1,len_trim(line))
    call doop(line,1,len_trim(line))
@@ -3456,12 +3455,20 @@ character(len=:),allocatable  :: cmdname
    G_comment='! '
    kracken_comment=G_comment
    call kracken('prep',cmd)                                      ! define command arguments, default values and crack command line
-   if(basename(getname()).eq.'fpp')then
+
+   if(basename(getname()).eq.'fpp')then                          ! if executable is called "fpp" it implies --fpp mode
       G_fpp  = .true.
    else
       G_fpp  = lget('prep_fpp')
    endif
-   if(G_fpp) prefix='#'                                          ! in fpp mode the prefix will alwyas be '#'
+
+   if(G_fpp) then
+      prefix='#'                                                     ! in fpp mode the prefix will alwyas be '#'
+   elseif ( all(isdigit(switch(trim(sget('prep_prefix'))))) ) then   ! if all characters are numeric digits
+      prefix = char(iget('prep_prefix'))                             ! assume this is an ADE
+   else
+      prefix = sget('prep_prefix')                                   ! not a digit so not an ADE so assume a literal character
+   endif
 
    G_inc_files=' '
 
@@ -3471,11 +3478,7 @@ character(len=:),allocatable  :: cmdname
       fpp_files=fpp_files(size(fpp_files):1:-1)
       if(size(fpp_files).gt.1)out_filename(:G_line_length)=fpp_files(2)
    endif
-   if ( all(isdigit(switch(trim(sget('prep_prefix'))))) ) then   ! if all characters are numeric digits
-      prefix = char(iget('prep_prefix'))                         ! assume this is an ADE
-   else
-      prefix = sget('prep_prefix')                               ! not a digit so not an ADE so assume a literal character
-   endif
+
    G_ident=lget('prep_ident')                                    ! write IDENT as comment or CHARACTER variable
    G_iwidth                   = iget('prep_width')
    G_iwidth=max(0,G_iwidth)
