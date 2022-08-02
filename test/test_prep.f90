@@ -1,4 +1,5 @@
 program test_prep
+USE ISO_FORTRAN_ENV, ONLY : STDERR=>ERROR_UNIT, STDOUT=>OUTPUT_UNIT,STDIN=>INPUT_UNIT
 use M_io, only : filewrite, filedelete, gulp
 use M_strings, only : upper
 implicit none
@@ -135,12 +136,15 @@ data=[ character(len=132) :: &
 "write(*,*)'By ${AUTHOR}'        ", &
 "write(*,*)'File ${FILE}'        ", &
 "write(*,*)'Line ${LINE}'        ", &
+"$unset author                   ", &
+"write(*,*)'By ${AUTHOR}'        ", &
 "last line"]
 
 expected=[ character(len=132) :: &
 "write(*,*)'By  William Shakespeare'", &
 "write(*,*)'File _scratch.txt'      ", &
 "write(*,*)'Line 4'                 ", &
+"write(*,*)'By ${AUTHOR}'           ", &
 'last line']
 
 call teardown('SET')
@@ -239,7 +243,10 @@ end subroutine block
 !===============================================================================
 subroutine teardown(name)
 character(len=*),intent(in) :: name
+character(len=1)            :: paws
+integer :: iostat
    ierr=filewrite('_scratch.txt',data,status='replace')
+   !call execute_command_line ('fpm run prep -- --verbose --debug -i _scratch.txt -o _out.txt')
    call execute_command_line ('fpm run prep -- -i _scratch.txt -o _out.txt')
    call gulp('_out.txt',result)
    CHECK : block
@@ -259,6 +266,9 @@ character(len=*),intent(in) :: name
    endblock CHECK
    ierr=filedelete('_scratch.txt')
    ierr=filedelete('_out.txt')
+   call flushit()
+   !write(*,'(a)',advance='no')'Use RETURN to continue'
+   !read(*,'(a)',iostat=iostat)paws
 end subroutine teardown
 !===============================================================================
 subroutine expressions()
@@ -286,7 +296,7 @@ data=[ character(len=132) :: &
 '$endif', &
 ' ', &
 '$if A.ne.10', &
-'$   stop', &
+'$   STOP', &
 '$endif', &
 'last line']
 
@@ -344,11 +354,11 @@ data=[ character(len=132) :: &
 
 expected=[ character(len=132) :: &
 ' ', &
-'!  A  =  12', &
-'!  SUM  =  3', &
-'!  AB  =  1', &
-'!  A_B  =  1', &
-'!  AB_  =  1', &
+'! VARIABLE:  A  =  12', &
+'! VARIABLE:  SUM  =  3', &
+'! VARIABLE:  AB  =  1', &
+'! VARIABLE:  A_B  =  1', &
+'! VARIABLE:  AB_  =  1', &
 'last line']
 
 call teardown('define')
@@ -807,4 +817,9 @@ expected=[ character(len=132) :: &
 call teardown('CONDITIONALS_3')
 end subroutine conditionals_3
 !===============================================================================
+subroutine flushit()
+integer :: ios
+      flush(unit=stdout,iostat=ios)
+      flush(unit=stderr,iostat=ios)
+end subroutine flushit
 end program test_prep

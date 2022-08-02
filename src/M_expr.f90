@@ -2,8 +2,7 @@ module M_expr
 ! evaluate Fortran-like integer and logical expressions
 
 use iso_fortran_env, only : stderr=>error_unit, stdout=>output_unit,stdin=>input_unit
-use M_strings,   only : nospace, v2s, substitute, upper, lower, split, delim, str_replace=>replace, sep, atleast, unquote, notabs, &
-                      & isdigit, switch, glob
+use M_strings,   only : nospace, v2s, substitute, upper, split, str_replace=>replace, sep, glob
 use M_list,      only : dictionary
 implicit none
 private
@@ -16,8 +15,8 @@ integer,public,parameter             :: G_var_len=63                   ! allowed
 integer,public,save                  :: G_iout=stdout                  ! output unit
 logical,public,save                  :: G_verbose=.false.
 logical,public,save                  :: G_debug=.false.
-type(dictionary),public,save         :: table
 
+type(dictionary),public,save         :: table
 character(len=G_line_length)         :: G_source=''                    ! original source file line
 integer,save                         :: G_error=0
 
@@ -63,10 +62,22 @@ integer :: i
         endif
         exit                                                        ! no remaining DEFINED() functions so exit loop
      enddo FIND_DEFINED
+   ! normalize logical operators
+     expression=str_replace(expression,'==','.EQ.')
+     expression=str_replace(expression,'/=','.NE.')
+     expression=str_replace(expression,'!=','.NE.')
+     expression=str_replace(expression,'>=','.GE.')
+     expression=str_replace(expression,'<=','.LE.')
+     expression=str_replace(expression,'>','.GT.')
+     expression=str_replace(expression,'<','.LT.')
+     expression=str_replace(expression,'&&','.AND.')
+     expression=str_replace(expression,'||','.OR.')
+     expression=str_replace(expression,'!','.NOT.')
+     expression=str_replace(expression,'.XOR.','.NEQV.')
      if(index(expression,'=').ne.0)then
         call let(expression,value,def)
-!     elseif(index(expression,'=').eq.0.and.def_local)then           ! if defining and no '=' add '=1' to end to act like cpp '#define'
-!        call let(expression//'=1',value,def)
+     elseif(def_local)then
+        call let(expression,value,def)
      else
         if(present(logical))then
            call eval(expression,value,logical)
@@ -102,7 +113,7 @@ logical                      :: def_local
 
    if(def_local)then
       if (iequ.eq.0) then                                    ! if no = then variable assumes value of 1
-         value='1'                                           ! set string to default value
+         temp='1'                                            ! no = but a definition so set expression to "1"
       else                                                   ! =value string trails name on directive
          temp=expression(iequ+1:)                            ! get expression
       endif
@@ -142,42 +153,35 @@ subroutine eval(expression,value,logical)
 !@(#)eval(3f): evaluate math expression to .TRUE. or .FALSE. or integer value
 character(len=*),intent(in)    :: expression
 character(len=*),intent(out)   :: value
-character(len=G_line_length)   :: temp_line
+character(len=G_line_length)   :: temp
 logical,intent(in),optional    :: logical
 logical                        :: logical_local
 
-   ! normalize logical operators
-   temp_line=expression
-   temp_line=str_replace(temp_line,'==','.EQ.')
-   temp_line=str_replace(temp_line,'/=','.NE.')
-   temp_line=str_replace(temp_line,'!=','.NE.')
-   temp_line=str_replace(temp_line,'>=','.GE.')
-   temp_line=str_replace(temp_line,'<=','.LE.')
-   temp_line=str_replace(temp_line,'>','.GT.')
-   temp_line=str_replace(temp_line,'<','.LT.')
-   temp_line=str_replace(temp_line,'&&','.AND.')
-   temp_line=str_replace(temp_line,'||','.OR.')
-   temp_line=str_replace(temp_line,'!','.NOT.')
-   temp_line=str_replace(temp_line,'.XOR.','.NEQV.')
+   if(present(logical))then
+      logical_local=logical
+   else
+      logical_local=.false.
+   endif
 
-   if(G_verbose)write(*,*)'*eval*:',trim(temp_line)
-   call parens(temp_line);                           if(G_verbose)write(*,*)'*eval*:after parens:',trim(temp_line)
-   call math(temp_line,1,len_trim(temp_line));       if(G_verbose)write(*,*)'*eval*:after math:',trim(temp_line)
-   call doop(temp_line,1,len_trim(temp_line),value); if(G_verbose)write(*,*)'*eval*:after doop:',trim(temp_line)
-   call logic(temp_line,1,len_trim(temp_line));      if(G_verbose)write(*,*)'*eval*:after logic:',trim(temp_line)
+   temp=expression
+   if(G_verbose)write(*,*)'*eval*:',trim(temp)
+   call parens(temp);                  if(G_verbose)write(*,*)'*eval*:after parens:',trim(temp)
+   call math(temp,1,len_trim(temp));   if(G_verbose)write(*,*)'*eval*:after math:',trim(temp)
+   call doop(temp,1,len_trim(temp));   if(G_verbose)write(*,*)'*eval*:after doop:',trim(temp)
+   call logic(temp,1,len_trim(temp));  if(G_verbose)write(*,*)'*eval*:after logic:',trim(temp)
 
    ! check answer
-   temp_line=nospace(temp_line)
+   temp=nospace(temp)
    
-   select case(temp_line)
+   select case(temp)
    case('.FALSE.','.TRUE.','T','F','.T.','.F.')
    case default ! assumed a number
-      if ( verify(temp_line(1:1),'0123456789+-').eq.0 .and.  verify(temp_line(2:len_trim(temp_line)),'0123456789').eq.0 ) then
-      elseif (.not.logical)then
+      if ( verify(temp(1:1),'0123456789+-').eq.0 .and.  verify(temp(2:len_trim(temp)),'0123456789').eq.0 ) then
+      elseif (logical_local)then
          call oops('*M_expr* ERROR(202) - logical expression required:'//trim(expression))
-      elseif (temp_line(1:1).ge.'A'.and.temp_line(1:1).le.'Z'.or.temp_line(1:1).eq.'_')then ! appears to be variable name not number or logical
-        temp_line=table%get(temp_line)                                                ! find defined parameter in dictionary
-        if (temp_line.eq.'')then                                                 ! unknown variable name
+      elseif (temp(1:1).ge.'A'.and.temp(1:1).le.'Z'.or.temp(1:1).eq.'_')then ! appears to be variable name not number or logical
+        temp=table%get(temp)                                                ! find defined parameter in dictionary
+        if (temp.eq.'')then                                                 ! unknown variable name
            call oops('*M_expr* ERROR(001) - Undefined variable name:'//trim(expression))
         endif
       else
@@ -185,7 +189,7 @@ logical                        :: logical_local
       endif
    end select
 
-   value=temp_line ! should be variable name to get value of or integer number or logical
+   value=temp ! should be variable name to get value of or integer number or logical
 
 end subroutine eval
 !===================================================================================================================================
@@ -195,7 +199,6 @@ subroutine parens(line)                       !@(#)parens(3f): find subexpressio
 character(len=G_line_length)    :: line       ! line        -
 integer                         :: i
 integer                         :: j
-character(len=G_var_len)        :: value
 
    TILLDONE: do
       if (index(line,')').ne.0) then          ! closing parens found
@@ -206,7 +209,7 @@ character(len=G_var_len)        :: value
             call oops("*M_expr* ERROR(014) - Constant logical expression required:"//trim(G_source))
          endif
          call math(line,i+1,index(line,')')-1)
-         call doop(line,i+1,index(line,')')-1,value)
+         call doop(line,i+1,index(line,')')-1)
          call logic(line,i+1,index(line,')')-1)
          if (i.eq.1.and.index(line,')').eq.len_trim(line)) then          ! rewrite line after no more parens
             line=line(i+1:index(line,')')-1)
@@ -454,9 +457,8 @@ end subroutine domath
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-recursive subroutine doop(line,ipos1,ipos2,value)             !@(#)doop(3f): find VAL.OP.VAL strings and reduce to .TRUE. or .FALSE.
+recursive subroutine doop(line,ipos1,ipos2)             !@(#)doop(3f): find VAL.OP.VAL strings and reduce to .TRUE. or .FALSE.
 character(len=G_line_length)    :: line
-character(len=*),intent(out)    :: value
 integer                         :: ipos1
 integer                         :: ipos2
 
@@ -469,10 +471,11 @@ character(len=7)                :: temp
 character(len=G_line_length)    :: newl
 integer                         :: i,j,k
 
+   if(G_verbose)write(*,*)'*doop*:TOP:',trim(line),ipos1,ipos2
    newl=line(ipos1:ipos2)
+   if(G_verbose)write(*,*)'*doop*:NEWL:',trim(newl)
    CHECK_EACH_OP_TYPE: do i=1,6
       FIND_MORE_OF: do
-         value='.false.'
          if (index(newl,ops(i)).ne.0) then                       ! found current operator looking for
             do j=index(newl,ops(i))-1,1,-1
                if (newl(j:j).eq.'.') then
@@ -487,17 +490,17 @@ integer                         :: i,j,k
             enddo
             call getval(newl,index(newl,ops(i))+4,k-1,val2)
             call domath(val1,len_trim(val1)) ! instead of a simple integer it could be an expression
-
+            
             ival1=get_integer_from_string(val1)
             ival2=get_integer_from_string(val2)
-            temp='.TRUE.'
+            temp='.FALSE.'
             select case(i)                                       ! determine truth
-            case(1); if (ival1.eq.ival2) value='.true.' ! .eq.
-            case(2); if (ival1.ne.ival2) value='.true.' ! .ne.
-            case(3); if (ival1.ge.ival2) value='.true.' ! .ge.
-            case(4); if (ival1.gt.ival2) value='.true.' ! .gt.
-            case(5); if (ival1.le.ival2) value='.true.' ! .le.
-            case(6); if (ival1.lt.ival2) value='.true.' ! .lt.
+            case(1); if (ival1.eq.ival2) temp='.TRUE.' ! .eq.
+            case(2); if (ival1.ne.ival2) temp='.TRUE.' ! .ne.
+            case(3); if (ival1.ge.ival2) temp='.TRUE.' ! .ge.
+            case(4); if (ival1.gt.ival2) temp='.TRUE.' ! .gt.
+            case(5); if (ival1.le.ival2) temp='.TRUE.' ! .le.
+            case(6); if (ival1.lt.ival2) temp='.TRUE.' ! .lt.
             case default
              temp='.FALSE.'
             end select
@@ -514,6 +517,7 @@ integer                         :: i,j,k
       line=newl(:len_trim(newl))//line(ipos2+1:)
    endif
    line=nospace(line)
+   if(G_verbose)write(*,*)'*doop*:END:',trim(line)
 end subroutine doop
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -708,7 +712,7 @@ integer,intent(in)            :: j,j1, l,l1
    else                                          ! middle item
         line=line(:j1)//temp//line(l1:)
    endif
-   if(G_verbose)write(*,*)'*rewrit*:END',trim(line),trim(temp),j,j1,l,l1
+   if(G_verbose)write(*,'(*(g0))')'*rewrit*:END:LINE:',trim(line),':TEMP:',trim(temp),':',j,j1,l,l1
 end subroutine rewrit
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!

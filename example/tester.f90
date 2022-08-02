@@ -13,8 +13,8 @@ logical                      :: tdef=.false.
       case('.debug');   G_debug=.not.G_debug;call printstate()
       case('.define');  tdef=.not.tdef;call printstate()
       case('.show');    call printme();call printstate()
-      case('.stop')
-       stop
+      case('.stop');    stop
+      case('.help');    write(*,*)'verbose,debug,define,show,stop,help'
       case default
        if(ios.ne.0)exit READLINE
        CALL REDO(LINE,r='.')      ! pass line to REDO(3f). This is a no-op except
