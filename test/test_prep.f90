@@ -641,6 +641,7 @@ end subroutine quit
 !===============================================================================
 subroutine message()
 data=[ character(len=132) :: &
+"$show *E*                           ", &
 "$IMPORT USER                        ", &
 "$import HOME                        ", &
 "$message ${USER} ${DATE} ${TIME}    ", &
@@ -654,6 +655,9 @@ data=[ character(len=132) :: &
 "last line"]
 
 expected=[ character(len=132) :: &
+'! VARIABLE:  SYSTEMON  =  .FALSE.   ', &
+'! VARIABLE:  OPENBSD  =  7          ', &
+'! VARIABLE:  FREEBSD  =  6          ', &
 'last line']
 
 call teardown('message')
