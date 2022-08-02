@@ -120,6 +120,9 @@ data=[ character(len=132) :: &
 '$else                                                                       ', &
 '   a is not 1 or 2                                                          ', &
 '$endif                                                                      ', &
+'$if SYSTEMON                                                                ', &
+'BAD                                                                         ', &
+'$endif                                                                      ', &
 'last line']
 
 expected=[ character(len=132) :: &

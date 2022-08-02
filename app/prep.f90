@@ -1224,7 +1224,7 @@ integer                               :: i, ii
 integer                               :: ivalue
 character(len=G_line_length)          :: dir                        ! directory used by an input file
 
-   in_filename2(:G_line_length)  = sget('prep_i')                ! get values from command line
+   in_filename2(:G_line_length)  = sget('prep_i')                   ! get values from command line
    if(in_filename2.eq.'')then                                       ! read stdin if no -i on command line
       in_filename2  = '@'
    endif
@@ -1419,7 +1419,6 @@ help_text=[ CHARACTER(LEN=128) :: &
 '        [-d ignore|remove|blank]                                                ',&
 '        [--comment default|doxygen|ford|none]                                   ',&
 '        [--ident]                                                               ',&
-'        [--fpp]                                                                 ',&
 '        [--verbose]                                                             ',&
 '        [--version]                                                             ',&
 '        [--help]                                                                ',&
@@ -1560,10 +1559,6 @@ help_text=[ CHARACTER(LEN=128) :: &
 '               The parameter is typically used to trim fixed-format FORTRAN     ',&
 '               code that contains comments or "ident" labels past column 72     ',&
 '               when compiling fixed-format Fortran code.                        ',&
-'                                                                                ',&
-'   --fpp       A prototype switch to make prep behave similar to common fpp(1)  ',&
-'               variants. The same behavior occurs if the executable is renamed  ',&
-'               to "fpp". Note --prefix "#" is implied by this switch.           ',&
 '                                                                                ',&
 '   --verbose   All commands on a $SYSTEM directive are echoed to stderr with a  ',&
 '               "+" prefix. Text following the string "@(#)" is printed to stderr',&
@@ -2614,10 +2609,10 @@ logical                      :: keeptabs=.false.          ! flag whether to reta
 integer                      :: ilast
 integer                      :: ios
 character(len=1024)          :: cmd=' &
-   & -i                          &
-   & -D                          &
-   & -I                          &
-   & -o                          &
+   & -i                 " "      &
+   & -D                 " "      &
+   & -I                 " "      &
+   & -o                 " "      &
    & --prefix           36       &
    & --keeptabs         .false.  &
    & -d                 ignore   &
@@ -2634,7 +2629,6 @@ character(len=1024)          :: cmd=' &
    & --start            " "      &
    & --stop             " "      &
    & --type             auto     &
-   & --fpp              .false.  &
    & '
 logical                       :: isscratch
 character(len=:),allocatable  :: cmdname

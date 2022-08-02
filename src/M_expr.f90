@@ -156,6 +156,7 @@ character(len=*),intent(out)   :: value
 character(len=G_line_length)   :: temp
 logical,intent(in),optional    :: logical
 logical                        :: logical_local
+integer                        :: iostat
 
    if(present(logical))then
       logical_local=logical
@@ -172,13 +173,15 @@ logical                        :: logical_local
 
    ! check answer
    temp=nospace(temp)
-   
    select case(temp)
    case('.FALSE.','.TRUE.','T','F','.T.','.F.')
    case default ! assumed a number
       if ( verify(temp(1:1),'0123456789+-').eq.0 .and.  verify(temp(2:len_trim(temp)),'0123456789').eq.0 ) then
       elseif (logical_local)then
-         call oops('*M_expr* ERROR(202) - logical expression required:'//trim(expression))
+         write(temp,'(g0)',iostat=iostat)true_or_false(temp,1,len_trim(temp)) 
+         if(iostat.ne.0)then
+            call oops('*M_expr* ERROR(202) - logical expression required:'//trim(expression))
+         endif
       elseif (temp(1:1).ge.'A'.and.temp(1:1).le.'Z'.or.temp(1:1).eq.'_')then ! appears to be variable name not number or logical
         temp=table%get(temp)                                                ! find defined parameter in dictionary
         if (temp.eq.'')then                                                 ! unknown variable name
