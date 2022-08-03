@@ -250,7 +250,7 @@ character(len=1)            :: paws
 integer :: iostat
    ierr=filewrite('_scratch.txt',data,status='replace')
    !call execute_command_line ('fpm run prep -- --verbose --debug -i _scratch.txt -o _out.txt')
-   call execute_command_line ('fpm run prep -- -i _scratch.txt -o _out.txt')
+   call execute_command_line ('fpm run prep -- F90 TESTPRG90 CMD=30/2 -i _scratch.txt -o _out.txt')
    call gulp('_out.txt',result)
    CHECK : block
       if(size(expected).eq.size(result))then
@@ -655,6 +655,7 @@ data=[ character(len=132) :: &
 "last line"]
 
 expected=[ character(len=132) :: &
+'! VARIABLE:  TESTPRG90  =  1        ', &
 '! VARIABLE:  SYSTEMON  =  .FALSE.   ', &
 '! VARIABLE:  OPENBSD  =  7          ', &
 '! VARIABLE:  FREEBSD  =  6          ', &
@@ -752,6 +753,11 @@ data=[ character(len=132) :: &
 '$error "test  G"                                                                ',&
 '$endif                                                                          ',&
 '$!======================                                                        ',&
+'$if  CMD == 15                                                                  ',&
+'GOOD: CMD                                                                       ',&
+'$else                                                                           ',&
+'BAD: CMD                                                                        ',&
+'$endif                                                                          ',&
 '$!======================                                                        ',&
 "last line"]
 
@@ -763,6 +769,7 @@ expected=[ character(len=132) :: &
 'OK E',&
 'OK F',&
 'OK G',&
+'GOOD: CMD                                                                       ',&
 "last line"]
 
 call teardown('misc')

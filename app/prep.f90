@@ -6,20 +6,26 @@
 !     http://www.lahey.com/code.htm
 !  Extensively rewritten since under a MIT License.
 !     2013-10-03,2020-12-19,2021-06-12 : John S. Urban
-!
+! ADD
+! o line control  # linenumber "file"
+! o looping
 ! CONSIDER
-! make $OUTPUT file nestable
-! allow multiple files on $INCLUDE?
-! undocument $BLOCK HELP|VERSION?
-! %,>>,<< operators
-! replace math parsing with M_calculator (but add logical operators to M_calculator)
-! cpp-like procedure macros
-! cpp or fpp compatibility mode
-! line control  # linenumber "file"
-! modularize and modernize calculator expression, if/else/endif
+! o make $OUTPUT file nestable
+! o allow multiple files on $INCLUDE?
+! o undocument $BLOCK HELP|VERSION?
+! o %,>>,<< operators
+! o replace math parsing with M_calculator (but add logical operators to M_calculator)
+! o cpp-like procedure macros
+! o cpp or fpp compatibility mode
+! o modularize and modernize calculator expression, if/else/endif
 !
 ! REMOVED $REDEFINE and no longer produce warning message if redefine a variable, more like fpp(1) and cpp(1)
+!
 ! some fpp versions allow integer intrinsics, not well documented but things like "#define AND char(34)"
+!
+! a PROCEDURE variable with current procedure name, maybe MODULE::PROCEDURE::CONTAINS format would be very handy in messages
+! 
+! perhaps change to a more standard CLI syntax; but either way support multiple -D and maybe -D without a space before value
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
@@ -166,7 +172,7 @@ character(len=G_var_len)     :: value
       select case(VERB)
       case('  ')                                                      ! entire line is a comment
       case('DEFINE','DEF','LET'); call expr(upopts,value,ierr,def=.true.)    ! only process DEFINE if not skipping data lines
-      case('REDEFINE','REDEF');   call expr(upopts,value,ierr)    ! only process REDEFINE if not skipping data lines
+      case('REDEFINE','REDEF');   call expr(upopts,value,ierr,def=.true.)    ! only process REDEFINE if not skipping data lines
       case('UNDEF','UNDEFINE','DELETE'); call undef(upper(options))   ! only process UNDEF if not skipping data lines
       case('OUTPUT');             call output_case(options)             ! Filenames can be case sensitive
       case('PARCEL');             call parcel_case(upopts)
@@ -400,7 +406,7 @@ end subroutine ident
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-function getdate(name) result(s)         !@(#) getdate(3f): Function to write date and time into returned string in different styles
+function getdate(name) result(s)      !@(#) getdate(3f): Function to write date and time into returned string in different styles
 character(len=*),intent(in),optional :: name
 
 character(len=*),parameter           :: month='JanFebMarAprMayJunJulAugSepOctNovDec'
@@ -415,12 +421,12 @@ character(len=10)                    :: name_
    name_='prep'
    if(present(name))name_=name
    select case(lower(name_))
-   case('prep')  ; write(line,fmt) v(5), ':', v(6), v(3), month(3*v(2)-2:3*v(2)), v(1) ! PREP_DATE="00:39  5 Nov 2013"
-   case('date')  ; write(line,'(i4.4,"-",i2.2,"-",i2.2)') v(1),v(2),v(3)
-   case('cdate') ; write(line,cdate) month(3*v(2)-2:3*v(2)), v(3), v(1)
-   case('long')  ; write(line,'(i4.4,"-",i2.2,"-",i2.2," ",i2.2,":",i2.2,":",i2.2," UTC",sp,i0)') v(1),v(2),v(3),v(5),v(6),v(7),v(4)
-   case('time')  ; write(line,'(i2.2,":",i2.2,":",i2.2)') v(5),v(6),v(7)
-   case default  ; write(line,'(i4.4,"-",i2.2,"-",i2.2," ",i2.2,":",i2.2,":",i2.2," UTC",sp,i0)') v(1),v(2),v(3),v(5),v(6),v(7),v(4)
+   case('prep') ; write(line,fmt) v(5), ':', v(6), v(3), month(3*v(2)-2:3*v(2)), v(1) ! PREP_DATE="00:39  5 Nov 2013"
+   case('date') ; write(line,'(i4.4,"-",i2.2,"-",i2.2)') v(1),v(2),v(3)
+   case('cdate'); write(line,cdate) month(3*v(2)-2:3*v(2)), v(3), v(1)
+   case('long') ; write(line,'(i4.4,"-",i2.2,"-",i2.2," ",i2.2,":",i2.2,":",i2.2," UTC",sp,i0)') v(1),v(2),v(3),v(5),v(6),v(7),v(4)
+   case('time') ; write(line,'(i2.2,":",i2.2,":",i2.2)') v(5),v(6),v(7)
+   case default ; write(line,'(i4.4,"-",i2.2,"-",i2.2," ",i2.2,":",i2.2,":",i2.2," UTC",sp,i0)') v(1),v(2),v(3),v(5),v(6),v(7),v(4)
    end select
    s=trim(line)
 end function getdate
@@ -457,6 +463,7 @@ character(len=*)             :: opts                       ! directive with no s
 character(len=:),allocatable :: names(:)
 integer                      :: i
 integer                      :: k
+integer                      :: ibug
 
    ! REMOVE VARIABLE IF FOUND IN VARIABLE NAME DICTIONARY
    ! allow basic globbing where * is any string and ? is any character
@@ -469,7 +476,9 @@ integer                      :: k
       if(G_verbose)then
          call write_err('+ $UNSET '//names(k))
       endif
-      do i=size(macro%key),1,-1                           ! find defined variable to be undefined by searching dictionary
+      ! added UBOUND call because GFORTRAN returns size of 1 when undefined, OK with ifort and nvfortran
+      ibug=minval([size(macro%key),ubound(macro%key)])   ! print variable dictionary
+      do i=ibug,1,-1                           ! find defined variable to be undefined by searching dictionary
          if (glob(trim(macro%key(i)),trim(names(k))))then   ! found the requested variable name
             call  macro%del(macro%key(i))
          endif
@@ -640,7 +649,7 @@ end subroutine endif
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-logical function true_or_false(line,ipos1,ipos2)  !@(#)true_or_false(3f): convert variable name or .TRUE./.FALSE. to a logical value
+logical function true_or_false(line,ipos1,ipos2) !@(#)true_or_false(3f): convert variable name or .TRUE./.FALSE. to a logical value
 character(len=G_line_length),intent(in) :: line              ! line containing string to interpret as a logical value
 integer,intent(in)                      :: ipos1             ! starting column of substring in LINE
 integer,intent(in)                      :: ipos2             ! ending column of substring in LINE
@@ -996,20 +1005,25 @@ end subroutine format_g_man
 subroutine show_state(list,msg)                        !@(#)debug(3f): process $SHOW command or state output when errors occur
 character(len=*),intent(in),optional :: list
 character(len=*),intent(in) :: msg
-integer                     :: i, j
+integer                     :: i
+integer                     :: j
 character(len=:),allocatable   :: array(:)    ! output array of tokens
 character(len=*),parameter  :: fmt='(*(g0,1x))'
+integer                     :: ibugm
+integer                     :: ibugt
    if(present(list))then
       if(list.ne.'')then
          ! print variables:
          CALL split(list,array,delimiters=' ;,') ! parse string to an array parsing on delimiters
+         ibugm=minval([size(macro%key),ubound(macro%key)])  
+         ibugt=minval([size(table%key),ubound(table%key)]) 
          do j=1,size(array)
-            do i=1,minval(ubound(macro%key)) ! size(macro%key) bug in gfortran
+            do i=1,ibugm                     ! size(macro%key) bug in gfortran
                if(glob(trim(macro%key(i)),trim(array(j))))then ! write variable and corresponding value
                   write(G_iout,fmt)"! MACRO: ",trim(macro%key(i)),' = ',adjustl(macro%value(i)(:macro%count(i)))
                endif
             enddo
-            do i=1,minval(ubound(table%key)) ! size(table%key) bug in gfortran
+            do i=1,ibugt                     ! size(table%key) bug in gfortran
                if(glob(trim(table%key(i)),trim(array(j))))then ! write variable and corresponding value
                   write(G_iout,fmt)"! VARIABLE: ",trim(table%key(i)),' = ',adjustl(table%value(i)(:table%count(i)))
                endif
@@ -1045,7 +1059,8 @@ character(len=*),parameter  :: fmt='(*(g0,1x))'
    enddo
 
    write(G_iout,'(a)')'! Variables:'
-   do i=1,minval(ubound(table%key)) ! size(macro%key) bug in gfortran
+   ibugt=minval([size(table%key),ubound(table%key)])   ! print variable dictionary
+   do i=1,ibugt                    ! size(table%key) bug in gfortran
       write(G_iout,fmt)"!    $DEFINE",trim(table%key(i)),' = ',adjustl(table%value(i)(:table%count(i)) )
    enddo
 
@@ -1054,8 +1069,9 @@ character(len=*),parameter  :: fmt='(*(g0,1x))'
       write(G_iout,fmt) '!   ',trim(G_parcel_dictionary(i)%name)
    enddo
 
-   if(minval(ubound(macro%key)).gt.0)then ! size(macro%key).gt.0)then
-      write(G_iout,fmt)'! SET strings:(There are',size(macro%key),'keywords defined)'
+   ibugm=minval([size(macro%key),ubound(macro%key)])   ! print variable dictionary
+   if(ibugm.gt.0)then ! size(macro%key).gt.0)then
+      write(G_iout,fmt)'! SET strings:(There are',ibugm,'keywords defined)'
       write(G_iout,fmt)"! $SET   ",trim(macro%key(i)),' = ',adjustl(macro%value(i)(:macro%count(i)) )
    endif
 
@@ -1237,7 +1253,7 @@ character(len=G_line_length)          :: dir                        ! directory 
       call include(array(i),ivalue)
       ivalue=ivalue+1
 
-      ALREADY: block                       ! store directory path of input files as an implicit directory for reading $INCLUDE files
+      ALREADY: block                 ! store directory path of input files as an implicit directory for reading $INCLUDE files
          dir=dirname(array(i))
          do ii=1,G_inc_count
             if(G_inc_files(ii).eq.dir)exit ALREADY
@@ -2321,7 +2337,7 @@ character(len=G_var_len)       :: value
       call expr(nospace(upper(line)),value,ierr,def=.true.)    ! only process DEFINE if not skipping data lines
 
    case('redefine')                            ! do not write
-      call expr(nospace(upper(line)),value,ierr)    ! only process DEFINE if not skipping data lines
+      call expr(nospace(upper(line)),value,ierr,def=.true.)    ! only process DEFINE if not skipping data lines
 
    case('message')                             ! do not write
       call write_err(line)                     ! trustingly trim MESSAGE from directive
@@ -2461,6 +2477,7 @@ if(index(line,'${').ne.0)then
    call set('FILE ' // G_file_dictionary(G_iocount)%filename )
    call set('TIME ' // getdate('time'))
    call set('DATE ' // getdate('cdate'))
+   call set('PROCEDURE ' // 'PROCNAME')
    temp=trim(line)
    INFINITE: do i=1,toomany
       do j=1,size(macro%key)
