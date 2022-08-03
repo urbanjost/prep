@@ -33,7 +33,6 @@ rev = "92d818feb45238b1fa943a1af6186ebcbe7dc1de"
 
 [dependencies.M_list]
 git = "https://github.com/urbanjost/M_list.git"
-rev = "bc1feab833f5559def2d27e4fb999a838d99dd10"
 
 [dependencies.M_history]
 git = "https://github.com/urbanjost/M_history.git"

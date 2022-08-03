@@ -24,7 +24,7 @@
 ! some fpp versions allow integer intrinsics, not well documented but things like "#define AND char(34)"
 !
 ! a PROCEDURE variable with current procedure name, maybe MODULE::PROCEDURE::CONTAINS format would be very handy in messages
-! 
+!
 ! perhaps change to a more standard CLI syntax; but either way support multiple -D and maybe -D without a space before value
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -90,7 +90,7 @@ character(len=10)                    :: G_MAN_FILE_POSITION='ASIS      '
 integer,public                       :: G_nestl=0                      ! count of if/elseif/else/endif nesting level
 integer,public,parameter             :: G_nestl_max=20                 ! maximum nesting level of conditionals
 
-logical,save                         :: G_debug=.false.  
+logical,save                         :: G_debug=.false.
 logical,save,public                  :: G_verbose=.false.              ! verbose, including write strings after @(#) like what(1).
 logical,save,public                  :: G_system_on=.false.            ! allow system commands or not on $SYSTEM
 
@@ -433,7 +433,7 @@ end function getdate
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine check_name(line) 
+subroutine check_name(line)
 ! determine if a string is a valid Fortran name ignoring trailing spaces (but not leading spaces)
 character(len=*),parameter   :: int='0123456789'
 character(len=*),parameter   :: lower='abcdefghijklmnopqrstuvwxyz'
@@ -523,9 +523,9 @@ character(len=G_line_length) :: expression
    if(ierr.eq.0)then
       read(value,'(l7)',iostat=ios)G_dc
    else
-      G_dc=.false.          
+      G_dc=.false.
    endif
-   
+
    if (.not.G_dc.or..not.G_condop(G_nestl-1).or.eb)then
       if(G_debug.and.G_verbose) write(stderr,*)'*if* PREVIOUS:'
       return                                               ! check to make sure previous IF was true
@@ -1015,8 +1015,8 @@ integer                     :: ibugt
       if(list.ne.'')then
          ! print variables:
          CALL split(list,array,delimiters=' ;,') ! parse string to an array parsing on delimiters
-         ibugm=minval([size(macro%key),ubound(macro%key)])  
-         ibugt=minval([size(table%key),ubound(table%key)]) 
+         ibugm=minval([size(macro%key),ubound(macro%key)])
+         ibugt=minval([size(table%key),ubound(table%key)])
          do j=1,size(array)
             do i=1,ibugm                     ! size(macro%key) bug in gfortran
                if(glob(trim(macro%key(i)),trim(array(j))))then ! write variable and corresponding value
@@ -1058,21 +1058,25 @@ integer                     :: ibugt
       write(G_iout,'("!    ",a)') trim(G_inc_files(i))
    enddo
 
-   write(G_iout,'(a)')'! Variables:'
    ibugt=minval([size(table%key),ubound(table%key)])   ! print variable dictionary
-   do i=1,ibugt                    ! size(table%key) bug in gfortran
-      write(G_iout,fmt)"!    $DEFINE",trim(table%key(i)),' = ',adjustl(table%value(i)(:table%count(i)) )
-   enddo
+   if(ibugt.gt.0)then
+      write(G_iout,fmt)'! Variables:(There are',ibugt,'variables defined)'
+      do i=1,ibugt                    ! size(table%key) bug in gfortran
+         write(G_iout,fmt)"!    $DEFINE",trim(table%key(i)),' = ',adjustl(table%value(i)(:table%count(i)) )
+      enddo
+   endif
 
-   write(G_iout,'(a)')'! Parcels:'
+   if(G_parcelcount.gt.0)write(G_iout,'(a)')'! Parcels:'
    do i=1,G_parcelcount
       write(G_iout,fmt) '!   ',trim(G_parcel_dictionary(i)%name)
    enddo
 
    ibugm=minval([size(macro%key),ubound(macro%key)])   ! print variable dictionary
    if(ibugm.gt.0)then ! size(macro%key).gt.0)then
-      write(G_iout,fmt)'! SET strings:(There are',ibugm,'keywords defined)'
-      write(G_iout,fmt)"! $SET   ",trim(macro%key(i)),' = ',adjustl(macro%value(i)(:macro%count(i)) )
+      write(G_iout,fmt)'! Macros:(There are',ibugm,'keywords defined)'
+      do i=1,ibugm                    ! size(table%key) bug in gfortran
+         write(G_iout,fmt)"! $SET   ",trim(macro%key(i)),' = ',adjustl(macro%value(i)(:macro%count(i)) )
+      enddo
    endif
 
    write(G_iout,'(a)')'!-------------------------------------------------------------------------------'
@@ -2436,6 +2440,8 @@ character(len=:),allocatable :: name
 character(len=:),allocatable :: val
 integer                      :: iend
 integer                      :: i
+integer                      :: ibugm
+character(len=*),parameter  :: fmt='(*(g0,1x))'
 ! create a dictionary with character keywords, values, and value lengths
 ! using the routines for maintaining a list
 
@@ -2452,7 +2458,7 @@ integer                      :: i
     else
     endif
   else
-       call stop_prep('*prep* ERROR(107) - INCOMPLETE DEFINE:'//trim(G_SOURCE))
+       call stop_prep('*prep* ERROR(107) - INCOMPLETE SET:'//trim(G_SOURCE))
   endif
 
 end subroutine set
@@ -2466,21 +2472,22 @@ subroutine expand_variables(line)
 ! the way this is written it would do recursive substitution and does not know when there is just not a match
 character(len=*)              :: line
 character(len=:),allocatable  :: temp,search
-integer,parameter             :: toomany=1000
-integer                       :: i, j
+integer                       :: i
+integer                       :: j
+integer                       :: ibug
 character(len=4096)           :: scratch
 
 if(index(line,'${').ne.0)then
    write(scratch,'(i0)')G_file_dictionary(G_iocount)%line_number
-
    call set('LINE ' // scratch)
    call set('FILE ' // G_file_dictionary(G_iocount)%filename )
    call set('TIME ' // getdate('time'))
    call set('DATE ' // getdate('cdate'))
    call set('PROCEDURE ' // 'PROCNAME')
    temp=trim(line)
-   INFINITE: do i=1,toomany
-      do j=1,size(macro%key)
+   ibug=minval([size(macro%key),ubound(macro%key)])   ! print variable dictionary
+   INFINITE: do i=1,len_trim(line)
+      do j=1,ibug
          if(index(temp,'${').ne.0)then
             search='${'//trim(macro%key(j))//'}'
             temp=str_replace(temp,search,macro%value(j)(:macro%count(j)),ignorecase=.true.)
