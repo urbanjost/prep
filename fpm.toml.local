@@ -1,0 +1,37 @@
+# TOML file for fpm as described at https://github.com/fortran-lang/fpm/blob/master/manifest-reference.md
+name = "prep"
+version = "6.0.0"
+license = "MIT"
+author = "John Urban"
+maintainer = "urbanjost@comcast.net"
+copyright = "2020 John Urban"
+description = "Fortran pre-processor"
+categories = ["preprocessing"]
+keywords = ["preprocessor", "fortran", "fpm", "General Purpose Fortran" ]
+homepage = "https://github.com/urbanjost"
+
+#[library]
+#source-dir="src"
+
+[[executable]]
+name="prep"
+source-dir="app"
+main="prep.f90"
+
+[dependencies]
+M_kracken95 = { path = "LINKS/M_kracken95" }
+M_io        = { path = "LINKS/M_io" }
+M_strings   = { path = "LINKS/M_strings" }
+M_list      = { path = "LINKS/M_list" }
+
+M_history   = { path = "LINKS/M_history" }
+#M_CLI2      = { path = "LINKS/M_CLI2" }
+
+#ln -s /home/urbanjs/venus/V600/github/M_math  .
+#ln -s /home/urbanjs/venus/V600/github/M_strings  .
+#ln -s /home/urbanjs/venus/V600/github/M_history  .
+#ln -s /home/urbanjs/venus/V600/github/M_list  .
+#ln -s /home/urbanjs/venus/V600/github/M_io  .
+#ln -s /home/urbanjs/venus/V600/github/ARGS/M_kracken95  .
+#ln -s /home/urbanjs/venus/V600/github/ARGS/M_CLI2  .
+
