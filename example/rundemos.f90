@@ -2,7 +2,7 @@ program rundemos
 use M_io, only : slurp
 implicit none
 character(len=*),parameter            :: g='(*(g0))'
-character(len=*),parameter   :: commands(*)=[ character(len=132) :: &
+character(len=132),parameter   :: commands(*)=[ character(len=132) :: &
 'prep -i block.ff                   ',&
 'prep -i block_help.ff              ',&
 'prep --type md -i color_wheel.md   ',&

@@ -356,7 +356,7 @@ character(len=:),allocatable              :: names(:)        ! names on $POST co
 character(len=:),allocatable              :: fors(:)         ! names on $POST --for
 integer                                   :: i
 integer                                   :: j,jsz
-   call dissect2('PARCEL','-oo --FOR ',opts)                 ! parse options and inline comment on input line
+   call dissect2('PARCEL','-oo --FOR " " ',opts)                 ! parse options and inline comment on input line
    list=sget('PARCEL_oo')
    call split(list,names,delimiters=' ,')                    ! parse string to an array parsing on delimiters
    list=sget('PARCEL_FOR')
@@ -2425,10 +2425,8 @@ subroutine dissect2(verb,init,pars,error_return) !@(#)dissect2(3f): convenient c
 character(len=*),intent(in)  :: verb             ! the name of the command to be reset/defined  and then set
 character(len=*),intent(in)  :: init             ! used to define or reset command options; usually hard-set in the program.
 character(len=*),intent(in)  :: pars             ! defines the command options to be set, usually from a user input file
-integer                      :: ipars            ! length of the user-input string pars.
 integer,intent(out),optional :: error_return
-   ipars=len(pars)
-   call dissect(verb,init,pars,ipars,error_return)
+   call dissect(verb,init,pars,len(pars),error_return)
 end subroutine dissect2
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
