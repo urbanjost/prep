@@ -1,5 +1,5 @@
-A sample file showing a markdown file containing prep(1) Fortran
-file that can be extracted by using "fpm -type md ....". _TOTALLY
+A sample file showing a markdown file containing Fortran
+that can be extracted by using "fpm -type md ....". _TOTALLY
 EXPERIMENTAL__ -- not yet a supported feature.
 
 ![color_wheel](color_wheel.1.gif)

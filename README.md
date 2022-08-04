@@ -1,6 +1,6 @@
 ### [fpm-tools](https://github.com/search?q="fpm-tools"%20in:topic%20language:fortran):[prep](https://urbanjost.github.io/prep/prep.1.html)
 
-## A Fortran code pre-processor written in Fortran
+## A Fortran source code pre-processor written in Fortran
 
 ## Documentation   ![docs](docs/images/docs.gif)
  + [man-pages](https://urbanjost.github.io/prep/prep.1.html) reformatted as HTML.
@@ -41,9 +41,10 @@ $! write the routine generically with ${NAME} variables
 $parcel ex1
    ! created by ${USER} on ${DATE} at ${TIME}
    subroutine testit_${KIND}(value)
-   real(kind=${kind}) :: value
-      write(*,*)'big subroutine with type ${kind} and value=',value
+   real(kind=${KIND}) :: value
+      write(*,*)'big subroutine with type ${KIND} and value=',value
    end subroutine testit_${KIND}
+
 $endparcel
 $!
 module M_testit
@@ -84,16 +85,19 @@ contains
    real(kind=real32) :: value
       write(*,*)'big subroutine with type real32 and value=',value
    end subroutine testit_real32
+
    ! created by urbanjs on Jun 19 2021 at 11:55:43
    subroutine testit_real64(value)
    real(kind=real64) :: value
       write(*,*)'big subroutine with type real64 and value=',value
    end subroutine testit_real64
+
    ! created by urbanjs on Jun 19 2021 at 11:55:43
    subroutine testit_real128(value)
    real(kind=real128) :: value
       write(*,*)'big subroutine with type real128 and value=',value
    end subroutine testit_real128
+
 end module M_testit
 ```
 ## Building
@@ -107,10 +111,12 @@ It was tested with
    + GNU Fortran 10.3.0              on 20220305
    + ifort (IFORT) 19.1.3.304        on 20200925
    + ifort (IFORT) 2021.3.0 20210609 on 20220305
-
-In addition, the standalone version was tested with
-
    + nvfortran 21.5-0                on 20220329
+
+### V9.0.0
+   + GNU Fortran 10.3.0              on 20220804
+   + ifort (IFORT) 2021.3.0 20210609 on 20220804
+   + nvfortran 21.5-0                on 20220804
 
 ## Accessing
 ```bash
@@ -146,7 +152,6 @@ https://github.com/urbanjost/prep.git
 
 Feedback is welcome.
 [**leave a comment!**](https://github.com/urbanjost/prep/wiki/Fortran-pre-processing)
-
 
 <!--
 https://github.com/fortran-lang/fpm/issues/78

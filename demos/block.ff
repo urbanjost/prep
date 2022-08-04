@@ -5,7 +5,7 @@ $!
 $BLOCK NULL
 
   The $BLOCK directive allows for several treatments of blocks of
-  free-format text, facilitating easier maintenance of comments,
+  free-format text, facilitating easier maintenance of comments and
   single-file maintenance of code and documentation, and easy definition
   of large CHARACTER variable arrays.
 
@@ -25,7 +25,7 @@ $BLOCK COMMENT --file doc.html
 <p>
   These lines will also be converted to Fortran comments but if
   the environment variable $PREP_DOCUMENT_DIR is set it will
-  also be written as-is (except for ${NAME} expansion) into
+  additionally be written as-is (except for ${NAME} expansion) into
   $PREP_DOCUMENT_DIR/doc/doc.html.
 
   The --file option also works with other options such as NULL
@@ -46,7 +46,7 @@ block
 character(len=:),allocatable :: HELP_TEXT(:)
 $BLOCK VARIABLE -varname HELP_TEXT
   These lines are converted to a declaration of a CHARACTER
-  variable.
+  array
 $BLOCK
 endblock
 end program test_block
