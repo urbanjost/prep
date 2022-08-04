@@ -652,6 +652,13 @@ data=[ character(len=132) :: &
 "$MESSAGE 'Date ${DATE}'             ", &
 "$MESSAGE 'Time ${TIME}'             ", &
 "$MESSAGE 'HOME ${HOME}'             ", &
+"$block message                      ", &
+"this is a block of text             ", &
+"     to display                     ", &
+"     on stderr.                     ", &
+"                                    ", &
+"${date} ${time} ${file}             ", &
+"$endblock                           ", &
 "last line"]
 
 expected=[ character(len=132) :: &

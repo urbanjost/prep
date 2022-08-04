@@ -19,20 +19,18 @@ source-dir="app"
 main="prep.f90"
 
 [dependencies.M_kracken95]
-
 git = "https://github.com/urbanjost/M_kracken95.git"
-rev = "f908a8c8d55453c80c05aef9bd27354cd2b5a158"
 
 [dependencies.M_io]
 git = "https://github.com/urbanjost/M_io.git"
-rev = "2e7812d574bc598b97f32c7d70268ebbcf4c0372"
 
 [dependencies.M_strings]
 git = "https://github.com/urbanjost/M_strings.git"
-rev = "92d818feb45238b1fa943a1af6186ebcbe7dc1de"
 
 [dependencies.M_list]
 git = "https://github.com/urbanjost/M_list.git"
 
 [dependencies.M_history]
 git = "https://github.com/urbanjost/M_history.git"
+
+#rev = "92d818feb45238b1fa943a1af6186ebcbe7dc1de"

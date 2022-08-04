@@ -1,7 +1,7 @@
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-!  @(#)prep: FORTRAN preprocessor
+!  @(#)prep: Fortran preprocessor
 !  Fortran preprocessor originally based on public-domain FPP preprocessor from Lahey Fortran Code Repository
 !     http://www.lahey.com/code.htm
 !  Extensively rewritten since under a MIT License.
@@ -26,10 +26,12 @@
 ! a PROCEDURE variable with current procedure name, maybe MODULE::PROCEDURE::CONTAINS format would be very handy in messages
 !
 ! perhaps change to a more standard CLI syntax; but either way support multiple -D and maybe -D without a space before value
+!
+! extend $INCLUDE to call libcurl to access remote files
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-module M_fpp                                                              !@(#)M_fpp(3f): module used by prep program
+module M_prep                                                             !@(#)M_prep(3f): module used by prep program
 USE ISO_FORTRAN_ENV, ONLY : STDERR=>ERROR_UNIT, STDOUT=>OUTPUT_UNIT,STDIN=>INPUT_UNIT
 use M_io,        only : get_tmp, dirname, uniq, fileopen, filedelete, get_env  ! Fortran file I/O routines
 use M_kracken95, only : sget, dissect, lget                                    ! load command argument parsing module
@@ -44,7 +46,6 @@ integer,public,parameter             :: G_line_length=4096             ! allowed
 integer,public,parameter             :: G_var_len=63                   ! allowed length of variable names
 
 logical,public                       :: G_ident=.false.                ! whether to write IDENT as a comment or CHARACTER
-logical,public                       :: G_fpp=.false.                  ! change to be more fpp(1) compatible
 
 character(len=G_line_length),public  :: G_source                       ! original source file line
 character(len=G_line_length),public  :: G_outline                      ! message to build for writing to output
@@ -174,27 +175,37 @@ character(len=G_var_len)     :: value
       case('DEFINE','DEF','LET'); call expr(upopts,value,ierr,def=.true.)    ! only process DEFINE if not skipping data lines
       case('REDEFINE','REDEF');   call expr(upopts,value,ierr,def=.true.)    ! only process REDEFINE if not skipping data lines
       case('UNDEF','UNDEFINE','DELETE'); call undef(upper(options))   ! only process UNDEF if not skipping data lines
+
+      case('INCLUDE','READ');                              call include(options,50+G_iocount)    ! Filenames can be case sensitive
       case('OUTPUT');             call output_case(options)             ! Filenames can be case sensitive
+
       case('PARCEL');             call parcel_case(upopts)
       case('ENDPARCEL');          call parcel_case(' ')
+      case('POST','CALL','DO');                            call prepost(upper(options))
+
       case('BLOCK');              call document(options)
       case('ENDBLOCK');           call document(' ')
+
       case('SET','REPLACE','MACRO');      call set(options)
       case('UNSET');              call unset(upper(options))   ! only process UNSET if not skipping data lines
+
       case('IDENT','@(#)');       call ident(options)
+      case('MESSAGE','WARNING');  call write_err(unquote(options))      ! trustingly trim MESSAGE from directive
       case('SHOW') ;              call show_state(upper(options),msg='')
-      case('MESSAGE');            call write_err(unquote(options))      ! trustingly trim MESSAGE from directive
+      CASE('HELP','CRIB');        call crib_help(stderr)
+
+      case('STOP');                                        call stop(options)
       case('QUIT');               call stop('0 '//options)
       case('ERROR');              call stop('1 '//options)
+
       CASE('GET_ARGUMENTS');      call write_get_arguments()
-      CASE('HELP');               call short_help(stderr)
+
       case('DEBUG');            G_debug=.not.G_debug      ;write(stderr,*)'DEBUG:',G_debug
       case('VERBOSE');          G_verbose=.not.G_verbose  ;write(stderr,*)'VERBOSE:',G_verbose
-      case('STOP');                                        call stop(options)
-      case('INCLUDE','READ');                              call include(options,50+G_iocount)    ! Filenames can be case sensitive
-      case('POST','CALL','DO');                            call prepost(upper(options))
+
       case('IMPORT','GET_ENVIRONMENT_VARIABLE');           call import(options)
       case('SYSTEM','EXECUTE_COMMAND_LINE');               call exe()
+
       case default
          ifound=.false.
       end select
@@ -670,11 +681,7 @@ integer                                 :: ios               ! error code return
       value=table%get(substring)
 
       if (value.eq.'') then                                  ! if not a defined variable name stop program
-         if(G_fpp)then
-            value='.F.'
-         else
-            call stop_prep('*prep* ERROR(040) - UNDEFINED VARIABLE. DIRECTIVE='//trim(G_source)//' VARIABLE='//trim(substring))
-         endif
+         call stop_prep('*prep* ERROR(040) - UNDEFINED VARIABLE. DIRECTIVE='//trim(G_source)//' VARIABLE='//trim(substring))
       else
          read(value,'(l4)',iostat=ios) true_or_false         ! try to read a logical from the value for the variable name
          if(ios.ne.0)then                                    ! not successful in reading string as a logical value
@@ -1422,7 +1429,7 @@ if(l_help)then
 !-------------------------------------------------------------------------------
 help_text=[ CHARACTER(LEN=128) :: &
 'NAME                                                                            ',&
-'   prep(1) - [DEVELOPER] preprocess FORTRAN source files                        ',&
+'   prep(1) - [DEVELOPER] preprocess Fortran source files                        ',&
 '   (LICENSE:MIT)                                                                ',&
 '                                                                                ',&
 'SYNOPSIS                                                                        ',&
@@ -1444,14 +1451,16 @@ help_text=[ CHARACTER(LEN=128) :: &
 '        [--help]                                                                ',&
 'DESCRIPTION                                                                     ',&
 '                                                                                ',&
+'   prep(1) is a Fortran source preprocesor.                                     ',&
+'                                                                                ',&
 '   A preprocessor performs operations on input files before they are passed to  ',&
 '   a compiler, including conditional selection of lines based on directives     ',&
 '   contained in the file. This makes it possible to use a single source file    ',&
-'   even when different code is required for different execution environments.   ',&
+'   even when different code is required for different programming environments. ',&
 '                                                                                ',&
-'   The prep(1) preprocessor has additional features that allow documentation    ',&
-'   in the same file as the source and the generation of generic code using a    ',&
-'   simple templating technique. The basic directives ....                       ',&
+'   The prep(1) preprocessor has additional features that support free-format    ',&
+'   documentation in the same file as the source and the generation of generic   ',&
+'   code using a simple templating technique. The basic directives ....          ',&
 '                                                                                ',&
 '   * Conditionally output parts of the source file (controlled by expressions   ',&
 '     on the directives $IF, $IFDEF, $IFNDEF, and $ENDIF. The expressions may    ',&
@@ -1482,13 +1491,14 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   * Record the parameters used and the date and time executed as Fortran       ',&
 '     comments in the output (using $SHOW).                                      ',&
 '                                                                                ',&
-'   * Cause an error (controlled by directive $STOP or $ERROR) and produce       ',&
-'     messages on stderr (using $MESSAGE).                                       ',&
+'   * Stop the preprocessing (controlled by directive $STOP, $QUIT or $ERROR)    ',&
+'     and produce messages on stderr (using $MESSAGE).                           ',&
 '                                                                                ',&
 'OPTIONS                                                                         ',&
 '   define_list, -D define_list  An optional space-delimited list of expressions ',&
 '                                used to define variables before file processing ',&
-'                                commences.                                      ',&
+'                                commences. These can subsequently be used in    ',&
+'                                $IF/$ELSE/$ELSEIF and $DEFINE directives.       ',&
 '                                                                                ',&
 '   -i input_files               The default input file is stdin. Filenames are  ',&
 '                                space-delimited. In a list, @ represents stdin. ',&
@@ -1576,7 +1586,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                           compiling fixed-format Fortran source.               ',&
 '                                                                                ',&
 '   --width n   Maximum line length of the output file. The default is 1024.     ',&
-'               The parameter is typically used to trim fixed-format FORTRAN     ',&
+'               The parameter is typically used to trim fixed-format Fortran     ',&
 '               code that contains comments or "ident" labels past column 72     ',&
 '               when compiling fixed-format Fortran code.                        ',&
 '                                                                                ',&
@@ -1672,7 +1682,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   defined only if it has appeared in the source previously in a $DEFINE        ',&
 '   directive or been declared on the command line.                              ',&
 '   The names used in compiler directives are district from names in the         ',&
-'   FORTRAN source, which means that "a" in a $DEFINE and "a" in a FORTRAN       ',&
+'   Fortran source, which means that "a" in a $DEFINE and "a" in a Fortran       ',&
 '   source statement are totally unrelated.                                      ',&
 '   The DEFINED() variable is NOT valid in a $DEFINE directive.                  ',&
 '                                                                                ',&
@@ -2242,7 +2252,8 @@ help_text=[ CHARACTER(LEN=128) :: &
 '@(#)DESCRIPTION:    Fortran Preprocessor>',&
 !'@(#)VERSION:        4.0.0: 20170502>',&
 !'@(#)VERSION:        5.0.0: 20201219>',&
-'@(#)VERSION:        8.1.1: 20220405>',&
+!'@(#)VERSION:        8.1.1: 20220405>',&
+'@(#)VERSION:        9.0.0: 20220804>',&
 '@(#)AUTHOR:         John S. Urban>',&
 '@(#)HOME PAGE       https://github.com/urbanjost/prep.git/>',&
 '']
@@ -2253,7 +2264,7 @@ end subroutine help_version
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine short_help(lun) !@(#)short_help(3f): prints help information
+subroutine crib_help(lun) !@(#)crib_help(3f): prints abridged help information
 implicit none
 integer,intent(in) :: lun
 character(len=:),allocatable :: help_text(:)
@@ -2269,14 +2280,15 @@ help_text=[ CHARACTER(LEN=128) :: &
 "   > SYSTEMON is .TRUE. if --system is present on the command line, else .FALSE.",&
 "  $UNDEFINE|$UNDEF variable_name[;...]                                          ",&
 "CONDITIONAL CODE SELECTION:                                                     ",&
-"  $IF logical_integer-based_expression | $IFDEF|$IFNDEF variable_or_envname     ",&
-"  $IF DEFINED(varname[,...]) | $IF .NOT. DEFINED(varname[,...]) |               ",&
+"  $IF logical_integer-based_expression| [.NOT.] DEFINED(varname[,...])          ",&
+"  $IFDEF|$IFNDEF variable_or_envname                                            ",&
 "  $ELSEIF|$ELIF logical_integer-based_expression                                ",&
 "  $ELSE                                                                         ",&
 "  $ENDIF                                                                        ",&
 "MACRO STRING EXPANSION AND TEXT REPLAY:                                         ",&
 "   > Unless at least one variable name is defined no ${NAME} expansion occurs.  ",&
 "  $SET varname string                                                           ",&
+"  $$UNSET variable_name[;...]                                                   ",&
 "  $IMPORT envname[;...]                                                         ",&
 "   > $set author  William Shakespeare                                           ",&
 "   > $import HOME                                                               ",&
@@ -2296,7 +2308,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 "  $SYSTEM command                                                               ",&
 "  $STOP [stop_value[ ""message""]] | $QUIT [""message""]| $ERROR [""message""]        "]
    WRITE(lun,'(a)')(trim(help_text(i)),i=1,size(help_text))
-end subroutine short_help
+end subroutine crib_help
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
@@ -2612,15 +2624,15 @@ character(len=G_line_length) :: expression
 expression=upper(opts)
 call expr(expression,value,ierr,def=.true.)
 end subroutine put
-end module M_fpp
+end module M_prep
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-program prep                                                 !@(#)prep(1f): preprocessor for Fortran/FORTRAN source code
+program prep                                                 !@(#)prep(1f): preprocessor for Fortran/Fortran source code
 use M_kracken95, only : kracken, lget, rget, iget, sget, kracken_comment
 use M_strings,   only : notabs, isdigit, switch, sep
 use M_io, only : getname, basename
-use M_fpp
+use M_prep
 
 implicit none
 character(len=G_line_length) :: out_filename=''           ! output filename, default is stdout
@@ -2700,7 +2712,7 @@ character(len=:),allocatable  :: cmdname
    call help_version(lget('prep_version'))                 ! if version switch is present display version and exit
    call help_usage(lget('prep_help'))                      ! if help switch is present display help and exit
    if(lget('prep_crib'))then
-      call short_help(stdout)
+      call crib_help(stdout)
       stop
    endif
    G_debug=lget('prep_debug')                              ! turn on debug mode for developer
