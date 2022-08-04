@@ -1,4 +1,5 @@
 program test_prep
+USE ISO_FORTRAN_ENV, ONLY : STDERR=>ERROR_UNIT, STDOUT=>OUTPUT_UNIT,STDIN=>INPUT_UNIT
 use M_io, only : filewrite, filedelete, gulp
 use M_strings, only : upper
 implicit none
@@ -119,6 +120,9 @@ data=[ character(len=132) :: &
 '$else                                                                       ', &
 '   a is not 1 or 2                                                          ', &
 '$endif                                                                      ', &
+'$if SYSTEMON                                                                ', &
+'BAD                                                                         ', &
+'$endif                                                                      ', &
 'last line']
 
 expected=[ character(len=132) :: &
@@ -135,12 +139,15 @@ data=[ character(len=132) :: &
 "write(*,*)'By ${AUTHOR}'        ", &
 "write(*,*)'File ${FILE}'        ", &
 "write(*,*)'Line ${LINE}'        ", &
+"$unset author                   ", &
+"write(*,*)'By ${AUTHOR}'        ", &
 "last line"]
 
 expected=[ character(len=132) :: &
 "write(*,*)'By  William Shakespeare'", &
 "write(*,*)'File _scratch.txt'      ", &
 "write(*,*)'Line 4'                 ", &
+"write(*,*)'By ${AUTHOR}'           ", &
 'last line']
 
 call teardown('SET')
@@ -239,8 +246,11 @@ end subroutine block
 !===============================================================================
 subroutine teardown(name)
 character(len=*),intent(in) :: name
+character(len=1)            :: paws
+integer :: iostat
    ierr=filewrite('_scratch.txt',data,status='replace')
-   call execute_command_line ('fpm run prep -- -i _scratch.txt -o _out.txt')
+   !call execute_command_line ('fpm run prep -- --verbose --debug -i _scratch.txt -o _out.txt')
+   call execute_command_line ('fpm run prep -- F90 TESTPRG90 CMD=30/2 -i _scratch.txt -o _out.txt')
    call gulp('_out.txt',result)
    CHECK : block
       if(size(expected).eq.size(result))then
@@ -259,6 +269,9 @@ character(len=*),intent(in) :: name
    endblock CHECK
    ierr=filedelete('_scratch.txt')
    ierr=filedelete('_out.txt')
+   call flushit()
+   !write(*,'(a)',advance='no')'Use RETURN to continue'
+   !read(*,'(a)',iostat=iostat)paws
 end subroutine teardown
 !===============================================================================
 subroutine expressions()
@@ -286,7 +299,7 @@ data=[ character(len=132) :: &
 '$endif', &
 ' ', &
 '$if A.ne.10', &
-'$   stop', &
+'$   STOP', &
 '$endif', &
 'last line']
 
@@ -317,6 +330,13 @@ data=[ character(len=132) :: &
 '$   stop 2                                          ', &
 '$endif                                              ', &
 '$DEFINE A=10+2                                      ', &
+'$ifndef A                                           ', &
+'$   stop 5                                          ', &
+'$endif                                              ', &
+'$ifdef A                                            ', &
+'$else                                               ', &
+'$   stop 6                                          ', &
+'$endif                                              ', &
 '$show A                                             ', &
 '$define AB ; A_B                                    ', &
 '$define AB_                                         ', &
@@ -337,11 +357,11 @@ data=[ character(len=132) :: &
 
 expected=[ character(len=132) :: &
 ' ', &
-'!  A  =  12', &
-'!  SUM  =  3', &
-'!  AB  =  1', &
-'!  A_B  =  1', &
-'!  AB_  =  1', &
+'! VARIABLE:  A  =  12', &
+'! VARIABLE:  SUM  =  3', &
+'! VARIABLE:  AB  =  1', &
+'! VARIABLE:  A_B  =  1', &
+'! VARIABLE:  AB_  =  1', &
 'last line']
 
 call teardown('define')
@@ -621,6 +641,7 @@ end subroutine quit
 !===============================================================================
 subroutine message()
 data=[ character(len=132) :: &
+"$show *E*                           ", &
 "$IMPORT USER                        ", &
 "$import HOME                        ", &
 "$message ${USER} ${DATE} ${TIME}    ", &
@@ -631,9 +652,20 @@ data=[ character(len=132) :: &
 "$MESSAGE 'Date ${DATE}'             ", &
 "$MESSAGE 'Time ${TIME}'             ", &
 "$MESSAGE 'HOME ${HOME}'             ", &
+"$block message                      ", &
+"this is a block of text             ", &
+"     to display                     ", &
+"     on stderr.                     ", &
+"                                    ", &
+"${date} ${time} ${file}             ", &
+"$endblock                           ", &
 "last line"]
 
 expected=[ character(len=132) :: &
+'! VARIABLE:  TESTPRG90  =  1        ', &
+'! VARIABLE:  SYSTEMON  =  .FALSE.   ', &
+'! VARIABLE:  OPENBSD  =  7          ', &
+'! VARIABLE:  FREEBSD  =  6          ', &
 'last line']
 
 call teardown('message')
@@ -720,6 +752,20 @@ data=[ character(len=132) :: &
 '$error "test  F"                                                                ',&
 '$endif                                                                          ',&
 '$!======================                                                        ',&
+'$define VAL1=20                                                                 ',&
+'$define VAL2=VAL1                                                               ',&
+'$if  VAL2 == 20                                                                 ',&
+'OK G                                                                            ',&
+'$else                                                                           ',&
+'$error "test  G"                                                                ',&
+'$endif                                                                          ',&
+'$!======================                                                        ',&
+'$if  CMD == 15                                                                  ',&
+'GOOD: CMD                                                                       ',&
+'$else                                                                           ',&
+'BAD: CMD                                                                        ',&
+'$endif                                                                          ',&
+'$!======================                                                        ',&
 "last line"]
 
 expected=[ character(len=132) :: &
@@ -729,6 +775,8 @@ expected=[ character(len=132) :: &
 'OK D',&
 'OK E',&
 'OK F',&
+'OK G',&
+'GOOD: CMD                                                                       ',&
 "last line"]
 
 call teardown('misc')
@@ -790,4 +838,9 @@ expected=[ character(len=132) :: &
 call teardown('CONDITIONALS_3')
 end subroutine conditionals_3
 !===============================================================================
+subroutine flushit()
+integer :: ios
+      flush(unit=stdout,iostat=ios)
+      flush(unit=stderr,iostat=ios)
+end subroutine flushit
 end program test_prep
