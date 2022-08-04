@@ -26,7 +26,6 @@ new features, changes, and relevant notifications.
   + The DEFINE command can did not allow the LHS to be assigned a RHS
     that had no operators or values other than a NAME.
 ---
----
 **2022-05-10**  John S. Urban <https://github.com/urbanjost>
 
 ### :green_circle: ADD:
