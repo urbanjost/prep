@@ -1148,6 +1148,14 @@ end module M_kracken95
 !===================================================================================================================================
 MODULE M_io
 use, intrinsic :: iso_fortran_env, only : stdin=>input_unit, stdout=>output_unit, stderr=>error_unit
+<<<<<<< HEAD
+=======
+#ifdef __NVCOMPILER
+#define NOREAL128
+#else
+#undef NOREAL128
+#endif
+>>>>>>> 28a83548ed82eb168ce141d6be8506c3caf9a7f6
 implicit none
 private
 integer,parameter,private:: sp=kind(1.0), dp=kind(1.0d0)
@@ -5892,6 +5900,13 @@ class(*),intent(in) :: generic
       type is (integer(kind=int64));    write(line(istart:),'(i0)') generic
       type is (real(kind=real32));      write(line(istart:),'(1pg0)') generic
       type is (real(kind=real64));      write(line(istart:),'(1pg0)') generic
+<<<<<<< HEAD
+=======
+#ifdef __NVCOMPILER
+#else
+      type is (real(kind=real128));     write(line(istart:),'(1pg0)') generic
+#endif
+>>>>>>> 28a83548ed82eb168ce141d6be8506c3caf9a7f6
       type is (logical);                write(line(istart:),'(l1)') generic
       type is (character(len=*));       write(line(istart:),'(a)') trim(generic)
       type is (complex);                write(line(istart:),'("(",1pg0,",",1pg0,")")') generic
@@ -5948,6 +5963,14 @@ integer :: i
       type is (integer(kind=int64));    write(line(istart:),'("[",*(i0,1x))') generic
       type is (real(kind=real32));      write(line(istart:),'("[",*(1pg0,1x))') generic
       type is (real(kind=real64));      write(line(istart:),'("[",*(1pg0,1x))') generic
+<<<<<<< HEAD
+=======
+#ifdef __NVCOMPILER
+#else
+      type is (real(kind=real128));     write(line(istart:),'("[",*(1pg0,1x))') generic
+#endif
+      !type is (real(kind=real256));     write(error_unit,'(1pg0)',advance='no') generic
+>>>>>>> 28a83548ed82eb168ce141d6be8506c3caf9a7f6
       type is (logical);                write(line(istart:),'("[",*(l1,1x))') generic
       type is (character(len=*));       write(line(istart:),'("[",:*("""",a,"""",1x))') (trim(generic(i)),i=1,size(generic))
       type is (complex);                write(line(istart:),'("[",*("(",1pg0,",",1pg0,")",1x))') generic
