@@ -532,8 +532,9 @@ integer,intent(in)           :: ipos1, ipos2
 logical                      :: left, right
 character(len=7)             :: temp
 character(len=G_line_length) :: newl
-character(len=6),parameter   :: ops(6)= (/'.NOT. ','.AND. ','.OR.  ','.EQV. ','.NEQV.','.DEF. '/)
 integer                      :: i,j,k,l
+character(len=6),parameter   :: ops(6)= (/'.NOT. ','.AND. ','.OR.  ','.EQV. ','.NEQV.','.DEF. '/)
+integer,parameter            :: opl(6)= [(len_trim(ops(i)),i=1,size(ops))]
 integer                      :: ieqv
 integer                      :: ineqv
 integer                      :: i1
@@ -547,7 +548,7 @@ logical                      :: answer
    len1=0
    len2=0
    left=.false.
-   LOOP: do i=1,3
+   LOOP: do i=1,3   ! process .not, .and., .or.
       INFINITE: do
            chrs=len_trim(ops(i))
            IF (INDEX(NEWL,OPS(I)(:chrs)).EQ.0) cycle LOOP
@@ -557,8 +558,7 @@ logical                      :: answer
            IF (I.NE.1) then
               OUTER: DO J=I1,1,-1
                 INNER: DO K=1,size(ops)
-                   LEN1=5
-                   IF (K.EQ.3) LEN1=4
+                   LEN1=opl(k)
                    IF (INDEX(NEWL(J:I1),OPS(K)(:len_trim(OPS(K)))).NE.0) exit OUTER
                 enddo INNER
               enddo OUTER
@@ -567,9 +567,8 @@ logical                      :: answer
            endif
 
            OUT: DO L=I1+chrs,len_trim(NEWL)
-             IN: DO K=1,5
-                LEN2=5
-                IF (K.EQ.3) LEN2=4
+             IN: DO K=1,size(ops)
+                LEN2=opl(k)
                 IF (INDEX(NEWL(I1+chrs:L),OPS(K)(:len_trim(OPS(K)))).NE.0) exit OUT
              enddo IN
            enddo OUT
@@ -594,9 +593,9 @@ logical                      :: answer
    TILLDONE: do
       ieqv=index(newl,'.EQV.')
       ineqv=index(newl,'.NEQV.')
-      if (ieqv*ineqv.eq.0.and.ieqv.ne.ineqv) then
+      if (ieqv*ineqv.eq.0.and.ieqv.ne.ineqv) then ! if one found but not both 
         iop=max(ieqv,ineqv)
-      elseif (ieqv.ne.0) then
+      elseif (ieqv.ne.0) then                     ! if found .EQV. 
         iop=min(ieqv,ineqv)
       elseif (ipos1.eq.1) then
         line=newl(:len_trim(newl))//line(ipos2+1:)
@@ -605,6 +604,7 @@ logical                      :: answer
         line=line(:ipos1-1)//newl(:len_trim(newl))//line(ipos2+1:)
         return
       endif
+
       chrs=5
       if (index(newl,'.EQV.').ne.iop) chrs=6
       do j=iop-1,1,-1

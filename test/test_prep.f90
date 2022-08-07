@@ -14,6 +14,7 @@ allocate(tally(0))
 !>>    >  | .EQ.| .NE.| .GE.| .GT.| .LE.| .LT.|.NOT.|.AND.| .OR.| .EQV.|.NEQV.|
 !>>    >  |  == |  /= |  >= |  >  |  <= |  <  |  !  |  && |  || |  ==  |  !=  |
    call expressions()
+   call expressions_2()
 
 !>>   $DEFINE|$REDEFINE variable_name[=expression][;...]
 !>>    > Predefined values are
@@ -32,6 +33,7 @@ allocate(tally(0))
    call conditionals()
    call conditionals_2()
    call conditionals_3()
+   call logics()
 
 !>> MACRO STRING EXPANSION AND TEXT REPLAY
 !>>   $SET varname string
@@ -316,6 +318,40 @@ call teardown('EXPRESSIONS')
 
 end subroutine expressions
 !===============================================================================
+subroutine expressions_2()
+data=[ character(len=132) :: &
+'$!> numeric operators are +,-,*,/,**, () are supported, logical operators are ',&
+'$!>  | .EQ.| .NE.| .GE.| .GT.| .LE.| .LT.|.NOT.|.AND.| .OR.| .EQV.|.NEQV.|    ',&
+'$!>  |  == |  /= |  >= |  >  |  <= |  <  |  !  |  && |  || |  ==  |  !=  |    ',&
+'$DEFINE A=3.eq.3                                                              ',&
+'$DEFINE A=A.and.100.ne.200                                                    ',&
+'$DEFINE A=A.AND.300.ge.300                                                    ',&
+'$DEFINE A=A.and.300.GE.299                                                    ',&
+'$DEFINE A=A.and.300.gt.3                                                      ',&
+'$DEFINE A=A.AND.3.LE.3                                                        ',&
+'$DEFINE A=A.and.3.le.4                                                        ',&
+'$DEFINE A=A.AND.3.LT.300                                                      ',&
+'$!                                                                            ',&
+'$DEFINE A = 3 == 3                                                            ',&
+'$DEFINE A = A && 100 /= 200                                                   ',&
+'$DEFINE A = A && 300 >= 300                                                   ',&
+'$DEFINE A = A && 300> = 299                                                   ',&
+'$DEFINE A = A && 300 > 3                                                      ',&
+'$DEFINE A = A && 3 <= 3                                                       ',&
+'$DEFINE A = A && 3 <= 4                                                       ',&
+'$DEFINE A = A && 3 < 300                                                      ',&
+'$!                                                                            ',&
+'$show A                                                                       ',&
+'last line']
+
+expected=[ character(len=132) :: &
+'! VARIABLE:  A  =  .TRUE.                                                     ',&
+'last line']
+
+call teardown('expressions_2')
+
+end subroutine expressions_2
+!===============================================================================
 subroutine define()
 data=[ character(len=132) :: &
 '                                                    ', &
@@ -465,6 +501,42 @@ expected=[ character(len=132) :: &
 call teardown('block_3')
 
 end subroutine block_3
+!===============================================================================
+subroutine logics()
+data=[ character(len=132) :: &
+'$!-------------------------------',&
+'$define a=.true.                 ',&
+'$define b=.true.                 ',&
+'$define c=.true.                 ',&
+'$define d=.true.                 ',&
+'$!-------------------------------',&
+'$IF  a.and.b .eqv. .not.d        ',&
+'BAD EQV                          ',&
+'$ELSE                            ',&
+'GOOD EQV                         ',&
+'$ENDIF                           ',&
+'$!-------------------------------',&
+'$IF  a.and.b .neqv. .not.d       ',&
+'GOOD NEQV                        ',&
+'$ELSE                            ',&
+'BAD NEQV                         ',&
+'$ENDIF                           ',&
+'$!-------------------------------',&
+'$if 3.eq.3 .neqv. 4.eq.5         ',&
+'GOOD A                           ',&
+'$ENDIF                           ',&
+'$!-------------------------------',&
+'last line']
+
+expected=[ character(len=132) :: &
+"GOOD EQV                         ",&
+"GOOD NEQV                        ",&
+"GOOD A                           ",&
+"last line"]
+
+call teardown('logics')
+
+end subroutine logics
 !===============================================================================
 subroutine conditionals_2()
 

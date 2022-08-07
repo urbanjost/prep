@@ -20,6 +20,11 @@ new features, changes, and relevant notifications.
   - [ ] registered in fpm(1) repository
 
 ---
+**2022-08-07**  John S. Urban <https://github.com/urbanjost>
+
+### :red_circle: ADD:
+  + The .NEQV. operator failed since original Lahey version
+---
 **2022-07-15**  John S. Urban <https://github.com/urbanjost>
 
 ### :red_circle: ADD:
