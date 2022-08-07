@@ -180,7 +180,7 @@ integer                        :: iostat
       elseif (logical_local)then
          write(temp,'(g0)',iostat=iostat)true_or_false(temp,1,len_trim(temp)) 
          if(iostat.ne.0)then
-            call oops('*M_expr* ERROR(202) - logical expression required:'//trim(expression))
+            call oops('*M_expr* ERROR(005) - logical expression required:'//trim(expression))
          endif
       elseif (temp(1:1).ge.'A'.and.temp(1:1).le.'Z'.or.temp(1:1).eq.'_')then ! appears to be variable name not number or logical
         temp=table%get(temp)                                                ! find defined parameter in dictionary
@@ -318,18 +318,18 @@ character(len=G_line_length)    :: newl
 character(len=2),parameter      :: ops(3)= ['**','*/','+-']
 integer                         :: i
 integer                         :: j
-integer                         :: loc
+integer                         :: location
 integer                         :: minus1
 integer                         :: i1
 integer                         :: i2
 integer                         :: l
-integer                         :: len
+integer                         :: length
 integer                         :: numop
 
   if (ipos2.eq.0) then
      return
   endif
-  loc=0
+  location=0
   j=0
   minus1=1
   newl=line(:ipos2)
@@ -344,8 +344,8 @@ integer                         :: numop
        endif
        IF (I.EQ.0) cycle OVERALL                ! did not find these operators
 
-       LEN=1                                    ! operator length
-       IF (NUMOP.EQ.1) LEN=2
+       length=1                                 ! operator length
+       IF (NUMOP.EQ.1) length=2
        IF (I.EQ.len_trim(NEWL)) then            ! if operator is at end of string
           call oops("*M_expr* ERROR(016) - Incomplete statement. Operator (**,/,*,+,-) at string end:"//trim(G_SOURCE))
           exit OVERALL
@@ -355,7 +355,7 @@ integer                         :: numop
           exit OVERALL
        endif
        if (.not.(i.eq.1.and.numop.eq.3)) then   ! if processing +- operators and sign at beginning of string skip this
-          if (index('*/+-',newl(i-1:i-1)).ne.0.or.index('*/+-',newl(i+len:i+len)).ne.0) then
+          if (index('*/+-',newl(i-1:i-1)).ne.0.or.index('*/+-',newl(i+length:i+length)).ne.0) then
             call oops('*M_expr* ERROR(018) - Syntax error in domath:'//trim(G_source))
             exit OVERALL
           endif
@@ -376,7 +376,7 @@ integer                         :: numop
          exit
        enddo
 
-       i2=get_integer_from_string(newl(i+len:l-1))
+       i2=get_integer_from_string(newl(i+length:l-1))
 
        if (numop.eq.1) then
          i1=i1**i2*minus1
@@ -412,14 +412,14 @@ integer                         :: numop
          if (j.eq.i-1.and.j.ne.1) then
            minus1=-1
            i1=abs(i1)
-           loc=j+1
+           location=j+1
            newl(j+1:j+1)=' '
            l=l-1
            newl=nospace(newl)
          elseif (i.eq.1.and.numop.eq.3) then
            minus1=-1
            i1=abs(i1)
-           loc=i
+           location=i
            newl(j:j)=' '
            l=l-1
            j=j-1
@@ -448,10 +448,10 @@ integer                         :: numop
      enddo TILLDONE
   enddo OVERALL
 
-  if (minus1.eq.-1.and.(loc.eq.0.or.loc.eq.1)) then
+  if (minus1.eq.-1.and.(location.eq.0.or.location.eq.1)) then
      newl(:G_line_length)='-'//trim(newl)  !x! note potentially trimming a character off the end
-  elseif (minus1.eq.-1.and.loc.ne.1) then
-     newl=newl(:loc-1)//'-'//newl(loc:)
+  elseif (minus1.eq.-1.and.location.ne.1) then
+     newl=newl(:location-1)//'-'//newl(location:)
   endif
 
   line(:ipos2)=newl(:len_trim(newl))
@@ -532,13 +532,13 @@ integer,intent(in)           :: ipos1, ipos2
 logical                      :: left, right
 character(len=7)             :: temp
 character(len=G_line_length) :: newl
-character(len=6),parameter   :: ops(5)= (/'.NOT. ','.AND. ','.OR.  ','.EQV. ','.NEQV.'/)
+character(len=6),parameter   :: ops(6)= (/'.NOT. ','.AND. ','.OR.  ','.EQV. ','.NEQV.','.DEF. '/)
 integer                      :: i,j,k,l
 integer                      :: ieqv
 integer                      :: ineqv
 integer                      :: i1
 integer                      :: iop
-integer                      :: len
+integer                      :: chrs
 integer                      :: len1
 integer                      :: len2
 logical                      :: answer
@@ -549,14 +549,14 @@ logical                      :: answer
    left=.false.
    LOOP: do i=1,3
       INFINITE: do
-           LEN=len_trim(ops(i))
-           IF (INDEX(NEWL,OPS(I)(:len_trim(OPS(I)))).EQ.0) cycle LOOP
-           I1=INDEX(NEWL,OPS(I)(:len_trim(OPS(I))))-1
+           chrs=len_trim(ops(i))
+           IF (INDEX(NEWL,OPS(I)(:chrs)).EQ.0) cycle LOOP
+           I1= INDEX(NEWL,OPS(I)(:chrs))-1
            J=I1+1
            LEN1=0
            IF (I.NE.1) then
               OUTER: DO J=I1,1,-1
-                INNER: DO K=1,5
+                INNER: DO K=1,size(ops)
                    LEN1=5
                    IF (K.EQ.3) LEN1=4
                    IF (INDEX(NEWL(J:I1),OPS(K)(:len_trim(OPS(K)))).NE.0) exit OUTER
@@ -566,16 +566,16 @@ logical                      :: answer
               left=true_or_false(NEWL,J+LEN1,I1)
            endif
 
-           OUT: DO L=I1+LEN,len_trim(NEWL)
+           OUT: DO L=I1+chrs,len_trim(NEWL)
              IN: DO K=1,5
                 LEN2=5
                 IF (K.EQ.3) LEN2=4
-                IF (INDEX(NEWL(I1+LEN:L),OPS(K)(:len_trim(OPS(K)))).NE.0) exit OUT
+                IF (INDEX(NEWL(I1+chrs:L),OPS(K)(:len_trim(OPS(K)))).NE.0) exit OUT
              enddo IN
            enddo OUT
 
            IF (L.GT.len_trim(NEWL)) LEN2=0
-           right=true_or_false(NEWL,I1+LEN+1,L-LEN2)
+           right=true_or_false(NEWL,I1+chrs+1,L-LEN2)
 
            select case(i)
            case(1); answer=.not.right
@@ -605,20 +605,20 @@ logical                      :: answer
         line=line(:ipos1-1)//newl(:len_trim(newl))//line(ipos2+1:)
         return
       endif
-      len=5
-      if (index(newl,'.EQV.').ne.iop) len=6
+      chrs=5
+      if (index(newl,'.EQV.').ne.iop) chrs=6
       do j=iop-1,1,-1
          if (newl(j:j+1).eq.'V.') exit
       enddo
       if (j.eq.0) len1=1
       left=true_or_false(newl,j+len1,iop-1)
-      do l=iop+len,len_trim(newl)
+      do l=iop+chrs,len_trim(newl)
          if (newl(l:l+1).eq.'.E'.or.newl(l:l+1).eq.'.N') exit
       enddo
       if (l.gt.len_trim(newl)) len2=0
-      right=true_or_false(newl,iop+len,l+len2)
+      right=true_or_false(newl,iop+chrs,l+len2)
       answer=left.eqv.right
-      if (len.ne.5) answer=left.neqv.right
+      if (chrs.ne.5) answer=left.neqv.right
       temp='.FALSE.'
       if (answer) temp='.TRUE.'
       call rewrit(newl,temp(:len_trim(temp)),j,j+len1-1,l,l-len2+1)
@@ -665,7 +665,6 @@ end function true_or_false
 function get_integer_from_string(line) !@(#)get_integer_from_string(3f): read integer value from line
                                                                     ! assume string is a variable name or an integer value
 character(len=*),intent(in)   :: line                                ! string to read an integer value from
-integer                       :: i                                   ! index of variable dictionary where variable name is stored
 integer                       :: ios                                 ! I/O error value to check to see if internal reads succeeded
 integer                       :: get_integer_from_string             ! integer value to return if string is converted successfully
 character(len=:),allocatable  :: value
@@ -724,7 +723,6 @@ subroutine checkname(line,ierr)                                                 
 character(len=*)             :: line
 integer,intent(out),optional :: ierr
 integer                      :: i
-integer                      :: status
 
    if (len(line).eq.0)then
    else if (line(1:1).lt.'A'.or.line(1:1).gt.'Z'.and.line(1:1).ne.'_')then                         ! variable names start with a-z
@@ -837,7 +835,7 @@ integer                      :: i,k
    ! REMOVE VARIABLE IF FOUND IN VARIABLE NAME DICTIONARY
    ! allow basic globbing where * is any string and ? is any character
    if (len_trim(opts).eq.0) then                           ! if no variable name
-      call oops('*M_expr::undef* ERROR(026) - missing targets:'//trim(G_source))
+      call oops('*M_expr* ERROR(026) - missing targets:'//trim(G_source))
    endif
    call split(opts,names,delimiters=' ;,')
 

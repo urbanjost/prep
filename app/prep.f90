@@ -446,10 +446,10 @@ end function getdate
 !===================================================================================================================================
 subroutine check_name(line)
 ! determine if a string is a valid Fortran name ignoring trailing spaces (but not leading spaces)
-character(len=*),parameter   :: int='0123456789'
+character(len=*),parameter   :: dig='0123456789'
 character(len=*),parameter   :: lower='abcdefghijklmnopqrstuvwxyz'
 character(len=*),parameter   :: upper='ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-character(len=*),parameter   :: allowed=upper//lower//int//'_'
+character(len=*),parameter   :: allowed=upper//lower//dig//'_'
 character(len=*),intent(in)  :: line
 character(len=:),allocatable :: name
 logical                      :: lout
@@ -503,10 +503,8 @@ subroutine if(opts,noelse,eb)                                 !@(#)if(3f): proce
 character(len=*),intent(in)  :: opts
 integer,intent(out)          :: noelse
 logical                      :: eb
-character(len=G_var_len)     :: name
 character(len=G_var_len)     :: value
 integer                      :: ios
-integer                      :: i
 integer                      :: ierr
 integer                      :: ithen
 character(len=G_line_length) :: expression
@@ -556,7 +554,6 @@ integer,intent(out)          :: noelse
 logical                      :: eb
 character(len=G_var_len)     :: name
 character(len=G_var_len)     :: value
-integer                      :: i
 character(len=:),allocatable :: varvalue
 
    noelse=0
@@ -1245,7 +1242,7 @@ character(len=1)                      :: dlim=' '                   ! string of 
 integer                               :: icount                     ! how many tokens are found
 integer                               :: ibegin(n)                  ! starting column numbers for the tokens in INLINE
 integer                               :: iterm(n)                   ! ending column numbers for the tokens in INLINE
-integer                               :: ilen                       ! is the position of last non‐blank character in INLINE
+integer                               :: ilength                    ! is the position of last non‐blank character in INLINE
 character(len=G_line_length)          :: in_filename2=''            ! input filename, default is stdin
 integer                               :: i, ii
 integer                               :: ivalue
@@ -1257,7 +1254,7 @@ character(len=G_line_length)          :: dir                        ! directory 
    endif
 
    ! break command argument prep_i into single words
-   call delim(adjustl(trim(in_filename2)),array,n,icount,ibegin,iterm,ilen,dlim)
+   call delim(adjustl(trim(in_filename2)),array,n,icount,ibegin,iterm,ilength,dlim)
    ivalue=50                                ! starting file unit to use
    do i=icount,1,-1
       G_source='$include '//trim(array(i))  ! for messages
@@ -1278,7 +1275,7 @@ character(len=G_line_length)          :: dir                        ! directory 
 
 ! >>>
 !   If ARRAY(N) fills before reaching the end of the line the routine stops.
-!   Check "if(iend(icount) .eq. ilen)" to see if you got to the end to warn if not all files include
+!   Check "if(iend(icount) .eq. ilength)" to see if you got to the end to warn if not all files include
 
 end subroutine opens
 !===================================================================================================================================
@@ -1290,13 +1287,13 @@ integer,parameter                     :: n=50                    ! maximum numbe
 character(len=1)                      :: dlim=' '                ! string of single characters to use as delimiters
 integer                               :: ibegin(n)               ! starting column numbers for the tokens in G_inc_files
 integer                               :: iterm(n)                ! ending column numbers for the tokens in G_inc_files
-integer                               :: ilen                    ! is the position of last non‐blank character in G_inc_files
+integer                               :: ilength                 ! is the position of last non‐blank character in G_inc_files
 
    ! G_inc_files is the array to fill with tokens
    ! G_inc_count is the number of tokens found
 
    ! break command argument prep_I into single words
-   call delim(adjustl(trim(sget('prep_I'))),G_inc_files,n,G_inc_count,ibegin,iterm,ilen,dlim)
+   call delim(adjustl(trim(sget('prep_I'))),G_inc_files,n,G_inc_count,ibegin,iterm,ilength,dlim)
 end subroutine includes
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -1309,20 +1306,20 @@ character(len=1)                      :: dlim=' '                ! string of sin
 integer                               :: icount                  ! how many tokens are found
 integer                               :: ibegin(n)               ! starting column numbers for the tokens in INLINE
 integer                               :: iterm(n)                ! ending column numbers for the tokens in INLINE
-integer                               :: ilen                    ! is the position of last non‐blank character in INLINE
+integer                               :: ilength                 ! is the position of last non‐blank character in INLINE
 character(len=G_line_length)          :: in_define2=''           ! variable definition from command line
 integer                               :: i
 
    in_define2=sget('prep_oo')
    ! break command argument prep_oo into single words
-   call delim(adjustl(trim(in_define2))//' '//trim(sget('prep_D')),array,n,icount,ibegin,iterm,ilen,dlim)
+   call delim(adjustl(trim(in_define2))//' '//trim(sget('prep_D')),array,n,icount,ibegin,iterm,ilength,dlim)
    do i=1,icount
       G_source='$redefine '//trim(array(i))
       call cond() ! convert variable name into a "$define variablename" directive and process it
    enddo
 
 !   If ARRAY(N) fills before reaching the end of the line the routine stops.
-!   Check "if(iend(icount) .eq. ilen)" to see if you got to the end.
+!   Check "if(iend(icount) .eq. ilength)" to see if you got to the end.
 
 end subroutine defines
 !===================================================================================================================================
@@ -2333,7 +2330,7 @@ integer,parameter              :: linewidth=128
 character(len=*),intent(in)    :: line
 character(len=:),allocatable   :: buff
 character(len=115)             :: chunk
-integer                        :: ilen
+integer                        :: ilength
 integer                        :: ios
 integer                        :: ierr
 character(len=256)             :: message
@@ -2365,18 +2362,18 @@ character(len=G_var_len)       :: value
       endif
 
    case('variable')
-      buff=trim(line)                          ! do not make a line over 132 characters. Trim input line if needed
+      buff=trim(line)                                 ! do not make a line over 132 characters. Trim input line if needed
       buff=buff//repeat(' ',max(linewidth,len(buff))) ! ensure space in buffer for substitute
-      call substitute(buff,"'","''")           ! change single quotes in input to two adjacent single quotes
-      ilen=min(len_trim(buff),linewidth)       ! make all lines have at least linewidth characters for a more legible output
-      write(G_iout,'("''",a,"'',&")') buff(:ilen)
+      call substitute(buff,"'","''")                  ! change single quotes in input to two adjacent single quotes
+      ilength=min(len_trim(buff),linewidth)           ! make all lines have at least linewidth characters for a more legible output
+      write(G_iout,'("''",a,"'',&")') buff(:ilength)
 
    case('help')
-      buff=trim(line)                          ! do not make a line over 132 characters. Trim input line if needed
-      buff=buff//repeat(' ',max(linewidth,len(buff))) ! ensure space in buffer for substitute
-      call substitute(buff,"'","''")           ! change single quotes in input to two adjacent single quotes
-      ilen=max(len_trim(buff),linewidth)              ! make all lines have at least 80 characters for a more legible output
-      write(G_iout,'("''",a,"'',&")') buff(:ilen)
+      buff=trim(line)                                    ! do not make a line over 132 characters. Trim input line if needed
+      buff=buff//repeat(' ',max(linewidth,len(buff)))    ! ensure space in buffer for substitute
+      call substitute(buff,"'","''")                     ! change single quotes in input to two adjacent single quotes
+      ilength=max(len_trim(buff),linewidth)              ! make all lines have at least 80 characters for a more legible output
+      write(G_iout,'("''",a,"'',&")') buff(:ilength)
 
    case('version')                             ! write version information with SCCS ID prefix for use with what(1) command
       write(G_iout,'("''@(#)",a,"'',&")')trim(line(:min(len_trim(line),128-1)))//'>'
@@ -2449,9 +2446,6 @@ character(len=:),allocatable :: temp
 character(len=:),allocatable :: name
 character(len=:),allocatable :: val
 integer                      :: iend
-integer                      :: i
-integer                      :: ibugm
-character(len=*),parameter  :: fmt='(*(g0,1x))'
 ! create a dictionary with character keywords, values, and value lengths
 ! using the routines for maintaining a list
 
@@ -2539,8 +2533,6 @@ character(len=G_var_len) :: val
 integer           :: r
 logical           :: file_exists
 character(len=80) :: scratch
-character(len=G_var_len)     :: value
-integer                      :: ierr
 
    call put( 'UNKNOWN=0' )
    call put( 'LINUX=1' )
@@ -2631,13 +2623,10 @@ use M_kracken95, only : kracken, lget, rget, iget, sget, kracken_comment
 use M_strings,   only : notabs, isdigit, switch, sep
 use M_io, only : getname, basename
 use M_prep
-
 implicit none
 character(len=G_line_length) :: out_filename=''           ! output filename, default is stdout
 character(len=1)             :: prefix                    ! directive prefix character
 character(len=1)             :: letterd                   !
-character(len=:),allocatable :: fpp_files(:)
-
 character(len=G_line_length) :: line                      ! working copy of input line
 logical                      :: keeptabs=.false.          ! flag whether to retain tabs and carriage returns or not
 integer                      :: ilast
@@ -2665,8 +2654,6 @@ character(len=1024)          :: cmd=' &
    & --type             auto     &
    & '
 logical                       :: isscratch
-character(len=:),allocatable  :: cmdname
-
                                                                  ! allow formatting comments for particular post-processors
    G_comment_style=get_env('PREP_COMMENT_STYLE')                 ! get environment variable for -comment switch
    if(G_comment_style.eq.'')G_comment_style='default'            ! if environment variable not set set default
@@ -2679,7 +2666,7 @@ character(len=:),allocatable  :: cmdname
    if ( all(isdigit(switch(trim(sget('prep_prefix'))))) ) then   ! if all characters are numeric digits
       prefix = char(iget('prep_prefix'))                         ! assume this is an ADE
    else
-      prefix = sget('prep_prefix')                               ! not a digit so not an ADE so assume a literal character
+      prefix(1:1) = trim(sget('prep_prefix'))                    ! not a digit so not an ADE so assume a literal character
    endif
 
    G_inc_files=' '
@@ -2689,7 +2676,7 @@ character(len=:),allocatable  :: cmdname
    G_ident=lget('prep_ident')                                    ! write IDENT as comment or CHARACTER variable
    G_iwidth                   = iget('prep_width')
    G_iwidth=max(0,G_iwidth)
-   letterd(1:1)               = sget('prep_d')
+   letterd(1:1)               = trim(sget('prep_d'))
    G_noenv                    = lget('prep_noenv')
 
    if(out_filename.eq.'')then                                    ! open output file
