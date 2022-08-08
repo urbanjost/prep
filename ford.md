@@ -3,7 +3,7 @@ src_dir: app
          test
 output_dir: docs/fpm-ford
 project: prep
-summary: terminal text attributes
+summary: Fortran pre-processor
 project_github: https://github.com/urbanjost/prep
 project_download:
 author: John S. Urban

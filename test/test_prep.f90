@@ -238,7 +238,6 @@ expected=[ character(len=132) :: &
 "'  These lines are converted to a declaration of a CHARACTER',&                 ", &
 "'  variable.',&                                                                 ", &
 "'']                                                                             ", &
-"                                                                                ", &
 "endblock                                                                        ", &
 'last line                                                                       ']
 
@@ -272,8 +271,8 @@ integer :: iostat
    ierr=filedelete('_scratch.txt')
    ierr=filedelete('_out.txt')
    call flushit()
-   !write(*,'(a)',advance='no')'Use RETURN to continue'
-   !read(*,'(a)',iostat=iostat)paws
+   write(*,'(a)',advance='no')'Use RETURN to continue'
+   read(*,'(a)',iostat=iostat)paws
 end subroutine teardown
 !===============================================================================
 subroutine expressions()
@@ -449,7 +448,6 @@ expected=[ character(len=132) :: &
 "' properly formatted variable definitions',&",&
 "'',&",&
 "'']",&
-"",&
 "last line"]
 
 call teardown('block_2')

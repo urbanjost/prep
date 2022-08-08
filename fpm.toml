@@ -1,6 +1,6 @@
 # TOML file for fpm as described at https://github.com/fortran-lang/fpm/blob/master/manifest-reference.md
 name = "prep"
-version = "9.1.0"
+version = "9.2.0"
 license = "MIT"
 author = "John Urban"
 maintainer = "urbanjost@comcast.net"
@@ -25,7 +25,7 @@ M_strings   = { path = "LINKS/M_strings" }
 M_list      = { path = "LINKS/M_list" }
 
 M_history   = { path = "LINKS/M_history" }
-#M_CLI2      = { path = "LINKS/M_CLI2" }
+M_CLI2      = { path = "LINKS/M_CLI2" }
 
 #ln -s /home/urbanjs/venus/V600/github/M_math  .
 #ln -s /home/urbanjs/venus/V600/github/M_strings  .

@@ -28,13 +28,15 @@
 ! perhaps change to a more standard CLI syntax; but either way support multiple -D and maybe -D without a space before value
 !
 ! extend $INCLUDE to call libcurl to access remote files
+!
+! case('ENDBLOCK');           call document(' ') ! BUG: '' instead of 'END' worked with kracken95, not with M_CLI2
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
 module M_prep                                                             !@(#)M_prep(3f): module used by prep program
 USE ISO_FORTRAN_ENV, ONLY : STDERR=>ERROR_UNIT, STDOUT=>OUTPUT_UNIT,STDIN=>INPUT_UNIT
-use M_io,        only : get_tmp, dirname, uniq, fileopen, filedelete, get_env  ! Fortran file I/O routines
-use M_kracken95, only : sget, dissect, lget                                    ! load command argument parsing module
+use M_io,        only : get_tmp, dirname, uniq, fileopen, filedelete, get_env       ! Fortran file I/O routines
+use M_CLI2,      only : set_args, SGET, lget, unnamed !,print_dictionary, specified ! load command argument parsing module
 use M_strings,   only : nospace, v2s, substitute, upper, lower, isalpha, split, delim, str_replace=>replace, sep, atleast, unquote
 use M_strings,   only : glob
 use M_list,      only : dictionary
@@ -110,9 +112,13 @@ integer,save                         :: G_scratch_lun=-1
 
 character(len=:),allocatable,save    :: G_extract_start
 character(len=:),allocatable,save    :: G_extract_stop
+character(len=:),allocatable,save    :: G_extract_start0
+character(len=:),allocatable,save    :: G_extract_stop0
 logical,save                         :: G_extract=.false.
 logical,save                         :: G_extract_auto=.true.
 logical,save                         :: G_extract_flag=.false.
+character(len=:),allocatable,save    :: G_cmd
+character(len=:),allocatable,save    :: G_file
 
 contains
 !===================================================================================================================================
@@ -172,30 +178,30 @@ character(len=G_var_len)     :: value
                                                                       ! process the directive
       ierr=0
       select case(VERB)
-      case('  ')                                                      ! entire line is a comment
-      case('DEFINE','DEF','LET'); call expr(upopts,value,ierr,def=.true.)    ! only process DEFINE if not skipping data lines
-      case('REDEFINE','REDEF');   call expr(upopts,value,ierr,def=.true.)    ! only process REDEFINE if not skipping data lines
-      case('UNDEF','UNDEFINE','DELETE'); call undef(upper(options))   ! only process UNDEF if not skipping data lines
+      case('  ')                                                          ! entire line is a comment
+      case('DEFINE','DEF','LET'); call expr(upopts,value,ierr,def=.true.) ! only process DEFINE if not skipping data lines
+      case('REDEFINE','REDEF');   call expr(upopts,value,ierr,def=.true.) ! only process REDEFINE if not skipping data lines
+      case('UNDEF','UNDEFINE','DELETE'); call undef(upper(options))       ! only process UNDEF if not skipping data lines
 
-      case('INCLUDE','READ');                              call include(options,50+G_iocount)    ! Filenames can be case sensitive
-      case('OUTPUT');             call output_case(options)             ! Filenames can be case sensitive
+      case('INCLUDE','READ');     call include(options,50+G_iocount)      ! Filenames can be case sensitive
+      case('OUTPUT','ENDOUTPUT','OPEN','CLOSE'); call output_cmd(options) ! Filenames can be case sensitive
 
       case('PARCEL');             call parcel_case(upopts)
-      case('ENDPARCEL');          call parcel_case(' ')
-      case('POST','CALL','DO');                            call prepost(upper(options))
+      case('ENDPARCEL');          call parcel_case('')
+      case('POST','CALL','DO');   call prepost(upper(options))
 
       case('BLOCK');              call document(options)
       case('ENDBLOCK');           call document(' ')
 
       case('SET','REPLACE','MACRO');      call set(options)
-      case('UNSET');              call unset(upper(options))   ! only process UNSET if not skipping data lines
+      case('UNSET');              call unset(upper(options))              ! only process UNSET if not skipping data lines
 
       case('IDENT','@(#)');       call ident(options)
-      case('MESSAGE','WARNING');  call write_err(unquote(options))      ! trustingly trim MESSAGE from directive
+      case('MESSAGE','WARNING');  call write_err(unquote(options))        ! trustingly trim MESSAGE from directive
       case('SHOW') ;              call show_state(upper(options),msg='')
       CASE('HELP','CRIB');        call crib_help(stderr)
 
-      case('STOP');                                        call stop(options)
+      case('STOP');               call stop(options)
       case('QUIT');               call stop('0 '//options)
       case('ERROR');              call stop('1 '//options)
 
@@ -294,34 +300,42 @@ end subroutine write_get_arguments
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine output_case(opts)                                  !@(#)output_case(3f): process $OUTPUT directive
+subroutine output_cmd(opts)                                  !@(#)output_cmd(3f): process $OUTPUT directive
 character(len=*)              :: opts
 character(len=G_line_length)  :: filename                     ! filename on $OUTPUT command
 character(len=20)             :: position
 integer                       :: ios
-      call dissect2('output','-oo --append .false.',opts)     ! parse options and inline comment on input line
-      filename=sget('output_oo')
-      select case(filename)
-      case('@')
-         G_iout=stdout
-      case(' ')                                               ! reset back to initial output file
-         if(G_iout.ne.stdout.and.G_iout.ne.G_iout_init)then   ! do not close current output if it is stdout or default output file
-            close(G_iout,iostat=ios)
-         endif
-         G_iout=G_iout_init
-      case default
-         G_iout=61
+   call dissect2('output','-oo --append .false.',opts)     ! parse options and inline comment on input line
+
+   if(size(unnamed).gt.0.and.opts.ne.'')then
+      filename=unnamed(1)
+   else
+      filename=' '
+   endif
+
+   select case(filename)
+   case('@')
+      G_iout=stdout
+   case(' ')                                               ! reset back to initial output file
+      if(G_iout.ne.stdout.and.G_iout.ne.G_iout_init)then   ! do not close current output if it is stdout or default output file
          close(G_iout,iostat=ios)
-         if(lget('output_append'))then; position='append'; else; position='asis'; endif
-         open(unit=G_iout,file=filename,iostat=ios,action='write',position=position)
-         if(ios.ne.0)then
-            call stop_prep('*prep* ERROR(006) - FAILED TO OPEN OUTPUT FILE:'//trim(filename))
-         endif
-      end select
+      endif
+      G_iout=G_iout_init
+   case default
+      G_iout=61
+      close(G_iout,iostat=ios)
+      if(lget('append'))then; position='append'; else; position='asis'; endif
+      open(unit=G_iout,file=filename,iostat=ios,action='write',position=position)
+      if(ios.ne.0)then
+         call stop_prep('*prep* ERROR(006) - FAILED TO OPEN OUTPUT FILE:'//trim(filename))
+      endif
+   end select
+
    if(G_verbose)then
       call write_err( '+ OUTPUT FILE CHANGED TO: '//trim(filename) )
    endif
-end subroutine output_case
+
+end subroutine OUTPUT_CMD
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
@@ -331,12 +345,16 @@ character(len=G_line_length)  :: name                 ! name on $PARCEL command
 integer                       :: ios
 integer                       :: lun
 character(len=256)            :: message
-   call dissect2('parcel','-oo ',opts)                ! parse options and inline comment on input line
-   name=sget('parcel_oo')
-   if(name.eq.'')then
+   if(opts.eq.'')then
       G_inparcel=.false.
       G_iout=G_iout_init
    else
+      call dissect2('parcel','-oo ',opts)             ! parse options and inline comment on input line
+      if(size(unnamed).gt.0.and.opts.ne.'')then
+         name=unnamed(1)
+      else
+         name=''
+      endif
       open(newunit=lun,iostat=ios,action='readwrite',status='scratch',iomsg=message)
       if(ios.ne.0)then
          call stop_prep('*prep* ERROR(007) - FAILED TO OPEN PARCEL SCRATCH FILE:'//trim(name)//' '//trim(message))
@@ -354,15 +372,23 @@ end subroutine parcel_case
 !===================================================================================================================================
 subroutine prepost(opts)                          !@(#)prepost(3f): process $POST directive
 character(len=*)                          :: opts
-character(len=G_line_length)              :: list
+character(len=:),allocatable              :: list
 character(len=:),allocatable              :: names(:)        ! names on $POST command
 character(len=:),allocatable              :: fors(:)         ! names on $POST --for
 integer                                   :: i
 integer                                   :: j,jsz
-   call dissect2('PARCEL','-oo --FOR " " ',opts)                 ! parse options and inline comment on input line
-   list=sget('PARCEL_oo')
+   call dissect2('PARCEL',' --FOR " " ',opts)                 ! parse options and inline comment on input line
+
+   list=''
+   if(size(unnamed).eq.0.and.opts.ne.'')then
+      list=' '
+   else
+      do i=1,size(unnamed)
+         list=list//' '//unnamed(i)
+      enddo
+   endif
    call split(list,names,delimiters=' ,')                    ! parse string to an array parsing on delimiters
-   list=sget('PARCEL_FOR')
+   list=SGET('FOR')
    call split(list,fors,delimiters=' ,')                     ! parse string to an array parsing on delimiters
    jsz=size(fors)
    do i=size(names),1,-1
@@ -379,15 +405,65 @@ end subroutine prepost
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine ident(opts)                                 !@(#)ident(3f): process $IDENT directive
+subroutine post(parcel_name)  !@(#)post(3f): switch to scratch file defined by PARCEL
+implicit none
+character(len=*),intent(in)  :: parcel_name
+integer                      :: ifound
+integer                      :: ios
+character(len=4096)          :: message
+integer                      :: i
+   ifound=-1
+   do i=1,G_parcelcount
+      if(G_parcel_dictionary(i)%name.eq.parcel_name)then
+         ifound=G_parcel_dictionary(i)%unit_number
+         exit
+      endif
+   enddo
+   if(ifound.eq.-1)then
+      call stop_prep('*prep* ERROR(028) - PARCEL NAME NOT DEFINED:'//trim(G_source))
+   else
+      inquire(unit=ifound,iostat=ios)
+      rewind(unit=ifound,iostat=ios,iomsg=message)
+      if(ios.ne.0)then
+         call stop_prep('*prep* ERROR(029) - ERROR REWINDING PARCEL:'//trim(G_source)//':'//trim(message))
+      endif
+
+      if(G_debug)then
+         do
+            read(ifound,'(a)',iostat=ios)message
+            if(ios.ne.0)exit
+            write(stdout,*)'>>>'//trim(message)
+         enddo
+         rewind(unit=ifound,iostat=ios,iomsg=message)
+      endif
+
+      G_iocount=G_iocount+1
+      if(G_iocount.gt.size(G_file_dictionary))then
+         call stop_prep('*prep* ERROR(030) - INPUT FILE NESTING TOO DEEP:'//trim(G_source))
+      endif
+      G_file_dictionary(G_iocount)%unit_number=ifound
+      G_file_dictionary(G_iocount)%filename=parcel_name
+      G_file_dictionary(G_iocount)%line_number=0
+   endif
+end subroutine post
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!===================================================================================================================================
+subroutine ident(opts)                              !@(#)ident(3f): process $IDENT directive
 character(len=*)              :: opts
 character(len=G_line_length)  :: lang               ! language on $IDENT command
 character(len=:),allocatable  :: text
 integer,save                  :: ident_count=1
+integer                       :: i
 
-   call dissect2('ident','-oo --language fortran',opts)  ! parse options and inline comment on input line
-   text=trim(sget('ident_oo'))
-   lang=sget('ident_language')
+   call dissect2('ident',' --language fortran',opts)  ! parse options and inline comment on input line
+
+   text=''
+   do i=1,size(unnamed)
+      text=text//' '//trim(unnamed(i))
+   enddo
+
+   lang=SGET('language')
 
    select case(lang)
    case('fortran')    !x! should make look for characters not allowed in metadata, continue over multiple lines, ...
@@ -701,6 +777,7 @@ character(len=*),intent(in)  :: opts
 integer                      :: ierr
 integer                      :: ios
 character(len=G_line_length) :: options                 ! everything after first word of command till end of line or !
+character(len=:),allocatable :: name
 
 ! CHECK COMMAND SYNTAX
    if(G_outtype.eq.'help')then  ! if in 'help' mode wrap up the routine
@@ -714,7 +791,7 @@ character(len=G_line_length) :: options                 ! everything after first
       write(G_iout,'(a)')"'']"
    elseif(G_outtype.eq.'system')then
          close(unit=G_scratch_lun,iostat=ios)
-         call execute_command_line( trim(sget('block_cmd'))//' < '//G_scratch_file//' > '//G_scratch_file//'.out')
+         call execute_command_line( trim(G_cmd)//' < '//G_scratch_file//' > '//G_scratch_file//'.out')
          ierr=filedelete(G_scratch_file)
          options=G_scratch_file//'.out'
          call include(options,50+G_iocount)    ! Filenames can be case sensitive
@@ -731,15 +808,15 @@ character(len=G_line_length) :: options                 ! everything after first
    endif
 
    ! parse options on input line
-   call dissect2('block','--oo --file --cmd sh --varname textblock --style "#N#" --append .false.',opts)
+   call dissect2('block','--file --cmd sh --varname textblock --style "#N#" --append .false.',opts)
    ! if a previous command has opened a --file FILENAME flush it, because a new one is being opened or this is an END command
    ! and if a --file FILENAME has been selected open it
    call print_comment_block()
 
    ! now can start new section
    G_MAN=''
-   if(sget('block_file').ne.'')then
-      G_MAN_FILE=sget('block_file')
+   if(SGET('file').ne.'')then
+      G_MAN_FILE=SGET('file')
       G_MAN_COLLECT=.true.
    else
       G_MAN_FILE=''
@@ -747,20 +824,27 @@ character(len=G_line_length) :: options                 ! everything after first
    endif
 
    G_MAN_PRINT=.false.
-   if(lget('block_append'))then
+
+   if(LGET('append'))then
       G_MAN_FILE_POSITION='APPEND'
    else
       G_MAN_FILE_POSITION='ASIS'
    endif
 
-   select case(upper(sget('block_oo')))
+   if(size(unnamed).gt.0.and.opts.ne.'')then
+      name=upper(unnamed(1))
+   else
+      name=' '
+   endif
+
+   select case(name)
 
    case('COMMENT')
       G_outtype='comment'
       G_MAN_PRINT=.true.
       G_MAN_COLLECT=.true.
-      if(sget('block_style').ne.'#N#')then
-         G_comment_style=lower(sget('block_style'))             ! allow formatting comments for particular post-processors
+      if(SGET('style').ne.'#N#')then
+         G_comment_style=lower(SGET('style'))             ! allow formatting comments for particular post-processors
       endif
    case('NULL')
       G_outtype='null'
@@ -800,8 +884,8 @@ character(len=G_line_length) :: options                 ! everything after first
 
    case('VARIABLE')
       G_outtype='variable'
-      write(G_iout,'(a)')trim(sget('block_varname'))//'=[ CHARACTER(LEN=128) :: &'
-      G_MAN_PRINT=.true.
+      write(G_iout,'(a)')trim(SGET('varname'))//'=[ CHARACTER(LEN=128) :: &'
+      G_MAN_PRINT=.false.
 
    case('HELP')
       G_outtype='help'
@@ -845,13 +929,17 @@ character(len=G_line_length) :: options                 ! everything after first
 
    case('WRITE')
       G_outtype='write'
-   case('','END')
+   case(' ','END')
       G_outtype='asis'
       G_MAN_COLLECT=.false.
    case('ASIS')
       G_outtype='asis'
    case default
-      call stop_prep('*prep* ERROR(022) - UNEXPECTED "BLOCK" OPTION. FOUND:'//trim(sget('block_oo'))//' IN '//trim(G_source) )
+      if(size(unnamed).gt.0)then
+         call stop_prep('*prep* ERROR(022) - UNEXPECTED "BLOCK" OPTION. FOUND:'//trim(unnamed(1))//' IN '//trim(G_source) )
+      else
+         call stop_prep('*prep* ERROR(022) - UNEXPECTED "BLOCK" OPTION. FOUND:'//' '//' IN '//trim(G_source) )
+      endif
    end select
 
    G_comment_count=0
@@ -1157,50 +1245,6 @@ end subroutine include
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine post(parcel_name)  !@(#)post(3f): switch to scratch file defined by PARCEL
-implicit none
-character(len=*),intent(in)  :: parcel_name
-integer                      :: ifound
-integer                      :: ios
-character(len=4096)          :: message
-integer                      :: i
-   ifound=-1
-   do i=1,G_parcelcount
-      if(G_parcel_dictionary(i)%name.eq.parcel_name)then
-         ifound=G_parcel_dictionary(i)%unit_number
-         exit
-      endif
-   enddo
-   if(ifound.eq.-1)then
-      call stop_prep('*prep* ERROR(028) - PARCEL NAME NOT DEFINED:'//trim(G_source))
-   else
-      inquire(unit=ifound,iostat=ios)
-      rewind(unit=ifound,iostat=ios,iomsg=message)
-      if(ios.ne.0)then
-         call stop_prep('*prep* ERROR(029) - ERROR REWINDING PARCEL:'//trim(G_source)//':'//trim(message))
-      endif
-
-      if(G_debug)then
-         do
-            read(ifound,'(a)',iostat=ios)message
-            if(ios.ne.0)exit
-            write(stdout,*)'>>>'//trim(message)
-         enddo
-         rewind(unit=ifound,iostat=ios,iomsg=message)
-      endif
-
-      G_iocount=G_iocount+1
-      if(G_iocount.gt.size(G_file_dictionary))then
-         call stop_prep('*prep* ERROR(030) - INPUT FILE NESTING TOO DEEP:'//trim(G_source))
-      endif
-      G_file_dictionary(G_iocount)%unit_number=ifound
-      G_file_dictionary(G_iocount)%filename=parcel_name
-      G_file_dictionary(G_iocount)%line_number=0
-   endif
-end subroutine post
-!===================================================================================================================================
-!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
-!===================================================================================================================================
 subroutine findit(line) !@(#)findit(3f): look for filename in search directories if name does not exist and return modified name
 character(len=G_line_length)    :: line
 character(len=G_line_length)    :: filename
@@ -1252,12 +1296,12 @@ integer                               :: i, ii
 integer                               :: ivalue
 character(len=G_line_length)          :: dir                        ! directory used by an input file
 
-   in_filename2(:G_line_length)  = sget('prep_i')                   ! get values from command line
+   in_filename2(:G_line_length)  = SGET('i')                   ! get values from command line
    if(in_filename2.eq.'')then                                       ! read stdin if no -i on command line
       in_filename2  = '@'
    endif
 
-   ! break command argument prep_i into single words
+   ! break command argument "i" into single words
    call delim(adjustl(trim(in_filename2)),array,n,icount,ibegin,iterm,ilength,dlim)
    ivalue=50                                ! starting file unit to use
    do i=icount,1,-1
@@ -1296,8 +1340,8 @@ integer                               :: ilength                 ! is the positi
    ! G_inc_files is the array to fill with tokens
    ! G_inc_count is the number of tokens found
 
-   ! break command argument prep_I into single words
-   call delim(adjustl(trim(sget('prep_I'))),G_inc_files,n,G_inc_count,ibegin,iterm,ilength,dlim)
+   ! break command argument "I" into single words
+   call delim(adjustl(trim(SGET('I'))),G_inc_files,n,G_inc_count,ibegin,iterm,ilength,dlim)
 end subroutine includes
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -1311,12 +1355,16 @@ integer                               :: icount                  ! how many toke
 integer                               :: ibegin(n)               ! starting column numbers for the tokens in INLINE
 integer                               :: iterm(n)                ! ending column numbers for the tokens in INLINE
 integer                               :: ilength                 ! is the position of last non‐blank character in INLINE
-character(len=G_line_length)          :: in_define2=''           ! variable definition from command line
+character(len=:),allocatable          :: in_define2              ! variable definition from command line
 integer                               :: i
 
-   in_define2=sget('prep_oo')
+   in_define2=''
+   do i=1,size(unnamed)
+      in_define2=in_define2//' '//unnamed(i)
+   enddo
+
    ! break command argument prep_oo into single words
-   call delim(adjustl(trim(in_define2))//' '//trim(sget('prep_D')),array,n,icount,ibegin,iterm,ilength,dlim)
+   call delim(adjustl(trim(in_define2))//' '//trim(SGET('D')),array,n,icount,ibegin,iterm,ilength,dlim)
    do i=1,icount
       G_source='$redefine '//trim(array(i))
       call cond() ! convert variable name into a "$define variablename" directive and process it
@@ -1419,14 +1467,10 @@ end subroutine warn_prep
 !    o documentation for the features subsequently added to the program.
 !    o examination of the code.
 
-subroutine help_usage(l_help) !@(#)help_usage(3f): prints help information
+subroutine setup(help_text,version_text) !@(#)help_usage(3f): prints help information
 implicit none
-logical,intent(in)             :: l_help
-character(len=:),allocatable :: help_text(:)
-integer                        :: i
-logical                        :: stopit=.false.
-stopit=.false.
-if(l_help)then
+character(len=:),allocatable,intent(out) :: help_text(:)
+character(len=:),allocatable,intent(out) :: version_text(:)
 !-------------------------------------------------------------------------------
 help_text=[ CHARACTER(LEN=128) :: &
 'NAME                                                                            ',&
@@ -1501,7 +1545,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                commences. These can subsequently be used in    ',&
 '                                $IF/$ELSE/$ELSEIF and $DEFINE directives.       ',&
 '                                                                                ',&
-'   -i input_files               The default input file is stdin. Filenames are  ',&
+'   -i "input_files"             The default input file is stdin. Filenames are  ',&
 '                                space-delimited. In a list, @ represents stdin. ',&
 '                                                                                ',&
 '   The suggested suffix for Fortran input files is ".ff" for code files unless  ',&
@@ -1514,8 +1558,8 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   -o output_file               The default output file is stdout.              ',&
 '                                                                                ',&
-'   -I include_directories  The directories to search for files specified on     ',&
-'                           $INCLUDE directives.                                 ',&
+'   -I "include_directories" The directories to search for files specified on    ',&
+'                            $INCLUDE directives. May be repeated.               ',&
 '                                                                                ',&
 '   --system         Allow system commands on $SYSTEM directives to be executed. ',&
 '                                                                                ',&
@@ -1847,6 +1891,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   Directives for reading and writing external files ...                        ',&
 '                                                                                ',&
 '       $OUTPUT   filename  [--append]                          [! comment ]     ',&
+'       $ENDOUTPUT                                              [! comment ]     ',&
 '       $INCLUDE filename                                                        ',&
 '                                                                                ',&
 '   Details ...                                                                  ',&
@@ -1859,6 +1904,10 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   Files are open at the first line by default. Use the --append switch to      ',&
 '   append to the end of an existing file instead of overwriting it.             ',&
+'                                                                                ',&
+'       $ENDOUTPUT                                              [! comment ]     ',&
+'                                                                                ',&
+'   Ends writing to an alternate output file begun by a $OUTPUT directive.       ',&
 '                                                                                ',&
 '       $INCLUDE filename                                                        ',&
 '                                                                                ',&
@@ -2234,20 +2283,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   MIT                                                                          ',&
 '']
 
-   WRITE(stdout,'(a)')(trim(help_text(i)),i=1,size(help_text))
-   call stop('0')
-endif
-end subroutine help_usage
-
-subroutine help_version(l_version) !@(#)help_version(3f): prints version information
-logical,intent(in)             :: l_version
-character(len=:),allocatable   :: help_text(:)
-integer                        :: i
-logical                        :: stopit=.false.
-
-stopit=.false.
-if(l_version)then
-help_text=[ CHARACTER(LEN=128) :: &
+version_text=[ CHARACTER(LEN=128) :: &
 '@(#)PRODUCT:        GPF (General Purpose Fortran) utilities and examples>',&
 '@(#)PROGRAM:        prep(1f)>',&
 '@(#)DESCRIPTION:    Fortran Preprocessor>',&
@@ -2255,14 +2291,12 @@ help_text=[ CHARACTER(LEN=128) :: &
 !'@(#)VERSION:        5.0.0: 20201219>',&
 !'@(#)VERSION:        8.1.1: 20220405>',&
 !'@(#)VERSION:        9.0.0: 20220804>',&
-'@(#)VERSION:        9.1.0: 20220805>',&
+!'@(#)VERSION:        9.1.0: 20220805>',&
+'@(#)VERSION:        9.2.0: 20220814>',&
 '@(#)AUTHOR:         John S. Urban>',&
 '@(#)HOME PAGE       https://github.com/urbanjost/prep.git/>',&
 '']
-   WRITE(stdout,'(a)')(trim(help_text(i)(5:len_trim(help_text(i))-1)),i=1,size(help_text))
-   call stop('0')
-endif
-end subroutine help_version
+end subroutine setup
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
@@ -2431,7 +2465,9 @@ character(len=*),intent(in)  :: verb             ! the name of the command to be
 character(len=*),intent(in)  :: init             ! used to define or reset command options; usually hard-set in the program.
 character(len=*),intent(in)  :: pars             ! defines the command options to be set, usually from a user input file
 integer,intent(out),optional :: error_return
-   call dissect(verb,init,pars,len(pars),error_return)
+   !call dissect(verb,init,pars,len(pars),error_return)
+   call set_args(init,string=pars//'--')
+   !call print_dictionary()
 end subroutine dissect2
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -2628,7 +2664,7 @@ end module M_prep
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
 program prep                                                 !@(#)prep(1f): preprocessor for Fortran/Fortran source code
-use M_kracken95, only : kracken, lget, rget, iget, sget, kracken_comment
+use M_CLI2, only : set_args, lget, rget, iget, SGET !JSU kracken_comment
 use M_strings,   only : notabs, isdigit, switch, sep
 use M_io, only : getname, basename
 use M_prep
@@ -2640,53 +2676,55 @@ character(len=G_line_length) :: line                      ! working copy of inpu
 logical                      :: keeptabs=.false.          ! flag whether to retain tabs and carriage returns or not
 integer                      :: ilast
 integer                      :: ios
-character(len=1024)          :: cmd=' &
-   & -i                 " "      &
-   & -D                 " "      &
-   & -I                 " "      &
-   & -o                 " "      &
-   & --prefix           36       &
-   & --keeptabs         .false.  &
-   & -d                 ignore   &
-   & --help             .false.  &
-   & --verbose          .false.  &
-   & --system           .false.  &
-   & --version          .false.  &
-   & --crib             .false.  &
-   & --debug            .false.  &
-   & --noenv            .false.  &
-   & --comment          COMMENT  &
-   & --ident            .false.  &
-   & --width            1024     &
-   & --start            " "      &
-   & --stop             " "      &
-   & --type             auto     &
+character(len=:),allocatable :: help_text(:)
+character(len=:),allocatable :: version_text(:)
+character(len=:),allocatable :: string
+character(len=:),allocatable :: cmd
+logical                      :: isscratch
+   cmd='&
+   & -i " "              &
+   & -D " "              &
+   & -I " "              &
+   & -o " "              &
+   & --prefix 36         &
+   & --keeptabs .false.  &
+   & -d ignore           &
+   & --help .false.      &
+   & --verbose .false.   &
+   & --system .false.    &
+   & --version .false.   &
+   & --crib .false.      &
+   & --debug .false.     &
+   & --noenv .false.     &
+   & --comment "'//get_env('PREP_COMMENT_STYLE','default')//'" &
+   & --ident .false.     &
+   & --width 1024        &
+   & --start " "         &
+   & --stop " "          &
+   & --type auto         &
    & '
-logical                       :: isscratch
-                                                                 ! allow formatting comments for particular post-processors
-   G_comment_style=get_env('PREP_COMMENT_STYLE')                 ! get environment variable for -comment switch
-   if(G_comment_style.eq.'')G_comment_style='default'            ! if environment variable not set set default
-   call substitute(cmd,'COMMENT',trim(G_comment_style))          ! change command line to have correct default
-                                                                 ! this would actually allow any parameter after number
+   ! allow formatting comments for particular post-processors
    G_comment='! '
-   kracken_comment=G_comment
-   call kracken('prep',cmd)                                      ! define command arguments, default values and crack command line
+   !JSUkracken_comment=G_comment
+   call setup(help_text,version_text)
+   call set_args(cmd,help_text,version_text)                ! define command arguments, default values and crack command line
 
-   if ( all(isdigit(switch(trim(sget('prep_prefix'))))) ) then   ! if all characters are numeric digits
-      prefix = char(iget('prep_prefix'))                         ! assume this is an ADE
+   string=adjustl(trim(SGET('prefix')))
+   if ( all( isdigit(switch(string)) ) ) then               ! if all characters are numeric digits
+      prefix = char(iget('prefix'))                         ! assume this is an ADE
    else
-      prefix(1:1) = trim(sget('prep_prefix'))                    ! not a digit so not an ADE so assume a literal character
+      prefix(1:1) = trim(SGET('prefix'))                    ! not a digit so not an ADE so assume a literal character
    endif
 
    G_inc_files=' '
 
-   out_filename(:G_line_length) = sget('prep_o')
+   out_filename(:G_line_length) = SGET('o')
 
-   G_ident=lget('prep_ident')                                    ! write IDENT as comment or CHARACTER variable
-   G_iwidth                   = iget('prep_width')
+   G_ident=lget('ident')                                    ! write IDENT as comment or CHARACTER variable
+   G_iwidth                   = iget('width')
    G_iwidth=max(0,G_iwidth)
-   letterd(1:1)               = trim(sget('prep_d'))
-   G_noenv                    = lget('prep_noenv')
+   letterd(1:1)               = trim(SGET('d'))
+   G_noenv                    = lget('noenv')
 
    if(out_filename.eq.'')then                                    ! open output file
       G_iout=stdout
@@ -2703,28 +2741,28 @@ logical                       :: isscratch
    endif
    G_iout_init=G_iout
 
-   call help_version(lget('prep_version'))                 ! if version switch is present display version and exit
-   call help_usage(lget('prep_help'))                      ! if help switch is present display help and exit
-   if(lget('prep_crib'))then
+   if(lget('crib'))then
       call crib_help(stdout)
       stop
    endif
-   G_debug=lget('prep_debug')                              ! turn on debug mode for developer
+   G_debug=lget('debug')                              ! turn on debug mode for developer
 
-   keeptabs=lget('prep_keeptabs')
-   G_verbose=lget('prep_verbose')                          ! set flag for special mode where lines with @(#) are written to stderr
+   keeptabs=lget('keeptabs')
+   G_verbose=lget('verbose')                          ! set flag for special mode where lines with @(#) are written to stderr
    if(G_verbose)then
       call write_err('+ verbose mode on ')
    endif
-   G_comment_style=lower(sget('prep_comment'))             ! allow formatting comments for particular post-processors
-   G_system_on = lget('prep_system')                       ! allow system commands on $SYSTEM directives
+   G_comment_style=lower(SGET('comment'))             ! allow formatting comments for particular post-processors
+   G_system_on = lget('system')                       ! allow system commands on $SYSTEM directives
    if(G_system_on)then
       call put('SYSTEMON=.TRUE.')
    else
       call put('SYSTEMON=.FALSE.')
    endif
    !TODO! have an auto mode where start and end are selected based on file suffix
-   select case(sget('prep_type'))
+   G_extract_start0=''
+   G_extract_stop0=''
+   select case(SGET('type'))
    case('md','.md')
       G_extract_start='```fortran'
       G_extract_stop='```'
@@ -2746,8 +2784,10 @@ logical                       :: isscratch
       G_extract_auto=.false.
       G_extract=.false.
    case default
-      G_extract_start=trim(sget('prep_start'))
-      G_extract_stop=trim(sget('prep_stop'))
+      G_extract_start=trim(SGET('start'))
+      G_extract_stop=trim(SGET('stop'))
+      G_extract_start0=G_extract_start
+      G_extract_stop0=G_extract_stop
    end select
    if(G_extract_start.ne.''.or.G_extract_stop.ne.'')G_extract=.true.
 
@@ -2848,8 +2888,8 @@ subroutine auto()
          G_extract_start='<xmp>'
          G_extract_stop='</xmp>'
       case default
-         G_extract_start=trim(sget('prep_start'))
-         G_extract_stop=trim(sget('prep_stop'))
+         G_extract_start=G_extract_start0
+         G_extract_stop=G_extract_stop0
       end select
       if(G_extract_start.eq.''.and.G_extract_stop.eq.'')then
          G_extract=.false.

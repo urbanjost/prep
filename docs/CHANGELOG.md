@@ -20,9 +20,19 @@ new features, changes, and relevant notifications.
   - [ ] registered in fpm(1) repository
 
 ---
+**2022-08-14**  John S. Urban <https://github.com/urbanjost>
+
+### :orange_circle: DIFF:
+  + The command parser was switched from M_kracken95 to M_CLI2.
+    This means multiple values need quoted, so instead of 
+    "-I dir1 dir2 dir3"  "-I 'dir1 dir2 dir3'" or "-I dir1 -I dir2
+    -I dir3" is required for the -I and -D options, but also means
+    multiple -I and -D switches will accumulate instead of only the
+    right-most value being used.
+---
 **2022-08-07**  John S. Urban <https://github.com/urbanjost>
 
-### :red_circle: ADD:
+### :red_circle: FIX:
   + The .NEQV. operator failed since original Lahey version
 ---
 **2022-07-15**  John S. Urban <https://github.com/urbanjost>
