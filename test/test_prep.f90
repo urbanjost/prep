@@ -72,6 +72,10 @@ allocate(tally(0))
 !>>   $MESSAGE message_to_stderr
 !>>   $SHOW [defined_variable_name][;...]
    call message()
+!>> METADATA
+!>>   $IDENT metadata          
+!>>   $@(#)  metadata          
+   call ident()
 
 !>>   $STOP [stop_value[ "message"]] | $QUIT ["message"]
    call stop()
@@ -271,8 +275,8 @@ integer :: iostat
    ierr=filedelete('_scratch.txt')
    ierr=filedelete('_out.txt')
    call flushit()
-   write(*,'(a)',advance='no')'Use RETURN to continue'
-   read(*,'(a)',iostat=iostat)paws
+   !write(*,'(a)',advance='no')'Use RETURN to continue'
+   !read(*,'(a)',iostat=iostat)paws
 end subroutine teardown
 !===============================================================================
 subroutine expressions()
@@ -741,6 +745,21 @@ expected=[ character(len=132) :: &
 call teardown('message')
 
 end subroutine message
+!===============================================================================
+subroutine ident()
+data=[ character(len=132) :: &
+"$@(#) M_module::procedure: my procedure", &
+"$IDENT M_module::procedure:    my  procedure   ", &
+"last line"]
+
+expected=[ character(len=132) :: &
+'! ident_1="@(#) M_module procedure my procedure"', &
+'! ident_2="@(#) M_module procedure my procedure"', &
+'last line']
+
+call teardown('message')
+
+end subroutine ident
 !===============================================================================
 subroutine output()
 integer :: ios, lun
