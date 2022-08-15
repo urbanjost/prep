@@ -4,7 +4,7 @@ cd $(dirname $0)/..
 #git checkout gh-pages
 fpm run prep -- --help  > docs/prep.1.man
 txt2man \
- -P pname -t 'Fortran preprocessor' -r 8.1.1 -s 1 -v 'User Commands' \
+ -P pname -t 'Fortran preprocessor' -r 9.2.0 -s 1 -v 'User Commands' \
  -B 'BLOCK' -B 'DEFINE' -B 'ELIF' -B 'ELSE' -B 'ELSEIF' -B 'ENDBLOCK' \
  -B 'ENDIF' -B 'ENDPARCEL' -B 'ERROR' -B 'IDENT' -B 'IF' -B 'IFDEF' -B 'IFNDEF' \
  -B 'IMPORT' -B 'INCLUDE' -B 'MESSAGE' -B '{NAME}' -B 'OUTPUT' -B 'PARCEL' -B 'POST' \

@@ -1870,7 +1870,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '    > write(*,*)''Time ${TIME}''                                                ',&
 '   ...                                                                          ',&
 '                                                                                ',&
-'       $SET varname(s)                                                          ',&
+'       $UNSET varname(s)                                                        ',&
 '                                                                                ',&
 '   Unset variables set with the $SET directive.                                 ',&
 '                                                                                ',&

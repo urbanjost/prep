@@ -47,16 +47,13 @@ a.existingWikiWord[title]{ //border: 1px dashed #BBB; }
 <CENTER>
 <H1><HR><I>User Commands  &nbsp;-&nbsp;</I><NOBR>Fortran preprocessor (1)</NOBR><HR></H1>
 </CENTER>
-<BLOCKQUOTE>
-Project is up to date
-</BLOCKQUOTE>
 <A name=0>
 
      <H3>NAME</H3>
 
 </A>
 <BLOCKQUOTE>
-<B>prep</B>(1) - [DEVELOPER] preprocess FORTRAN source files
+<B>prep</B>(1) - [DEVELOPER] preprocess Fortran source files
 (LICENSE:MIT)
 <P>
 </BLOCKQUOTE>
@@ -114,15 +111,17 @@ Project is up to date
 </A>
 <BLOCKQUOTE>
 <P>
+<B>prep</B>(1) is a Fortran source preprocesor.
+<P>
 A preprocessor performs operations on input files before they are passed to
 a compiler, including conditional selection of lines based on directives
 contained in the file. This makes it possible to use a single source file
-even when different code is required for different execution environments.
+even when different code is required for different programming environments.
 <P>
-The <B>prep</B>(1) preprocessor has additional features that allow documentation
-in the same file as the source and the generation of generic code using a
-simple templating technique. The basic directives &#46;&#46;&#46;.
-<TABLE cellpadding=3><!-- tsb: The <B>prep</B>(1) preprocessor has additional features that allow documentation
+The <B>prep</B>(1) preprocessor has additional features that support free-format
+documentation in the same file as the source and the generation of generic
+code using a simple templating technique. The basic directives &#46;&#46;&#46;.
+<TABLE cellpadding=3><!-- tsb: The <B>prep</B>(1) preprocessor has additional features that support free-format
  -->
 <TR></TR><TR></TR>
 <TR valign=top><TD width=3%>
@@ -178,8 +177,8 @@ comments in the output (using $<B>SHOW</B>).
 <TR valign=top><TD width=3%>
 o
 </TD><TD>
-Cause an error (controlled by directive $<B>STOP</B> or $<B>ERROR</B>) and produce
-messages on stderr (using $<B>MESSAGE</B>).
+Stop the preprocessing (controlled by directive $<B>STOP</B>, $<B>QUIT</B> or $<B>ERROR</B>)
+and produce messages on stderr (using $<B>MESSAGE</B>).
 </TD></TR>
 <TR></TR></TABLE></BLOCKQUOTE>
 <A name=3>
@@ -193,7 +192,8 @@ messages on stderr (using $<B>MESSAGE</B>).
 <B></B><I>define_list</I>, <B>-D</B> <I>define_list</I> </TD></TR><TR valign=top><TD width=3%>&nbsp;</TD><TD>
 An optional space-delimited list of expressions
 used to define variables before file processing
-commences.
+commences. These can subsequently be used in
+$<B>IF</B>/$<B>ELSE</B>/$<B>ELSEIF</B> and $<B>DEFINE</B> directives.
 </TD></TR>
 <TR valign=top><TD colspan=2>
 <B></B><B>-i</B> <I>input_file(s)</I> </TD></TR><TR valign=top><TD width=3%>&nbsp;</TD><TD>
@@ -214,10 +214,9 @@ the <B>--type</B> option description.
 <B></B><B>-o</B> <I>output_file</I> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
 The default output file is stdout.
 </TD></TR>
-<TR valign=top><TD colspan=2>
-<B></B><B>-I</B> <I>include_directories</I> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-The directories to search for files specified on
-$<B>INCLUDE</B> directives.
+<TR><TD colspan=2>
+<B>-I</B> "<I>include_directories</I>" The directories to search for files specified on
+$<B>INCLUDE</B> directives. May be repeated.
 </TD></TR>
 <TR valign=top><TD colspan=2>
 <B></B><B>--system</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
@@ -316,7 +315,7 @@ compiling fixed-format Fortran source.
 <TR valign=top><TD colspan=2>
 <B></B><B>--width</B> <I>n</I> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
 Maximum line length of the output file. The default is 1024.
-The parameter is typically used to trim fixed-format FORTRAN
+The parameter is typically used to trim fixed-format Fortran
 code that contains comments or "ident" labels past column 72
 when compiling fixed-format Fortran code.
 </TD></TR>
@@ -450,7 +449,7 @@ then the function value is ".TRUE.", otherwise it is ".FALSE.". A name is
 defined only if it has appeared in the source previously in a $<B>DEFINE</B>
 directive or been declared on the command line.
 The names used in compiler directives are district from names in the
-FORTRAN source, which means that "a" in a $<B>DEFINE</B> and "a" in a FORTRAN
+Fortran source, which means that "a" in a $<B>DEFINE</B> and "a" in a Fortran
 source statement are totally unrelated.
 The <B>DEFINED</B>() variable is NOT valid in a $<B>DEFINE</B> directive.
 <P>
@@ -648,7 +647,7 @@ compilation or loading.
 &#46;&#46;&#46;
 <P>
 <PRE>
-       $SET varname(s)
+       $UNSET varname(s)
 <P>
 </PRE>
 Unset variables set with the $<B>SET</B> directive.
@@ -680,6 +679,7 @@ Directives for reading and writing external files &#46;&#46;&#46;
 <P>
 <PRE>
        $OUTPUT   filename  [--append]                          [! comment ]
+       $ENDOUTPUT                                              [! comment ]
        $INCLUDE filename
 <P>
 </PRE>
@@ -695,6 +695,12 @@ specified with command line options. If no output filename is given
 <P>
 Files are open at the first line by default. Use the <B>--append</B> switch to
 append to the end of an existing file instead of overwriting it.
+<P>
+<PRE>
+       $ENDOUTPUT                                              [! comment ]
+<P>
+</PRE>
+Ends writing to an alternate output file begun by a $<B>OUTPUT</B> directive.
 <P>
 <PRE>
        $INCLUDE filename
@@ -1236,7 +1242,7 @@ John S. Urban
 <P>
 </BLOCKQUOTE>
 <P><HR>
-<TABLE width=100%><TR> <TD width=33%><I>8.1.1</I></TD> <TD width=33% align=center>Fortran preprocessor (1)</TD> <TD align=right width=33%><I>May 10, 2022</I></TD> </TR></TABLE><FONT SIZE=-1>Generated by <A HREF="http://www.squarebox.co.uk/download/manServer.shtml">manServer 1.08</A> from docs/prep.1 using man macros.</FONT>
+<TABLE width=100%><TR> <TD width=33%><I>9.2.0</I></TD> <TD width=33% align=center>Fortran preprocessor (1)</TD> <TD align=right width=33%><I>August 15, 2022</I></TD> </TR></TABLE><FONT SIZE=-1>Generated by <A HREF="http://www.squarebox.co.uk/download/manServer.shtml">manServer 1.08</A> from docs/prep.1 using man macros.</FONT>
 <br><br><center><img src="images/prep.1.gif"></center>
 </div>
 </div>
