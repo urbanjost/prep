@@ -1,6 +1,6 @@
 # TOML file for fpm as described at https://github.com/fortran-lang/fpm/blob/master/manifest-reference.md
 name = "prep"
-version = "9.2.0"
+version = "9.1.0"
 license = "MIT"
 author = "John Urban"
 maintainer = "urbanjost@comcast.net"
@@ -18,20 +18,18 @@ name="prep"
 source-dir="app"
 main="prep.f90"
 
-[dependencies]
-M_kracken95 = { path = "LINKS/M_kracken95" }
-M_io        = { path = "LINKS/M_io" }
-M_strings   = { path = "LINKS/M_strings" }
-M_list      = { path = "LINKS/M_list" }
-
-M_history   = { path = "LINKS/M_history" }
-M_CLI2      = { path = "LINKS/M_CLI2" }
-
-#ln -s /home/urbanjs/venus/V600/github/M_math  .
-#ln -s /home/urbanjs/venus/V600/github/M_strings  .
-#ln -s /home/urbanjs/venus/V600/github/M_history  .
-#ln -s /home/urbanjs/venus/V600/github/M_list  .
-#ln -s /home/urbanjs/venus/V600/github/M_io  .
-#ln -s /home/urbanjs/venus/V600/github/ARGS/M_kracken95  .
-#ln -s /home/urbanjs/venus/V600/github/ARGS/M_CLI2  .
-
+[dependencies.M_kracken95]
+git = "https://github.com/urbanjost/M_kracken95.git"
+rev = "506e59f0dac3c6446b098ffacb6b4bf5cb0a7219"
+[dependencies.M_io]
+git = "https://github.com/urbanjost/M_io.git"
+rev = "0745b1ed0ec5c7f7b84967b5ca7e84832ce2baba"
+[dependencies.M_strings]
+git = "https://github.com/urbanjost/M_strings.git"
+rev = "9b9fdb48950e2b6908d66c5b927200b325512f3b"
+[dependencies.M_list]
+git = "https://github.com/urbanjost/M_list.git"
+rev = "95c4ba3f50992d0e82b311ada7d90fbe7f65ffac"
+[dependencies.M_history]
+git = "https://github.com/urbanjost/M_history.git"
+rev = "fc890fe36d5199352b06e3db4305f936c6a5d998"
