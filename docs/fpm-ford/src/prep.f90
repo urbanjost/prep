@@ -1496,7 +1496,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '        [--help]                                                                ',&
 'DESCRIPTION                                                                     ',&
 '                                                                                ',&
-'   prep(1) is a Fortran source preprocesor.                                     ',&
+'   prep(1) is a Fortran source preprocessor.                                    ',&
 '                                                                                ',&
 '   A preprocessor performs operations on input files before they are passed to  ',&
 '   a compiler, including conditional selection of lines based on directives     ',&
@@ -1870,7 +1870,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '    > write(*,*)''Time ${TIME}''                                                ',&
 '   ...                                                                          ',&
 '                                                                                ',&
-'       $SET varname(s)                                                          ',&
+'       $UNSET varname(s)                                                        ',&
 '                                                                                ',&
 '   Unset variables set with the $SET directive.                                 ',&
 '                                                                                ',&

@@ -12,8 +12,11 @@ body {
       white-space:nowrap;
     }
 
-    html {
-      scroll-padding-top: 70px;
+    :target:before {
+      content:"";
+      display:block;
+      height:60px;
+      margin:-60px 0 0;
     }
 
     ol.hierarchy {
@@ -276,9 +279,4 @@ table.graph {
 
 .graph td.solidTop {
     border-top-style: solid;
-}
-
-/* Ensure tables in Pages don't collapse horizontally */
-td, th {
-    padding-right: 10px;
 }
