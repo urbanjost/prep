@@ -25729,7 +25729,9 @@ character(len=7)             :: temp
 character(len=G_line_length) :: newl
 integer                      :: i,j,k,l
 character(len=6),parameter   :: ops(6)= (/'.NOT. ','.AND. ','.OR.  ','.EQV. ','.NEQV.','.DEF. '/)
-integer,parameter            :: opl(6)= [(len_trim(ops(i)),i=1,size(ops))]
+!integer,parameter            :: opl(6)= [(len_trim(ops(i)),i=1,size(ops))]
+integer,save                 :: opl(6)! NVFORTRAN bug
+integer,save                 :: icalls=0
 integer                      :: ieqv
 integer                      :: ineqv
 integer                      :: i1
@@ -25738,6 +25740,13 @@ integer                      :: chrs
 integer                      :: len1
 integer                      :: len2
 logical                      :: answer
+
+   if(icalls==0)then ! for NVFORTRAN bug
+      do i=1,size(ops)
+         opl(i)=len_trim(ops(i))
+      enddo
+      icalls=1
+   endif
 
    newl=line(ipos1:ipos2)
    len1=0
