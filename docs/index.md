@@ -1,3 +1,6 @@
+<!--
+pandoc --from=commonmark --to=html5 index.md --output index.html
+-->
 ## prep(1)
 
 - [man-page](prep.1.html)
