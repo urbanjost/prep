@@ -56,23 +56,36 @@ a.existingWikiWord[title]{ //border: 1px dashed #BBB; }
 <p>prep(1)  allows for templating via variable expansion using a POSIX-shell
    syntax which many are familiar with</p>
 
+<h4>Fortran-like syntax</h4>
+
+<p>Conditional expressions may be written very close to Fortran syntax,
+   allowing for a low learning curve for Fortran programmers.</p>
+
 <h4>Text-based documentation can easily be maintained in the source file</h4>
 
 <p>It allows for plain text blocks to be written to a file, allowing
    markdown, HTML, and Latex to be easily incorporated straight in the
-   code file.</p>
+   code file, including an option to literally keep code in a Markdown
+   file with the code delimited between the lines  "\<code>\</code>\<code>fortran" and
+   "\</code>\<code>\</code>".</p>
 
-<p>The plain text blocks can be filtered into a CHARACTER array
-   definition, WRITE() statements and comments, including a basic flag
-   (preliminary) that allows the same text block to be formatted for use
-   with Ford or Doxygen as well as as-is comments. Support of in-line
-   documentation is not a common Fortran-compatible preprocessor feature.</p>
+<p>The plain text blocks can additionally be filtered to become
+   a CHARACTER array definition, WRITE() statements or comments.</p>
+
+<p>It is a lot easier to maintain a large amount of text as simple lines
+   than to maintain them as properly formatted variable definitions, for
+   example.</p>
+
+<p>A command-line flag (preliminary) allows the same text block to be
+   formatted for use with Ford or Doxygen or as as-is comments. Support of
+   in-line documentation is not a common Fortran-compatible preprocessor
+   feature.</p>
 
 <h4>No collisions with cpp(1)</h4>
 
-<p>It intentionally does not use a pound prefix by default so that files
-   (especially C) that already contain cpp(1) directives can be mixed in
-   without collisions.</p>
+<p>prep(1) intentionally does not use a pound prefix by default so that
+   files (especially C) that already contain cpp(1) directives can be
+   mixed in without collisions.</p>
 
 <h4>Easy access to environment variables</h4>
 
@@ -102,7 +115,7 @@ default line length limit will not be available on all compilers for a
 while although a lot of compilers already allow that.</p>
 <p><div class='property'> category: <a class='category_link' href='/fortran/list/code'>code</a></div></p>
   <div class="byline">
-  Revised on Tue 18 Oct 2022 04:24:51 PM EDT
+  Revised on Tue 18 Oct 2022 04:42:45 PM EDT
   by
   <a class="existingWikiWord" href="urbanjs.xhtml">urbanjs</a>
   </div>

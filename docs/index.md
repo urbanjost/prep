@@ -18,23 +18,36 @@
    prep(1)  allows for templating via variable expansion using a POSIX-shell
    syntax which many are familiar with
 
+#### Fortran-like syntax
+
+   Conditional expressions may be written very close to Fortran syntax,
+   allowing for a low learning curve for Fortran programmers.
+
 #### Text-based documentation can easily be maintained in the source file
 
    It allows for plain text blocks to be written to a file, allowing
    markdown, HTML, and Latex to be easily incorporated straight in the
-   code file.
+   code file, including an option to literally keep code in a Markdown
+   file with the code delimited between the lines  "\`\`\`fortran" and
+   "\`\`\`".
    
-   The plain text blocks can be filtered into a CHARACTER array
-   definition, WRITE() statements and comments, including a basic flag
-   (preliminary) that allows the same text block to be formatted for use
-   with Ford or Doxygen as well as as-is comments. Support of in-line
-   documentation is not a common Fortran-compatible preprocessor feature.
+   The plain text blocks can additionally be filtered to become
+   a CHARACTER array definition, WRITE() statements or comments.
+
+   It is a lot easier to maintain a large amount of text as simple lines
+   than to maintain them as properly formatted variable definitions, for
+   example.
+
+   A command-line flag (preliminary) allows the same text block to be
+   formatted for use with Ford or Doxygen or as as-is comments. Support of
+   in-line documentation is not a common Fortran-compatible preprocessor
+   feature.
 
 #### No collisions with cpp(1)
 
-   It intentionally does not use a pound prefix by default so that files
-   (especially C) that already contain cpp(1) directives can be mixed in
-   without collisions.
+   prep(1) intentionally does not use a pound prefix by default so that
+   files (especially C) that already contain cpp(1) directives can be
+   mixed in without collisions.
    
 #### Easy access to environment variables
 
