@@ -6247,6 +6247,11 @@ end module M_CLI2
 !===================================================================================================================================
 MODULE M_io
 use, intrinsic :: iso_fortran_env, only : stdin=>input_unit, stdout=>output_unit, stderr=>error_unit
+#ifdef __NVCOMPILER
+#define NOREAL128
+#else
+#undef NOREAL128
+#endif
 implicit none
 private
 integer,parameter,private:: sp=kind(1.0), dp=kind(1.0d0)
@@ -10991,6 +10996,10 @@ class(*),intent(in) :: generic
       type is (integer(kind=int64));    write(line(istart:),'(i0)') generic
       type is (real(kind=real32));      write(line(istart:),'(1pg0)') generic
       type is (real(kind=real64));      write(line(istart:),'(1pg0)') generic
+#ifdef __NVCOMPILER
+#else
+      type is (real(kind=real128));     write(line(istart:),'(1pg0)') generic
+#endif
       type is (logical);                write(line(istart:),'(l1)') generic
       type is (character(len=*));       write(line(istart:),'(a)') trim(generic)
       type is (complex);                write(line(istart:),'("(",1pg0,",",1pg0,")")') generic
@@ -11047,6 +11056,10 @@ integer :: i
       type is (integer(kind=int64));    write(line(istart:),'("[",*(i0,1x))') generic
       type is (real(kind=real32));      write(line(istart:),'("[",*(1pg0,1x))') generic
       type is (real(kind=real64));      write(line(istart:),'("[",*(1pg0,1x))') generic
+#ifdef __NVCOMPILER
+#else
+      type is (real(kind=real128));     write(line(istart:),'("[",*(1pg0,1x))') generic
+#endif
       !type is (real(kind=real256));     write(error_unit,'(1pg0)',advance='no') generic
       type is (logical);                write(line(istart:),'("[",*(l1,1x))') generic
       type is (character(len=*));       write(line(istart:),'("[",:*("""",a,"""",1x))') (trim(generic(i)),i=1,size(generic))
@@ -27784,7 +27797,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '     expansion, allowing for basic templating (controlled by directives         ',&
 '     $PARCEL/$ENDPARCEL and $POST). The mechanism supported is to replace       ',&
 '     text of the form ${NAME} with user-supplied strings similar to the         ',&
-'     POSIX shell (controlled by directives $SET, $USET and $IMPORT).            ',&
+'     POSIX shell (controlled by directives $SET, $UNSET and $IMPORT).           ',&
 '                                                                                ',&
 '   * Filter blocks of text and convert them to comments, a CHARACTER array,     ',&
 '     Fortran WRITE statements, ... (provided by the $BLOCK directive.)          ',&
@@ -28084,7 +28097,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 ' MACRO STRING EXPANSION AND TEXT REPLAY                                         ',&
 '   Directives for defining replayable text blocks ...                           ',&
 '                                                                                ',&
-'       $PARCEL [blockname] / $ENDPARCEL                     [! comment ]        ',&
+'       $PARCEL blockname  / $ENDPARCEL                      [! comment ]        ',&
 '       $POST     blockname(s)                               [! comment ]        ',&
 '       $SET varname  string                                                     ',&
 '       $UNSET varname(s)                                    [! comment ]        ',&
@@ -28092,7 +28105,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   Details ...                                                                  ',&
 '                                                                                ',&
-'       $PARCEL [blockname] / $ENDPARCEL                     [! comment ]        ',&
+'       $PARCEL blockname / $ENDPARCEL                       [! comment ]        ',&
 '                                                                                ',&
 '   The block of lines between a "$PARCEL name" and "$ENDPARCEL" directive are   ',&
 '   written to a scratch file WITHOUT expanding directives. the scratch file can ',&
@@ -28595,7 +28608,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 "   > $set author  William Shakespeare                                           ",&
 "   > $import HOME                                                               ",&
 "   > write(*,*)'${AUTHOR} ${DATE} ${TIME} File ${FILE} Line ${LINE} HOME ${HOME}",&
-"  $PARCEL [blockname] ... $ENDPARCEL ! a reuseable parcel of expandable text    ",&
+"  $PARCEL blockname ... $ENDPARCEL ! a reuseable parcel of expandable text      ",&
 "  $POST   blockname(s)  ! insert a defined parcel of text                       ",&
 "EXTERNAL FILES (see $BLOCK ... --file also)                                     ",&
 "  $OUTPUT filename [--append]                                                   ",&

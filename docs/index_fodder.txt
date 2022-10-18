@@ -1,0 +1,315 @@
+
+############################################################################
+## Q & A
+
+   + what are the use cases?
+   + currently available solutions
+   + problems with currently available solutions
+   + how to avoid some common uses of pre-processing
+   + making maintainable pre-processed code
+   + identifying uses and proposing solutions via Fortran enhancements
+  A streamlined preprocessor written in Fortran
+
+There is on-going work on such features as standardizing new templating
+and generic programming features in the Fortran standard.
+
+In the meantime, related functionality can be supplied immediately
+by preprocessors.
+
+There are several already listed in addition to the often-cited
+fpp(1), cpp(1), and m4(1):
+
+  * Preprocessors in Fortran Wiki
+    <http://fortranwiki.org/fortran/show/Preprocessors>
+
+but I was looking for something written in Fortran that supports
+some form of templating and direct support of blocks of plain text
+and did not quite see what I wanted, so there is now
+
+  * GitHub - urbanjost/prep: Fortran pre-processor
+    <https://github.com/urbanjost/prep>
+
+
+I would like to see fpm(1) hide the preprocessing stage more like
+C/cpp(1) does, where you would maintain the input files in the user
+space but the post-processed files would be placed in a directory in
+build/ much like the *.o files are now, avoiding the collision issues
+and file clutter most Fortran preprocessors require where you have the
+input files and output files both visible in user-space; and
+preprocessing is particularly problematic with fpm if the preprocessor
+is not easily bundled with fpm and useable in an environment not easily
+modified with external dependencies by the user. prep(1) is designed
+with that in mind, but I think the issues of preprocessing and fpm(1)
+are not near being resolved in the manner I am hoping for.
+
+Some of the cons are it is not reversible, as is Dan Nagle’s superset of
+coco(1); it does not directly allow the use of popen (or any
+non-Fortran-standard feature) like ufpp(1); which basically allows for
+directly using any other shell language to generate code (a very
+powerful feature, but fraught with dependency issues if not used
+judiciously) and does not have direct macro parameters, which I am not
+particularly fond of. f90ppr and ufpp allow for more general logical
+expressions, supporting expressions and reals. I could switch in
+M_calculator in less than a few hours but I think there are drawbacks to
+making a preprocessor too language-like.
+
+
+The preprocessor is intentionally
+kept to what I think is the basic core functionality , but that is
+limiting in some respects. Fortran pre-processing has been an issue for
+decades and even though there are a number of pre-processors none has
+seemed to win out. As Fortran has expanded in capability and
+standarization has become more common some of the conditional
+compilation issues have reduced in recent years but are not gone; and
+the lack of templating and documenation features is not likely to be
+standardized soon so I am trying to consolidate a solution for those
+issues into preprocessing in a sustainable but hopefully useful manner.
+
+
+Perhaps ironically, I fall into the camp of disliking preprocessing, at
+least to the extent of feeling it is a “necessary evil”, not a desirable
+language feature.
+
+Preprocessing can run the gamit from something that redefines the syntax
+of the language (see RATFOR) to what Fortran provides (the INCLUDE
+directive) with a lot in-between (m4, cpp, fpp, …).
+
+The COCO preprocessor did momentarily make the cut as a standard
+pre-processor, but it sounds like you might be familiar with that history
+already. Looking to COCO as having been an “acceptable” preprocessor
+somewhat influenzed what I added to prep(1).
+
+To see how preprocessing can go wrong, see C (no amount of flames will
+change my opinion :>).
+
+Along those lines long ago I wrote a paper on the pros of
+minimizing preprocessing and how to isolate it in wrapper routines
+whenever possible. I might see if I can add that to the prep(1) or
+pref(1) repository.
+
+As a quick summary, one Fortran-ish way to minimize preprocessing is to
+create programming-environment specific directores for routines, like
+
+gfortran_mswindows/ gfortran_posix/ generic/
+
+and then use the INCLUDE path option (usually “-I”) found on most
+compilers where you have duplicate filenames in the directories and choose
+one (the biggest issue here being excessive duplication of code). Some
+compilers will find the first instance of the file and use it, so you
+can always add -Igeneric last, but others will complain if duplicate
+filenames are found.
+
+You should always isolate code requiring extensive preprocessing in it’s
+own routines in its own files as much as possible, so the body of your
+code is preprocessor-free.
+
+If there is a lot of routines involved, especially if they are re-usuable
+making a separate library of the programming-environment-specific routines
+is almost always a good idea.
+
+A lot of conditional compilation can now be eliminated by using the
+ISO_C_BINDING interface, as a lot of it in the past involved C interfaces
+directly or indirectly (using a Fortran extension that provided the
+same function as a C function).
+
+When the conditional code still compiles on all your platforms you can
+compile all the versions and use function pointers or pass procedure
+names but even in those rare cases you have to be careful not to impact
+performance.
+
+I hope the stdlib project will hide preprocessing for a large amount of
+users in the near future by providing things like a “POSIX” interface,
+but stdlib will require some form of versioning or preprocessing for
+system-related and compiler-specific issues. Even issues like support
+of REAL128 kinds, and certainly an extension such as REAL256 and CUDA
+features make me pretty certain the need will not be going away anytime
+soon.
+
+In the case of prep(1), better support in the Fortran standard of
+generic programming and
+perhaps some support of plain text blocks will/could go a long way towards
+reducing any need for it but in the meantime I hope it will be useful.
+Fortran has multiple compiler providers, unlike a lot of recent languages.
+This tends to promote the need for conditional compilation.
+
+
+
+Indeed. One way to use conditional compilation is to include different
+modules (as a whole) using a build system. This works as long as the
+rest of the code uses exactly the same API. If it does not, then you
+need some kind of pre-processing.
+
+I particularly like submodules for this.
+
+For each instance where I need conditional compilation, I like to have a
+single module file which provides consistent interfaces, and then each
+conditional option has a submodule file which implements the interfaces
+in the module file in an option-specific way. IMO this minimises the
+room for error, removes the preprocessor dependence, and as a bonus
+minimises re-compilation when options are changed.
+
+   If you just want traditional pre-processing capabilities and use a
+   major Linux or Unix distribution you may find existing tools already
+   meet your needs.
+   
+   Some Fortran compilers provide their own "Fortran-safe"
+   pre-processors. The compiler documentation often describes their
+   features; which are usually a subset of the Unix utility cpp(1). They
+   often intentionally do not provide macro expansion or C-style comments
+   (block or in-line); but otherwise look very much like cpp(1). They are
+   often called "fpp" if they can be called as a stand-alone utility. Sun
+   has an open-source version on netlib of their flavor of fpp(1).
+   
+   The cpp(1) program is designed for C/C++ and is not totally
+   "Fortran- safe". It is, however, a de-facto standard for code
+   pre-processing. Different versions often have switches to reduce the
+   chances of generating unexpected Fortran code. The most common version
+   of cpp(1) works with most Fortran using the following form:
+   
+      cpp -P -C -traditional MYFILE.F90
+   
+   The Fortran 95 standard provided an optional standard pre-processor
+   definition. Currently, it seems to rarely be provided with compilers. Dan
+   Nagle has an open-source version with macro expansion called "coco".
+   
+   Other pre-processors that are Fortran-friendly or relatively language-agnostic are
+   
+       "f90ppr" by Michel Olganon
+       "fpx3" (Joerg Behren version is popular)
+       "mp4" ( commonly available on Unix/GNU platforms. It is a powerful general macro pre-processor.)
+       "tradcpp" ("traditional" cpp from GNU; which has less problems with Fortran than modern C-standard cpp(1) versions)
+       "filepp" at http://www.cabaret.demon.co.uk/filepp
+       "forpedo"
+
+## Considering the issues with the current state of the art
+
+   So there is no single solution that satisfies all the generally commonly
+   desired features as well as the portability and simplicity a standardized
+   solution might provide.
+   
+   Fortran code is known for its longevity, so selecting a pre-processor
+   not based on Fortran itself or not in the Standard can have major
+   long-term impact.
+   
+   There has been little movement in Fortran Standards bodies to provide
+   such a standard tool, however.
+   
+   There is movement towards providing some of these capabilities (such
+   as templating) as standard parts of the language, but that is likely to
+   require several years to be settled on and implemented.
+   
+   So if you need pre-processing look over the existing pre-processor
+   choices. Perhaps one is sufficient.  Consider the cost of being vested
+   in one of those carefully. If one of them fits your requirements you
+   may not need to look further.
+
+## So you decided to look for further alternatives -- what do you need?
+
+   In the past the most common reason for passing Fortran files through a
+   pre-processor was when the code was calling C code or other languages
+   where there was no standard calling interface defined. The ISO_C_BINDING
+   standard now defines a C-Fortran interface; so there is now generally
+   less need to pre-process Fortran source  for this purpose.
+   
+   The second-most common need for pre-processing was to easily use different
+   Fortran extensions in different environments. Since some of the most
+   commonly desired features are now standardized (accessing command line
+   arguments, getting date/time information, passing a system command to
+   the operating system, ...) the need for traditional pre-processing has
+   diminished even more.
+   
+   On the other hand dealing with differences between compilers that only
+   partially implement newer Fortran versions has brought back a significant
+   need for pre-processing; but that is hopefully a temporary issue. You
+   may not need a solution that is good for decades if that is your major
+   requirement.
+   
+   Newer requirements for templating and for extensive conditional
+   compilation to accomodate the rapidly emerging parallel processing
+   methods have risen to fill the void, however.
+   
+   In the long term co-arrays and standarized templating should close that
+   gap as well but in the meantime pre-processing is occasionally still 
+   required or appears to be.
+
+## Avoiding pre-processing altogether in some cases
+
+   And additionally, consider a few of these suggestions on how you might instead
+   avoid using extensive pre-processing or at least isolate it to a minimal
+   number of procedures.
+   
+   1) isolate code requiring conditional compilation into small procedures 
+      that perform just the non-standard operations, and keep this in the
+      smallest number of files possible.
+
+
+## Using alternate Fortran sources and/or INCLUDE files
+
+   Simply put, instead of pre-processors you can conditionally compile
+   different files.
+   
+   If you have a directory for each programming environment with identically
+   named procedures in them that are specific to a system you can often
+   avoid pre-processing altogether. Isolate the system-dependent code into
+   small procedures to minimize duplicate code. Usually, the files are of
+   the same name but in different directories, one per platform. You can
+   often additionally reduce the amount of duplicate code by judicious use
+   of Fortran INCLUDE files. The most common problem with this method is
+   making sure you keep any changes to the procedure parameters consistent
+   across all the versions of the same routine.  "INCLUDE" method
+   
+   A variation on the previous approach is to have different directories
+   with the same filenames in them that are INCLUDE files. You compile for
+   different environments with the -I switch commonly available on Fortran
+   compilers. So if you had directories CRAY and HP that both had the same
+   files in them you could build different versions by entering "f90 -ICRAY
+   ..." or "f90 -IHP ...".  Using dead code
+   
+   If the system-dependent code is all "standard" code that will compile on
+   all platforms some people recommend placing all the code in a procedure
+   and setting a variable with an INCLUDE to select the proper code (assuming
+   the selection does not cause major performance overhead).
+   
+   This will make some branches into "dead code"; which many compilers will
+   remove while optimizing the code.
+   
+        subroutine system_dependent()
+        character(len=10) :: system
+        include "system.h"
+        if(system.eq.'hp')then
+          write(*,*)'do hp stuff'
+        elseif(system.eq.'cray')then
+          write(*,*)'do cray stuff'
+        else
+          write(*,*)'error: unknown system'
+        endif
+        end subroutine system_dependent
+
+   Assuming you have multiple "system.h" files that include a line like
+   
+        system='hp'
+   
+   or
+   
+        system='cray'
+   
+   You can build different versions using the -I parameter once again to
+   point to the different INCLUDE files.
+
+## dead code
+
+   I personally do not use this "dead code" method, but have seen it used
+   to good effect.  
+
+## Run-time selection
+
+   Of course when all the code can be compiled on all platforms you can
+   write the code without any preprocessing or use of alternate INCLUDE files
+   and provide input at run-time to select the correct branch as well. The
+   difference is that the compiler cannot optimize out the unused branches
+   in that case.  Procedure pointers
+   
+   When all the code is standard a good method can be to use pointers to
+   procedures, as is often used to select between different graphics drivers
+   or various mathematical "solvers".
+

@@ -1900,7 +1900,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 ' MACRO STRING EXPANSION AND TEXT REPLAY                                         ',&
 '   Directives for defining replayable text blocks ...                           ',&
 '                                                                                ',&
-'       $PARCEL [blockname] / $ENDPARCEL                     [! comment ]        ',&
+'       $PARCEL blockname  / $ENDPARCEL                      [! comment ]        ',&
 '       $POST     blockname(s)                               [! comment ]        ',&
 '       $SET varname  string                                                     ',&
 '       $UNSET varname(s)                                    [! comment ]        ',&
@@ -1908,7 +1908,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   Details ...                                                                  ',&
 '                                                                                ',&
-'       $PARCEL [blockname] / $ENDPARCEL                     [! comment ]        ',&
+'       $PARCEL blockname / $ENDPARCEL                       [! comment ]        ',&
 '                                                                                ',&
 '   The block of lines between a "$PARCEL name" and "$ENDPARCEL" directive are   ',&
 '   written to a scratch file WITHOUT expanding directives. the scratch file can ',&
@@ -2411,7 +2411,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 "   > $set author  William Shakespeare                                           ",&
 "   > $import HOME                                                               ",&
 "   > write(*,*)'${AUTHOR} ${DATE} ${TIME} File ${FILE} Line ${LINE} HOME ${HOME}",&
-"  $PARCEL [blockname] ... $ENDPARCEL ! a reuseable parcel of expandable text    ",&
+"  $PARCEL blockname ... $ENDPARCEL ! a reuseable parcel of expandable text      ",&
 "  $POST   blockname(s)  ! insert a defined parcel of text                       ",&
 "EXTERNAL FILES (see $BLOCK ... --file also)                                     ",&
 "  $OUTPUT filename [--append]                                                   ",&

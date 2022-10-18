@@ -350,7 +350,7 @@ DIRECTIVES
  MACRO STRING EXPANSION AND TEXT REPLAY
    Directives for defining replayable text blocks ...
 
-       $PARCEL [blockname] / $ENDPARCEL                     [! comment ]
+       $PARCEL blockname  / $ENDPARCEL                      [! comment ]
        $POST     blockname(s)                               [! comment ]
        $SET varname  string
        $UNSET varname(s)                                    [! comment ]
@@ -358,7 +358,7 @@ DIRECTIVES
 
    Details ...
 
-       $PARCEL [blockname] / $ENDPARCEL                     [! comment ]
+       $PARCEL blockname / $ENDPARCEL                       [! comment ]
 
    The block of lines between a "$PARCEL name" and "$ENDPARCEL" directive are
    written to a scratch file WITHOUT expanding directives. the scratch file can
