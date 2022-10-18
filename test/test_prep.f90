@@ -253,9 +253,17 @@ subroutine teardown(name)
 character(len=*),intent(in) :: name
 character(len=1)            :: paws
 integer :: iostat
+character(len=256)  :: cmdmsg
+integer             :: exitstat
+integer             :: cmdstat
    ierr=filewrite('_scratch.txt',data,status='replace')
    !call execute_command_line ('fpm run prep -- --verbose --debug -i _scratch.txt -o _out.txt')
-   call execute_command_line ('fpm run prep -- F90 TESTPRG90 CMD=30/2 -i _scratch.txt -o _out.txt')
+   exitstat=0
+   cmdstat=0
+   call execute_command_line ('fpm run prep -- F90 TESTPRG90 CMD=30/2 -i _scratch.txt -o _out.txt', &
+   & exitstat=exitstat,cmdstat=cmdstat,cmdmsg=cmdmsg)
+   write(*,*)'exitstat=',exitstat,'cmdstat=',cmdstat
+   if(cmdstat.ne.0)write(stderr,*)trim(cmdmsg)
    call gulp('_out.txt',result)
    CHECK : block
       if(size(expected).eq.size(result))then
