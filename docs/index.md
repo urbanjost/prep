@@ -46,7 +46,7 @@
 
 ### On the con side ...
 
-prep(1) allow reuse of blocks but not true looping or a “for”
+prep(1) allows reuse of blocks but not true looping or a “for”
 statement.
 
 cpp(1) and fpp(1) are often tightly coupled with the compiler, allowing
