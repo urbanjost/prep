@@ -1600,7 +1600,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '     expansion, allowing for basic templating (controlled by directives         ',&
 '     $PARCEL/$ENDPARCEL and $POST). The mechanism supported is to replace       ',&
 '     text of the form ${NAME} with user-supplied strings similar to the         ',&
-'     POSIX shell (controlled by directives $SET, $USET and $IMPORT).            ',&
+'     POSIX shell (controlled by directives $SET, $UNSET and $IMPORT).           ',&
 '                                                                                ',&
 '   * Filter blocks of text and convert them to comments, a CHARACTER array,     ',&
 '     Fortran WRITE statements, ... (provided by the $BLOCK directive.)          ',&

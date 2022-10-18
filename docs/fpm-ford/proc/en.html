@@ -113,12 +113,7 @@
     <div id="sidebar">
   <h3>Contents</h3>
  
-<div class="panel panel-primary">
-  <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
-  <div class="list-group">
-    <a class="list-group-item" href="../proc/en.html#src">en</a>
-  </div>
-</div>
+<em>None</em>
 
 </div>
 
@@ -155,12 +150,7 @@
     <section class="visible-xs visible-sm hidden-md">
       <h3>Contents</h3>
  
-<div class="panel panel-primary">
-  <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
-  <div class="list-group">
-    <a class="list-group-item" href="../proc/en.html#src">en</a>
-  </div>
-</div>
+<em>None</em>
 
     </section>
     <br class="visible-xs visible-sm hidden-md">
@@ -174,61 +164,6 @@
 
 
     
-    <section>
-    <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="k">function </span><span class="n">en</span><span class="p">(</span><span class="n">errnum</span><span class="p">,</span><span class="n">translate</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">english</span><span class="p">)</span><span class="w"></span>
-<span class="kt">integer</span><span class="p">,</span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">errnum</span><span class="w"></span>
-<span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">translate</span><span class="w"></span>
-<span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">english</span><span class="w"></span>
-<span class="k">select case</span><span class="p">(</span><span class="n">errnum</span><span class="p">)</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">000</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">001</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;expression invalid:&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">002</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;unknown compiler directive:&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">003</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;system command failed:&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">004</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;system directive encountered but not enabled:&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">005</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;expression invalid:&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">006</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;failed to open output file:&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">007</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;failed to open parcel scratch file:&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">028</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;parcel name not defined for&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">029</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;error rewinding&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">030</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;input file nesting too deep:&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">008</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;description too long:&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">009</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;language unknown for&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">010</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;null variable name:&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">011</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;name contains unallowed character(or general syntax error):&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">012</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;missing targets for &#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">013</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;&quot;IF&quot; block nesting too deep, limited to &#39;</span><span class="o">//</span><span class="n">v2s</span><span class="p">(</span><span class="n">G_nestl_max</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39; levels,&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">014</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;&quot;IF&quot; expression invalid:&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">015</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;block nesting too deep, limited to &#39;</span><span class="o">//</span><span class="n">v2s</span><span class="p">(</span><span class="n">G_nestl_max</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39; levels in:&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">016</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;misplaced $ELSE or $ELSEIF directive:&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">017</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;misplaced $ENDIF directive:&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">018</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;undefined variable.&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">019</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;constant logical expression required.&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">020</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;filter command failed to open process:&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">021</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;filter command $BLOCK encountered but system commands not enabled:&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">022</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;unexpected &quot;BLOCK&quot; option. found:&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">023</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;failed to open document output file:&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">024</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;failed to write output file:&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">025</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;failed to write comment block&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">026</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;failed open of input file(&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">027</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;input file nesting too deep:&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">031</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;missing input file:&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">032</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;missing targets in&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">033</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;failed to write to process:&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">034</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;unexpected &quot;BLOCK&quot; value. Found:&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">035</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;unexpected &quot;BLOCK&quot; value. Found:&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">036</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;expression invalid:&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">037</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;incomplete set:&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">038</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;expression invalid:&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">039</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;failed to open output file:&#39;</span><span class="w"></span>
-<span class="k">case</span><span class="p">(</span><span class="mi">040</span><span class="p">);</span><span class="n">english</span><span class="o">=</span><span class="s1">&#39;block not closed in&#39;</span><span class="w"></span>
-<span class="k">case </span><span class="n">default</span><span class="p">;</span><span class="w"> </span><span class="n">english</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">translate</span><span class="p">)</span><span class="w"></span>
-<span class="k">end select</span>
-<span class="k">end function </span><span class="n">en</span><span class="w"></span>
-</pre></div>
-
-    </section>
-    <br>
     
     </div>
   </div>
@@ -245,7 +180,7 @@
           <p class="text-right">
             Documentation generated by 
             <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2022-10-18 00:09            </p>
+ on 2022-10-18 15:06            </p>
         </div>
       </div>
       <br>

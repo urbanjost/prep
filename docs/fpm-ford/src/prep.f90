@@ -36,7 +36,7 @@
 module M_prep                                                             !@(#)M_prep(3f): module used by prep program
 USE ISO_FORTRAN_ENV, ONLY : STDERR=>ERROR_UNIT, STDOUT=>OUTPUT_UNIT,STDIN=>INPUT_UNIT
 use M_io,        only : get_tmp, dirname, uniq, fileopen, filedelete, get_env       ! Fortran file I/O routines
-use M_CLI2,      only : set_args, SGET, lget, unnamed !,print_dictionary, specified ! load command argument parsing module
+use M_CLI2,      only : set_args, SGET, lget, unnamed, specified !,print_dictionary ! load command argument parsing module
 use M_strings,   only : nospace, v2s, substitute, upper, lower, isalpha, split, delim, str_replace=>replace, sep, atleast, unquote
 use M_strings,   only : glob
 use M_list,      only : dictionary
@@ -119,6 +119,9 @@ logical,save                         :: G_extract_auto=.true.
 logical,save                         :: G_extract_flag=.false.
 character(len=:),allocatable,save    :: G_cmd
 character(len=:),allocatable,save    :: G_file
+character(len=:),allocatable,save    :: G_lang
+
+logical                              :: G_cpp
 
 contains
 !===================================================================================================================================
@@ -216,7 +219,7 @@ character(len=G_var_len)     :: value
       case default
          ifound=.false.
       end select
-      if(ierr.ne.0) call stop_prep('*prep* ERROR(001) - expression invalid:'//trim(G_source))
+      if(ierr.ne.0) call stop_prep(001,'expression invalid:',trim(G_source))
    endif
 
    select case(VERB)                                                  ! process logical flow control even if G_write is false
@@ -226,7 +229,7 @@ character(len=G_var_len)     :: value
    case('IFDEF','IFNDEF');        call def(verb,upopts,noelse,eb)
    case default
       if(.not.ifound)then
-         call stop_prep('*prep* ERROR(002) - UNKNOWN COMPILER DIRECTIVE ['//trim(verb)//']: '//trim(G_SOURCE))
+         call stop_prep(002,'unknown compiler directive:', '['//trim(verb)//']: '//trim(G_SOURCE) )
       endif
    end select
 
@@ -254,16 +257,16 @@ character(len=G_var_len)      :: value
       call execute_command_line (command, exitstat=icmd,cmdstat=cstat,cmdmsg=sstat) ! execute system command
 
       if(icmd.ne.0)then                                                             ! if system command failed exit program
-         call stop_prep('*prep* ERROR(003) - SYSTEM COMMAND FAILED:'//v2s(icmd))
+         call stop_prep(003,'system command failed:',v2s(icmd))
       endif
    else
-      call stop_prep('*prep* ERROR(004) - SYSTEM DIRECTIVE ENCOUNTERED BUT NOT ENABLED:'//trim(G_SOURCE))
+      call stop_prep(004,'system directive encountered but not enabled:',trim(G_SOURCE))
    endif
 
    write(defineme,'("CMD_STATUS=",i8)')icmd
    defineme=nospace(defineme)
    call expr(defineme,value,ierr)    ! only process DEFINE if not skipping data lines
-   if(ierr.ne.0) call stop_prep('*prep* ERROR(005) - expression invalid:'//trim(G_source))
+   if(ierr.ne.0) call stop_prep(005,'expression invalid:',trim(G_source))
 
 end subroutine exe
 !===================================================================================================================================
@@ -327,12 +330,12 @@ integer                       :: ios
       if(lget('append'))then; position='append'; else; position='asis'; endif
       open(unit=G_iout,file=filename,iostat=ios,action='write',position=position)
       if(ios.ne.0)then
-         call stop_prep('*prep* ERROR(006) - FAILED TO OPEN OUTPUT FILE:'//trim(filename))
+         call stop_prep(006,'failed to open output file:',trim(filename))
       endif
    end select
 
    if(G_verbose)then
-      call write_err( '+ OUTPUT FILE CHANGED TO: '//trim(filename) )
+      call write_err( '+ output file changed to: '//trim(filename) )
    endif
 
 end subroutine OUTPUT_CMD
@@ -357,7 +360,7 @@ character(len=256)            :: message
       endif
       open(newunit=lun,iostat=ios,action='readwrite',status='scratch',iomsg=message)
       if(ios.ne.0)then
-         call stop_prep('*prep* ERROR(007) - FAILED TO OPEN PARCEL SCRATCH FILE:'//trim(name)//' '//trim(message))
+         call stop_prep(007,'failed to open parcel scratch file:',trim(name)//' '//trim(message))
       else
          G_parcelcount=G_parcelcount+1
          G_parcel_dictionary(G_parcelcount)%name=name
@@ -420,12 +423,12 @@ integer                      :: i
       endif
    enddo
    if(ifound.eq.-1)then
-      call stop_prep('*prep* ERROR(028) - PARCEL NAME NOT DEFINED:'//trim(G_source))
+      call stop_prep(028,'parcel name not defined for',' PARCEL:'//trim(G_source))
    else
       inquire(unit=ifound,iostat=ios)
       rewind(unit=ifound,iostat=ios,iomsg=message)
       if(ios.ne.0)then
-         call stop_prep('*prep* ERROR(029) - ERROR REWINDING PARCEL:'//trim(G_source)//':'//trim(message))
+         call stop_prep(029,'error rewinding',' PARCEL:'//trim(G_source)//':'//trim(message))
       endif
 
       if(G_debug)then
@@ -439,7 +442,7 @@ integer                      :: i
 
       G_iocount=G_iocount+1
       if(G_iocount.gt.size(G_file_dictionary))then
-         call stop_prep('*prep* ERROR(030) - INPUT FILE NESTING TOO DEEP:'//trim(G_source))
+         call stop_prep(030,'input file nesting too deep:',trim(G_source))
       endif
       G_file_dictionary(G_iocount)%unit_number=ifound
       G_file_dictionary(G_iocount)%filename=parcel_name
@@ -484,12 +487,12 @@ integer                       :: i
          endif
          ident_count=ident_count+1
       case default
-         call stop_prep('*prep* ERROR(008) - IDENT TOO LONG:'//trim(G_SOURCE))
+         call stop_prep(008,'description too long:',trim(G_SOURCE))
       end select
    case('c')
          write(G_iout,'(a)')'#ident "@(#)'//text//'"'
    case default
-         call stop_prep('*prep* ERROR(009) - IDENT LANGUAGE UNKNOWN:'//trim(G_SOURCE))
+         call stop_prep(009,'language unknown for',' $IDENT'//trim(G_SOURCE))
    end select
 
 end subroutine ident
@@ -538,11 +541,11 @@ logical                      :: lout
       & .and. verify(name,allowed) == 0     &
       & .and. len(name) <= 63
    else
-      call stop_prep("*check_name* ERROR(010) - null variable name:"//trim(G_source))
+      call stop_prep(010,"null variable name:",trim(G_source))
       lout = .false.
    endif
    if(.not.lout)then
-     call stop_prep('*check_name* ERROR(011) - name contains unallowed character(or general syntax error):'//trim(G_source))
+     call stop_prep(011,'name contains unallowed character(or general syntax error):',trim(G_source))
    endif
 end subroutine check_name
 !===================================================================================================================================
@@ -558,7 +561,7 @@ integer                      :: ibug
    ! REMOVE VARIABLE IF FOUND IN VARIABLE NAME DICTIONARY
    ! allow basic globbing where * is any string and ? is any character
    if (len_trim(opts).eq.0) then                           ! if no variable name
-      call stop_prep('*prep* ERROR(012) - $UNSET MISSING TARGETS:'//trim(G_source))
+      call stop_prep(012,'missing targets for ',' $UNSET:'//trim(G_source))
    endif
    call split(opts,names,delimiters=' ;,')
 
@@ -593,7 +596,7 @@ character(len=G_line_length) :: expression
 
    G_nestl=G_nestl+1                                          ! increment IF nest level
    if (G_nestl.gt.G_nestl_max) then
-      call stop_prep('*prep* ERROR(013) - "IF" BLOCK NESTING TOO DEEP, LIMITED TO '//v2s(G_nestl_max)//' LEVELS:'//trim(G_source))
+      call stop_prep(013,'"$IF" block nesting too deep, limited to '//v2s(G_nestl_max)//' levels,',trim(G_source))
    endif
 
    expression=opts
@@ -612,7 +615,7 @@ character(len=G_line_length) :: expression
       read(value,'(l7)',iostat=ios)G_dc
    else
       G_dc=.false.
-      call stop_prep('*prep* ERROR(014) - "IF" expression invalid:'//trim(G_source))
+      call stop_prep(014,'"$IF" expression invalid:',trim(G_source))
    endif
 
    if (.not.G_dc.or..not.G_condop(G_nestl-1).or.eb)then
@@ -640,7 +643,7 @@ character(len=:),allocatable :: varvalue
    G_write=.false.
    G_nestl=G_nestl+1                                 ! increment IF nest level
    if (G_nestl.gt.G_nestl_max) then
-      call stop_prep('*prep* ERROR(015) - "IF" BLOCK NESTING TOO DEEP, LIMITED TO '//v2s(G_nestl_max)//' LEVELS:'//trim(G_source))
+      call stop_prep(015,'block nesting too deep, limited to '//v2s(G_nestl_max)//' levels in:',' $IF'//trim(G_source))
    endif
    call check_name(opts)                             ! check that opts contains only a legitimate variable name
    value=opts                                        ! set VALUE to variable name
@@ -685,7 +688,7 @@ integer                       :: ithen
    endif
 
    if(noelse.eq.1.or.G_nestl.eq.0) then                    ! test for else instead of elseif
-      call stop_prep("*prep* ERROR(016) - MISPLACED $ELSE OR $ELSEIF DIRECTIVE:"//trim(G_SOURCE))
+      call stop_prep(016,'misplaced $ELSE or $ELSEIF directive:',trim(G_SOURCE))
       return
    endif
    if(verb.eq.'ELSE')then
@@ -720,7 +723,7 @@ logical,intent(out)           :: eb
    G_nestl=G_nestl-1                                           ! decrease if level
 
    if(G_nestl.lt.0)then
-      call stop_prep("*prep* ERROR(017) - MISPLACED $ENDIF DIRECTIVE:"//trim(G_source))
+      call stop_prep(017,"misplaced $ENDIF directive:",trim(G_source))
    endif
 
    noelse=0                                                    ! reset else level
@@ -758,11 +761,11 @@ integer                                 :: ios               ! error code return
       value=table%get(substring)
 
       if (value.eq.'') then                                  ! if not a defined variable name stop program
-         call stop_prep('*prep* ERROR(018) - UNDEFINED VARIABLE. DIRECTIVE='//trim(G_source)//' VARIABLE='//trim(substring))
+         call stop_prep(018,'undefined variable.',' DIRECTIVE='//trim(G_source)//' VARIABLE='//trim(substring))
       else
          read(value,'(l4)',iostat=ios) true_or_false         ! try to read a logical from the value for the variable name
          if(ios.ne.0)then                                    ! not successful in reading string as a logical value
-            call stop_prep('*prep* ERROR(019) - CONSTANT LOGICAL EXPRESSION REQUIRED.'//trim(G_source))
+            call stop_prep(019,'constant logical expression required.',trim(G_source))
          endif
       endif
 
@@ -876,10 +879,10 @@ character(len=:),allocatable :: name
          G_scratch_file=trim(uniq(get_tmp()//'prep_scratch.'))  !! THIS HAS TO BE A UNIQUE NAME -- IMPROVE THIS
          G_scratch_lun=fileopen(G_scratch_file,'rw',ierr)
          if(ierr.lt.0)then
-            call stop_prep('*prep* ERROR(020) - FILTER COMMAND FAILED TO OPEN PROCESS:'//trim(G_SOURCE))
+            call stop_prep(020,'filter command failed to open process:',trim(G_SOURCE))
          endif
       else
-         call stop_prep('*prep* ERROR(021) - FILTER COMMAND BLOCK ENCOUNTERED BUT SYSTEM COMMANDS NOT ENABLED:'//trim(G_SOURCE))
+         call stop_prep(021,'filter command $BLOCK encountered but system commands not enabled:',trim(G_SOURCE))
       endif
 
    case('VARIABLE')
@@ -936,9 +939,9 @@ character(len=:),allocatable :: name
       G_outtype='asis'
    case default
       if(size(unnamed).gt.0)then
-         call stop_prep('*prep* ERROR(022) - UNEXPECTED "BLOCK" OPTION. FOUND:'//trim(unnamed(1))//' IN '//trim(G_source) )
+         call stop_prep(022,'unexpected "BLOCK" option. found:"',trim(unnamed(1))//'" in '//trim(G_source) )
       else
-         call stop_prep('*prep* ERROR(022) - UNEXPECTED "BLOCK" OPTION. FOUND:'//' '//' IN '//trim(G_source) )
+         call stop_prep(022,'unexpected "BLOCK" option. found:"',' " in '//trim(G_source) )
       endif
    end select
 
@@ -970,7 +973,7 @@ integer                      :: ios,iend,lun
       open(newunit=lun,file=filename,iostat=ios,action='write',position=G_MAN_FILE_POSITION)
 
       if(ios.ne.0)then
-         call stop_prep('*prep* ERROR(023) - FAILED TO OPEN DOCUMENT OUTPUT FILE:'//trim(filename))
+         call stop_prep(023,'failed to open document output file:',trim(filename))
       else
          if(len(G_MAN).gt.1)then                   ! the way the string is built it starts with a newline
             write(lun,'(a)',iostat=ios) G_MAN(2:)
@@ -979,7 +982,7 @@ integer                      :: ios,iend,lun
          endif
          if(ios.ne.0)then
             call write_err('G_MAN='//G_MAN)
-            call stop_prep('*prep* ERROR(024) - FAILED TO WRITE OUTPUT FILE:'//trim(filename))
+            call stop_prep(024,'failed to write output file:',trim(filename))
          endif
       endif
 
@@ -1092,7 +1095,7 @@ integer                        :: i
          exit ALL
       endblock WRITEIT
       call write_err('G_MAN='//G_MAN)
-      call stop_prep('*prep* ERROR(025) - FAILED TO WRITE COMMENT BLOCK')
+      call stop_prep(025,'failed to write comment block','')
    endblock ALL
 end subroutine format_g_man
 !===================================================================================================================================
@@ -1229,12 +1232,12 @@ integer                                  :: iend
    if(ios.ne.0)then
       call show_state(msg='OPEN IN INCLUDE')
       call write_err(message)
-      call stop_prep("*prep* ERROR(026) - FAILED OPEN OF INPUT FILE("//v2s(iunit)//"):"//trim(line_unquoted))
+      call stop_prep(026,'failed open of input file(',v2s(iunit)//"):"//trim(line_unquoted))
    else
       rewind(unit=iunit)
       G_iocount=G_iocount+1
       if(G_iocount.gt.size(G_file_dictionary))then
-         call stop_prep('*prep* ERROR(027) - INPUT FILE NESTING TOO DEEP:'//trim(G_source))
+         call stop_prep(027,'input file nesting too deep:',trim(G_source))
       endif
       G_file_dictionary(G_iocount)%unit_number=iunit
       G_file_dictionary(G_iocount)%filename=line_unquoted
@@ -1275,7 +1278,7 @@ integer                         :: iend_dir
       filename=trim(line)
    endif
 
-   call stop_prep("*prep* ERROR(031) - MISSING INPUT FILE:"//trim(filename))
+   call stop_prep(031,'missing input file:',trim(filename))
 
 end subroutine findit
 !===================================================================================================================================
@@ -1296,9 +1299,17 @@ integer                               :: i, ii
 integer                               :: ivalue
 character(len=G_line_length)          :: dir                        ! directory used by an input file
 
-   in_filename2(:G_line_length)  = SGET('i')                   ! get values from command line
-   if(in_filename2.eq.'')then                                       ! read stdin if no -i on command line
-      in_filename2  = '@'
+   if(.not.G_cpp)then
+      in_filename2(:G_line_length)  = sget('i')                     ! get values from command line
+      if(in_filename2.eq.'')then                                    ! read stdin if no -i on command line
+         in_filename2  = '@'
+      endif
+   else
+      if(size(unnamed).gt.0)then
+         in_filename2  = unnamed(1)
+      else
+         in_filename2  = '@'
+      endif
    endif
 
    ! break command argument "i" into single words
@@ -1359,9 +1370,12 @@ character(len=:),allocatable          :: in_define2              ! variable defi
 integer                               :: i
 
    in_define2=''
-   do i=1,size(unnamed)
-      in_define2=in_define2//' '//unnamed(i)
-   enddo
+
+   if(.not.G_cpp)then
+      do i=1,size(unnamed)
+         in_define2=in_define2//' '//unnamed(i)
+      enddo
+   endif
 
    ! break command argument prep_oo into single words
    call delim(adjustl(trim(in_define2))//' '//trim(SGET('D')),array,n,icount,ibegin,iterm,ilength,dlim)
@@ -1384,7 +1398,7 @@ integer                      :: k
    ! REMOVE VARIABLE IF FOUND IN VARIABLE NAME DICTIONARY
    ! allow basic globbing where * is any string and ? is any character
    if (len_trim(opts).eq.0) then                           ! if no variable name
-      call stop_prep('*prep* ERROR(032) - $UNDEFINE MISSING TARGETS:'//trim(G_source))
+      call stop_prep(032,'missing targets in',' $UNDEFINE:'//trim(G_source))
    endif
    call split(opts,names,delimiters=' ;,')
 
@@ -1411,7 +1425,7 @@ integer                      :: iend
 
 ! CHECK COMMAND SYNTAX
    if(opts.eq.'')then
-      call stop_prep('',stop_value=1)
+      call stop_prep(000,'','',stop_value=1)
    else
       iend=index(opts,' ')
       if(iend.eq.0)then
@@ -1428,8 +1442,7 @@ integer                      :: iend
       if(ivalue.eq.0)then
          if(.not.G_debug)stop
       elseif(message.eq.'')then
-         call stop_prep('',stop_value=ivalue)
-         !call stop_prep('*prep* ERROR(050) - UNEXPECTED "STOP" VALUE='//trim(opts)//'. FROM:'//trim(G_source))
+         call stop_prep(000,'','',stop_value=ivalue) ! UNEXPECTED "STOP" VALUE
       else
          if(.not.G_debug)stop ivalue
       endif
@@ -1439,17 +1452,79 @@ end subroutine stop
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine stop_prep(message,stop_value)                   !@(#)stop_prep(3f): write MESSAGE to stderr and exit program
+subroutine stop_prep(errnum,translate,message,stop_value) !@(#)stop_prep(3f): write MESSAGE to stderr and exit program
+integer,intent(in)           :: errnum 
+character(len=*),intent(in)  :: translate
 character(len=*),intent(in)  :: message
+character(len=1024)          :: toscreen
+character(len=:),allocatable :: translated
 integer,optional :: stop_value
 integer :: stop_value_local
    stop_value_local=1
    if( present(stop_value) )stop_value_local=stop_value
-   !call write_err(message)
    call write_err(trim(G_SOURCE))
-   call show_state(msg=message)
+   select case(G_lang)
+   case('en')
+    translated=en(errnum,translate)
+   case default
+    translated=trim(translate)
+   end select
+   write(toscreen,'("*prep* ERROR(",i3.3,") - ",a,1x,a)')errnum,translated,message
+   call show_state(msg=trim(toscreen))
    if(.not.G_debug)stop stop_value_local
+
 end subroutine stop_prep
+!===================================================================================================================================
+! skeleton for supporting alternate languages
+function en(errnum,translate) result(english)
+integer,intent(in)           :: errnum
+character(len=*),intent(in)  :: translate
+character(len=:),allocatable :: english
+select case(errnum)
+case(000);english=''
+case(001);english='expression invalid:'
+case(002);english='unknown compiler directive:'
+case(003);english='system command failed:'
+case(004);english='system directive encountered but not enabled:'
+case(005);english='expression invalid:'
+case(006);english='failed to open output file:'
+case(007);english='failed to open parcel scratch file:'
+case(028);english='parcel name not defined for'
+case(029);english='error rewinding'
+case(030);english='input file nesting too deep:'
+case(008);english='description too long:'
+case(009);english='language unknown for'
+case(010);english='null variable name:'
+case(011);english='name contains unallowed character(or general syntax error):'
+case(012);english='missing targets for '
+case(013);english='"IF" block nesting too deep, limited to '//v2s(G_nestl_max)//' levels,'
+case(014);english='"IF" expression invalid:'
+case(015);english='block nesting too deep, limited to '//v2s(G_nestl_max)//' levels in:'
+case(016);english='misplaced $ELSE or $ELSEIF directive:'
+case(017);english='misplaced $ENDIF directive:'
+case(018);english='undefined variable.'
+case(019);english='constant logical expression required.'
+case(020);english='filter command failed to open process:'
+case(021);english='filter command $BLOCK encountered but system commands not enabled:'
+case(022);english='unexpected "BLOCK" option. found:'
+case(023);english='failed to open document output file:'
+case(024);english='failed to write output file:'
+case(025);english='failed to write comment block'
+case(026);english='failed open of input file('
+case(027);english='input file nesting too deep:'
+case(031);english='missing input file:'
+case(032);english='missing targets in'
+case(033);english='failed to write to process:'
+case(034);english='unexpected "BLOCK" value. Found:'
+case(035);english='unexpected "BLOCK" value. Found:'
+case(036);english='expression invalid:'
+case(037);english='incomplete set:'
+case(038);english='expression invalid:'
+case(039);english='failed to open output file:'
+case(040);english='block not closed in'
+case default; english=trim(translate)
+end select
+end function en
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
@@ -1493,7 +1568,14 @@ help_text=[ CHARACTER(LEN=128) :: &
 '        [--ident]                                                               ',&
 '        [--verbose]                                                             ',&
 '        [--version]                                                             ',&
-'        [--help]                                                                ',&
+'                                                                                ',&
+'   IMPORTANT                                                                    ',&
+'   For compatibility with other utilities where cpp(1)-like syntax is required  ',&
+'   if -i is not specified and the unnamed parameters are less than three the    ',&
+'   unnamed parameters are assumed to be the input file and optional output      ',&
+'   file instead of macro definitions if the first parameter matches an existing ',&
+'   filename.                                                                    ',&
+'                                                                                ',&
 'DESCRIPTION                                                                     ',&
 '                                                                                ',&
 '   prep(1) is a Fortran source preprocessor.                                    ',&
@@ -1518,7 +1600,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '     expansion, allowing for basic templating (controlled by directives         ',&
 '     $PARCEL/$ENDPARCEL and $POST). The mechanism supported is to replace       ',&
 '     text of the form ${NAME} with user-supplied strings similar to the         ',&
-'     POSIX shell (controlled by directives $SET, $USET and $IMPORT).            ',&
+'     POSIX shell (controlled by directives $SET, $UNSET and $IMPORT).           ',&
 '                                                                                ',&
 '   * Filter blocks of text and convert them to comments, a CHARACTER array,     ',&
 '     Fortran WRITE statements, ... (provided by the $BLOCK directive.)          ',&
@@ -2398,7 +2480,7 @@ character(len=G_var_len)       :: value
    case('system')
       write(G_scratch_lun,'(a)',iostat=ios,iomsg=message)trim(line)
       if(ios.lt.0)then
-         call stop_prep('*prep* ERROR(033) - FAILED TO WRITE TO PROCESS:'//trim(line)//':'//trim(message))
+         call stop_prep(033,'failed to write to process:',trim(line)//':'//trim(message))
       endif
 
    case('variable')
@@ -2432,12 +2514,12 @@ character(len=G_var_len)       :: value
       write(G_iout,'(a)')trim(line(:min(len(line),G_iwidth)))
 
    case default
-      call stop_prep('*prep* ERROR(034) - UNEXPECTED "BLOCK" VALUE. FOUND:'//trim(G_source))
-      call stop_prep('*prep* ERROR(035) - UNEXPECTED "BLOCK" VALUE. FOUND:'//trim(G_outtype))
+      call stop_prep(034,'unexpected "BLOCK" value. Found:',trim(G_source))
+      call stop_prep(035,'unexpected "BLOCK" value. Found:',trim(G_outtype))
 
    end select
 
-   if(ierr.ne.0) call stop_prep('*prep* ERROR(036) - expression invalid:'//trim(G_source))
+   if(ierr.ne.0) call stop_prep(036,'expression invalid:',trim(G_source))
 
    if(G_MAN_COLLECT)then
       G_MAN=G_MAN//new_line('N')//trim(line)
@@ -2506,7 +2588,7 @@ integer                      :: iend
     else
     endif
   else
-       call stop_prep('*prep* ERROR(037) - INCOMPLETE SET:'//trim(G_SOURCE))
+       call stop_prep(037,'incomplete set:',trim(G_SOURCE))
   endif
 
 end subroutine set
@@ -2657,7 +2739,7 @@ integer                      :: ierr
 character(len=G_line_length) :: expression
 expression=upper(opts)
 call expr(expression,value,ierr,def=.true.)
-if(ierr.ne.0) call stop_prep('*prep* ERROR(038) - expression invalid:'//trim(G_source))
+if(ierr.ne.0) call stop_prep(038,'expression invalid:',trim(G_source))
 end subroutine put
 end module M_prep
 !===================================================================================================================================
@@ -2701,14 +2783,31 @@ logical                      :: isscratch
    & --width 1024        &
    & --start " "         &
    & --stop " "          &
+   & --special .false.   &
    & --type auto         &
+   & --lang "'//get_env('PREP_LANGUAGE','en')//'" &
    & '
    ! allow formatting comments for particular post-processors
    G_comment='! '
    !JSUkracken_comment=G_comment
    call setup(help_text,version_text)
    call set_args(cmd,help_text,version_text)                ! define command arguments, default values and crack command line
-
+!  cpp>=========================================================================
+   ! decide whether to act like cpp or not
+   if(specified('i').or.size(unnamed).gt.2)then
+      G_cpp=.false.
+   else
+      if(size(unnamed).gt.0)then
+         if(exists(unnamed(1)))then
+            G_cpp=.true.
+         else
+            G_cpp=.false.
+         endif
+      else
+         G_cpp=.true.
+      endif
+   endif
+!  cpp<=========================================================================
    string=adjustl(trim(SGET('prefix')))
    if ( all( isdigit(switch(string)) ) ) then               ! if all characters are numeric digits
       prefix = char(iget('prefix'))                         ! assume this is an ADE
@@ -2718,13 +2817,18 @@ logical                      :: isscratch
 
    G_inc_files=' '
 
-   out_filename(:G_line_length) = SGET('o')
-
+   G_lang=sget('lang')                                      ! preferred message language
    G_ident=lget('ident')                                    ! write IDENT as comment or CHARACTER variable
    G_iwidth                   = iget('width')
    G_iwidth=max(0,G_iwidth)
    letterd(1:1)               = trim(SGET('d'))
    G_noenv                    = lget('noenv')
+
+   out_filename(:G_line_length) = SGET('o')
+
+   if(G_cpp .and. out_filename == '' )then
+      if(size(unnamed).eq.2) out_filename=unnamed(2)
+   endif
 
    if(out_filename.eq.'')then                                    ! open output file
       G_iout=stdout
@@ -2736,7 +2840,7 @@ logical                      :: isscratch
       G_IHELP=60
       open(unit=60,file=out_filename,iostat=ios,action='write')
       if(ios.ne.0)then
-         call stop_prep('*prep* ERROR(039) - FAILED TO OPEN OUTPUT FILE:'//trim(out_filename))
+         call stop_prep(039,'failed to open output file:',trim(out_filename))
       endif
    endif
    G_iout_init=G_iout
@@ -2792,9 +2896,13 @@ logical                      :: isscratch
    if(G_extract_start.ne.''.or.G_extract_stop.ne.'')G_extract=.true.
 
    call get_os_type()
+!cpp>==============================================================================
    call defines()                                          ! define named variables declared on the command line
+!<cpp==============================================================================
    call includes()                                         ! define include directories supplies on command line
+!cpp>==============================================================================
    call opens()                                            ! convert input filenames into $include directives
+!<cpp==============================================================================
    call auto()
 
    READLINE: do                                            ! read loop to read input file
@@ -2869,7 +2977,7 @@ logical                      :: isscratch
    enddo READLINE
 
    if (G_nestl.ne.0) then                                           ! check to make sure all if blocks are closed
-      call stop_prep('*prep* ERROR(040) - $IF BLOCK NOT CLOSED.')
+      call stop_prep(040,'block not closed in',' $IF')
    endif
    call print_comment_block()
 
@@ -2899,6 +3007,14 @@ subroutine auto()
    endif
 end subroutine auto
 
+logical function exists(filename) result(r)
+character(len=*), intent(in) :: filename
+    inquire(file=filename, exist=r)
+end function
+
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!===================================================================================================================================
 end program prep
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
