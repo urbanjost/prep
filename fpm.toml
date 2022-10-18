@@ -36,7 +36,7 @@ main="prep.f90"
 
 [dependencies.M_CLI2]
 git = "https://github.com/urbanjost/M_CLI2.git"
-rev = "1b1dc5a9829aea58159ecc2039801bafe680b5e6"
+#rev = "7f8fbe7689db1aa0c7165054afc44eaedd299cf1"
 [dependencies.M_io]
 git = "https://github.com/urbanjost/M_io.git"
 rev = "0745b1ed0ec5c7f7b84967b5ca7e84832ce2baba"
