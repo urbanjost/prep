@@ -147,6 +147,19 @@ or
    # if you placed the program in a directory in your command path you are ready to go!
    prep --help
 ```
+## Without intermediate files
+
+  Normally, you would run prep to make your standard source file, like a *.f90 file.
+  Mileage may vary, but for some common Fortran compilers you can directly compile
+  your files; at least in simple cases. 
+```bash
+  prep $FILE.FF |gfortran -x f95 -  # free-format Fortran
+  prep $FILE.FF |gfortran -x f77 -  # fixed-format Fortran
+  ifort -fpp-name='prep' $FILE.F90
+```
+  Preprocessing is not standardized, so creating .f90 and .f files is probably far
+  more reliable.
+
 ## Homepage
 https://github.com/urbanjost/prep.git
 
