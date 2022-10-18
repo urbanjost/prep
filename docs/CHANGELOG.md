@@ -20,6 +20,22 @@ new features, changes, and relevant notifications.
   - [ ] registered in fpm(1) repository
 
 ---
+**2022-10-17**  John S. Urban <https://github.com/urbanjost>
+
+### :orange_circle: DIFF:
+  +  If less than three macro definitions are specified and the first one is
+     an existing filename and the -i option is not specified a cpp(1)-like
+     syntax
+```text
+          cpp -D A -D B -D C .... infile [outfile]
+```
+     is used, instead of
+```text
+          cpp A B C .... -i infile [ -o outfile]
+```
+     because so many products except that because cpp(1) is so common.
+    
+---
 **2022-08-14**  John S. Urban <https://github.com/urbanjost>
 
 ### :orange_circle: DIFF:

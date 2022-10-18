@@ -36,7 +36,7 @@
 module M_prep                                                             !@(#)M_prep(3f): module used by prep program
 USE ISO_FORTRAN_ENV, ONLY : STDERR=>ERROR_UNIT, STDOUT=>OUTPUT_UNIT,STDIN=>INPUT_UNIT
 use M_io,        only : get_tmp, dirname, uniq, fileopen, filedelete, get_env       ! Fortran file I/O routines
-use M_CLI2,      only : set_args, SGET, lget, unnamed !,print_dictionary, specified ! load command argument parsing module
+use M_CLI2,      only : set_args, SGET, lget, unnamed, specified !,print_dictionary ! load command argument parsing module
 use M_strings,   only : nospace, v2s, substitute, upper, lower, isalpha, split, delim, str_replace=>replace, sep, atleast, unquote
 use M_strings,   only : glob
 use M_list,      only : dictionary
@@ -120,6 +120,8 @@ logical,save                         :: G_extract_flag=.false.
 character(len=:),allocatable,save    :: G_cmd
 character(len=:),allocatable,save    :: G_file
 character(len=:),allocatable,save    :: G_lang
+
+logical                              :: G_cpp
 
 contains
 !===================================================================================================================================
@@ -1297,9 +1299,17 @@ integer                               :: i, ii
 integer                               :: ivalue
 character(len=G_line_length)          :: dir                        ! directory used by an input file
 
-   in_filename2(:G_line_length)  = SGET('i')                   ! get values from command line
-   if(in_filename2.eq.'')then                                       ! read stdin if no -i on command line
-      in_filename2  = '@'
+   if(.not.G_cpp)then
+      in_filename2(:G_line_length)  = sget('i')                     ! get values from command line
+      if(in_filename2.eq.'')then                                    ! read stdin if no -i on command line
+         in_filename2  = '@'
+      endif
+   else
+      if(size(unnamed).gt.0)then
+         in_filename2  = unnamed(1)
+      else
+         in_filename2  = '@'
+      endif
    endif
 
    ! break command argument "i" into single words
@@ -1360,9 +1370,12 @@ character(len=:),allocatable          :: in_define2              ! variable defi
 integer                               :: i
 
    in_define2=''
-   do i=1,size(unnamed)
-      in_define2=in_define2//' '//unnamed(i)
-   enddo
+
+   if(.not.G_cpp)then
+      do i=1,size(unnamed)
+         in_define2=in_define2//' '//unnamed(i)
+      enddo
+   endif
 
    ! break command argument prep_oo into single words
    call delim(adjustl(trim(in_define2))//' '//trim(SGET('D')),array,n,icount,ibegin,iterm,ilength,dlim)
@@ -1555,7 +1568,14 @@ help_text=[ CHARACTER(LEN=128) :: &
 '        [--ident]                                                               ',&
 '        [--verbose]                                                             ',&
 '        [--version]                                                             ',&
-'        [--help]                                                                ',&
+'                                                                                ',&
+'   IMPORTANT                                                                    ',&
+'   For compatibility with other utilities where cpp(1)-like syntax is required  ',&
+'   if -i is not specified and the unnamed parameters are less than three the    ',&
+'   unnamed parameters are assumed to be the input file and optional output      ',&
+'   file instead of macro definitions if the first parameter matches an existing ',&
+'   filename.                                                                    ',&
+'                                                                                ',&
 'DESCRIPTION                                                                     ',&
 '                                                                                ',&
 '   prep(1) is a Fortran source preprocessor.                                    ',&
@@ -2763,6 +2783,7 @@ logical                      :: isscratch
    & --width 1024        &
    & --start " "         &
    & --stop " "          &
+   & --special .false.   &
    & --type auto         &
    & --lang "'//get_env('PREP_LANGUAGE','en')//'" &
    & '
@@ -2771,7 +2792,22 @@ logical                      :: isscratch
    !JSUkracken_comment=G_comment
    call setup(help_text,version_text)
    call set_args(cmd,help_text,version_text)                ! define command arguments, default values and crack command line
-
+!  cpp>=========================================================================
+   ! decide whether to act like cpp or not
+   if(specified('i').or.size(unnamed).gt.2)then
+      G_cpp=.false.
+   else
+      if(size(unnamed).gt.0)then
+         if(exists(unnamed(1)))then
+            G_cpp=.true.
+         else
+            G_cpp=.false.
+         endif
+      else
+         G_cpp=.true.
+      endif
+   endif
+!  cpp<=========================================================================
    string=adjustl(trim(SGET('prefix')))
    if ( all( isdigit(switch(string)) ) ) then               ! if all characters are numeric digits
       prefix = char(iget('prefix'))                         ! assume this is an ADE
@@ -2781,14 +2817,18 @@ logical                      :: isscratch
 
    G_inc_files=' '
 
-   out_filename(:G_line_length) = SGET('o')
-
    G_lang=sget('lang')                                      ! preferred message language
    G_ident=lget('ident')                                    ! write IDENT as comment or CHARACTER variable
    G_iwidth                   = iget('width')
    G_iwidth=max(0,G_iwidth)
    letterd(1:1)               = trim(SGET('d'))
    G_noenv                    = lget('noenv')
+
+   out_filename(:G_line_length) = SGET('o')
+
+   if(G_cpp .and. out_filename == '' )then
+      if(size(unnamed).eq.2) out_filename=unnamed(2)
+   endif
 
    if(out_filename.eq.'')then                                    ! open output file
       G_iout=stdout
@@ -2856,9 +2896,13 @@ logical                      :: isscratch
    if(G_extract_start.ne.''.or.G_extract_stop.ne.'')G_extract=.true.
 
    call get_os_type()
+!cpp>==============================================================================
    call defines()                                          ! define named variables declared on the command line
+!<cpp==============================================================================
    call includes()                                         ! define include directories supplies on command line
+!cpp>==============================================================================
    call opens()                                            ! convert input filenames into $include directives
+!<cpp==============================================================================
    call auto()
 
    READLINE: do                                            ! read loop to read input file
@@ -2963,6 +3007,14 @@ subroutine auto()
    endif
 end subroutine auto
 
+logical function exists(filename) result(r)
+character(len=*), intent(in) :: filename
+    inquire(file=filename, exist=r)
+end function
+
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!===================================================================================================================================
 end program prep
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!

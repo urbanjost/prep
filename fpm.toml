@@ -12,6 +12,22 @@ homepage = "https://github.com/urbanjost"
 
 #[library]
 #source-dir="src"
+#
+# To use multiple preprocessors, for example cpp and fypp, specify them like this:
+[preprocess]
+# Preprocessor macros can be defined like this:
+#macros = ["FOO", "BAR", "FOOBAR=2"]
+# We can also reuse values like version number from manifest as a value for a macro.
+# version = "1"
+# macros=["VERSION={version}"]
+[preprocess.cpp]
+# You can also specify source file suffixes that the preprocessor should run on:
+suffixes = ["F90"]
+# [preprocess.fypp]
+[preprocess.prep]
+suffixes = ["FF", "ff"]
+# Further, you can instruct the preprocessor to run on source files in specific directories:
+#directories = ["src/feature1", "src/models"]
 
 [[executable]]
 name="prep"
