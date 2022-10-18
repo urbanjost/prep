@@ -249,13 +249,20 @@ call teardown('BLOCK')
 
 end subroutine block
 !===============================================================================
-subroutine teardown(name)
+subroutine teardown(name,expected_exitstat)
 character(len=*),intent(in) :: name
-character(len=1)            :: paws
-integer :: iostat
+integer,optional    :: expected_exitstat
+character(len=1)    :: paws
+integer             :: iostat
 character(len=256)  :: cmdmsg
 integer             :: exitstat
 integer             :: cmdstat
+integer             :: estat
+   if(present(expected_exitstat))then
+      estat=expected_exitstat
+   else
+      estat=0
+   endif
    ierr=filewrite('_scratch.txt',data,status='replace')
    !call execute_command_line ('fpm run prep -- --verbose --debug -i _scratch.txt -o _out.txt')
    exitstat=0
@@ -266,7 +273,7 @@ integer             :: cmdstat
    if(cmdstat.ne.0)write(stderr,*)trim(cmdmsg)
    call gulp('_out.txt',result)
    CHECK : block
-      if(size(expected).eq.size(result))then
+      if(size(expected).eq.size(result).and.exitstat.eq.estat)then
          if( all(expected.eq.result) )then
             write(*,'("....................",T1,(a,T21,a))')trim(upper(name)),'PASSED'
             tally=[tally,.true.]
@@ -703,7 +710,7 @@ data=[ character(len=132) :: &
 expected=[ character(len=132) :: &
 'PRINT THIS']
 
-call teardown('stop')
+call teardown('stop',1)
 
 end subroutine stop
 !===============================================================================
