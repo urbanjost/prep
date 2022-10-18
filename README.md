@@ -149,14 +149,16 @@ or
 ```
 ## Without intermediate files
 
-  Normally, you would run prep to make your standard source file, like a *.f90 file.
+  Normally, you would run prep to make your standard source file, like a \*.f90 file.
   Mileage may vary, but for some common Fortran compilers you can directly compile
   your files; at least in simple cases. 
 ```bash
-  prep $FILE.FF |gfortran -x f95 -  # free-format Fortran
-  prep $FILE.FF |gfortran -x f77 -  # fixed-format Fortran
-  ifort -fpp-name='prep' $FILE.F90
+  prep -i $FILE.FF |gfortran -x f95 -  # free-format Fortran
+  prep -i $FILE.FF |gfortran -x f77 -  # fixed-format Fortran
 ```
+<!--
+  ifort -fpp-name='prep' $FILE.F90
+-->
   Preprocessing is not standardized, so creating .f90 and .f files is probably far
   more reliable.
 
