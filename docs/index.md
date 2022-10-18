@@ -2,7 +2,7 @@
 
 - [man-page](prep.1.html)
 - Ford-generated [developer documentation](fpm-ford/index.html)
-- [github homepage](https://github.com/urbanjost/prep/)
+- [github homepage](https://github.com/urbanjost/prep)
 
 ### There are tons of pre-processors for Fortran. What are the pros and cons of prep(1) over others?
 
