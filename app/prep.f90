@@ -2541,12 +2541,11 @@ end subroutine write_err
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine dissect2(verb,init,pars,error_return) !@(#)dissect2(3f): convenient call to parse() -- define defaults, then process
+subroutine dissect2(verb,init,pars) !@(#)dissect2(3f): convenient call to parse() -- define defaults, then process
 !
 character(len=*),intent(in)  :: verb             ! the name of the command to be reset/defined  and then set
 character(len=*),intent(in)  :: init             ! used to define or reset command options; usually hard-set in the program.
 character(len=*),intent(in)  :: pars             ! defines the command options to be set, usually from a user input file
-integer,intent(out),optional :: error_return
    !call dissect(verb,init,pars,len(pars),error_return)
    call set_args(init,string=pars//'--')
    !call print_dictionary()
