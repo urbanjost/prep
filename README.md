@@ -1,6 +1,6 @@
 #### [fpm-tools](https://github.com/search?q="fpm-tools"%20in:topic%20language:fortran):[prep](https://urbanjost.github.io/prep/prep.1.html)
 
-# ![prep](docs/images/docs.gif)
+# ![prep](docs/images/prep.gif)
 ## prep - A Fortran source code pre-processor written in Fortran
 
 ## Documentation   ![docs](docs/images/docs.gif)
