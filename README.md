@@ -21,6 +21,46 @@ leverage familiarity with Fortran.
 In particular, `prep(1)` allows for maintaining documentation in the body
 of the source code in a variety of formats via the __$BLOCK__ directive.
 
+## Crib Sheet
+```text
+EXPRESSIONS
+  numeric operators are +,-,*,/,**, (). Logical operators are
+   >  | .EQ.| .NE.| .GE.| .GT.| .LE.| .LT.|.NOT.|.AND.| .OR.| .EQV.|.NEQV.|
+   >  |  == |  /= |  >= |  >  |  <= |  <  |  !  |  && |  || |  ==  |  !=  |
+  $DEFINE variable_name[=expression][;...]
+   > Predefined values are "OS", which is set to a guess of the system type, and
+   > UNKNOWN=0 LINUX=1 MACOS=2 WINDOWS=3 CYGWIN=4 SOLARIS=5 FREEBSD=6 OPENBSD=7.
+   > SYSTEMON is .TRUE. if --system is present on the command line, else .FALSE.
+  $UNDEFINE|$UNDEF variable_name[;...]
+CONDITIONAL CODE SELECTION:
+  $IF logical_integer-based_expression| [.NOT.] DEFINED(varname[,...])
+  $IFDEF|$IFNDEF variable_or_envname
+  $ELSEIF|$ELIF logical_integer-based_expression
+  $ELSE
+  $ENDIF
+MACRO STRING EXPANSION AND TEXT REPLAY:
+   > Unless at least one variable name is defined no ${NAME} expansion occurs.
+  $SET varname string
+  $$UNSET variable_name[;...]
+  $IMPORT envname[;...]
+   > $set author  William Shakespeare
+   > $import HOME
+   > write(*,*)'${AUTHOR} ${DATE} ${TIME} File ${FILE} Line ${LINE} HOME ${HOME}
+  $PARCEL blockname ... $ENDPARCEL ! a reuseable parcel of expandable text
+  $POST   blockname(s)  ! insert a defined parcel of text
+EXTERNAL FILES (see $BLOCK ... --file also)
+  $OUTPUT filename [--append]
+  $INCLUDE filename
+TEXT BLOCK FILTERS (--file writes to $PREP_DOCUMENT_DIR/doc/NAME)
+  $BLOCK [comment|null|write|variable [--varname NAME]|set|system|message|
+         define|help|version][--file NAME [--append]] ... $ENDBLOCK
+INFORMATION
+  $MESSAGE message_to_stderr
+  $SHOW [defined_variable_name][;...]
+SYSTEM COMMANDS (see also: $BLOCK SYSTEM)
+  $SYSTEM command
+  $STOP [stop_value[ "message"]] | $QUIT ["message"]| $ERROR ["message"]
+```
 ## Example Showing Templating
 
 The most distinct feature of **prep(1)** compared to basic preprocessors
