@@ -1,6 +1,7 @@
-### [fpm-tools](https://github.com/search?q="fpm-tools"%20in:topic%20language:fortran):[prep](https://urbanjost.github.io/prep/prep.1.html)
+#### [fpm-tools](https://github.com/search?q="fpm-tools"%20in:topic%20language:fortran):[prep](https://urbanjost.github.io/prep/prep.1.html)
 
-## A Fortran source code pre-processor written in Fortran
+# ![prep](docs/images/docs.gif)
+## prep - A Fortran source code pre-processor written in Fortran
 
 ## Documentation   ![docs](docs/images/docs.gif)
  + [man-pages](https://urbanjost.github.io/prep/prep.1.html) reformatted as HTML.
