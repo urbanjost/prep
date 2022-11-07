@@ -3,14 +3,6 @@
 # ![prep](docs/images/prep.gif)
 ## prep - A Fortran source code pre-processor written in Fortran
 
-## Documentation   ![docs](docs/images/docs.gif)
- + [man-pages](https://urbanjost.github.io/prep/prep.1.html) reformatted as HTML.
- + the [demos/](https://github.com/urbanjost/prep/tree/main/demos/) directory has example input files for a variety of cases
- + The [CHANGELOG](https://github.com/urbanjost/prep/blob/main/docs/CHANGELOG.md)
- + The [CI/CD](https://github.com/urbanjost/prep/blob/main/docs/STATUS.md) results
- + Developer [ford(1) output](https://urbanjost.github.io/prep/fpm-ford/index.html)
- + [Overview](https://urbanjost.github.io/prep)
-
 ## Description
 `prep(1)` is a streamlined pre-processor primarily designed for use with
 Fortran. It does not support procedural macros but does support variable
@@ -163,6 +155,14 @@ or
 -->
   Preprocessing is not standardized, so creating .f90 and .f files is probably far
   more reliable.
+
+## Documentation   ![docs](docs/images/docs.gif)
+ + [man-pages](https://urbanjost.github.io/prep/prep.1.html) reformatted as HTML.
+ + the [demos/](https://github.com/urbanjost/prep/tree/main/demos/) directory has example input files for a variety of cases
+ + The [CHANGELOG](https://github.com/urbanjost/prep/blob/main/docs/CHANGELOG.md)
+ + The [CI/CD](https://github.com/urbanjost/prep/blob/main/docs/STATUS.md) results
+ + Developer [ford(1) output](https://urbanjost.github.io/prep/fpm-ford/index.html)
+ + [Overview](https://urbanjost.github.io/prep)
 
 ## Homepage
 https://github.com/urbanjost/prep.git
