@@ -237,8 +237,8 @@ DIRECTIVES
     > $define A                        ! will have default value of "1"
     > $define B = 10 - 2 * 2**3 / 3    ! integer expressions
     > $define C=1+1; D=(-40)/(-10)
-    > $define bigd= d .ge. a; bigb = ( (b >= c) && (b > 0) )  ! logical
-    > $if ( A + B ) / C .eq. 1
+    > $define bigd= d  >=  a; bigb = ( (b >= c) && (b > 0) )  ! logical
+    > $if ( A + B ) / C  ==  1
     >    (a+b)/c is one
     > $endif
    Note expressions are not case-sensitive.
@@ -742,7 +742,7 @@ EXAMPLES
    >    subroutine sub
    >       print*, "This is the first SUB"
    >    end subroutine sub
-   > $ELSEIF a .eq. 2
+   > $ELSEIF a  ==  2
    >    subroutine sub
    >       print*, "This is the second SUB"
    >    end subroutine sub

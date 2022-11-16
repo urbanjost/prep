@@ -605,7 +605,7 @@ subroutine bounce(varnam,indx,dictionary,ier,mssge)
       integer                                    :: imax
       integer                                    :: i10
 !-----------------------------------------------------------------------------------------------------------------------------------
-      maxtry=int(log(float(IPic))/log(2.0)+1.0)                 ! calculate max number of tries required to find a conforming name
+      maxtry=nint(log(float(IPic))/log(2.0)+1.0)                 ! calculate max number of tries required to find a conforming name
       indx=(IPic+1)/2
       imin=1
       imax=IPic
@@ -15986,7 +15986,7 @@ integer                                 :: error
       maxtry=0
       place=-1
    else
-      maxtry=int(log(float(arraysize))/log(2.0)+1.0)
+      maxtry=nint(log(float(arraysize))/log(2.0)+1.0)
       place=(arraysize+1)/2
    endif
    imin=1
@@ -16066,7 +16066,7 @@ integer                                :: error
       maxtry=0
       place=-1
    else
-      maxtry=int(log(float(arraysize))/log(2.0)+1.0)
+      maxtry=nint(log(float(arraysize))/log(2.0)+1.0)
       place=(arraysize+1)/2
    endif
    imin=1
@@ -16146,7 +16146,7 @@ integer                                :: error
       maxtry=0
       place=-1
    else
-      maxtry=int(log(float(arraysize))/log(2.0)+1.0)
+      maxtry=nint(log(float(arraysize))/log(2.0)+1.0)
       place=(arraysize+1)/2
    endif
    imin=1
@@ -16226,7 +16226,7 @@ integer                                :: error
       maxtry=0
       place=-1
    else
-      maxtry=int(log(float(arraysize))/log(2.0)+1.0)
+      maxtry=nint(log(float(arraysize))/log(2.0)+1.0)
       place=(arraysize+1)/2
    endif
    imin=1
