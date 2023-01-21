@@ -100,16 +100,15 @@ Fortran compiler and WWW access or you will need to compile the single-file
 [bootstrap version](https://raw.githubusercontent.com/urbanjost/prep/main/standalone/prep.f90).
 It was tested with
 
+
    + GNU Fortran (GCC) 8.3.1         on 20191121
    + GNU Fortran 9.3.0               on 20210612
-   + GNU Fortran 10.3.0              on 20220305
+   + GNU Fortran 10.3.0              on 20220804
+   + GNU Fortran 11.1.0              on 20230120
    + ifort (IFORT) 19.1.3.304        on 20200925
    + ifort (IFORT) 2021.3.0 20210609 on 20220305
-   + nvfortran 21.5-0                on 20220329
-
-### V9.0.0
-   + GNU Fortran 10.3.0              on 20220804
    + ifort (IFORT) 2021.3.0 20210609 on 20220804
+   + ifort (IFORT) 2021.8.0 20221119 on 20230120
    + nvfortran 21.5-0                on 20220804
 
 ## Accessing

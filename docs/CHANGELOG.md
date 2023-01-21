@@ -20,6 +20,11 @@ new features, changes, and relevant notifications.
   - [ ] registered in fpm(1) repository
 
 ---
+**2023-01-20**  John S. Urban <https://github.com/urbanjost>
+
+### :green: ADD:
+  + allow for "markdownMML" file suffix, as used by Fortran Wiki.
+---
 **2022-10-17**  John S. Urban <https://github.com/urbanjost>
 
 ### :orange_circle: DIFF:
