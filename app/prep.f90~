@@ -813,7 +813,7 @@ character(len=:),allocatable :: name
    endif
 
    ! parse options on input line
-   call dissect2('block','--file --cmd sh --varname textblock --length 128 --width 0 --style "#N#" --append .false.',opts)
+   call dissect2('block','--file --cmd sh --varname textblock --varlength 128 --style "#N#" --append .false.',opts)
    ! if a previous command has opened a --file FILENAME flush it, because a new one is being opened or this is an END command
    ! and if a --file FILENAME has been selected open it
    call print_comment_block()
@@ -889,8 +889,8 @@ character(len=:),allocatable :: name
 
    case('VARIABLE')
       G_outtype='variable'
-      G_varname_length=iget('length')
-      G_varname_width=iget('width')
+      G_varname_length=iget('varlength')
+      G_varname_width=0
       write(G_iout,'(a,i0,a)')trim(SGET('varname'))//'=[ CHARACTER(LEN=',G_varname_length,') :: &'
       G_MAN_PRINT=.false.
 
