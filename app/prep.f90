@@ -1571,7 +1571,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '        [--comment default|doxygen|ford|none]                                   ',&
 '        [--ident]                                                               ',&
 '        [--verbose]                                                             ',&
-'        [--version]                                                             ',&
+'        [--help| --usage| --crib| --version]                                    ',&
 '                                                                                ',&
 '   IMPORTANT                                                                    ',&
 '   For compatibility with other utilities where cpp(1)-like syntax is required  ',&
@@ -2500,7 +2500,7 @@ character(len=G_var_len)       :: value
       buff=trim(line)                                    ! do not make a line over 132 characters. Trim input line if needed
       buff=buff//repeat(' ',max(linewidth,len(buff)))    ! ensure space in buffer for substitute
       call substitute(buff,"'","''")                     ! change single quotes in input to two adjacent single quotes
-      ilength=max(len_trim(buff),linewidth)              ! make all lines have at least 80 characters for a more legible output
+      ilength=max(80,min(len_trim(buff),linewidth))      ! make all lines have at least 80 characters for a more legible output
       write(G_iout,'("''",a,"'',&")') buff(:ilength)
 
    case('version')                             ! write version information with SCCS ID prefix for use with what(1) command
@@ -2788,7 +2788,6 @@ logical                      :: isscratch
    & --width 1024        &
    & --start " "         &
    & --stop " "          &
-   & --special .false.   &
    & --type auto         &
    & --lang "'//get_env('PREP_LANGUAGE','en')//'" &
    & '

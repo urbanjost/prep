@@ -36,17 +36,17 @@ main="prep.f90"
 
 [dependencies.M_CLI2]
 git = "https://github.com/urbanjost/M_CLI2.git"
-#rev = "7f8fbe7689db1aa0c7165054afc44eaedd299cf1"
-rev = "90a1a146e19c8ad37b0469b8cbd04bc28eb67a50"
+rev = "8bcaa128543a864c9a6f7a1a90140063cb4c6a9a"
 [dependencies.M_io]
 git = "https://github.com/urbanjost/M_io.git"
-rev = "0745b1ed0ec5c7f7b84967b5ca7e84832ce2baba"
+rev = "6016310be982e63244b49ebe407cae063bdf0b0c"
 [dependencies.M_strings]
 git = "https://github.com/urbanjost/M_strings.git"
-rev = "9b9fdb48950e2b6908d66c5b927200b325512f3b"
+rev = "f4d8d0d5501c6e38cc1e13847d7465f32e450ec4"
 [dependencies.M_list]
 git = "https://github.com/urbanjost/M_list.git"
-rev = "95c4ba3f50992d0e82b311ada7d90fbe7f65ffac"
+rev = "9518e2f6c78fa0d7a93023cd3e3e415c87f66b99"
 [dependencies.M_history]
 git = "https://github.com/urbanjost/M_history.git"
-rev = "fc890fe36d5199352b06e3db4305f936c6a5d998"
+rev = "b4957ee7294d9d35a4db7d4c4232664a0c23b7ae"
+
