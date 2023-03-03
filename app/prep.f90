@@ -41,6 +41,8 @@ use M_strings,   only : nospace, v2s, substitute, upper, lower, isalpha, split, 
 use M_strings,   only : glob
 use M_list,      only : dictionary
 use M_expr,      only : expr, get_integer_from_string, table
+use M_match,   only : getpat, match, regex_pattern
+use M_match,   only : YES, ERR
 implicit none
 
 integer,parameter                    :: num=2048                       ! number of named values allowed
@@ -112,6 +114,8 @@ character(len=:),allocatable,public  :: G_comment
 character(len=:),allocatable,save    :: G_scratch_file
 integer,save                         :: G_scratch_lun=-1
 
+type(regex_pattern)                  :: G_pattern_start
+type(regex_pattern)                  :: G_pattern_stop
 character(len=:),allocatable,save    :: G_extract_start
 character(len=:),allocatable,save    :: G_extract_stop
 character(len=:),allocatable,save    :: G_extract_start0
@@ -1675,10 +1679,12 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                    ("md","markdownMML","html","tex") appropriately.            ',&
 '                                                                                ',&
 '   --start STRING   Same as --type except along with --stop allows for custom   ',&
-'                    strings to be specified.                                    ',&
+'                    strings to be specified. The string is a BRE (Basic Regular ',&
+'                    Expression).                                                ',&
 '                                                                                ',&
 '   --stop STRING    Same as --type except along with --start allows for custom  ',&
-'                    strings to be specified.                                    ',&
+'                    strings to be specified. The string is a BRE (Basic Regular ',&
+'                    Expression).                                                ',&
 '                                                                                ',&
 '   --comment        Try to style comments generated in $BLOCK COMMENT blocks    ',&
 '                    for other utilities such as doxygen. Default is to          ',&
@@ -2875,12 +2881,12 @@ logical                      :: isscratch
       G_extract_start='```fortran'
       G_extract_stop='```'
    case('markdownMML','.markdownMML')
-      G_extract_start='~~~~~~~~~~ {: lang=fortran}'
-      G_extract_stop='~~~~~~~~~~' 
+      G_extract_start='^ *~* *{: *lang=fortran *}[ ~]*$'
+      G_extract_stop='^ *~~~~* *$' 
    case('html','.html','htm','.htm')
       ! flaw is HTML is not case sensitive
-      G_extract_start='<xmp>'
-      G_extract_stop='</xmp>'
+      G_extract_start=' *<[xX][mM][pP]>'
+      G_extract_stop=' *</[xX][mM][pP]>'
    case('tex')
       G_extract_start='\begin{minted}{Fortran}'
       G_extract_stop='\end{minted}'
@@ -2900,7 +2906,15 @@ logical                      :: isscratch
       G_extract_start0=G_extract_start
       G_extract_stop0=G_extract_stop
    end select
-   if(G_extract_start /= ''.or.G_extract_stop /= '')G_extract=.true.
+   if(G_extract_start /= ''.or.G_extract_stop /= '')then
+      G_extract=.true.
+      if (getpat(trim(G_extract_start), G_pattern_start%pat) .eq. ERR) then
+         stop '*M_match* Illegal pattern '//G_extract_start
+      endif
+      if (getpat(trim(G_extract_stop), G_pattern_stop%pat) .eq. ERR) then
+         stop '*M_match* Illegal pattern '//G_extract_stop
+      endif
+   endif
 
    call get_os_type()
 !cpp>==============================================================================
@@ -2915,10 +2929,10 @@ logical                      :: isscratch
    READLINE: do                                            ! read loop to read input file
       read(G_file_dictionary(G_iocount)%unit_number,'(a)',end=7) line
       if(G_extract)then                                    ! in extract mode
-         if(line == G_extract_start)then                   ! start extracting
+         if (match(trim(line)//char(10), G_pattern_start%pat) .eq. YES) then ! start extracting
             G_extract_flag=.true.
             cycle READLINE
-         elseif(line == G_extract_stop.and.G_extract_flag)then        ! stop extracting
+         elseif (match(trim(line)//char(10), G_pattern_stop%pat) .eq. YES .and. G_extract_flag) then ! stop extracting
             G_extract_flag=.false.
             cycle READLINE
          elseif(.not.G_extract_flag)then                   ! skip if not extracting
@@ -2997,14 +3011,14 @@ subroutine auto()
          G_extract_start='```fortran'
          G_extract_stop='```'
       case('markdownMML','.markdownMML')
-         G_extract_start='~~~~~~~~~~ {: lang=fortran}'
-         G_extract_stop='~~~~~~~~~~' 
+         G_extract_start='^ *~* *{: *lang=fortran *}[ ~]*$'
+         G_extract_stop='^ *~~~~* *$' 
       case('tex')
          G_extract_start='\begin{minted}{Fortran}'
          G_extract_stop='\end{minted}'
       case('html','.html','htm','.htm')
-         G_extract_start='<xmp>'
-         G_extract_stop='</xmp>'
+         G_extract_start=' *<[xX][mM][pP]>'
+         G_extract_stop=' *</[xX][mM][pP]>'
       case default
          G_extract_start=G_extract_start0
          G_extract_stop=G_extract_stop0
@@ -3013,6 +3027,12 @@ subroutine auto()
          G_extract=.false.
       else
          G_extract=.true.
+         if (getpat(trim(G_extract_start), G_pattern_start%pat) .eq. ERR) then
+            stop '*M_match* Illegal pattern '//G_extract_start
+         endif
+         if (getpat(trim(G_extract_stop), G_pattern_stop%pat) .eq. ERR) then
+            stop '*M_match* Illegal pattern '//G_extract_stop
+         endif
       endif
    endif
 end subroutine auto

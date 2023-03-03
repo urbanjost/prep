@@ -49,4 +49,5 @@ rev = "9518e2f6c78fa0d7a93023cd3e3e415c87f66b99"
 [dependencies.M_history]
 git = "https://github.com/urbanjost/M_history.git"
 rev = "b4957ee7294d9d35a4db7d4c4232664a0c23b7ae"
-
+[dependencies.M_match]
+git = "https://github.com/urbanjost/M_match.git"

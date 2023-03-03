@@ -73,8 +73,8 @@ allocate(tally(0))
 !>>   $SHOW [defined_variable_name][;...]
    call message()
 !>> METADATA
-!>>   $IDENT metadata          
-!>>   $@(#)  metadata          
+!>>   $IDENT metadata
+!>>   $@(#)  metadata
    call ident()
 
 !>>   $STOP [stop_value[ "message"]] | $QUIT ["message"]
@@ -240,7 +240,7 @@ expected=[ character(len=132) :: &
 "character(len=:),allocatable :: HELP_TEXT                                       ", &
 "HELP_TEXT=[ CHARACTER(LEN=128) :: &                                             ", &
 "'  These lines are converted to a declaration of a CHARACTER',&                 ", &
-"'  variable.',&                                                                 ", &
+"'  variable.                                                ',&                 ", &
 "'']                                                                             ", &
 "endblock                                                                        ", &
 'last line                                                                       ']
@@ -463,9 +463,9 @@ expected=[ character(len=132) :: &
 "textblock=[ CHARACTER(LEN=128) :: &",&
 "'',&",&
 "' It is a lot easier to maintain a large amount of',&",&
-"' text as simple lines than to maintain them as',&",&
-"' properly formatted variable definitions',&",&
-"'',&",&
+"' text as simple lines than to maintain them as   ',&",&
+"' properly formatted variable definitions         ',&",&
+"'                                                 ',&",&
 "'']",&
 "last line"]
 
