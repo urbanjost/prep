@@ -1,0 +1,18 @@
+~~~~~ {: lang=fortran }
+! Convert numeric values to strings and vice-versa using internal file IO
+program strnum
+  implicit none
+  character(len=25) :: str
+  real :: num
+
+  ! Convert a numeric value to a string using an internal write
+  num = 3.14
+  write (str, '(g12.5)') num
+  print *, 'str: ', str                           ! str:   3.1400
+
+  ! Convert a string to a numeric value using an internal read
+  str = '17.2'
+  read (str, '(g12.5)') num
+  print *, 'num: ', num                           ! num:   17.20000
+end program strnum
+~~~~~

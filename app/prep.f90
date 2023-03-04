@@ -116,13 +116,13 @@ integer,save                         :: G_scratch_lun=-1
 
 type(regex_pattern)                  :: G_pattern_start
 type(regex_pattern)                  :: G_pattern_stop
+logical,save                         :: G_extract
 character(len=:),allocatable,save    :: G_extract_start
 character(len=:),allocatable,save    :: G_extract_stop
 character(len=:),allocatable,save    :: G_extract_start0
 character(len=:),allocatable,save    :: G_extract_stop0
-logical,save                         :: G_extract=.false.
-logical,save                         :: G_extract_auto=.true.
-logical,save                         :: G_extract_flag=.false.
+logical,save                         :: G_extract_auto
+logical,save                         :: G_extract_writeflag=.false.
 character(len=:),allocatable,save    :: G_cmd
 character(len=:),allocatable,save    :: G_file
 character(len=:),allocatable,save    :: G_lang
@@ -1657,15 +1657,12 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                    specific start string is encountered and to stop once a     ',&
 '                    specific end string is found, left-justified on lines by    ',&
 '                    themselves.                                                 ',&
-'                                                                                ',&
-'                        FileType     Start_String                Stop_String    ',&
-'                        --------     ------------                -----------    ',&
-'                        md           ```fortran                  ```            ',&
-'                        markdownMML  ~~~~~~~~~~ {: lang=fortran} ~~~~~~~~~~     ',&
-'                        html         <xmp>                       </xmp>         ',&
-'                        tex          \begin{minted}{Fortran} \end{minted}       ',&
-'                        auto                                                    ',&
-'                        none                                                    ',&
+'                        FileType     Start_String              Stop_String      ',&
+'                        --------     ------------              -----------      ',&
+'                        md           ```fortran                ```              ',&
+'                        markdownMML  ~~~ {: lang=fortran}      ~~~              ',&
+'                        html         <xmp>                     </xmp>           ',&
+'                        tex          \begin{minted}{Fortran}   \end{minted}     ',&
 '                                                                                ',&
 '                    The default type is "auto", in which case files will be     ',&
 '                    processed according to their file suffix.                   ',&
@@ -2873,39 +2870,45 @@ logical                      :: isscratch
    else
       call put('SYSTEMON=.FALSE.')
    endif
-   !TODO! have an auto mode where start and end are selected based on file suffix
    G_extract_start0=''
    G_extract_stop0=''
-   select case(SGET('type'))
-   case('md','.md')
-      G_extract_start='```fortran'
-      G_extract_stop='```'
-   case('markdownMML','.markdownMML')
-      G_extract_start='^ *~* *{: *lang=fortran *}[ ~]*$'
-      G_extract_stop='^ *~~~~* *$' 
-   case('html','.html','htm','.htm')
-      ! flaw is HTML is not case sensitive
-      G_extract_start=' *<[xX][mM][pP]>'
-      G_extract_stop=' *</[xX][mM][pP]>'
-   case('tex')
-      G_extract_start='\begin{minted}{Fortran}'
-      G_extract_stop='\end{minted}'
-   case('auto')
-      G_extract_start=''
-      G_extract_stop=''
-      G_extract_auto=.true.
-      G_extract=.true.
-   case('none')
-      G_extract_start=''
-      G_extract_stop=''
-      G_extract_auto=.false.
+   if(sget('type').eq.'')then
+      G_extract_auto=.true.  ! auto mode where start and end are selected based on file suffix
       G_extract=.false.
-   case default
+      ! if these are set use them instead of auto mode
       G_extract_start=trim(SGET('start'))
       G_extract_stop=trim(SGET('stop'))
       G_extract_start0=G_extract_start
       G_extract_stop0=G_extract_stop
-   end select
+   else
+      G_extract_auto=.false.
+      G_extract=.true.
+      select case(SGET('type'))
+      case('md','.md')
+         G_extract_start='```fortran'
+         G_extract_stop='```'
+      case('markdownMML','.markdownMML','MML','.MML','mml','.mml')
+         G_extract_start='^ *~~~~* *{: *lang=fortran *}[ ~]*$'
+         G_extract_stop='^ *~~~~* *$' 
+      case('html','.html','htm','.htm')
+         ! flaw is HTML is not case sensitive
+         G_extract_start=' *<[xX][mM][pP]>'
+         G_extract_stop=' *</[xX][mM][pP]>'
+      case('tex')
+         G_extract_start='\begin{minted}{Fortran}'
+         G_extract_stop='\end{minted}'
+      case('auto')
+         G_extract_start=''
+         G_extract_stop=''
+         G_extract_auto=.true.
+      case('none')
+         G_extract_start=''
+         G_extract_stop=''
+         G_extract=.false.
+      case default
+         call stop_prep(100,'unknown type:',sget('type'))
+      end select
+   endif
    if(G_extract_start /= ''.or.G_extract_stop /= '')then
       G_extract=.true.
       if (getpat(trim(G_extract_start), G_pattern_start%pat) .eq. ERR) then
@@ -2924,18 +2927,18 @@ logical                      :: isscratch
 !cpp>==============================================================================
    call opens()                                            ! convert input filenames into $include directives
 !<cpp==============================================================================
-   call auto()
+   if(G_extract) call auto()
 
    READLINE: do                                            ! read loop to read input file
       read(G_file_dictionary(G_iocount)%unit_number,'(a)',end=7) line
       if(G_extract)then                                    ! in extract mode
          if (match(trim(line)//char(10), G_pattern_start%pat) .eq. YES) then ! start extracting
-            G_extract_flag=.true.
+            G_extract_writeflag=.true.
             cycle READLINE
-         elseif (match(trim(line)//char(10), G_pattern_stop%pat) .eq. YES .and. G_extract_flag) then ! stop extracting
-            G_extract_flag=.false.
+         elseif (match(trim(line)//char(10), G_pattern_stop%pat) .eq. YES .and. G_extract_writeflag) then ! stop extracting
+            G_extract_writeflag=.false.
             cycle READLINE
-         elseif(.not.G_extract_flag)then                   ! skip if not extracting
+         elseif(.not.G_extract_writeflag)then                   ! skip if not extracting
             cycle READLINE
          endif
       endif
@@ -3010,9 +3013,11 @@ subroutine auto()
       case('md','.md')
          G_extract_start='```fortran'
          G_extract_stop='```'
-      case('markdownMML','.markdownMML')
-         G_extract_start='^ *~* *{: *lang=fortran *}[ ~]*$'
+      case('markdownMML','.markdownMML','MML','mml')
+         G_extract_start='^ *~~~~* *{: *lang=fortran *}[ ~]*$'
+         !NOT WORKING G_extract_start='^ *[~`][~`][~`][~`]* *{: *lang=fortran *} *[~`]* *'
          G_extract_stop='^ *~~~~* *$' 
+         !NOT WORKING G_extract_stop='^ *[~`][~`][~`][~`]* *$' 
       case('tex')
          G_extract_start='\begin{minted}{Fortran}'
          G_extract_stop='\end{minted}'
