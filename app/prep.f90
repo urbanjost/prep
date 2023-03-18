@@ -957,7 +957,7 @@ character(len=:),allocatable :: name
          call stop_prep('0c5a4a0e-ac8d-4ef4-b160-de2d344398a6',&
                  & 'unexpected "BLOCK" option. found:"',trim(unnamed(1))//'" in '//trim(G_source) )
       else
-         call stop_prep('0c5a4a0e-ac8d-4ef4-b160-de2d344398a6','unexpected "BLOCK" option. found:"',' " in '//trim(G_source) )
+         call stop_prep('fde8fa32-3c90-4cae-8386-cb968877973e','unexpected "BLOCK" option. found:"',' " in '//trim(G_source) )
       endif
    end select
 
@@ -1534,7 +1534,8 @@ case('c759de9e-33a9-41d7-a959-a5ff30e0f0f2');english='undefined variable.'
 case('b56bc1be-7600-4bd5-9fe5-8196b0d9bd7e');english='constant logical expression required.'
 case('dec944d1-ff1f-4ff3-9512-a5801fc5e43b');english='filter command failed to open process:'
 case('b664d76c-4887-4f49-b874-90790ec62746');english='filter command $BLOCK encountered but system commands not enabled:'
-case('0c5a4a0e-ac8d-4ef4-b160-de2d344398a6');english='unexpected "BLOCK" option. found:'
+case('0c5a4a0e-ac8d-4ef4-b160-de2d344398a6');english='unexpected "BLOCK" option. found in '//trim(G_source) 
+case('fde8fa32-3c90-4cae-8386-cb968877973e');english='unexpected "BLOCK" option. found in '//trim(G_source) 
 case('3f6bb821-f10b-4be0-aa4a-46ba6b2a1e48');english='failed to open document output file:'
 case('e9e2c7a9-f3b6-4625-a79c-bb42c5dc798b');english='failed to write output file:'
 case('0a63628d-cd62-4b10-a73b-c9d5f0ed8674');english='failed to write comment block'
@@ -1550,6 +1551,11 @@ case('e1c05d6d-550b-4535-92ec-819453d6c99f');english='incomplete set:'
 case('efbbe046-065d-41ca-acef-115909b11bba');english='expression invalid:'
 case('e1f743a8-b1ad-45e3-943e-3e9e46e7af78');english='failed to open output file:'
 case('6f7e0453-4c1d-4040-9c7d-3adf5112b692');english='block not closed in'
+case('61a446d7-7e3e-418a-a2df-cd50dc89148a');english='unknown type:'//sget('type')
+case('cd883e90-894a-47ec-9c6f-644b99848ca6');english='Illegal stop pattern '//G_extract_stop
+case('f12d13a2-b397-4b59-a857-381994f47bc6');english='Illegal stop pattern '//G_extract_stop
+case('fd4cb3f6-1878-44bc-8ab6-f5ae33ef845e');english='Illegal start pattern '//G_extract_start
+case('098da459-2255-44a1-8cdb-f4c9825488b8');english='Illegal start pattern '//G_extract_start
 case default; english=trim(translate)
 end select
 end function en
@@ -3086,5 +3092,3 @@ end program prep
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-
-
