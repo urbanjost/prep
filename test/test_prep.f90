@@ -710,7 +710,7 @@ data=[ character(len=132) :: &
 expected=[ character(len=132) :: &
 'PRINT THIS']
 
-call teardown('stop',1)
+call teardown('stop',10)
 
 end subroutine stop
 !===============================================================================
