@@ -1,6 +1,6 @@
-program prep                                               !@(#)prep(1f): preprocessor for Fortran/FORTRAN source code
+program prep_exe                                           !@(#)prep(1f): preprocessor for Fortran/FORTRAN source code
 USE M_HISTORY, ONLY : REDO
-use M_expr,    only : expr, G_line_length, G_var_len, G_verbose, G_debug
+use prep,    only : expr, G_line_length, G_var_len, G_verbose, G_debug
 implicit none
 character(len=G_line_length) :: line                       ! working copy of input line
 integer                      :: ios
@@ -44,4 +44,4 @@ integer                     :: ierr
       write(*,*)'VALUE=',trim(value)
    endif
 end subroutine printme
-end program prep
+end program prep_exe 

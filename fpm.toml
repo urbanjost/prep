@@ -1,6 +1,6 @@
 # TOML file for fpm as described at https://fpm.fortran-lang.org/en/spec/manifest.html
 name = "prep"
-version = "9.1.0"
+version = "10.0.0"
 license = "MIT"
 author = "John Urban"
 maintainer = "urbanjost@comcast.net"
@@ -10,46 +10,58 @@ categories = ["preprocessing"]
 keywords = ["preprocessor", "fortran", "fpm", "General Purpose Fortran" ]
 homepage = "https://github.com/urbanjost"
 
+[build]
+   module-naming = true
+
 #[library]
-#source-dir="src"
-#
-# To use multiple preprocessors, for example cpp and fypp, specify them like this:
+   #source-dir="src"
+   #
+   # To use multiple preprocessors, for example cpp and fypp, specify them like this:
 #[preprocess]
-# Preprocessor macros can be defined like this:
-#macros = ["FOO", "BAR", "FOOBAR=2"]
-# We can also reuse values like version number from manifest as a value for a macro.
-# version = "1"
-# macros=["VERSION={version}"]
+   # Preprocessor macros can be defined like this:
+   #macros = ["FOO", "BAR", "FOOBAR=2"]
+   # We can also reuse values like version number from manifest as a value for a macro.
+   # version = "1"
+   # macros=["VERSION={version}"]
 #[preprocess.cpp]
-# You can also specify source file suffixes that the preprocessor should run on:
-#suffixes = ["F90"]
+   # You can also specify source file suffixes that the preprocessor should run on:
+   #suffixes = ["F90"]
 # [preprocess.fypp]
-#[preprocess.prep]
-#suffixes = ["FF", "ff"]
-# Further, you can instruct the preprocessor to run on source files in specific directories:
-#directories = ["src/feature1", "src/models"]
+   #[preprocess.prep]
+   #suffixes = ["FF", "ff"]
+   # Further, you can instruct the preprocessor to run on source files in specific directories:
+   #directories = ["src/feature1", "src/models"]
 
 [[executable]]
-name="prep"
-source-dir="app"
-main="prep.f90"
+   name="prep"
+   source-dir="app"
+   main="prep.f90"
 
-[dependencies.M_CLI2]
-git = "https://github.com/urbanjost/M_CLI2.git"
-rev = "8bcaa128543a864c9a6f7a1a90140063cb4c6a9a"
-[dependencies.M_io]
-git = "https://github.com/urbanjost/M_io.git"
-rev = "6016310be982e63244b49ebe407cae063bdf0b0c"
-[dependencies.M_strings]
-git = "https://github.com/urbanjost/M_strings.git"
-rev = "f4d8d0d5501c6e38cc1e13847d7465f32e450ec4"
-[dependencies.M_list]
-git = "https://github.com/urbanjost/M_list.git"
-rev = "9518e2f6c78fa0d7a93023cd3e3e415c87f66b99"
-[dependencies.M_history]
-git = "https://github.com/urbanjost/M_history.git"
-rev = "b4957ee7294d9d35a4db7d4c4232664a0c23b7ae"
-[dependencies.M_match]
-git = "https://github.com/urbanjost/M_match.git"
-[dependencies.M_attr]
-git = "https://github.com/urbanjost/M_attr.git"
+   #[dependencies.M_CLI2]
+   #git = "https://github.com/urbanjost/M_CLI2.git"
+   #rev = "8bcaa128543a864c9a6f7a1a90140063cb4c6a9a"
+   #[dependencies.M_io]
+   #git = "https://github.com/urbanjost/M_io.git"
+   #rev = "6016310be982e63244b49ebe407cae063bdf0b0c"
+   #[dependencies.M_strings]
+   #git = "https://github.com/urbanjost/M_strings.git"
+   #rev = "f4d8d0d5501c6e38cc1e13847d7465f32e450ec4"
+   #[dependencies.M_list]
+   #git = "https://github.com/urbanjost/M_list.git"
+   #rev = "9518e2f6c78fa0d7a93023cd3e3e415c87f66b99"
+   #[dependencies.M_history]
+   #git = "https://github.com/urbanjost/M_history.git"
+   #rev = "b4957ee7294d9d35a4db7d4c4232664a0c23b7ae"
+   #[dependencies.M_match]
+   #git = "https://github.com/urbanjost/M_match.git"
+   #[dependencies.M_attr]
+   #git = "https://github.com/urbanjost/M_attr.git"
+
+[dependencies]
+   M_CLI2.namespace     =  "GPF"
+   M_io.namespace       =  "GPF"
+   M_strings.namespace  =  "GPF"
+   M_list.namespace     =  "GPF"
+   M_history.namespace  =  "GPF"
+   M_match.namespace    =  "GPF"
+   M_attr.namespace     =  "GPF"
