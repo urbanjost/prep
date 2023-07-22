@@ -40,7 +40,7 @@ use M_CLI2,      only : set_args, SGET, iget, lget, unnamed, specified !,print_d
 use M_strings,   only : nospace, v2s, substitute, upper, lower, isalpha, split, delim, str_replace=>replace, sep, pad, unquote
 use M_strings,   only : glob
 use M_list,      only : dictionary
-use M_prep,      only : expr, get_integer_from_string, table
+use M_expr,      only : expr, get_integer_from_string, table
 use M_match,     only : getpat, match, regex_pattern
 use M_match,     only : YES, ERR
 use M_attr,      only : attr, attr_mode
