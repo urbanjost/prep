@@ -10,8 +10,8 @@ categories = ["preprocessing"]
 keywords = ["preprocessor", "fortran", "fpm", "General Purpose Fortran" ]
 homepage = "https://github.com/urbanjost"
 
-#[build]
-#   module-naming = true
+[build]
+   module-naming = false
 
 #[library]
    #source-dir="src"
