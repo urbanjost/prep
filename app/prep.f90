@@ -171,11 +171,11 @@ character(len=G_var_len)     :: value
    upopts=nospace(upper(options))                          ! remove spaces from directive
 
    if(G_debug.and.G_verbose)then                           ! if processing lines in a logically selected region
-      write(stderr,*)'G_SOURCE='//trim(g_source)
-      write(stderr,*)'LINE='//trim(line)
-      write(stderr,*)'VERB='//trim(verb)
-      write(stderr,*)'OPTIONS='//trim(options)
-      write(stderr,*)'UPOPTS='//trim(upopts)
+      write(stderr,*)'G_SOURCE='//trim(g_source)           ! line as entered
+      write(stderr,*)'LINE='//trim(line)                   ! everything before verb removed
+      write(stderr,*)'VERB='//trim(verb)                   ! verb in uppercase
+      write(stderr,*)'OPTIONS='//trim(options)             ! trimmed options
+      write(stderr,*)'UPOPTS='//trim(upopts)               ! trimmed options in uppercase with whitespace removed
       call flushit()
    endif
 
@@ -208,7 +208,7 @@ character(len=G_var_len)     :: value
       case('UNSET');              call unset(upper(options))              ! only process UNSET if not skipping data lines
 
       case('IDENT','@(#)');       call ident(options)
-      case('?');                  call write_deed(options)
+      case('?');                  call write_deed(line(2:))
       case('MESSAGE','WARNING');  call write_err(unquote(options))        ! trustingly trim MESSAGE from directive
       case('SHOW') ;              call show_state(upper(options),msg='')
       CASE('HELP','CRIB');        call crib_help(stderr)
@@ -1536,8 +1536,8 @@ case('c759de9e-33a9-41d7-a959-a5ff30e0f0f2');english='undefined variable.'
 case('b56bc1be-7600-4bd5-9fe5-8196b0d9bd7e');english='constant logical expression required.'
 case('dec944d1-ff1f-4ff3-9512-a5801fc5e43b');english='filter command failed to open process:'
 case('b664d76c-4887-4f49-b874-90790ec62746');english='filter command $BLOCK encountered but system commands not enabled:'
-case('0c5a4a0e-ac8d-4ef4-b160-de2d344398a6');english='unexpected "BLOCK" option. found in '//trim(G_source) 
-case('fde8fa32-3c90-4cae-8386-cb968877973e');english='unexpected "BLOCK" option. found in '//trim(G_source) 
+case('0c5a4a0e-ac8d-4ef4-b160-de2d344398a6');english='unexpected "BLOCK" option. found in '//trim(G_source)
+case('fde8fa32-3c90-4cae-8386-cb968877973e');english='unexpected "BLOCK" option. found in '//trim(G_source)
 case('3f6bb821-f10b-4be0-aa4a-46ba6b2a1e48');english='failed to open document output file:'
 case('e9e2c7a9-f3b6-4625-a79c-bb42c5dc798b');english='failed to write output file:'
 case('0a63628d-cd62-4b10-a73b-c9d5f0ed8674');english='failed to write comment block'
@@ -2444,6 +2444,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 "  $ELSEIF|$ELIF logical_integer-based_expression                                ",&
 "  $ELSE                                                                         ",&
 "  $ENDIF                                                                        ",&
+"  $? code ! code is included only if -d switch appears on command line          ",&
 "MACRO STRING EXPANSION AND TEXT REPLAY:                                         ",&
 "   > Unless at least one variable name is defined no ${NAME} expansion occurs.  ",&
 "  $SET varname string                                                           ",&
@@ -2590,7 +2591,7 @@ character(len=:),allocatable :: lineout
    case default
       lineout=line
    end select
-   write(G_iout,'(a)')lineout
+   write(G_iout,'(a)')trim(lineout)
    call flushit()
 end subroutine write_deed
 !===================================================================================================================================
@@ -2956,7 +2957,7 @@ logical                      :: isscratch
          G_extract_stop='```'
       case('markdownMML','.markdownMML','MML','.MML','mml','.mml')
          G_extract_start='^ *~~~~* *{: *lang=fortran *}[ ~]*$'
-         G_extract_stop='^ *~~~~* *$' 
+         G_extract_stop='^ *~~~~* *$'
       case('html','.html','htm','.htm')
          ! flaw is HTML is not case sensitive
          G_extract_start=' *<[xX][mM][pP]>'
@@ -3083,8 +3084,8 @@ subroutine auto()
       case('markdownMML','.markdownMML','MML','mml')
          G_extract_start='^ *~~~~* *{: *lang=fortran *}[ ~]*$'
          !NOT WORKING G_extract_start='^ *[~`][~`][~`][~`]* *{: *lang=fortran *} *[~`]* *'
-         G_extract_stop='^ *~~~~* *$' 
-         !NOT WORKING G_extract_stop='^ *[~`][~`][~`][~`]* *$' 
+         G_extract_stop='^ *~~~~* *$'
+         !NOT WORKING G_extract_stop='^ *[~`][~`][~`][~`]* *$'
       case('tex')
          G_extract_start='\begin{minted}{Fortran}'
          G_extract_stop='\end{minted}'
