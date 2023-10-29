@@ -129,6 +129,7 @@ character(len=:),allocatable,save    :: G_file
 character(len=:),allocatable,save    :: G_lang
 
 logical                              :: G_cpp
+character(len=1),save                :: G_deed='i'
 
 contains
 !===================================================================================================================================
@@ -207,6 +208,7 @@ character(len=G_var_len)     :: value
       case('UNSET');              call unset(upper(options))              ! only process UNSET if not skipping data lines
 
       case('IDENT','@(#)');       call ident(options)
+      case('?');                  call write_deed(options)
       case('MESSAGE','WARNING');  call write_err(unquote(options))        ! trustingly trim MESSAGE from directive
       case('SHOW') ;              call show_state(upper(options),msg='')
       CASE('HELP','CRIB');        call crib_help(stderr)
@@ -1741,10 +1743,11 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   -d ignore|remove|blank  Enable special treatment for lines beginning         ',&
 '                           with "d" or "D". The letter will be left as-is       ',&
 '                           (the default); removed; or replaced with a blank     ',&
-'                           character. This non-standard syntax has been         ',&
-'                           used to support the optional compilation of          ',&
+'                           character. This non-standard "dee''d" syntax has      ',&
+'                           been used to support the optional compilation of     ',&
 '                           "debug" code by many Fortran compilers when          ',&
-'                           compiling fixed-format Fortran source.               ',&
+'                           compiling fixed-format Fortran source. This also     ',&
+'                           controls lines beginning with $?.                    ',&
 '                                                                                ',&
 '   --width n   Maximum line length of the output file. The default is 1024.     ',&
 '               The parameter is typically used to trim fixed-format Fortran     ',&
@@ -1889,6 +1892,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '       [$ELSE                                               [! comment ]        ',&
 '               { sequence of source statements}]                                ',&
 '       $ENDIF                                               [! comment ]        ',&
+'       $?  code                                                                 ',&
 '                                                                                ',&
 '   Details ...                                                                  ',&
 '                                                                                ',&
@@ -1930,6 +1934,9 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   The --noenv switch is therefore only needed for compatibility with fpp(1).   ',&
 '   For the purposes of prep(1) an environment variable is defined if it is      ',&
 '   returned by the system and has a non-blank value.                            ',&
+'                                                                                ',&
+'   Dee''d lines are simulated by the $? directive as well. See the "-d" option   ',&
+'   for a description.                                                           ',&
 '                                                                                ',&
 ' MACRO STRING EXPANSION AND TEXT REPLAY                                         ',&
 '   Directives for defining replayable text blocks ...                           ',&
@@ -2566,6 +2573,29 @@ end subroutine www
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
+subroutine write_deed(line) !@(#)M_verify::deed(3f): writes a line selectively depending on value of -d option
+character(len=*),intent(in)  :: line
+integer                      :: ios
+character(len=:),allocatable :: lineout
+
+   select case(G_deed(1:1))
+   case('i')                                         ! ignore
+      return
+   case('r')                                         ! remove
+      lineout=line
+   case('b',' ')                                     ! blank
+      lineout='  '//line
+   case('c','e')                                     ! comment
+      lineout='!'//line
+   case default
+      lineout=line
+   end select
+   write(G_iout,'(a)')lineout
+   call flushit()
+end subroutine write_deed
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!===================================================================================================================================
 subroutine write_err(msg) !@(#)M_verify::write_err(3f): writes a message to standard error using a standard f2003 method
 character(len=*),intent(in) :: msg
 integer                     :: ios
@@ -2791,7 +2821,6 @@ use prep__internal
 implicit none
 character(len=G_line_length) :: out_filename=''           ! output filename, default is stdout
 character(len=1)             :: prefix                    ! directive prefix character
-character(len=1)             :: letterd                   !
 character(len=G_line_length) :: line                      ! working copy of input line
 logical                      :: keeptabs=.false.          ! flag whether to retain tabs and carriage returns or not
 integer                      :: ilast
@@ -2866,7 +2895,7 @@ logical                      :: isscratch
    G_ident=lget('ident')                                    ! write IDENT as comment or CHARACTER variable
    G_iwidth                   = iget('width')
    G_iwidth=max(0,G_iwidth)
-   letterd(1:1)               = trim(SGET('d'))
+   G_deed(1:1)                = trim(SGET('d'))
    G_noenv                    = lget('noenv')
 
    out_filename(:G_line_length) = SGET('o')
@@ -2997,7 +3026,7 @@ logical                      :: isscratch
 
       select case (line(1:1))                              ! special processing for lines starting with 'd' or 'D'
       case ('d','D')
-         select case(letterd(1:1))
+         select case(G_deed(1:1))
          case('i')                                         ! ignore
          case('r')                                         ! remove
             cycle
