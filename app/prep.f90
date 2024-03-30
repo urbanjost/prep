@@ -1607,10 +1607,19 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   IMPORTANT                                                                    ',&
 '   For compatibility with other utilities where cpp(1)-like syntax is required  ',&
-'   if -i is not specified and the unnamed parameters are less than three the    ',&
-'   unnamed parameters are assumed to be the input file and optional output      ',&
-'   file instead of macro definitions if the first parameter matches an existing ',&
-'   filename.                                                                    ',&
+'   if -i is not specified and the unnamed parameters are two or less the        ',&
+'   parameters are assumed to be the input file and optional output file         ',&
+'   instead of macro definitions (if that first parameter matches an existing    ',&
+'   filename). That is, if -i is not specified simple commands like              ',&
+'                                                                                ',&
+'       prep infile [[-o] outfile]                                               ',&
+'                                                                                ',&
+'   act like                                                                     ',&
+'                                                                                ',&
+'       cpp infile [[-o] outfile]                                                ',&
+'                                                                                ',&
+'   This cpp-like behavior is currently required for custom preprocessors to be  ',&
+'   used with the Intel ifx(1) compiler or fpm(1).                               ',&
 '                                                                                ',&
 'DESCRIPTION                                                                     ',&
 '                                                                                ',&
