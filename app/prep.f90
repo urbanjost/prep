@@ -124,6 +124,7 @@ character(len=:),allocatable,save    :: G_extract_start0
 character(len=:),allocatable,save    :: G_extract_stop0
 logical,save                         :: G_extract_auto
 logical,save                         :: G_extract_writeflag=.false.
+logical,save                         :: G_underscore=.false.
 character(len=:),allocatable,save    :: G_cmd
 character(len=:),allocatable,save    :: G_file
 character(len=:),allocatable,save    :: G_lang
@@ -1598,6 +1599,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '        [--prefix character|ADE]                                                ',&
 '        [--keeptabs]                                                            ',&
 '        [--noenv]                                                               ',&
+'        [--underscore]                                                          ',&
 '        [--width n]                                                             ',&
 '        [-d ignore|remove|blank]                                                ',&
 '        [--comment default|doxygen|ford|none]                                   ',&
@@ -1735,6 +1737,17 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                    prep(1) variable and then an environment variable by        ',&
 '                    default. This option turns off testing for environment      ',&
 '                    variables.                                                  ',&
+'   --underscore     For compatibility with other preprocessors the following    ',&
+'                    are equivalent if the --underscore option is specified on   ',&
+'                    the command line:                                           ',&
+'                                                                                ',&
+'                        __FILE__  ${FILE} # name of file being processed        ',&           
+'                        __LINE__  ${LINE} # line number of current file         ',&
+'                        __DATE__  ${DATE} # YYYY-MM-DD                          ',&
+'                        __TIME__  ${TIME} # HH:MM:SS                            ',&
+'                        __TIMESTAMP__   ${TIMESTAMP} # MMM DD YYYY hh:mm:ss     ',&
+'                                                                                ',&
+'                    where MMM is a 3-character month-name abbreviation.         ',&
 '                                                                                ',&
 '   --keeptabs       By default tab characters are expanded assuming a stop has  ',&
 '                    been set every eight columns; and trailing carriage-return  ',&
@@ -1985,10 +1998,10 @@ help_text=[ CHARACTER(LEN=128) :: &
 '     compilers. Automatic breaking into continuation lines does not occur.      ',&
 '   o comments are not supported on a $SET directive because everything past the ',&
 '     variable name becomes part of the value.                                   ',&
-'   o The pre-defined values $FILE, $LINE, $DATE, and $TIME ( for input file,    ',&
-'     line in input file, date and time ) are NOT ACTIVE until at least one      ',&
-'     one $SET or $IMPORT directive is processed. That is, unless a variable     ',&
-'     is defined no ${NAME} expansion occurs.                                    ',&
+'   o The pre-defined values ${FILE}, ${LINE}, ${DATE}, ${TIME} and ${TIMESTAMP} ',&
+'     for file, line number in input file, date and time and date-time) are      ',&
+'     NOT ACTIVE until at least one $SET or $IMPORT directive is processed. That ',&
+'     is, unless a variable is defined no ${NAME} expansion occurs.              ',&
 '   o The time and date refers to the time of processing, not the time of        ',&
 '     compilation or loading.                                                    ',&
 '                                                                                ',&
@@ -2681,16 +2694,24 @@ integer                       :: j
 integer                       :: ibug
 character(len=4096)           :: scratch
 
-if(index(line,'${') /= 0)then
+if(index(line,'${') /= 0 .or. (G_underscore .and. index(line,'__') /= 0 ) )then
    write(scratch,'(i0)')G_file_dictionary(G_iocount)%line_number
    call set('LINE ' // scratch)
    call set('FILE ' // G_file_dictionary(G_iocount)%filename )
    call set('TIME ' // getdate('time'))
-   call set('DATE ' // getdate('cdate'))
+   call set('DATE ' // getdate('date'))
+   call set('TIMESTAMP ' // getdate('cdate'))
    call set('PROCEDURE ' // 'PROCNAME')
    temp=trim(line)
    ibug=minval([size(macro%key),ubound(macro%key)])   ! print variable dictionary
    INFINITE: do i=1,len_trim(line)
+      if(G_underscore.and.index(temp,'__') /= 0 )then
+         temp=str_replace( temp,  '__LINE__',       '${LINE}',       ignorecase=.false.  )
+         temp=str_replace( temp,  '__FILE__',       '${FILE}',       ignorecase=.false.  )
+         temp=str_replace( temp,  '__TIME__',       '${TIME}',       ignorecase=.false.  )
+         temp=str_replace( temp,  '__DATE__',       '${DATE}',       ignorecase=.false.  )
+         temp=str_replace( temp,  '__TIMESTAMP__',  '${TIMESTAMP}',  ignorecase=.false.  )
+      endif
       do j=1,ibug
          if(index(temp,'${') /= 0)then
             search='${'//trim(macro%key(j))//'}'
@@ -2822,8 +2843,8 @@ end module prep__internal
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-program prep                                                 !@(#)prep(1f): preprocessor for Fortran/Fortran source code
-use M_CLI2,    only : set_args, lget, rget, iget, SGET !JSU kracken_comment
+program prep                                              !@(#)prep(1f): preprocessor for Fortran/Fortran source code
+use M_CLI2,    only : set_args, lget, rget, iget, SGET
 use M_strings, only : notabs, isdigit, switch, sep, lower
 use M_io,      only : getname, basename
 use M_attr,    only : attr, attr_mode
@@ -2849,26 +2870,27 @@ logical                      :: isscratch
    end select
 
    cmd='&
-   & -i " "              &
-   & -D " "              &
-   & -I " "              &
-   & -o " "              &
-   & --prefix 36         &
-   & --keeptabs .false.  &
-   & -d ignore           &
-   & --help .false.      &
-   & --verbose .false.   &
-   & --system .false.    &
-   & --version .false.   &
-   & --crib .false.      &
-   & --debug .false.     &
+   & -i " "               &
+   & -D " "               &
+   & -I " "               &
+   & -o " "               &
+   & --prefix 36          &
+   & --keeptabs .false.   &
+   & -d ignore            &
+   & --help .false.       &
+   & --verbose .false.    &
+   & --system .false.     &
+   & --version .false.    &
+   & --crib .false.       &
+   & --debug .false.      &
+   & --underscore .false. &
    & --noenv .false.     &
    & --comment "'//get_env('PREP_COMMENT_STYLE','default')//'" &
-   & --ident .false.     &
-   & --width 1024        &
-   & --start " "         &
-   & --stop " "          &
-   & --type auto         &
+   & --ident .false.      &
+   & --width 1024         &
+   & --start " "          &
+   & --stop " "           &
+   & --type auto          &
    & --lang "'//get_env('PREP_LANGUAGE','en')//'" &
    & '
    ! allow formatting comments for particular post-processors
@@ -2906,6 +2928,7 @@ logical                      :: isscratch
    G_iwidth                   = iget('width')
    G_iwidth=max(0,G_iwidth)
    G_deed(1:1)                = trim(SGET('d'))
+   G_underscore               = lget('underscore')
    G_noenv                    = lget('noenv')
 
    out_filename(:G_line_length) = SGET('o')
