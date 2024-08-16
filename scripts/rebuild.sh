@@ -8,7 +8,7 @@ fpm install
 fpm test
 fpm docs
 fpm standalone
-mv ffpm.f90 standalone/prep.f90
-rm -f ffpm
+mv standalone.f90 $HOME/github/lockstockandbarrel/mars/bootstrap/prep.F90
+rm -f standalone
 ford ford.md
 )|tee /tmp/prep.log

@@ -12,19 +12,29 @@ SYNOPSIS
         [--prefix character|ADE]
         [--keeptabs]
         [--noenv]
+        [--underscore]
         [--width n]
         [-d ignore|remove|blank]
         [--comment default|doxygen|ford|none]
         [--ident]
         [--verbose]
-        [--version]
+        [--help| --usage| --crib| --version]
 
    IMPORTANT
    For compatibility with other utilities where cpp(1)-like syntax is required
-   if -i is not specified and the unnamed parameters are less than three the
-   unnamed parameters are assumed to be the input file and optional output
-   file instead of macro definitions if the first parameter matches an existing
-   filename.
+   if -i is not specified and the unnamed parameters are two or less the
+   parameters are assumed to be the input file and optional output file
+   instead of macro definitions (if that first parameter matches an existing
+   filename). That is, if -i is not specified simple commands like
+
+       prep infile [[-o] outfile]
+
+   act like
+
+       cpp infile [[-o] outfile]
+
+   This cpp-like behavior is currently required for custom preprocessors to be
+   used with the Intel ifx(1) compiler or fpm(1).
 
 DESCRIPTION
 
@@ -99,14 +109,12 @@ OPTIONS
                     specific start string is encountered and to stop once a
                     specific end string is found, left-justified on lines by
                     themselves.
-
-                        FileType  Start_String            Stop_String
-                        --------  ------------            -----------
-                        md        ```fortran              ```
-                        html      <xmp>                   </xmp>
-                        tex       \begin{minted}{Fortran} \end{minted}
-                        auto
-                        none
+                        FileType     Start_String              Stop_String
+                        --------     ------------              -----------
+                        md           ```fortran                ```
+                        markdownMML  ~~~ {: lang=fortran}      ~~~
+                        html         <xmp>                     </xmp>
+                        tex          \begin{minted}{Fortran}   \end{minted}
 
                     The default type is "auto", in which case files will be
                     processed according to their file suffix.
@@ -117,13 +125,15 @@ OPTIONS
                     and for tests in documents to be able to be extracted and
                     tested. "auto" switches processing mode depending on input
                     file suffix, treating supported file suffixes
-                    ("md","html","tex") appropriately.
+                    ("md","markdownMML","html","tex") appropriately.
 
    --start STRING   Same as --type except along with --stop allows for custom
-                    strings to be specified.
+                    strings to be specified. The string is a BRE (Basic Regular
+                    Expression).
 
    --stop STRING    Same as --type except along with --start allows for custom
-                    strings to be specified.
+                    strings to be specified. The string is a BRE (Basic Regular
+                    Expression).
 
    --comment        Try to style comments generated in $BLOCK COMMENT blocks
                     for other utilities such as doxygen. Default is to
@@ -140,6 +150,17 @@ OPTIONS
                     prep(1) variable and then an environment variable by
                     default. This option turns off testing for environment
                     variables.
+   --underscore     For compatibility with other preprocessors the following
+                    are equivalent if the --underscore option is specified on
+                    the command line:
+
+                        __FILE__  ${FILE} # name of file being processed
+                        __LINE__  ${LINE} # line number of current file
+                        __DATE__  ${DATE} # YYYY-MM-DD
+                        __TIME__  ${TIME} # HH:MM:SS
+                        __TIMESTAMP__   ${TIMESTAMP} # MMM DD YYYY hh:mm:ss
+
+                    where MMM is a 3-character month-name abbreviation.
 
    --keeptabs       By default tab characters are expanded assuming a stop has
                     been set every eight columns; and trailing carriage-return
@@ -157,10 +178,11 @@ OPTIONS
    -d ignore|remove|blank  Enable special treatment for lines beginning
                            with "d" or "D". The letter will be left as-is
                            (the default); removed; or replaced with a blank
-                           character. This non-standard syntax has been
-                           used to support the optional compilation of
+                           character. This non-standard "dee'd" syntax has
+                           been used to support the optional compilation of
                            "debug" code by many Fortran compilers when
-                           compiling fixed-format Fortran source.
+                           compiling fixed-format Fortran source. This also
+                           controls lines beginning with $?.
 
    --width n   Maximum line length of the output file. The default is 1024.
                The parameter is typically used to trim fixed-format Fortran
@@ -305,6 +327,7 @@ DIRECTIVES
        [$ELSE                                               [! comment ]
                { sequence of source statements}]
        $ENDIF                                               [! comment ]
+       $?  code
 
    Details ...
 
@@ -347,6 +370,9 @@ DIRECTIVES
    For the purposes of prep(1) an environment variable is defined if it is
    returned by the system and has a non-blank value.
 
+   Dee'd lines are simulated by the $? directive as well. See the "-d" option
+   for a description.
+
  MACRO STRING EXPANSION AND TEXT REPLAY
    Directives for defining replayable text blocks ...
 
@@ -385,10 +411,10 @@ DIRECTIVES
      compilers. Automatic breaking into continuation lines does not occur.
    o comments are not supported on a $SET directive because everything past the
      variable name becomes part of the value.
-   o The pre-defined values $FILE, $LINE, $DATE, and $TIME ( for input file,
-     line in input file, date and time ) are NOT ACTIVE until at least one
-     one $SET or $IMPORT directive is processed. That is, unless a variable
-     is defined no ${NAME} expansion occurs.
+   o The pre-defined values ${FILE}, ${LINE}, ${DATE}, ${TIME} and ${TIMESTAMP}
+     for file, line number in input file, date and time and date-time) are
+     NOT ACTIVE until at least one $SET or $IMPORT directive is processed. That
+     is, unless a variable is defined no ${NAME} expansion occurs.
    o The time and date refers to the time of processing, not the time of
      compilation or loading.
 
@@ -495,8 +521,8 @@ DIRECTIVES
    If the "--file NAME" option is present the text is written to the
    specified file unfiltered except for string expansion. This allows
    documentation to easily be maintained in the source file. It can be
-   tex, html, markdown or any plain text. The filename will be prefixed
-   with $PREP_DOCUMENT_DIR/doc/ . If the environment variable
+   markdownMML, tex, html, markdown or any plain text. The filename will be
+   prefixed with $PREP_DOCUMENT_DIR/doc/ . If the environment variable
    $PREP_DOCUMENT_DIR is not set the option is ignored.
 
    The --file output can subsequently easily be processed by other utilities
@@ -764,7 +790,7 @@ EXAMPLES
   This is a block of text that will be converted to comments and optionally
   appended to a $PREP_DOCUMENT_DIR/doc/ file when $PREP_DOCUMENT_DIR is set.
 
-   > $BLOCK COMMENT--file conditional_compile.man
+   > $BLOCK COMMENT --file conditional_compile.man
    > NAME
    >    conditional_compile - basic example for prep(1) preprocessor.
    > SYNOPSIS

@@ -65,3 +65,13 @@ homepage = "https://github.com/urbanjost"
 #   M_history.namespace  =  "GPF"
 #   M_match.namespace    =  "GPF"
 #   M_attr.namespace     =  "GPF"
+#
+#[dependencies]
+#   M_CLI2     =  {  path  =  "GLINKS/M_CLI2"     }
+#   M_io       =  {  path  =  "GLINKS/M_io"       }
+#   M_strings  =  {  path  =  "GLINKS/M_strings"  }
+#   M_list     =  {  path  =  "GLINKS/M_list"     }
+#   M_history  =  {  path  =  "GLINKS/M_history"  }
+#   M_match    =  {  path  =  "GLINKS/M_match"    }
+#   M_attr     =  {  path  =  "GLINKS/M_attr"     }
+   
