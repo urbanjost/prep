@@ -33,10 +33,10 @@
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-module prep__internal                                                             !@(#)prep__internal(3f): module used by prep program
+module prep__internal !@(#)prep__internal(3f): module used by prep program
 USE ISO_FORTRAN_ENV, ONLY : STDERR=>ERROR_UNIT, STDOUT=>OUTPUT_UNIT,STDIN=>INPUT_UNIT
 use M_io,        only : get_tmp, dirname, uniq, fileopen, filedelete, get_env       ! Fortran file I/O routines
-use M_CLI2,      only : set_args, SGET, iget, lget, unnamed, specified !,print_dictionary ! load command argument parsing module
+use M_CLI2,      only : set_args, SGET,sgets, iget, lget, unnamed, specified !,print_dictionary ! command argument parsing module
 use M_strings,   only : nospace, v2s, substitute, upper, lower, isalpha, split, delim, str_replace=>replace, sep, pad, unquote
 use M_strings,   only : glob
 use M_list,      only : dictionary
@@ -384,14 +384,28 @@ end subroutine parcel_case
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine prepost(opts)                          !@(#)prepost(3f): process $POST directive
+subroutine prepost(opts)           
+!@(#)prepost(3f): process $POST directive
+! POST NAMES(S)                                   ! source listed parcels
+! Evaluating whether this is sufficient or need true looping
+! POST NAMES(S) --FOR NAME1,NAME2,NAME3,NAME4,... ! source NAME1 parcel then parcels, then NAME2 and repeat parcels, then NAME3, ...
+! POST NAMES(S) --NAME varname --set val1,val2,val3, ... ! set NAME to val1 then source parcels, NAME to valu2 then source, ...
 character(len=*)                          :: opts
 character(len=:),allocatable              :: list
-character(len=:),allocatable              :: names(:)        ! names on $POST command
-character(len=:),allocatable              :: fors(:)         ! names on $POST --for
-integer                                   :: i
+character(len=:),allocatable              :: names(:)     ! names on $POST command
+character(len=:),allocatable              :: fors(:)      ! names on $POST --for
+character(len=:),allocatable              :: setvals(:)   ! names on $POST --set
+character(len=:),allocatable              :: name         ! name on $POST --name
+integer                                   :: i 
 integer                                   :: j,jsz
-   call dissect2('PARCEL',' --FOR " " ',opts)                 ! parse options and inline comment on input line
+integer                                   :: k
+   call dissect2('PARCEL',' --FOR " " --NAME " " -- SET " "',opts)             ! parse options and inline comment on input line
+   name=sget('NAME')
+   if(name.ne.'')then
+      setvals=sgets('SET')
+   else
+      setvals=[character(len=0) :: ]
+   endif
 
    list=''
    if(size(unnamed) == 0.and.opts /= '')then
@@ -401,19 +415,24 @@ integer                                   :: j,jsz
          list=list//' '//unnamed(i)
       enddo
    endif
-   call split(list,names,delimiters=' ,')                    ! parse string to an array parsing on delimiters
+   call split(list,names,delimiters=' ,')                 ! parse string to an array parsing on delimiters
    list=SGET('FOR')
-   call split(list,fors,delimiters=' ,')                     ! parse string to an array parsing on delimiters
+   call split(list,fors,delimiters=' ,')                  ! parse string to an array parsing on delimiters
    jsz=size(fors)
-   do i=size(names),1,-1
-      if(jsz == 0)then
-         call post(names(i))
-      else
-         do j=jsz,1,-1
-            call post(names(i))
-            call post(fors(j))
-         enddo
+   do k=1,max(size(setvals),1)
+      if(k.le.size(setvals))then
+         call set(name//' '//setvals(k))
       endif
+      do i=size(names),1,-1
+         if(jsz == 0)then
+            call post(names(i))
+         else
+            do j=jsz,1,-1
+               call post(fors(j))
+               call post(names(i))
+            enddo
+         endif
+      enddo
    enddo
 end subroutine prepost
 !===================================================================================================================================
@@ -3038,7 +3057,7 @@ logical                      :: isscratch
          elseif (match(trim(line)//char(10), G_pattern_stop%pat) .eq. YES .and. G_extract_writeflag) then ! stop extracting
             G_extract_writeflag=.false.
             cycle READLINE
-         elseif(.not.G_extract_writeflag)then                   ! skip if not extracting
+         elseif(.not.G_extract_writeflag)then              ! skip if not extracting
             cycle READLINE
          endif
       endif
@@ -3079,7 +3098,7 @@ logical                      :: isscratch
       endif
       cycle
 
-7     continue                                                      ! end of file encountered on input
+7     continue                                             ! end of file encountered on input
       if(G_file_dictionary(G_iocount)%unit_number /= 5)then
          inquire(unit=G_file_dictionary(G_iocount)%unit_number,iostat=ios,named=isscratch)
          if(.not.isscratch.and.(G_file_dictionary(G_iocount)%unit_number > 0))then
@@ -3096,11 +3115,11 @@ logical                      :: isscratch
       endif
 
       if(G_iocount < 1)exit
-      call auto() ! if in auto mode determine strings for new file
+      call auto()                                          ! if in auto mode determine strings for new file
 
    enddo READLINE
 
-   if (G_nestl /= 0) then                                           ! check to make sure all if blocks are closed
+   if (G_nestl /= 0) then                                  ! check to make sure all if blocks are closed
       call stop_prep('6f7e0453-4c1d-4040-9c7d-3adf5112b692','block not closed in',' $IF')
    endif
    call print_comment_block()
