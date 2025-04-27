@@ -223,7 +223,7 @@ flowchart TB
   N6[M_history]
   N7[M_match]
   N8[M_attr]
-  click N1 href "https://github.com/urbanjost" "Fortran pre-processor"
+  click N1 href "https://github.com/urbanjost/prep" "Fortran pre-processor"
   click N2 href "https://github.com/urbanjost/M_CLI2.git" "Unix-style commandline parsing using a prototype command"
   click N3 href "https://github.com/urbanjost/M_io.git" "I/O-related tools"
   click N4 href "https://github.com/urbanjost/M_strings.git" "string manipulation"
