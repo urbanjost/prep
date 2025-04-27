@@ -212,7 +212,7 @@ Feedback is welcome.
 <!--
 https://github.com/fortran-lang/fpm/issues/78
 -->
-## Dependencies
+## Dependencies ( via [fpm-deps](https://github.com/ivan-pi/fpm-deps))
 ```mermaid
 flowchart TB
   N1[prep]
