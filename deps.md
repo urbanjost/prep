@@ -1,3 +1,5 @@
+## Dependencies ( via [fpm-deps](https://github.com/ivan-pi/fpm-deps))
+```mermaid
 flowchart TB
   N1[prep]
   N2[M_CLI2]
@@ -23,3 +25,4 @@ flowchart TB
   N1-->N7
   N1-->N8
   N6-->N4
+```
