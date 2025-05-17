@@ -1897,7 +1897,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   Predefined variables are                                                     ',&
 '                                                                                ',&
-'    SYSTEMON = .TRUE. if --system was present on the command line, else .FALSE. ',&
+'    SYSTEMON=.TRUE. if --system was present on the command line, else .FALSE.   ',&
 '                                                                                ',&
 '    UNKNOWN = 0 LINUX   = 1 MACOS   = 2 WINDOWS = 3                             ',&
 '    CYGWIN  = 4 SOLARIS = 5 FREEBSD = 6 OPENBSD = 7                             ',&
@@ -3062,7 +3062,7 @@ logical                      :: isscratch
       endif
 
       if(G_inparcel)then                                   ! do not expand lines stored in a parcel
-      elseif(size(macro%key) /= 0)then                     ! expand variables if any variable is defined, else skip for efficieny
+      elseif(size(macro%key) /= 0)then                     ! expand variables if any variable is defined, else skip for efficiency
          call expand_variables(G_source)                   ! expand ${NAME} strings
       endif
 
