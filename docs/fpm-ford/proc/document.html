@@ -1,0 +1,517 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Fortran pre-processor">
+    <meta name="author" content="John S. Urban" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>document &ndash; prep</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">prep </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>document
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 8.6% of total for procedures.">144 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/prep.f90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/prep.f90.html'>prep.f90</a></li>
+                <li class="breadcrumb-item"><a href='../module/prep__internal.html'>prep__internal</a></li>
+            <li class="breadcrumb-item active" aria-current="page">document</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#vars-0"
+         aria-expanded="false" aria-controls="vars-0">
+         <h4 class="card-header bg-primary text-white">Variables</h4>
+      </a>
+      <div id="vars-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../proc/document.html#variable-ierr~4">ierr</a>
+            <a class="list-group-item" href="../proc/document.html#variable-ios~6">ios</a>
+            <a class="list-group-item" href="../proc/document.html#variable-name~7">name</a>
+            <a class="list-group-item" href="../proc/document.html#variable-options~2">options</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/document.html#src">document</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine document(opts)  
+</h2>
+    
+
+    <p>G_scratch_file=scratch(&lsquo;prep_scratch.&rsquo;))
+ THIS HAS TO BE A UNIQUE NAME &ndash; IMPROVE THIS</p>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-opts~9"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>opts</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+
+
+    <section>    
+      <h2>Variables</h2>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ierr~4"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ierr</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ios~6"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ios</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-name~7"></span>
+              character(len=:),
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>name</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-options~2"></span>
+              character(len=G_line_length),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>options</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </section>
+    <br>
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="k">subroutine </span><span class="n">document</span><span class="p">(</span><span class="n">opts</span><span class="p">)</span><span class="w">                    </span><span class="c">!@(#)document(3f): process BLOCK command to start or stop special processing</span>
+<span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">opts</span><span class="w"></span>
+<span class="kt">integer</span><span class="w">                      </span><span class="kd">::</span><span class="w"> </span><span class="n">ierr</span><span class="w"></span>
+<span class="kt">integer</span><span class="w">                      </span><span class="kd">::</span><span class="w"> </span><span class="n">ios</span><span class="w"></span>
+<span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">G_line_length</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">options</span><span class="w">                 </span><span class="c">! everything after first word of command till end of line or !</span>
+<span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">name</span><span class="w"></span>
+
+<span class="c">! CHECK COMMAND SYNTAX</span>
+<span class="w">   </span><span class="k">if</span><span class="p">(</span><span class="n">G_outtype</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;help&#39;</span><span class="p">)</span><span class="k">then</span><span class="w">  </span><span class="c">! if in &#39;help&#39; mode wrap up the routine</span>
+<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">G_iout</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s2">&quot;&#39;&#39;]&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">G_iout</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s2">&quot;   WRITE(*,&#39;(a)&#39;)(trim(help_text(i)),i=1,size(help_text))&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">G_iout</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s2">&quot;   stop ! if --help was specified, stop&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">G_iout</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s2">&quot;endif&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">G_iout</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s2">&quot;end subroutine help_usage&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="c">!x!write(G_iout,&#39;(&quot;!&quot;,a)&#39;)repeat(&#39;-&#39;,131)</span>
+<span class="w">   </span><span class="n">elseif</span><span class="p">(</span><span class="n">G_outtype</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;variable&#39;</span><span class="p">)</span><span class="k">then</span><span class="w">     </span><span class="c">! if in &#39;variable&#39; mode wrap up the variable</span>
+<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">G_iout</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s2">&quot;&#39;&#39;]&quot;</span><span class="w"></span>
+<span class="w">   </span><span class="n">elseif</span><span class="p">(</span><span class="n">G_outtype</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;system&#39;</span><span class="p">)</span><span class="k">then</span>
+<span class="k">         close</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="n">G_scratch_lun</span><span class="p">,</span><span class="n">iostat</span><span class="o">=</span><span class="n">ios</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">call </span><span class="nb">execute_command_line</span><span class="p">(</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">G_cmd</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39; &lt; &#39;</span><span class="o">//</span><span class="n">G_scratch_file</span><span class="o">//</span><span class="s1">&#39; &gt; &#39;</span><span class="o">//</span><span class="n">G_scratch_file</span><span class="o">//</span><span class="s1">&#39;.out&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="n">ierr</span><span class="o">=</span><span class="n">filedelete</span><span class="p">(</span><span class="n">G_scratch_file</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">options</span><span class="o">=</span><span class="n">G_scratch_file</span><span class="o">//</span><span class="s1">&#39;.out&#39;</span><span class="w"></span>
+<span class="w">         </span><span class="k">call include</span><span class="p">(</span><span class="k">options</span><span class="p">,</span><span class="mi">50</span><span class="o">+</span><span class="n">G_iocount</span><span class="p">)</span><span class="w">    </span><span class="c">! Filenames can be case sensitive</span>
+<span class="w">   </span><span class="n">elseif</span><span class="p">(</span><span class="n">G_outtype</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;version&#39;</span><span class="p">)</span><span class="k">then</span><span class="w">  </span><span class="c">! if in &#39;version&#39; mode wrap up the routine</span>
+<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">G_iout</span><span class="p">,</span><span class="s1">&#39;(&quot;&#39;&#39;@(#)COMPILED:       &quot;,a,&quot;&#39;&#39;,&amp;&quot;)&#39;</span><span class="p">)</span><span class="w"> </span><span class="n">getdate</span><span class="p">(</span><span class="s1">&#39;long&#39;</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;&gt;&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">G_iout</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s2">&quot;&#39;&#39;]&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">G_iout</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s2">&quot;   WRITE(*,&#39;(a)&#39;)(trim(help_text(i)(5:len_trim(help_text(i))-1)),i=1,size(help_text))&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="c">!x!write(G_iout,&#39;(a)&#39;)&#39;   write(*,*)&quot;COMPILER VERSION=&quot;,COMPILER_VERSION()&#39;</span>
+<span class="w">      </span><span class="c">!x!write(G_iout,&#39;(a)&#39;)&#39;   write(*,*)&quot;COMPILER OPTIONS=&quot;,COMPILER_OPTIONS()&#39;</span>
+<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">G_iout</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s2">&quot;   stop ! if --version was specified, stop&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">G_iout</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s2">&quot;endif&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">G_iout</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s2">&quot;end subroutine help_version&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="c">!x!write(G_iout,&#39;(&quot;!&quot;,a)&#39;)repeat(&#39;-&#39;,131)</span>
+<span class="w">   </span><span class="k">endif</span><span class="w"></span>
+
+<span class="w">   </span><span class="c">! parse options on input line</span>
+<span class="w">   </span><span class="k">call </span><span class="n">dissect2</span><span class="p">(</span><span class="s1">&#39;block&#39;</span><span class="p">,</span><span class="s1">&#39;--file --cmd sh --varname textblock --length 128 --width 0 --style &quot;#N#&quot; --append .false.&#39;</span><span class="p">,</span><span class="n">opts</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="c">! if a previous command has opened a --file FILENAME flush it, because a new one is being opened or this is an END command</span>
+<span class="w">   </span><span class="c">! and if a --file FILENAME has been selected open it</span>
+<span class="w">   </span><span class="k">call </span><span class="n">print_comment_block</span><span class="p">()</span><span class="w"></span>
+
+<span class="w">   </span><span class="c">! now can start new section</span>
+<span class="w">   </span><span class="n">G_MAN</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="w"></span>
+<span class="w">   </span><span class="k">if</span><span class="p">(</span><span class="n">SGET</span><span class="p">(</span><span class="s1">&#39;file&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="k">then</span>
+<span class="k">      </span><span class="n">G_MAN_FILE</span><span class="o">=</span><span class="n">SGET</span><span class="p">(</span><span class="s1">&#39;file&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_MAN_COLLECT</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span><span class="w"></span>
+<span class="w">   </span><span class="k">else</span>
+<span class="k">      </span><span class="n">G_MAN_FILE</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_MAN_COLLECT</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span><span class="w"></span>
+<span class="w">   </span><span class="k">endif</span>
+
+<span class="k">   </span><span class="n">G_MAN_PRINT</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span><span class="w"></span>
+
+<span class="w">   </span><span class="k">if</span><span class="p">(</span><span class="n">LGET</span><span class="p">(</span><span class="s1">&#39;append&#39;</span><span class="p">))</span><span class="k">then</span>
+<span class="k">      </span><span class="n">G_MAN_FILE_POSITION</span><span class="o">=</span><span class="s1">&#39;APPEND&#39;</span><span class="w"></span>
+<span class="w">   </span><span class="k">else</span>
+<span class="k">      </span><span class="n">G_MAN_FILE_POSITION</span><span class="o">=</span><span class="s1">&#39;ASIS&#39;</span><span class="w"></span>
+<span class="w">   </span><span class="k">endif</span>
+
+<span class="k">   if</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">unnamed</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">0.</span><span class="nb">and</span><span class="p">.</span><span class="n">opts</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="k">then</span>
+<span class="k">      </span><span class="n">name</span><span class="o">=</span><span class="n">upper</span><span class="p">(</span><span class="n">unnamed</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="w"></span>
+<span class="w">   </span><span class="k">else</span>
+<span class="k">      </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="w"></span>
+<span class="w">   </span><span class="k">endif</span>
+
+<span class="k">   select case</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">   </span><span class="k">case</span><span class="p">(</span><span class="s1">&#39;COMMENT&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_outtype</span><span class="o">=</span><span class="s1">&#39;comment&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_MAN_PRINT</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_MAN_COLLECT</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">SGET</span><span class="p">(</span><span class="s1">&#39;style&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="s1">&#39;#N#&#39;</span><span class="p">)</span><span class="k">then</span>
+<span class="k">         </span><span class="n">G_comment_style</span><span class="o">=</span><span class="n">lower</span><span class="p">(</span><span class="n">SGET</span><span class="p">(</span><span class="s1">&#39;style&#39;</span><span class="p">))</span><span class="w">             </span><span class="c">! allow formatting comments for particular post-processors</span>
+<span class="w">      </span><span class="k">endif</span>
+<span class="k">   case</span><span class="p">(</span><span class="s1">&#39;NULL&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_outtype</span><span class="o">=</span><span class="s1">&#39;null&#39;</span><span class="w"></span>
+
+<span class="w">   </span><span class="k">case</span><span class="p">(</span><span class="s1">&#39;SET&#39;</span><span class="p">,</span><span class="s1">&#39;REPLACE&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_outtype</span><span class="o">=</span><span class="s1">&#39;set&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_MAN_PRINT</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_MAN_COLLECT</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span><span class="w"></span>
+<span class="w">   </span><span class="k">case</span><span class="p">(</span><span class="s1">&#39;DEFINE&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_outtype</span><span class="o">=</span><span class="s1">&#39;define&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_MAN_PRINT</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_MAN_COLLECT</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span><span class="w"></span>
+<span class="w">   </span><span class="k">case</span><span class="p">(</span><span class="s1">&#39;REDEFINE&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_outtype</span><span class="o">=</span><span class="s1">&#39;redefine&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_MAN_PRINT</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_MAN_COLLECT</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span><span class="w"></span>
+<span class="w">   </span><span class="k">case</span><span class="p">(</span><span class="s1">&#39;MESSAGE&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_outtype</span><span class="o">=</span><span class="s1">&#39;message&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_MAN_PRINT</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_MAN_COLLECT</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span><span class="w"></span>
+
+<span class="w">   </span><span class="k">case</span><span class="p">(</span><span class="s1">&#39;SHELL&#39;</span><span class="p">,</span><span class="s1">&#39;SYSTEM&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_outtype</span><span class="o">=</span><span class="s1">&#39;system&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_MAN_PRINT</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_MAN_COLLECT</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">G_system_on</span><span class="p">)</span><span class="k">then</span><span class="w">                             </span><span class="c">! if allowing commands to be executed</span>
+<span class="w">         </span><span class="nb">flush</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="n">G_iout</span><span class="p">,</span><span class="n">iostat</span><span class="o">=</span><span class="n">ios</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="c">!!G_scratch_file=scratch(&#39;prep_scratch.&#39;))</span>
+<span class="w">         </span><span class="n">G_scratch_file</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">uniq</span><span class="p">(</span><span class="n">get_tmp</span><span class="p">()</span><span class="o">//</span><span class="s1">&#39;prep_scratch.&#39;</span><span class="p">))</span><span class="w">  </span><span class="c">!! THIS HAS TO BE A UNIQUE NAME -- IMPROVE THIS</span>
+<span class="w">         </span><span class="n">G_scratch_lun</span><span class="o">=</span><span class="n">fileopen</span><span class="p">(</span><span class="n">G_scratch_file</span><span class="p">,</span><span class="s1">&#39;rw&#39;</span><span class="p">,</span><span class="n">ierr</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">if</span><span class="p">(</span><span class="n">ierr</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="k">then</span>
+<span class="k">            call </span><span class="n">stop_prep</span><span class="p">(</span><span class="s1">&#39;dec944d1-ff1f-4ff3-9512-a5801fc5e43b&#39;</span><span class="p">,</span><span class="s1">&#39;filter command failed to open process:&#39;</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">G_SOURCE</span><span class="p">))</span><span class="w"></span>
+<span class="w">         </span><span class="k">endif</span>
+<span class="k">      else</span>
+<span class="k">         call </span><span class="n">stop_prep</span><span class="p">(</span><span class="s1">&#39;b664d76c-4887-4f49-b874-90790ec62746&#39;</span><span class="p">,&amp;</span><span class="w"></span>
+<span class="w">                 </span><span class="p">&amp;</span><span class="w"> </span><span class="s1">&#39;filter command $BLOCK encountered but system commands not enabled:&#39;</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">G_SOURCE</span><span class="p">))</span><span class="w"></span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">   case</span><span class="p">(</span><span class="s1">&#39;VARIABLE&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_outtype</span><span class="o">=</span><span class="s1">&#39;variable&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_varname_length</span><span class="o">=</span><span class="n">iget</span><span class="p">(</span><span class="s1">&#39;length&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_varname_width</span><span class="o">=</span><span class="n">iget</span><span class="p">(</span><span class="s1">&#39;width&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">G_iout</span><span class="p">,</span><span class="s1">&#39;(a,i0,a)&#39;</span><span class="p">)</span><span class="nb">trim</span><span class="p">(</span><span class="n">SGET</span><span class="p">(</span><span class="s1">&#39;varname&#39;</span><span class="p">))</span><span class="o">//</span><span class="s1">&#39;=[ CHARACTER(LEN=&#39;</span><span class="p">,</span><span class="n">G_varname_length</span><span class="p">,</span><span class="s1">&#39;) :: &amp;&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_MAN_PRINT</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span><span class="w"></span>
+
+<span class="w">   </span><span class="k">case</span><span class="p">(</span><span class="s1">&#39;HELP&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_outtype</span><span class="o">=</span><span class="s1">&#39;help&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">G_iout</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;subroutine help_usage(l_help)&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">G_iout</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;implicit none&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">G_iout</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;character(len=*),parameter     :: ident=&quot;@(#)help_usage(3f): prints help information&quot;&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">G_iout</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;logical,intent(in)             :: l_help&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="c">!write(G_iout,&#39;(a)&#39;)&#39;character(len=128),allocatable :: help_text(:)&#39;</span>
+<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">G_iout</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;character(len=:),allocatable :: help_text(:)&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">G_iout</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;integer                        :: i&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">G_iout</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;logical                        :: stopit=.false.&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">G_iout</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;stopit=.false.&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">G_iout</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;if(l_help)then&#39;</span><span class="w"></span>
+<span class="c">! NOTE: Without the type specification this constructor would have to specify all of the constants with the same character length.</span>
+<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">G_iout</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;help_text=[ CHARACTER(LEN=128) :: &amp;&#39;</span><span class="w"></span>
+
+<span class="w">         </span><span class="k">select case</span><span class="p">(</span><span class="n">G_comment_style</span><span class="p">)</span><span class="w">  </span><span class="c">! duplicate help text as a comment for some code documentation utilities</span>
+<span class="w">         </span><span class="k">case</span><span class="p">(</span><span class="s1">&#39;doxygen&#39;</span><span class="p">)</span><span class="w">               </span><span class="c">! convert plain text to doxygen comment blocks with some automatic markdown highlights</span>
+<span class="w">            </span><span class="n">G_MAN_PRINT</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span><span class="w"></span>
+<span class="w">         </span><span class="k">case</span><span class="p">(</span><span class="s1">&#39;fort&#39;</span><span class="p">)</span><span class="w">                  </span><span class="c">! convert plain text to ford  comment blocks with some automatic markdown highlights</span>
+<span class="w">            </span><span class="n">G_MAN_PRINT</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span><span class="w"></span>
+<span class="w">         </span><span class="k">case</span><span class="p">(</span><span class="s1">&#39;none&#39;</span><span class="p">)</span><span class="w">                  </span><span class="c">! do not print comment lines from block</span>
+<span class="w">            </span><span class="n">G_MAN_PRINT</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span><span class="w"></span>
+<span class="w">         </span><span class="k">case </span><span class="n">default</span><span class="w"></span>
+<span class="w">         </span><span class="k">end select</span>
+
+<span class="k">   case</span><span class="p">(</span><span class="s1">&#39;VERSION&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_outtype</span><span class="o">=</span><span class="s1">&#39;version&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">G_iout</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;subroutine help_version(l_version)&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">G_iout</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;implicit none&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">G_iout</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;character(len=*),parameter     :: ident=&quot;@(#)help_version(3f): prints version information&quot;&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">G_iout</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;logical,intent(in)             :: l_version&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="c">!write(G_iout,&#39;(a)&#39;)&#39;character(len=128),allocatable :: help_text(:)&#39;</span>
+<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">G_iout</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;character(len=:),allocatable   :: help_text(:)&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">G_iout</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;integer                        :: i&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">G_iout</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;logical                        :: stopit=.false.&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">G_iout</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;stopit=.false.&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">G_iout</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;if(l_version)then&#39;</span><span class="w"></span>
+<span class="c">! NOTE: Without the type specification this constructor would have to specify all of the constants with the same character length.</span>
+<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">G_iout</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;help_text=[ CHARACTER(LEN=128) :: &amp;&#39;</span><span class="w"></span>
+
+<span class="w">   </span><span class="k">case</span><span class="p">(</span><span class="s1">&#39;WRITE&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_outtype</span><span class="o">=</span><span class="s1">&#39;write&#39;</span><span class="w"></span>
+<span class="w">   </span><span class="k">case</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="s1">&#39;END&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_outtype</span><span class="o">=</span><span class="s1">&#39;asis&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_MAN_COLLECT</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span><span class="w"></span>
+<span class="w">   </span><span class="k">case</span><span class="p">(</span><span class="s1">&#39;ASIS&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_outtype</span><span class="o">=</span><span class="s1">&#39;asis&#39;</span><span class="w"></span>
+<span class="w">   </span><span class="k">case </span><span class="n">default</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">unnamed</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="k">then</span>
+<span class="k">         call </span><span class="n">stop_prep</span><span class="p">(</span><span class="s1">&#39;0c5a4a0e-ac8d-4ef4-b160-de2d344398a6&#39;</span><span class="p">,&amp;</span><span class="w"></span>
+<span class="w">                 </span><span class="p">&amp;</span><span class="w"> </span><span class="s1">&#39;unexpected &quot;BLOCK&quot; option. found:&quot;&#39;</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">unnamed</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="o">//</span><span class="s1">&#39;&quot; in &#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">G_source</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         call </span><span class="n">stop_prep</span><span class="p">(</span><span class="s1">&#39;fde8fa32-3c90-4cae-8386-cb968877973e&#39;</span><span class="p">,</span><span class="s1">&#39;unexpected &quot;BLOCK&quot; option. found:&quot;&#39;</span><span class="p">,</span><span class="s1">&#39; &quot; in &#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">G_source</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">endif</span>
+<span class="k">   end select</span>
+
+<span class="k">   </span><span class="n">G_comment_count</span><span class="o">=</span><span class="mi">0</span><span class="w"></span>
+<span class="k">end subroutine </span><span class="n">document</span><span class="w"></span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              prep
+ was developed by John S. Urban<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-07-11 00:22 +0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

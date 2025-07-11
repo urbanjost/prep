@@ -1,0 +1,305 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Fortran pre-processor">
+    <meta name="author" content="John S. Urban" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>write_get_arguments &ndash; prep</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">prep </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>write_get_arguments
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.4% of total for procedures.">7 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/prep.f90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/prep.f90.html'>prep.f90</a></li>
+                <li class="breadcrumb-item"><a href='../module/prep__internal.html'>prep__internal</a></li>
+            <li class="breadcrumb-item active" aria-current="page">write_get_arguments</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#vars-0"
+         aria-expanded="false" aria-controls="vars-0">
+         <h4 class="card-header bg-primary text-white">Variables</h4>
+      </a>
+      <div id="vars-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../proc/write_get_arguments.html#variable-i">i</a>
+            <a class="list-group-item" href="../proc/write_get_arguments.html#variable-text">text</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/write_get_arguments.html#src">write_get_arguments</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine write_get_arguments()  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+    <em>None</em>
+    <br>
+    <br>
+
+
+    <section>    
+      <h2>Variables</h2>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-i"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>i</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-text"></span>
+              character(len=132),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>text</strong>(*)</td>
+<td> =</td>
+                <td>[character(len=132)::&#34;function get_arguments()&#34;, &#34;character(len=255)           :: message ! use for I/O error messages&#34;, &#34;character(len=:),allocatable :: string  ! stores command line argument&#34;, &#34;integer                      :: get_arguments&#34;, &#34;integer :: command_line_length&#34;, &#34;   call get_command(length=command_line_length)   ! get length needed to hold command&#34;, &#34;   allocate(character(len=command_line_length) :: string)&#34;, &#34;   call get_command(string)&#34;, &#34;   ! trim off command name and get command line arguments&#34;, &#34;   string=adjustl(string)//&#39; &#39;                    ! assuming command verb does not have spaces in it&#34;, &#34;   string=string(index(string,&#39; &#39;):)&#34;, &#34;   string=&#39;&amp;cmd &#39;//string//&#39; /&#39;                   ! add namelist prefix and terminator&#34;, &#34;   read(string,nml=cmd,iostat=get_arguments,iomsg=message) ! internal read of namelist&#34;, &#34;   if(get_arguments /= 0)then&#34;, &#34;      write(*,&#39;(&#39;&#39;ERROR:&#39;&#39;,i0,1x,a)&#39;)get_arguments, trim(message)&#34;, &#34;      write(*,*)&#39;COMMAND OPTIONS ARE&#39;&#34;, &#34;      write(*,nml=cmd)&#34;, &#34;      stop 1&#34;, &#34;   endif&#34;, &#34;end function get_arguments&#34;, &#34;&#34;]</td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </section>
+    <br>
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="k">subroutine </span><span class="n">write_get_arguments</span><span class="p">()</span><span class="w">                </span><span class="c">!@(#)write_get_arguments(3f): write block for processing M_CLI command line parsing</span>
+<span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="w"></span>
+<span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">132</span><span class="p">),</span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">text</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="o">=</span><span class="p">[</span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">132</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="s2">&quot;function get_arguments()&quot;</span><span class="w">                                                                              </span><span class="p">,&amp;</span><span class="w"></span>
+<span class="s2">&quot;character(len=255)           :: message ! use for I/O error messages&quot;</span><span class="w">                                  </span><span class="p">,&amp;</span><span class="w"></span>
+<span class="s2">&quot;character(len=:),allocatable :: string  ! stores command line argument&quot;</span><span class="w">                                </span><span class="p">,&amp;</span><span class="w"></span>
+<span class="s2">&quot;integer                      :: get_arguments&quot;</span><span class="w">                                                         </span><span class="p">,&amp;</span><span class="w"></span>
+<span class="s2">&quot;integer :: command_line_length&quot;</span><span class="w">                                                                        </span><span class="p">,&amp;</span><span class="w"></span>
+<span class="s2">&quot;   call get_command(length=command_line_length)   ! get length needed to hold command&quot;</span><span class="w">                 </span><span class="p">,&amp;</span><span class="w"></span>
+<span class="s2">&quot;   allocate(character(len=command_line_length) :: string)&quot;</span><span class="w">                                             </span><span class="p">,&amp;</span><span class="w"></span>
+<span class="s2">&quot;   call get_command(string)&quot;</span><span class="w">                                                                           </span><span class="p">,&amp;</span><span class="w"></span>
+<span class="s2">&quot;   ! trim off command name and get command line arguments&quot;</span><span class="w">                                             </span><span class="p">,&amp;</span><span class="w"></span>
+<span class="s2">&quot;   string=adjustl(string)//&#39; &#39;                    ! assuming command verb does not have spaces in it&quot;</span><span class="w">  </span><span class="p">,&amp;</span><span class="w"></span>
+<span class="s2">&quot;   string=string(index(string,&#39; &#39;):)&quot;</span><span class="w">                                                                  </span><span class="p">,&amp;</span><span class="w"></span>
+<span class="s2">&quot;   string=&#39;&amp;cmd &#39;//string//&#39; /&#39;                   ! add namelist prefix and terminator&quot;</span><span class="w">                </span><span class="p">,&amp;</span><span class="w"></span>
+<span class="s2">&quot;   read(string,nml=cmd,iostat=get_arguments,iomsg=message) ! internal read of namelist&quot;</span><span class="w">                </span><span class="p">,&amp;</span><span class="w"></span>
+<span class="s2">&quot;   if(get_arguments /= 0)then&quot;</span><span class="w">                                                                         </span><span class="p">,&amp;</span><span class="w"></span>
+<span class="s2">&quot;      write(*,&#39;(&#39;&#39;ERROR:&#39;&#39;,i0,1x,a)&#39;)get_arguments, trim(message)&quot;</span><span class="w">                                       </span><span class="p">,&amp;</span><span class="w"></span>
+<span class="s2">&quot;      write(*,*)&#39;COMMAND OPTIONS ARE&#39;&quot;</span><span class="w">                                                                 </span><span class="p">,&amp;</span><span class="w"></span>
+<span class="s2">&quot;      write(*,nml=cmd)&quot;</span><span class="w">                                                                                </span><span class="p">,&amp;</span><span class="w"></span>
+<span class="s2">&quot;      stop 1&quot;</span><span class="w">                                                                                          </span><span class="p">,&amp;</span><span class="w"></span>
+<span class="s2">&quot;   endif&quot;</span><span class="w">                                                                                              </span><span class="p">,&amp;</span><span class="w"></span>
+<span class="s2">&quot;end function get_arguments&quot;</span><span class="w">                                                                            </span><span class="p">,&amp;</span><span class="w"></span>
+<span class="s2">&quot;&quot;</span><span class="w"> </span><span class="p">]</span><span class="w"></span>
+<span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">text</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="k">write</span><span class="p">(</span><span class="n">G_iout</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="nb">trim</span><span class="p">(</span><span class="n">text</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w"></span>
+<span class="k">enddo</span>
+<span class="k">end subroutine </span><span class="n">write_get_arguments</span><span class="w"></span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              prep
+ was developed by John S. Urban<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-07-11 00:22 +0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

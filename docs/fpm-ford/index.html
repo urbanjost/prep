@@ -1,0 +1,422 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Fortran pre-processor">
+    <meta name="author" content="John S. Urban" >
+    <link rel="icon" href="./favicon.png">
+
+    <title> prep </title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="./css/fontawesome.min.css" rel="stylesheet">
+    <link href="./css/brands.min.css" rel="stylesheet">
+    <link href="./css/regular.min.css" rel="stylesheet">
+    <link href="./css/solid.min.css" rel="stylesheet">
+    <link href="./css/v4-font-face.min.css" rel="stylesheet">
+    <link href="./css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="./css/local.css" rel="stylesheet">
+    <link href="./css/pygments.css" rel="stylesheet">
+    <script src="./js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="./index.html">prep </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="./lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="./lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="./lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="./lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="./lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="./search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <!-- Main component for a primary marketing message or call to action -->
+    <div class="p-5 mb-4 bg-light border rounded-3" id="jumbotron">
+      <p>Fortran pre-processor</p>
+        <p> Find us on&hellip;</p>
+      <p>
+        <a class="btn btn-lg btn-primary" href="https://github.com/urbanjost/prep" role="button">GitHub</a>
+        
+        
+        
+        
+      </p>
+    </div>
+
+      <div class="row" id='text'>
+        <div class=col-md-8>
+          <h1>prep</h1>
+          <!--
+author_pic:
+twitter:
+website:
+-->
+<h4 id="fpm-toolsprep"><a href="https://github.com/search?q=&quot;fpm-tools&quot;%20in:topic%20language:fortran">fpm-tools</a>:<a href="https://urbanjost.github.io/prep/prep.1.html">prep</a></h4>
+<h1 id="_1"><img alt="prep" src="docs/images/prep.gif"></h1>
+<h2 id="prep-a-fortran-source-code-pre-processor-written-in-fortran">prep - A Fortran source code pre-processor written in Fortran</h2>
+<h2 id="description">Description</h2>
+<p><code>prep(1)</code> is a streamlined pre-processor primarily designed for use with
+Fortran. It does not support procedural macros but does support variable
+substitution and reusable free-format text blocks which allows for basic
+templating and easy construction of multi-line CHARACTER variables;
+and is quite capable of supporting traditional conditional compilation.</p>
+<p>It is written in standard Fortran so those in the Fortran community will
+find it easy to modify and to use portably.</p>
+<p><code>prep(1)</code> is intentionally simple enough to be well described with
+a one-page crib sheet, and should take no more than an hour to
+master. Fortran-like (and some POSIX shell-like) syntax is used to
+leverage familiarity with Fortran.</p>
+<p>In particular, <code>prep(1)</code> allows for maintaining documentation in the body
+of the source code in a variety of formats via the <strong>$BLOCK</strong> directive.</p>
+<h2 id="example-showing-templating">Example Showing Templating</h2>
+<p>The most distinct feature of <strong>prep(1)</strong> compared to basic preprocessors
+is the ability to define a block of text and apply special processing
+to it to simplify maintaining documentation but also to repeat the code
+with different string expansions, allowing for a form of templating a
+generic routine. A relatively advanced example:</p>
+<div class="codehilite"><pre><span></span><code>$import USER
+$! write the routine generically with ${NAME} variables
+$parcel ex1
+   ! created by ${USER} on ${DATE} at ${TIME}
+   subroutine testit_${KIND}(value)
+   real(kind=${KIND}) :: value
+      write(*,*)&#39;big subroutine with type ${KIND} and value=&#39;,value
+   end subroutine testit_${KIND}
+
+$endparcel
+$!
+module M_testit
+use, intrinsic :: iso_fortran_env, only : real32, real64, real128
+implicit none
+private
+public testit
+interface testit
+   module procedure testit_real32
+   module procedure testit_real64
+   module procedure testit_real128
+end interface testit
+contains
+$! now just $POST the routine multiple times changing the kind ...
+$set kind real32
+$post ex1
+$set kind real64
+$post ex1
+$set kind real128
+$post ex1
+end module M_testit
+</code></pre></div>
+
+<p>The output looks like</p>
+<div class="codehilite"><pre><span></span><code><span class="k">module </span><span class="n">M_testit</span><span class="w"></span>
+<span class="k">use</span><span class="p">,</span><span class="w"> </span><span class="k">intrinsic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iso_fortran_env</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">real32</span><span class="p">,</span><span class="w"> </span><span class="n">real64</span><span class="p">,</span><span class="w"> </span><span class="n">real128</span><span class="w"></span>
+<span class="k">implicit none</span>
+<span class="k">private</span>
+<span class="k">public </span><span class="n">testit</span><span class="w"></span>
+<span class="k">interface </span><span class="n">testit</span><span class="w"></span>
+<span class="w">   </span><span class="k">module procedure </span><span class="n">testit_real32</span><span class="w"></span>
+<span class="w">   </span><span class="k">module procedure </span><span class="n">testit_real64</span><span class="w"></span>
+<span class="w">   </span><span class="k">module procedure </span><span class="n">testit_real128</span><span class="w"></span>
+<span class="k">end interface </span><span class="n">testit</span><span class="w"></span>
+<span class="k">contains</span><span class="w"></span>
+<span class="w">   </span><span class="c">! created by urbanjs on Jun 19 2021 at 11:55:43</span>
+<span class="w">   </span><span class="k">subroutine </span><span class="n">testit_real32</span><span class="p">(</span><span class="k">value</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">real32</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">value</span>
+<span class="k">      write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;big subroutine with type real32 and value=&#39;</span><span class="p">,</span><span class="k">value</span>
+<span class="k">   end subroutine </span><span class="n">testit_real32</span><span class="w"></span>
+
+<span class="w">   </span><span class="c">! created by urbanjs on Jun 19 2021 at 11:55:43</span>
+<span class="w">   </span><span class="k">subroutine </span><span class="n">testit_real64</span><span class="p">(</span><span class="k">value</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">real64</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">value</span>
+<span class="k">      write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;big subroutine with type real64 and value=&#39;</span><span class="p">,</span><span class="k">value</span>
+<span class="k">   end subroutine </span><span class="n">testit_real64</span><span class="w"></span>
+
+<span class="w">   </span><span class="c">! created by urbanjs on Jun 19 2021 at 11:55:43</span>
+<span class="w">   </span><span class="k">subroutine </span><span class="n">testit_real128</span><span class="p">(</span><span class="k">value</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">real128</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">value</span>
+<span class="k">      write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;big subroutine with type real128 and value=&#39;</span><span class="p">,</span><span class="k">value</span>
+<span class="k">   end subroutine </span><span class="n">testit_real128</span><span class="w"></span>
+
+<span class="k">end module </span><span class="n">M_testit</span><span class="w"></span>
+</code></pre></div>
+
+<h2 id="building">Building</h2>
+<p>To build it requires <code>git</code>, <code>fpm</code>(Fortran Package Manager), a modern
+Fortran compiler and WWW access or you will need to compile the single-file
+<a href="https://raw.githubusercontent.com/urbanjost/prep/main/standalone/prep.f90">bootstrap version</a>.
+It was tested with</p>
+<ul>
+<li>GNU Fortran (GCC) 8.3.1         on 20191121</li>
+<li>GNU Fortran 9.3.0               on 20210612</li>
+<li>GNU Fortran 10.3.0              on 20220804</li>
+<li>GNU Fortran 11.1.0              on 20230120</li>
+<li>ifort (IFORT) 19.1.3.304        on 20200925</li>
+<li>ifort (IFORT) 2021.3.0 20210609 on 20220305</li>
+<li>ifort (IFORT) 2021.3.0 20210609 on 20220804</li>
+<li>ifort (IFORT) 2021.8.0 20221119 on 20230120</li>
+<li>nvfortran 21.5-0                on 20220804</li>
+</ul>
+<h2 id="accessing">Accessing</h2>
+<div class="codehilite"><pre><span></span><code>   <span class="c1"># go to where you want to create the `prep` directory. For example:</span>
+   mkdir github
+   <span class="nb">cd</span> github
+   <span class="c1"># get a clone of the repository</span>
+   git clone https://github.com/urbanjost/prep.git
+   <span class="c1"># enter the repository directory</span>
+   <span class="nb">cd</span> prep
+</code></pre></div>
+
+<h2 id="building-and-installing">Building and Installing</h2>
+<div class="codehilite"><pre><span></span><code>   <span class="c1"># build and install (in the default location) using fpm(1)</span>
+   fpm install
+</code></pre></div>
+
+<p>or</p>
+<div class="codehilite"><pre><span></span><code>   <span class="c1"># examples of building standalone version</span>
+   gfortran standalone/prep.f90 -o prep 
+   ifort standalone/prep.f90 -o prep 
+   nvfortran -Mbackslash standalone/prep.f90 -o prep 
+   <span class="c1"># example of moving to a location in your path</span>
+   mv prep <span class="nv">$HOME</span>/.local/bin/
+</code></pre></div>
+
+<h2 id="try-it">Try It</h2>
+<div class="codehilite"><pre><span></span><code>   <span class="c1"># if you placed the program in a directory in your command path you are ready to go!</span>
+   prep --help
+</code></pre></div>
+
+<h2 id="without-intermediate-files">Without intermediate files</h2>
+<p>Normally, you would run prep to make your standard source file, like a *.f90 file.
+  Mileage may vary, but for some common Fortran compilers you can directly compile
+  your files; at least in simple cases. </p>
+<div class="codehilite"><pre><span></span><code>  prep -i <span class="nv">$FILE</span>.FF <span class="p">|</span>gfortran -x f95 -  <span class="c1"># free-format Fortran</span>
+  prep -i <span class="nv">$FILE</span>.FF <span class="p">|</span>gfortran -x f77 -  <span class="c1"># fixed-format Fortran</span>
+</code></pre></div>
+
+<!--
+  ifort -fpp-name='prep' $FILE.F90
+-->
+<p>Preprocessing is not standardized, so creating .f90 and .f files is probably far
+  more reliable.</p>
+<h2 id="documentation">Documentation   <img alt="docs" src="docs/images/docs.gif"></h2>
+<ul>
+<li><a href="https://urbanjost.github.io/prep/prep.1.html">man-pages</a> reformatted as HTML.</li>
+<li>the <a href="https://github.com/urbanjost/prep/tree/main/demos/">demos/</a> directory has example input files for a variety of cases</li>
+<li>The <a href="https://github.com/urbanjost/prep/blob/main/docs/CHANGELOG.md">CHANGELOG</a></li>
+<li>The <a href="https://github.com/urbanjost/prep/blob/main/docs/STATUS.md">CI/CD</a> results</li>
+<li>Developer <a href="https://urbanjost.github.io/prep/fpm-ford/index.html">ford(1) output</a></li>
+<li><a href="https://urbanjost.github.io/prep">Overview</a></li>
+</ul>
+<h2 id="crib-sheet">Crib Sheet</h2>
+<div class="codehilite"><pre><span></span><code>EXPRESSIONS
+  numeric operators are +,-,*,/,**, (). Logical operators are
+   &gt;  | .EQ.| .NE.| .GE.| .GT.| .LE.| .LT.|.NOT.|.AND.| .OR.| .EQV.|.NEQV.|
+   &gt;  |  == |  /= |  &gt;= |  &gt;  |  &lt;= |  &lt;  |  !  |  &amp;&amp; |  || |  ==  |  !=  |
+  $DEFINE variable_name[=expression][;...]
+   &gt; Predefined values are &quot;OS&quot;, which is set to a guess of the system type, and
+   &gt; UNKNOWN=0 LINUX=1 MACOS=2 WINDOWS=3 CYGWIN=4 SOLARIS=5 FREEBSD=6 OPENBSD=7.
+   &gt; SYSTEMON is .TRUE. if --system is present on the command line, else .FALSE.
+  $UNDEFINE|$UNDEF variable_name[;...]
+CONDITIONAL CODE SELECTION:
+  $IF logical_integer-based_expression| [.NOT.] DEFINED(varname[,...])
+  $IFDEF|$IFNDEF variable_or_envname
+  $ELSEIF|$ELIF logical_integer-based_expression
+  $ELSE
+  $ENDIF
+MACRO STRING EXPANSION AND TEXT REPLAY:
+   &gt; Unless at least one variable name is defined no ${NAME} expansion occurs.
+  $SET varname string
+  $$UNSET variable_name[;...]
+  $IMPORT envname[;...]
+   &gt; $set author  William Shakespeare
+   &gt; $import HOME
+   &gt; write(*,*)&#39;${AUTHOR} ${DATE} ${TIME} File ${FILE} Line ${LINE} HOME ${HOME}
+  $PARCEL blockname ... $ENDPARCEL ! a reuseable parcel of expandable text
+  $POST   blockname(s)  ! insert a defined parcel of text
+EXTERNAL FILES (see $BLOCK ... --file also)
+  $OUTPUT filename [--append]
+  $INCLUDE filename
+TEXT BLOCK FILTERS (--file writes to $PREP_DOCUMENT_DIR/doc/NAME)
+  $BLOCK [comment|null|write|variable [--varname NAME]|set|system|message|
+         define|help|version][--file NAME [--append]] ... $ENDBLOCK
+INFORMATION
+  $MESSAGE message_to_stderr
+  $SHOW [defined_variable_name][;...]
+SYSTEM COMMANDS (see also: $BLOCK SYSTEM)
+  $SYSTEM command
+  $STOP [stop_value[ &quot;message&quot;]] | $QUIT [&quot;message&quot;]| $ERROR [&quot;message&quot;]
+</code></pre></div>
+
+<h2 id="homepage">Homepage</h2>
+<p>https://github.com/urbanjost/prep.git</p>
+<p>Feedback is welcome.
+<a href="https://github.com/urbanjost/prep/wiki/Fortran-pre-processing"><strong>leave a comment!</strong></a></p>
+<!--
+https://github.com/fortran-lang/fpm/issues/78
+-->
+<h2 id="dependencies-via-fpm-deps">Dependencies ( via <a href="https://github.com/ivan-pi/fpm-deps">fpm-deps</a>)</h2>
+<div class="codehilite"><pre><span></span><code><span class="n">flowchart</span><span class="w"> </span><span class="n">TB</span><span class="w"></span>
+<span class="w">  </span><span class="n">N1</span><span class="o">[</span><span class="n">prep</span><span class="o">]</span><span class="w"></span>
+<span class="w">  </span><span class="n">N2</span><span class="o">[</span><span class="n">M_CLI2</span><span class="o">]</span><span class="w"></span>
+<span class="w">  </span><span class="n">N3</span><span class="o">[</span><span class="n">M_io</span><span class="o">]</span><span class="w"></span>
+<span class="w">  </span><span class="n">N4</span><span class="o">[</span><span class="n">M_strings</span><span class="o">]</span><span class="w"></span>
+<span class="w">  </span><span class="n">N5</span><span class="o">[</span><span class="n">M_list</span><span class="o">]</span><span class="w"></span>
+<span class="w">  </span><span class="n">N6</span><span class="o">[</span><span class="n">M_history</span><span class="o">]</span><span class="w"></span>
+<span class="w">  </span><span class="n">N7</span><span class="o">[</span><span class="n">M_match</span><span class="o">]</span><span class="w"></span>
+<span class="w">  </span><span class="n">N8</span><span class="o">[</span><span class="n">M_attr</span><span class="o">]</span><span class="w"></span>
+<span class="w">  </span><span class="n">click</span><span class="w"> </span><span class="n">N1</span><span class="w"> </span><span class="n">href</span><span class="w"> </span><span class="ss">&quot;https://github.com/urbanjost/prep&quot;</span><span class="w"> </span><span class="ss">&quot;Fortran pre-processor&quot;</span><span class="w"></span>
+<span class="w">  </span><span class="n">click</span><span class="w"> </span><span class="n">N2</span><span class="w"> </span><span class="n">href</span><span class="w"> </span><span class="ss">&quot;https://github.com/urbanjost/M_CLI2.git&quot;</span><span class="w"> </span><span class="ss">&quot;Unix-style commandline parsing using a prototype command&quot;</span><span class="w"></span>
+<span class="w">  </span><span class="n">click</span><span class="w"> </span><span class="n">N3</span><span class="w"> </span><span class="n">href</span><span class="w"> </span><span class="ss">&quot;https://github.com/urbanjost/M_io.git&quot;</span><span class="w"> </span><span class="ss">&quot;I/O-related tools&quot;</span><span class="w"></span>
+<span class="w">  </span><span class="n">click</span><span class="w"> </span><span class="n">N4</span><span class="w"> </span><span class="n">href</span><span class="w"> </span><span class="ss">&quot;https://github.com/urbanjost/M_strings.git&quot;</span><span class="w"> </span><span class="ss">&quot;string manipulation&quot;</span><span class="w"></span>
+<span class="w">  </span><span class="n">click</span><span class="w"> </span><span class="n">N5</span><span class="w"> </span><span class="n">href</span><span class="w"> </span><span class="ss">&quot;https://github.com/urbanjost/M_list.git&quot;</span><span class="w"> </span><span class="ss">&quot; maintain sorted lists of INTRINSIC type&quot;</span><span class="w"></span>
+<span class="w">  </span><span class="n">click</span><span class="w"> </span><span class="n">N6</span><span class="w"> </span><span class="n">href</span><span class="w"> </span><span class="ss">&quot;https://github.com/urbanjost/M_history.git&quot;</span><span class="w"> </span><span class="ss">&quot;Input History Editor&quot;</span><span class="w"></span>
+<span class="w">  </span><span class="n">click</span><span class="w"> </span><span class="n">N7</span><span class="w"> </span><span class="n">href</span><span class="w"> </span><span class="ss">&quot;https://github.com/urbanjost/M_match.git&quot;</span><span class="w"> </span><span class="ss">&quot;Basic Regular Expressions&quot;</span><span class="w"></span>
+<span class="w">  </span><span class="n">click</span><span class="w"> </span><span class="n">N8</span><span class="w"> </span><span class="n">href</span><span class="w"> </span><span class="ss">&quot;https://github.com/urbanjost/M_attr.git&quot;</span><span class="w"> </span><span class="ss">&quot;ANSI control escape sequences using an XML-like syntax for attributes like color on video displays and emulators&quot;</span><span class="w"></span>
+<span class="w">  </span><span class="n">N1</span><span class="o">--&gt;</span><span class="n">N2</span><span class="w"></span>
+<span class="w">  </span><span class="n">N1</span><span class="o">--&gt;</span><span class="n">N3</span><span class="w"></span>
+<span class="w">  </span><span class="n">N1</span><span class="o">--&gt;</span><span class="n">N4</span><span class="w"></span>
+<span class="w">  </span><span class="n">N1</span><span class="o">--&gt;</span><span class="n">N5</span><span class="w"></span>
+<span class="w">  </span><span class="n">N1</span><span class="o">--&gt;</span><span class="n">N6</span><span class="w"></span>
+<span class="w">  </span><span class="n">N1</span><span class="o">--&gt;</span><span class="n">N7</span><span class="w"></span>
+<span class="w">  </span><span class="n">N1</span><span class="o">--&gt;</span><span class="n">N8</span><span class="w"></span>
+<span class="w">  </span><span class="n">N6</span><span class="c1">--&gt;N4</span>
+</code></pre></div>
+
+<hr>
+        </div>
+          <div class="col-md-4">
+            <div class="card card-body bg-light">
+              <h2 class="card-title">Developer Info</h2>
+              <h4 class="card-text">John S. Urban</h4>
+              <p class="card-text"></p>
+                <div class="text-center"><div class="btn-group" role="group">
+                    
+                    <a class="btn btn-lg btn-primary" href="https://github.com/urbanjost/prep"><i class="fa fa-github fa-lg"></i></a>
+                    
+                    
+                    
+                    
+                    
+                    
+                </div></div>
+            </div>
+          </div>
+      </div>
+        <div class="row">
+          <hr>
+          <div class="col-xs-6 col-sm-3">
+            <div>
+              <h3>Source Files</h3>
+              <ul><li><a href='sourcefile/prep.f90.html'>prep.f90</a></li><li><a href='sourcefile/test_prep.f90.html'>test_prep.f90</a></li></ul>
+            </div>
+            <div>
+              <ul>
+                <li><a href="./lists/files.html"><em>All source files&hellip;</em></a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-xs-6 col-sm-3">
+            <div>
+              <h3>Modules</h3>
+              <ul><li><a href='module/prep__internal.html'>prep__internal</a></li></ul>
+            </div>
+            <div>
+              <ul>
+                <li><a href="./lists/modules.html"><em>All modules&hellip;</em></a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-xs-6 col-sm-3">
+            <div>
+              <h3>Procedures</h3>
+              <ul><li><a href='proc/auto.html'>auto</a></li><li><a href='proc/block.html'>block</a></li><li><a href='proc/block_2.html'>block_2</a></li><li><a href='proc/block_3.html'>block_3</a></li><li><a href='proc/check_name.html'>check_name</a></li><li><a href='proc/cond.html'>cond</a></li><li><a href='proc/conditionals.html'>conditionals</a></li><li><a href='proc/conditionals_2.html'>conditionals_2</a></li><li><a href='proc/conditionals_3.html'>conditionals_3</a></li><li><a href='proc/crib_help.html'>crib_help</a></li></ul>
+            </div>
+            <div>
+              <ul>
+                <li><a href="./lists/procedures.html"><em>All procedures&hellip;</em></a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-xs-6 col-sm-3">
+            <div>
+              <h3>Derived Types</h3>
+              <ul><li><a href='type/file_stack.html'>file_stack</a></li><li><a href='type/parcel_stack.html'>parcel_stack</a></li></ul>
+            </div>
+            <div>
+              <ul>
+                <li><a href="./lists/types.html"><em>All derived types&hellip;</em></a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              prep
+ was developed by John S. Urban<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-07-11 00:22 +0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>
