@@ -45,9 +45,9 @@
 module prep__internal                                                             !@(#)prep__internal(3f): module used by prep program
 USE ISO_FORTRAN_ENV, ONLY : STDERR=>ERROR_UNIT, STDOUT=>OUTPUT_UNIT,STDIN=>INPUT_UNIT
 use M_io,        only : get_tmp, dirname, uniq, fileopen, filedelete, get_env       ! Fortran file I/O routines
-use M_CLI2,      only : set_args, SGET, iget, lget, unnamed, specified !,print_dictionary ! load command argument parsing module
+use M_CLI2,      only : set_args, sget, iget, lget, unnamed, specified !,print_dictionary ! load command argument parsing module
 use M_strings,   only : nospace, v2s, substitute, upper, lower, isalpha, split, delim, str_replace=>replace, sep, pad, unquote
-use M_strings,   only : glob
+use M_strings,   only : glob, encode_base64
 use M_list,      only : dictionary
 use M_expr,      only : expr, get_integer_from_string, table
 use M_match,     only : getpat, match, regex_pattern
@@ -411,7 +411,7 @@ integer                                   :: j,jsz
       enddo
    endif
    call split(list,names,delimiters=' ,')                    ! parse string to an array parsing on delimiters
-   list=SGET('FOR')
+   list=sget('FOR')
    call split(list,fors,delimiters=' ,')                     ! parse string to an array parsing on delimiters
    jsz=size(fors)
    do i=size(names),1,-1
@@ -486,7 +486,7 @@ integer                      :: i
       text=text//' '//trim(unnamed(i))
    enddo
 
-   lang=SGET('language')
+   lang=sget('language')
 
    select case(lang)
    case('fortran')    !x! should make look for characters not allowed in metadata, continue over multiple lines, ...
@@ -842,8 +842,8 @@ character(len=:),allocatable :: name
 
    ! now can start new section
    G_MAN=''
-   if(SGET('file') /= '')then
-      G_MAN_FILE=SGET('file')
+   if(sget('file') /= '')then
+      G_MAN_FILE=sget('file')
       G_MAN_COLLECT=.true.
    else
       G_MAN_FILE=''
@@ -870,8 +870,8 @@ character(len=:),allocatable :: name
       G_outtype='comment'
       G_MAN_PRINT=.true.
       G_MAN_COLLECT=.true.
-      if(SGET('style') /= '#N#')then
-         G_comment_style=lower(SGET('style'))             ! allow formatting comments for particular post-processors
+      if(sget('style') /= '#N#')then
+         G_comment_style=lower(sget('style'))             ! allow formatting comments for particular post-processors
       endif
    case('NULL')
       G_outtype='null'
@@ -914,7 +914,7 @@ character(len=:),allocatable :: name
       G_outtype='variable'
       G_varname_length=iget('length')
       G_varname_width=iget('width')
-      write(G_iout,'(a,i0,a)')trim(SGET('varname'))//'=[ CHARACTER(LEN=',G_varname_length,') :: &'
+      write(G_iout,'(a,i0,a)')trim(sget('varname'))//'=[ CHARACTER(LEN=',G_varname_length,') :: &'
       G_MAN_PRINT=.false.
 
    case('HELP')
@@ -1380,7 +1380,7 @@ integer                               :: ilength                 ! is the positi
    ! G_inc_count is the number of tokens found
 
    ! break command argument "I" into single words
-   call delim(adjustl(trim(SGET('I'))),G_inc_files,n,G_inc_count,ibegin,iterm,ilength,dlim)
+   call delim(adjustl(trim(sget('I'))),G_inc_files,n,G_inc_count,ibegin,iterm,ilength,dlim)
 end subroutine includes
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -1406,7 +1406,7 @@ integer                               :: i
    endif
 
    ! break command argument prep_oo into single words
-   call delim(adjustl(trim(in_define2))//' '//trim(SGET('D')),array,n,icount,ibegin,iterm,ilength,dlim)
+   call delim(adjustl(trim(in_define2))//' '//trim(sget('D')),array,n,icount,ibegin,iterm,ilength,dlim)
    do i=1,icount
       G_source='$redefine '//trim(array(i))
       call cond() ! convert variable name into a "$define variablename" directive and process it
@@ -1750,7 +1750,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                    are equivalent if the --underscore option is specified on   ',&
 '                    the command line:                                           ',&
 '                                                                                ',&
-'                        __FILE__  ${FILE} # name of file being processed        ',&           
+'                        __FILE__  ${FILE} # name of file being processed        ',&
 '                        __LINE__  ${LINE} # line number of current file         ',&
 '                        __DATE__  ${DATE} # YYYY-MM-DD                          ',&
 '                        __TIME__  ${TIME} # HH:MM:SS                            ',&
@@ -2853,7 +2853,7 @@ end module prep__internal
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
 program prep                                              !@(#)prep(1f): preprocessor for Fortran/Fortran source code
-use M_CLI2,    only : set_args, lget, rget, iget, SGET
+use M_CLI2,    only : set_args, lget, rget, iget, sget
 use M_strings, only : notabs, isdigit, switch, sep, lower
 use M_io,      only : getname, basename
 use M_attr,    only : attr, attr_mode
@@ -2923,11 +2923,11 @@ logical                      :: isscratch
       endif
    endif
 !  cpp<=========================================================================
-   string=adjustl(trim(SGET('prefix')))
+   string=adjustl(trim(sget('prefix')))
    if ( all( isdigit(switch(string)) ) ) then               ! if all characters are numeric digits
       prefix = char(iget('prefix'))                         ! assume this is an ADE
    else
-      prefix(1:1) = trim(SGET('prefix'))                    ! not a digit so not an ADE so assume a literal character
+      prefix(1:1) = trim(sget('prefix'))                    ! not a digit so not an ADE so assume a literal character
    endif
 
    G_inc_files=' '
@@ -2936,11 +2936,11 @@ logical                      :: isscratch
    G_ident=lget('ident')                                    ! write IDENT as comment or CHARACTER variable
    G_iwidth                   = iget('width')
    G_iwidth=max(0,G_iwidth)
-   G_deed(1:1)                = trim(SGET('d'))
+   G_deed(1:1)                = trim(sget('d'))
    G_underscore               = lget('underscore')
    G_noenv                    = lget('noenv')
 
-   out_filename(:G_line_length) = SGET('o')
+   out_filename(:G_line_length) = sget('o')
 
    if(G_cpp .and. out_filename == '' )then
       if(size(unnamed) == 2) out_filename=unnamed(2)
@@ -2972,7 +2972,7 @@ logical                      :: isscratch
    if(G_verbose)then
       call write_err('+ verbose mode on ')
    endif
-   G_comment_style=lower(SGET('comment'))             ! allow formatting comments for particular post-processors
+   G_comment_style=lower(sget('comment'))             ! allow formatting comments for particular post-processors
    G_system_on = lget('system')                       ! allow system commands on $SYSTEM directives
    if(G_system_on)then
       call put('SYSTEMON=.TRUE.')
@@ -2985,14 +2985,14 @@ logical                      :: isscratch
       G_extract_auto=.true.  ! auto mode where start and end are selected based on file suffix
       G_extract=.false.
       ! if these are set use them instead of auto mode
-      G_extract_start=trim(SGET('start'))
-      G_extract_stop=trim(SGET('stop'))
+      G_extract_start=trim(sget('start'))
+      G_extract_stop=trim(sget('stop'))
       G_extract_start0=G_extract_start
       G_extract_stop0=G_extract_stop
    else
       G_extract_auto=.false.
       G_extract=.true.
-      select case(SGET('type'))
+      select case(sget('type'))
       case('md','.md')
          G_extract_start='```fortran'
          G_extract_stop='```'
