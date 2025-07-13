@@ -91,7 +91,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title="100.0% of total for modules and submodules.">1570 statements</a>
+                 title="100.0% of total for modules and submodules.">1597 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
@@ -256,6 +256,7 @@
             <a class="list-group-item" href="../module/prep__internal.html#proc-if">if</a>
             <a class="list-group-item" href="../module/prep__internal.html#proc-import">import</a>
             <a class="list-group-item" href="../module/prep__internal.html#proc-include">include</a>
+            <a class="list-group-item" href="../module/prep__internal.html#proc-include_cmd">include_cmd</a>
             <a class="list-group-item" href="../module/prep__internal.html#proc-includes">includes</a>
             <a class="list-group-item" href="../module/prep__internal.html#proc-opens">opens</a>
             <a class="list-group-item" href="../module/prep__internal.html#proc-output_cmd">output_cmd</a>
@@ -303,14 +304,14 @@
         <ul class="list-group list-group-flush">
             <li class="list-group-item">
               <ul class="list-inline">
-                  <li class="list-inline-item"><a href='http://fortranwiki.org/fortran/show/iso_fortran_env'>iso_fortran_env</a></li>
                   <li class="list-inline-item">M_expr</li>
-                  <li class="list-inline-item">M_list</li>
-                  <li class="list-inline-item">M_io</li>
-                  <li class="list-inline-item">M_CLI2</li>
-                  <li class="list-inline-item">M_attr</li>
-                  <li class="list-inline-item">M_strings</li>
+                  <li class="list-inline-item"><a href='http://fortranwiki.org/fortran/show/iso_fortran_env'>iso_fortran_env</a></li>
                   <li class="list-inline-item">M_match</li>
+                  <li class="list-inline-item">M_attr</li>
+                  <li class="list-inline-item">M_CLI2</li>
+                  <li class="list-inline-item">M_io</li>
+                  <li class="list-inline-item">M_list</li>
+                  <li class="list-inline-item">M_strings</li>
               </ul>
             </li>
         </ul>
@@ -1626,7 +1627,7 @@ parameter
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-name~5"></span>
+              <span class="anchor" id="variable-name~4"></span>
               character(len=*),
             </td>
 <td>intent(in),</td>
@@ -2490,6 +2491,61 @@ parameter
         </tr>
         <tr>
             <td>
+              <span class="anchor" id="variable-iunit~2"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>iunit</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-include_cmd"></span> <h3>public  subroutine <a href='../proc/include_cmd.html'>include_cmd</a>(opts, iunit)  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-opts~10"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>opts</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
               <span class="anchor" id="variable-iunit"></span>
               integer,
             </td>
@@ -2729,7 +2785,7 @@ parameter
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-opts~12"></span>
+              <span class="anchor" id="variable-opts~13"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -2919,7 +2975,7 @@ parameter
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-opts~11"></span>
+              <span class="anchor" id="variable-opts~12"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -3044,7 +3100,7 @@ parameter
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-opts~10"></span>
+              <span class="anchor" id="variable-opts~11"></span>
               character(len=*)
             </td>
 <td></td>
@@ -3353,7 +3409,7 @@ parameter
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2025-07-11 00:12 +0000             </p>
+ on 2025-07-13 03:19 +0000             </p>
           </div>
         </div>
         <br>
