@@ -56,7 +56,7 @@ a.existingWikiWord[title]{ //border: 1px dashed #BBB; }
 
 </A>
 <BLOCKQUOTE>
-<B>prep</B>(1) - [DEVELOPER] preprocess Fortran source files
+prep(1) - [DEVELOPER] preprocess Fortran source files
 (LICENSE:MIT)
 <P>
 </BLOCKQUOTE>
@@ -90,32 +90,46 @@ a.existingWikiWord[title]{ //border: 1px dashed #BBB; }
 
 </A>
 <BLOCKQUOTE>
-<B>prep</B> [[-D] <I>define_list</I>]
-[-I <I>include_directories</I>]
-[-i <B>input_file</B>(s)]
-[-o <I>output_file</I>]
+prep [[-D] define_list]
+[-I include_directories]
+[-i input_file(s)]
+[-o output_file]
 [-<B>-system</B>]
-[-<B>-type</B> <I>FILE_TYPE</I> | --start <I>START_STRING</I> --stop <I>STOP_STRING</I>]
+[-<B>-type</B> FILE_TYPE | <B>--start</B> START_STRING <B>--stop</B> STOP_STRING]
 [-<B>-prefix</B> character|ADE]
 [-<B>-keeptabs</B>]
 [-<B>-noenv</B>]
-[-<B>-width</B> <I>n</I>]
+[-<B>-underscore</B>]
+[-<B>-width</B> n]
 [-d ignore|remove|blank]
 [-<B>-comment</B> default|doxygen|ford|none]
 [-<B>-ident</B>]
 [-<B>-verbose</B>]
-[-<B>-version</B>]
+[-<B>-help</B>| <B>--usage</B>| <B>--crib</B>| <B>--version</B>]
 </BLOCKQUOTE>
 <A name=>
 
     <H4>&nbsp; &nbsp; IMPORTANT</H4>
 </A>
 <BLOCKQUOTE>
-For compatibility with other utilities where <B>cpp</B>(1)<B>-like</B> syntax is required
-if <B>-i</B> is not specified and the unnamed parameters are less than three the
-unnamed parameters are assumed to be the input file and optional output
-file instead of macro definitions if the first parameter matches an existing
-filename.
+For compatibility with other utilities where cpp(1)<B>-like</B> syntax is required
+if <B>-i</B> is not specified and the unnamed parameters are two or less the
+parameters are assumed to be the input file and optional output file
+instead of macro definitions (if that first parameter matches an existing
+filename). That is, if <B>-i</B> is not specified simple commands like
+<P>
+<PRE>
+       prep infile [[-o] outfile]
+<P>
+</PRE>
+act like
+<P>
+<PRE>
+       cpp infile [[-o] outfile]
+<P>
+</PRE>
+This cpp-like behavior is currently required for custom preprocessors to be
+used with the Intel ifx(1) compiler or fpm(1).
 </BLOCKQUOTE>
 <A name=2>
 
@@ -124,17 +138,17 @@ filename.
 </A>
 <BLOCKQUOTE>
 <P>
-<B>prep</B>(1) is a Fortran source preprocessor.
+prep(1) is a Fortran source preprocessor.
 <P>
 A preprocessor performs operations on input files before they are passed to
 a compiler, including conditional selection of lines based on directives
 contained in the file. This makes it possible to use a single source file
 even when different code is required for different programming environments.
 <P>
-The <B>prep</B>(1) preprocessor has additional features that support free-format
+The prep(1) preprocessor has additional features that support free-format
 documentation in the same file as the source and the generation of generic
 code using a simple templating technique. The basic directives &#46;&#46;&#46;.
-<TABLE cellpadding=3><!-- tsb: The <B>prep</B>(1) preprocessor has additional features that support free-format
+<TABLE cellpadding=3><!-- tsb: The prep(1) preprocessor has additional features that support free-format
  -->
 <TR></TR><TR></TR>
 <TR valign=top><TD width=3%>
@@ -143,7 +157,7 @@ o
 Conditionally output parts of the source file (controlled by expressions
 on the directives $IF, $IFDEF, $IFNDEF, and $ENDIF. The expressions may
 include variables defined on the command line or via the directives
-$DEFINE, and $<B>UNDEFINE</B>).
+$DEFINE, and $UNDEFINE).
 </TD></TR>
 <TR valign=top><TD width=3%>
 o
@@ -166,7 +180,7 @@ Filter blocks of text and convert them to comments, a CHARACTER array,
 Fortran WRITE statements, &#46;&#46;&#46; (provided by the $BLOCK directive.)
 <P>
 The blocks of text may also be written to a file and executed, with
-stdout captured and included in the <B>prep</B>(1) output file.
+stdout captured and included in the prep(1) output file.
 <P>
 Blocked text may optionally be simultaneously written to a separate file,
 typically for use as documentation.
@@ -202,20 +216,20 @@ and produce messages on stderr (using $MESSAGE).
 <BLOCKQUOTE>
 <TABLE cellpadding=3>
 <TR valign=top><TD colspan=2>
-<B></B><I>define_list</I>, <B>-D</B> <I>define_list</I> </TD></TR><TR valign=top><TD width=3%>&nbsp;</TD><TD>
+<B>define_list, </B><B>-D</B> define_list </TD></TR><TR valign=top><TD width=3%>&nbsp;</TD><TD>
 An optional space-delimited list of expressions
 used to define variables before file processing
 commences. These can subsequently be used in
 $IF/$ELSE/$ELSEIF and $DEFINE directives.
 </TD></TR>
 <TR valign=top><TD colspan=2>
-<B></B><B>-i</B> <I>input_file(s)</I> </TD></TR><TR valign=top><TD width=3%>&nbsp;</TD><TD>
+<B></B><B>-i</B> input_files </TD></TR><TR valign=top><TD width=3%>&nbsp;</TD><TD>
 The default input file is stdin. Filenames are
 space-delimited. In a list, @ represents stdin.
 </TD></TR>
 <TR></TR></TABLE>The suggested suffix for Fortran input files is ".ff" for code files unless
 they contain $SYSTEM directives in which case ".FF" is preferred. $INCLUDE
-files should use ".ffinc" and ".FFINC" if they include <B>prep</B>(1) directives.
+files should use ".ffinc" and ".FFINC" if they include prep(1) directives.
 This naming convention is not required.
 <P>
 Files may also end in supported suffixes such as ".md", as explained under
@@ -224,11 +238,11 @@ the <B>--type</B> option description.
  -->
 <TR></TR><TR></TR>
 <TR valign=top><TD colspan=2>
-<B></B><B>-o</B> <I>output_file</I> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+<B></B><B>-o</B> output_file </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
 The default output file is stdout.
 </TD></TR>
 <TR><TD colspan=2>
-<B>-I</B> "<I>include_directories</I>" The directories to search for files specified on
+<B>-I</B> "include_directories" The directories to search for files specified on
 $INCLUDE directives. May be repeated.
 </TD></TR>
 <TR valign=top><TD colspan=2>
@@ -241,18 +255,36 @@ This flag indicates to skip input lines until after a
 specific start string is encountered and to stop once a
 specific end string is found, left-justified on lines by
 themselves.
+<TABLE width=100% cellpadding=3><!-- tsb: This flag indicates to skip input lines until after a
+ -->
+<TR></TR><TR></TR>
+<TR valign=top><TD colspan=2>
+<B>FileType</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+Start_String              Stop_String
+</TD></TR>
+<TR valign=top><TD colspan=2>
+<B>--------</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+------------              -----------
+</TD></TR>
+<TR valign=top><TD width=6% nowrap>
+<B>md</B> </TD><TD valign=bottom>
+&#145;&#145;&#145;fortran                &#145;&#145;&#145;
+</TD></TR>
+<TR valign=top><TD colspan=2>
+<B>markdownMML</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+~~~ {: lang=fortran}      ~~~
+</TD></TR>
+<TR valign=top><TD width=6% nowrap>
+<B>html</B> </TD><TD valign=bottom>
+&lt;xmp&gt;                     &lt;/xmp&gt;
+</TD></TR>
+<TR valign=top><TD width=6% nowrap>
+<B>tex</B> </TD><TD valign=bottom>
+\begin{minted}{Fortran}   \end{minted}
+</TD></TR>
+<TR></TR></TABLE><!-- .PP -->
 </TD></TR>
 <TR><TD colspan=2>
-<PRE>
-                        FileType  Start_String            Stop_String
-                        --------  ------------            -----------
-                        md        &#145;&#145;&#145;fortran              &#145;&#145;&#145;
-                        html      &lt;xmp&gt;                   &lt;/xmp&gt;
-                        tex       \begin{minted}{Fortran} \end{minted}
-                        auto
-                        none
-<P>
-</PRE>
 The default type is "auto", in which case files will be
 processed according to their file suffix.
 </TD></TR>
@@ -264,17 +296,19 @@ formats, allowing for code source to be easily documented
 and for tests in documents to be able to be extracted and
 tested. "auto" switches processing mode depending on input
 file suffix, treating supported file suffixes
-("md","html","tex") appropriately.
+("md","markdownMML","html","tex") appropriately.
 </TD></TR>
 <TR valign=top><TD colspan=2>
 <B></B><B>--start</B> STRING </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-Same as --type except along with --stop allows for custom
-strings to be specified.
+Same as <B>--type</B> except along with <B>--stop</B> allows for custom
+strings to be specified. The string is a BRE (Basic Regular
+Expression).
 </TD></TR>
 <TR valign=top><TD colspan=2>
 <B></B><B>--stop</B> STRING </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-Same as --type except along with --start allows for custom
-strings to be specified.
+Same as <B>--type</B> except along with <B>--start</B> allows for custom
+strings to be specified. The string is a BRE (Basic Regular
+Expression).
 </TD></TR>
 <TR valign=top><TD colspan=2>
 <B></B><B>--comment</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
@@ -294,9 +328,26 @@ Decimal Equivalent (Common values are 37=% 42=* 35=#
 <TR valign=top><TD colspan=2>
 <B></B><B>--noenv</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
 The $IFDEF and $IFNDEF directives test for an internal
-<B>prep</B>(1) variable and then an environment variable by
+prep(1) variable and then an environment variable by
 default. This option turns off testing for environment
 variables.
+</TD></TR>
+<TR valign=top><TD colspan=2>
+<B></B><B>--underscore</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+For compatibility with other preprocessors the following
+are equivalent if the <B>--underscore</B> option is specified on
+the command line:
+</TD></TR>
+<TR><TD colspan=2>
+<PRE>
+                        __FILE__  ${FILE} # name of file being processed
+                        __LINE__  ${LINE} # line number of current file
+                        __DATE__  ${DATE} # YYYY-MM-DD
+                        __TIME__  ${TIME} # HH:MM:SS
+                        __TIMESTAMP__   ${TIMESTAMP} # MMM DD YYYY hh:mm:ss
+<P>
+</PRE>
+where MMM is a 3-character month-name abbreviation.
 </TD></TR>
 <TR valign=top><TD colspan=2>
 <B></B><B>--keeptabs</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
@@ -311,7 +362,7 @@ The output of the $IDENT directive is in the form of a
 comment by default. If this flag is set the output is
 of the form described in the $IDENT documentation
 so executables and object code can contain the metadata
-for use with the <B>what</B>(1) command. Note this generates an
+for use with the what(1) command. Note this generates an
 unused variable which some compilers might optimize
 away depending on what compilation options are used.
 </TD></TR>
@@ -320,13 +371,14 @@ away depending on what compilation options are used.
 Enable special treatment for lines beginning
 with "d" or "D". The letter will be left as-is
 (the default); removed; or replaced with a blank
-character. This non-standard syntax has been
-used to support the optional compilation of
+character. This non-standard "dee&#146;d" syntax has
+been used to support the optional compilation of
 "debug" code by many Fortran compilers when
-compiling fixed-format Fortran source.
+compiling fixed-format Fortran source. This also
+controls lines beginning with $?.
 </TD></TR>
 <TR valign=top><TD colspan=2>
-<B></B><B>--width</B> <I>n</I> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+<B></B><B>--width</B> n </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
 Maximum line length of the output file. The default is 1024.
 The parameter is typically used to trim fixed-format Fortran
 code that contains comments or "ident" labels past column 72
@@ -336,7 +388,7 @@ when compiling fixed-format Fortran code.
 <B></B><B>--verbose</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
 All commands on a $SYSTEM directive are echoed to stderr with a
 "+" prefix. Text following the string "@(#)" is printed to stderr
-similar to the Unix command <B>what</B>(1) but is otherwise treated as
+similar to the Unix command what(1) but is otherwise treated as
 other text input. Additional descriptive messages are produced.
 </TD></TR>
 <TR valign=top><TD colspan=2>
@@ -355,9 +407,9 @@ Display documentation and exit.
 </A>
 <BLOCKQUOTE>
 <P>
-The <B>prep</B>(1) preprocessor directives begin with "$" (by default) in column
-one, and <B>prep</B>(1) will output no such lines. Other input is conditionally
-written to the output <B>file</B>(s) based on the case-insensitive command names.
+The prep(1) preprocessor directives begin with "$" (by default) in column
+one, and prep(1) will output no such lines. Other input is conditionally
+written to the output file(s) based on the case-insensitive command names.
 <P>
 An exclamation character FOLLOWED BY A SPACE on most directives
 begins an in-line comment that is terminated by an end-of-line. The space
@@ -427,7 +479,7 @@ the variable is given the INTEGER value "1".
 <P>
 Variables are defined from the point they are declared in a $DEFINE
 directive or the command line until program termination unless explicitly
-undefined with a $<B>UNDEFINE</B> directive.
+undefined with a $UNDEFINE directive.
 <P>
 Example:
 <P>
@@ -446,7 +498,7 @@ Note expressions are not case-sensitive.
        $UNDEFINE variable_name[; &#46;&#46;&#46;]
 <P>
 </PRE>
-A symbol defined with $DEFINE can be removed with the $<B>UNDEFINE</B> directive.
+A symbol defined with $DEFINE can be removed with the $UNDEFINE directive.
 Multiple names may be specified, preferably separated by semi-colons.
 <P>
 Basic globbing is supported, where "*" represents any string, and "?"
@@ -456,7 +508,7 @@ represents any single character.
        DEFINED(variable_name[,&#46;&#46;&#46;])
 <P>
 </PRE>
-A special function called <B>DEFINED</B>() may appear only in a $IF or $ELSEIF.
+A special function called DEFINED() may appear only in a $IF or $ELSEIF.
 If "variable_name" has been defined at that point in the source code,
 then the function value is ".TRUE.", otherwise it is ".FALSE.". A name is
 defined only if it has appeared in the source previously in a $DEFINE
@@ -464,7 +516,7 @@ directive or been declared on the command line.
 The names used in compiler directives are district from names in the
 Fortran source, which means that "a" in a $DEFINE and "a" in a Fortran
 source statement are totally unrelated.
-The <B>DEFINED</B>() variable is NOT valid in a $DEFINE directive.
+The DEFINED() variable is NOT valid in a $DEFINE directive.
 <P>
 Example:
 <P>
@@ -518,6 +570,7 @@ directives for conditionally selecting input lines &#46;&#46;&#46;
        [$ELSE                                               [! comment ]
                { sequence of source statements}]
        $ENDIF                                               [! comment ]
+       $?  code
 <P>
 </PRE>
 Details &#46;&#46;&#46;
@@ -563,11 +616,14 @@ Essentially, these are equivalent:
 <P>
 </PRE>
 except that environment variables are tested as well by $IFDEF and $IFNDEF
-if the <B>--noenv</B> option is not specified, but never by the function <B>DEFINED</B>(),
+if the <B>--noenv</B> option is not specified, but never by the function DEFINED(),
 allowing for environment variables to be selectively used or ignored.
-The <B>--noenv</B> switch is therefore only needed for compatibility with <B>fpp</B>(1).
-For the purposes of <B>prep</B>(1) an environment variable is defined if it is
+The <B>--noenv</B> switch is therefore only needed for compatibility with fpp(1).
+For the purposes of prep(1) an environment variable is defined if it is
 returned by the system and has a non-blank value.
+<P>
+Dee&#146;d lines are simulated by the $? directive as well. See the "<B>-d</B>" option
+for a description.
 </BLOCKQUOTE>
 <A name=9>
 
@@ -610,10 +666,10 @@ INCLUDE files or error-prone repetition of the declarations.
        $SET varname  string
 <P>
 </PRE>
-If a $SET or $IMPORT directive defines a name <B>prep</B>(1) enters expansion mode.
+If a $SET or $IMPORT directive defines a name prep(1) enters expansion mode.
 In this mode anywhere the string "${NAME}" is encountered in subsequent
 output it is replaced by "string".
-<TABLE cellpadding=3><!-- tsb: If a $SET or $IMPORT directive defines a name <B>prep</B>(1) enters expansion mode.
+<TABLE cellpadding=3><!-- tsb: If a $SET or $IMPORT directive defines a name prep(1) enters expansion mode.
  -->
 <TR></TR><TR></TR>
 <TR valign=top><TD width=3%>
@@ -636,10 +692,10 @@ variable name becomes part of the value.
 <TR valign=top><TD width=3%>
 o
 </TD><TD>
-The pre-defined values $FILE, $LINE, $DATE, and $TIME ( for input file,
-line in input file, date and time ) are NOT ACTIVE until at least one
-one $SET or $IMPORT directive is processed. That is, unless a variable
-is defined no ${NAME} expansion occurs.
+The pre-defined values ${FILE}, ${LINE}, ${DATE}, ${TIME} and ${TIMESTAMP}
+for file, line number in input file, date and time and date-time) are
+NOT ACTIVE until at least one $SET or $IMPORT directive is processed. That
+is, unless a variable is defined no ${NAME} expansion occurs.
 </TD></TR>
 <TR valign=top><TD width=3%>
 o
@@ -672,7 +728,7 @@ Unset variables set with the $SET directive.
 The values of environment variables may be imported just like their names
 and values were used on a $SET directive. The names of the variables are
 case-sensitive in regards to obtaining the values, but the names become
-case-insensitive in <B>prep</B>(). That is, "import home" gets the lowercase
+case-insensitive in prep(). That is, "import home" gets the lowercase
 environment variable "home" and then sets the associated value for the
 variable "HOME" to the value.
 <P>
@@ -704,7 +760,7 @@ Details &#46;&#46;&#46;
 </PRE>
 Specifies the output file to write to. This overrides the initial output file
 specified with command line options. If no output filename is given
-<B>prep</B>(1) reverts back to the initial output file. "@" is a synonym for stdout.
+prep(1) reverts back to the initial output file. "@" is a synonym for stdout.
 <P>
 Files are open at the first line by default. Use the <B>--append</B> switch to
 append to the end of an existing file instead of overwriting it.
@@ -720,7 +776,7 @@ Ends writing to an alternate output file begun by a $OUTPUT directive.
 <P>
 </PRE>
 Read in the specified input file. Fifty (50) nesting levels are allowed.
-Following the tradition of <B>cpp</B>(1) if "&lt;filename&gt;" is specified the file is
+Following the tradition of cpp(1) if "&lt;filename&gt;" is specified the file is
 only searched for relative to the search directories, otherwise it is
 searched for as specified first. Double-quotes in the filename are treated
 as in Fortran list-directed input.
@@ -781,12 +837,12 @@ special-purpose modes primarily for use with the M_kracken module:
 If the "<B>--file</B> NAME" option is present the text is written to the
 specified file unfiltered except for string expansion. This allows
 documentation to easily be maintained in the source file. It can be
-tex, html, markdown or any plain text. The filename will be prefixed
-with $PREP_DOCUMENT_DIR/doc/ . If the environment variable
+markdownMML, tex, html, markdown or any plain text. The filename will be
+prefixed with $PREP_DOCUMENT_DIR/doc/ . If the environment variable
 $PREP_DOCUMENT_DIR is not set the option is ignored.
 <P>
 The <B>--file</B> output can subsequently easily be processed by other utilities
-such as <B>markdown</B>(1) or <B>txt2man</B>(1) to produce <B>man</B>(1) pages and HTML documents.
+such as markdown(1) or txt2man(1) to produce man(1) pages and HTML documents.
 $SYSTEM commands may follow the $BLOCK block text to optionally post-process
 the doc files.
 <P>
@@ -804,7 +860,7 @@ Directives for producing metadata &#46;&#46;&#46;
 <P>
 </PRE>
 $IDENT is a special-purpose directive useful to users of SCCS-metadata.
-The string generated can be used by the <B>what</B>(1) command,
+The string generated can be used by the what(1) command,
 <P>
 When the command line option "<B>--ident</B> [LANGUAGE]" is specified this directive
 writes a line using SCCS-metadata format of one of the following forms:
@@ -829,7 +885,7 @@ of the form
 <P>
 </PRE>
 "$@(#)" is an alias for "$IDENT" so the source file itself will contain
-SCCS-metadata so the metadata can be displayed with <B>what</B>(1) even for the
+SCCS-metadata so the metadata can be displayed with what(1) even for the
 unprocessed files.
 <P>
 Do not use the characters double-quote, greater-than, backslash (ie. "&gt;\)
@@ -862,7 +918,7 @@ Note that messages for $MESSAGE do not treat "! " as starting a comment
        $SHOW [variable_name[;&#46;&#46;&#46;]]                          [! comment ]
 <P>
 </PRE>
-Shows current state of <B>prep</B>(1); including variable names and values and
+Shows current state of prep(1); including variable names and values and
 the name of the current input files. All output is preceded by an
 exclamation character.
 <P>
@@ -952,7 +1008,7 @@ Examples:
 <P>
 </PRE>
 System commands may also appear in a $BLOCK section. Combining several
-features this uses the Linux <B>getconf</B>(1) command to write some lines
+features this uses the Linux getconf(1) command to write some lines
 into a scratch file that are then read back in to define variables describing
 the current platform.
 <P>
@@ -1000,9 +1056,9 @@ Details &#46;&#46;&#46;
       $STOP     [stop_value ["message"]]
 <P>
 </PRE>
-Stops the <B>prep</B>(1) program. The integer value will be returned as an exit
+Stops the prep(1) program. The integer value will be returned as an exit
 status value by the system where supported.
-<TABLE cellpadding=3><!-- tsb: Stops the <B>prep</B>(1) program. The integer value will be returned as an exit
+<TABLE cellpadding=3><!-- tsb: Stops the prep(1) program. The integer value will be returned as an exit
  -->
 <TR></TR><TR></TR>
 <TR valign=top><TD width=3%>
@@ -1098,7 +1154,7 @@ are limited to 63 characters.
 <TR valign=top><TD width=3%>
 o
 </TD><TD>
-must start with a letter (A-Z) or <B>underscore</B>(_).
+must start with a letter (A-Z) or underscore(_).
 </TD></TR>
 <TR valign=top><TD width=3%>
 o
@@ -1120,7 +1176,7 @@ o
 <P>
 Define variables on command line:
 <P>
-Typically, variables are defined on the command line when <B>prep</B>(1) is
+Typically, variables are defined on the command line when prep(1) is
 invoked but can be grouped together into small files that are included
 with a $INCLUDE or as input files.
 <P>
@@ -1173,7 +1229,7 @@ This is a block of text that will be converted to comments and optionally
 appended to a $PREP_DOCUMENT_DIR/doc/ file when $PREP_DOCUMENT_DIR is set.
 <P>
 <PRE>
-   &gt; $BLOCK COMMENT--file conditional_compile.man
+   &gt; $BLOCK COMMENT --file conditional_compile.man
    &gt; NAME
    &gt;    conditional_compile - basic example for prep(1) preprocessor.
    &gt; SYNOPSIS
@@ -1226,11 +1282,11 @@ before each post.
 </A>
 <BLOCKQUOTE>
 Not documented elsewhere, note that there is a developer flag (<B>--debug</B>) that
-can be useful when learning <B>prep</B>(1) usage (but it should not be used in
+can be useful when learning prep(1) usage (but it should not be used in
 production). Among other things it deactivates the termination of the program
 upon detection of an error. This mode thus allows for simple interactive use.
 In addition, when in this mode entering "$HELP" produces a cribsheet, which
-may also be displayed by "<B>prep</B> <B>--crib</B>".
+may also be displayed by "prep <B>--crib</B>".
 </BLOCKQUOTE>
 <A name=20>
 
@@ -1255,7 +1311,7 @@ John S. Urban
 <P>
 </BLOCKQUOTE>
 <P><HR>
-<TABLE width=100%><TR> <TD width=33%><I>9.2.0</I></TD> <TD width=33% align=center>Fortran preprocessor (1)</TD> <TD align=right width=33%><I>November 15, 2022</I></TD> </TR></TABLE><FONT SIZE=-1>Generated by <A HREF="http://www.squarebox.co.uk/download/manServer.shtml">manServer 1.08</A> from docs/prep.1 using man macros.</FONT>
+<TABLE width=100%><TR> <TD width=33%><I>9.2.0</I></TD> <TD width=33% align=center>Fortran preprocessor (1)</TD> <TD align=right width=33%><I>August 16, 2024</I></TD> </TR></TABLE><FONT SIZE=-1>Generated by <A HREF="http://www.squarebox.co.uk/download/manServer.shtml">manServer 1.08</A> from docs/prep.1 using man macros.</FONT>
 <br><br><center><img src="images/prep.1.gif"></center>
 </div>
 </div>

@@ -39,19 +39,19 @@ homepage = "https://github.com/urbanjost"
 
    [dependencies.M_CLI2]
    git = "https://github.com/urbanjost/M_CLI2.git"
-   rev = "8bcaa128543a864c9a6f7a1a90140063cb4c6a9a"
+#   rev = "8bcaa128543a864c9a6f7a1a90140063cb4c6a9a"
    [dependencies.M_io]
    git = "https://github.com/urbanjost/M_io.git"
-   rev = "6016310be982e63244b49ebe407cae063bdf0b0c"
+#   rev = "6016310be982e63244b49ebe407cae063bdf0b0c"
    [dependencies.M_strings]
    git = "https://github.com/urbanjost/M_strings.git"
-   rev = "f4d8d0d5501c6e38cc1e13847d7465f32e450ec4"
+#   rev = "f4d8d0d5501c6e38cc1e13847d7465f32e450ec4"
    [dependencies.M_list]
    git = "https://github.com/urbanjost/M_list.git"
-   rev = "9518e2f6c78fa0d7a93023cd3e3e415c87f66b99"
+#   rev = "9518e2f6c78fa0d7a93023cd3e3e415c87f66b99"
    [dependencies.M_history]
    git = "https://github.com/urbanjost/M_history.git"
-   rev = "b4957ee7294d9d35a4db7d4c4232664a0c23b7ae"
+#   rev = "b4957ee7294d9d35a4db7d4c4232664a0c23b7ae"
    [dependencies.M_match]
    git = "https://github.com/urbanjost/M_match.git"
    [dependencies.M_attr]
@@ -65,3 +65,12 @@ homepage = "https://github.com/urbanjost"
 #   M_history.namespace  =  "GPF"
 #   M_match.namespace    =  "GPF"
 #   M_attr.namespace     =  "GPF"
+#
+#[dependencies]
+#   M_CLI2     =  {  path  =  "GLINKS/M_CLI2"     }
+#   M_io       =  {  path  =  "GLINKS/M_io"       }
+#   M_strings  =  {  path  =  "GLINKS/M_strings"  }
+#   M_list     =  {  path  =  "GLINKS/M_list"     }
+#   M_history  =  {  path  =  "GLINKS/M_history"  }
+#   M_match    =  {  path  =  "GLINKS/M_match"    }
+#   M_attr     =  {  path  =  "GLINKS/M_attr"     }

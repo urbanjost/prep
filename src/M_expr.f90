@@ -7,18 +7,18 @@ use M_list,      only : dictionary
 implicit none
 private
 
-public                        :: expr
-public                        :: undef
-public                        :: get_integer_from_string
-integer,public,parameter      :: G_line_length=4096             ! allowed length of input lines
-integer,public,parameter      :: G_var_len=63                   ! allowed length of variable names
-integer,public,save           :: G_iout=stdout                  ! output unit
-logical,public,save           :: G_verbose=.false.
-logical,public,save           :: G_debug=.false.
-                                  
-type(dictionary),public,save  :: table
-character(len=G_line_length)  :: G_source=''                    ! original source file line
-integer,save                  :: G_error=0
+public                               :: expr
+public                               :: undef
+public                               :: get_integer_from_string
+integer,public,parameter             :: G_line_length=4096             ! allowed length of input lines
+integer,public,parameter             :: G_var_len=63                   ! allowed length of variable names
+integer,public,save                  :: G_iout=stdout                  ! output unit
+logical,public,save                  :: G_verbose=.false.
+logical,public,save                  :: G_debug=.false.
+
+type(dictionary),public,save         :: table
+character(len=G_line_length)         :: G_source=''                    ! original source file line
+integer,save                         :: G_error=0
 
 contains
 !===================================================================================================================================
@@ -27,17 +27,17 @@ contains
 ! if def=.true.  define if just a variable name to "1"
 ! if logical=.true. must return .true. or .false.
 ! if ierr/=0 an error occurred
-recursive subroutine expr(line,value,ierr,def,logical)          !@(#)expr(3f): process '[variablename=]expression' directive
+recursive subroutine expr(line,value,ierr,def,logical)                !@(#)expr(3f): process '[variablename=]expression' directive
 character(len=*),intent(in)           :: line
-character(len=G_var_len),intent(out)  :: value                  ! returned variable value
+character(len=G_var_len),intent(out)  :: value              ! returned variable value
 integer,intent(out)                   :: ierr
 logical,intent(in),optional           :: def
 logical,intent(in),optional           :: logical
 character(len=:),allocatable          :: array(:)
 character(len=G_line_length)          :: expression
-!character(len=:),allocatable         :: expression
+!character(len=:),allocatable          :: expression
 logical                               :: def_local
-integer                               :: i
+integer :: i
    if(present(def))then
       def_local=def
    else
@@ -91,15 +91,15 @@ end subroutine expr
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine let(expression,value,def)                         !@(#)define(3f): process 'variablename[=expression]' directive
-character(len=*),intent(in)   ::  expression                   ! packed uppercase working copy of input line
-character(len=G_var_len)      ::  value                        ! returned variable value
-                                  
-character(len=G_line_length)  ::  temp                         ! scratch
-integer                       ::  iequ                         ! location of "=" in the directive, if any
-integer                       ::  iname                        ! length of variable name
-logical,intent(in),optional   ::  def
-logical                       ::  def_local
+subroutine let(expression,value,def)                      !@(#)define(3f): process 'variablename[=expression]' directive
+character(len=*),intent(in)  :: expression                   ! packed uppercase working copy of input line
+character(len=G_var_len)     :: value                        ! returned variable value
+
+character(len=G_line_length) :: temp                         ! scratch
+integer                      :: iequ                         ! location of "=" in the directive, if any
+integer                      :: iname                        ! length of variable name
+logical,intent(in),optional  :: def
+logical                      :: def_local
    if(present(def))then; def_local=def; else; def_local=.false.; endif
 
    if(expression.eq.'')then
@@ -151,12 +151,12 @@ end subroutine let
 !===================================================================================================================================
 subroutine eval(expression,value,logical)
 !@(#)eval(3f): evaluate math expression to .TRUE. or .FALSE. or integer value
-character(len=*),intent(in)   :: expression
-character(len=*),intent(out)  :: value
-character(len=G_line_length)  :: temp
-logical,intent(in),optional   :: logical
-logical                       :: logical_local
-integer                       :: iostat
+character(len=*),intent(in)    :: expression
+character(len=*),intent(out)   :: value
+character(len=G_line_length)   :: temp
+logical,intent(in),optional    :: logical
+logical                        :: logical_local
+integer                        :: iostat
 
    if(present(logical))then
       logical_local=logical
@@ -280,11 +280,11 @@ end subroutine parens
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
 subroutine math(line,ipos1,ipos2)                             !@(#)math(3f):
-integer                       :: ipos1
-integer                       :: ipos2
-integer                       :: i,j
-character(len=G_line_length)  :: line
-character(len=G_line_length)  :: newl
+integer                               :: ipos1
+integer                               :: ipos2
+integer                               :: i,j
+character(len=G_line_length)          :: line
+character(len=G_line_length)          :: newl
 
    newl=line(ipos1:ipos2)
    i=1
@@ -310,21 +310,21 @@ end subroutine math
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
 recursive subroutine domath(line,ipos2)            !@(#)domath(3f): reduce integer expression containing  +*-/ and ** operators
-character(len=*)              :: line
-integer                       :: ipos2
-                                  
-character(len=11)             :: temp
-character(len=G_line_length)  :: newl
-character(len=2),parameter    :: ops(3)= ['**','*/','+-']
-integer                       :: i
-integer                       :: j
-integer                       :: location
-integer                       :: minus1
-integer                       :: i1
-integer                       :: i2
-integer                       :: l
-integer                       :: length
-integer                       :: numop
+character(len=*)                :: line
+integer                         :: ipos2
+
+character(len=11)               :: temp
+character(len=G_line_length)    :: newl
+character(len=2),parameter      :: ops(3)= ['**','*/','+-']
+integer                         :: i
+integer                         :: j
+integer                         :: location
+integer                         :: minus1
+integer                         :: i1
+integer                         :: i2
+integer                         :: l
+integer                         :: length
+integer                         :: numop
 
   if (ipos2.eq.0) then
      return
@@ -461,18 +461,18 @@ end subroutine domath
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
 recursive subroutine doop(line,ipos1,ipos2)             !@(#)doop(3f): find VAL.OP.VAL strings and reduce to .TRUE. or .FALSE.
-character(len=G_line_length)  :: line
-integer                       :: ipos1
-integer                       :: ipos2
-                                  
-character(len=4),parameter    :: ops(6) = ['.EQ.','.NE.','.GE.','.GT.','.LE.','.LT.']
-character(len=G_var_len)      :: val1
-character(len=G_var_len)      :: val2
-integer                       :: ival1, ival2
-character(len=7)              :: temp
-                                  
-character(len=G_line_length)  :: newl
-integer                       :: i,j,k
+character(len=G_line_length)    :: line
+integer                         :: ipos1
+integer                         :: ipos2
+
+character(len=4),parameter      :: ops(6) = ['.EQ.','.NE.','.GE.','.GT.','.LE.','.LT.']
+character(len=G_var_len)        :: val1
+character(len=G_var_len)        :: val2
+integer                         :: ival1, ival2
+character(len=7)                :: temp
+
+character(len=G_line_length)    :: newl
+integer                         :: i,j,k
 
    if(G_verbose)write(*,*)'*doop*:TOP:',trim(line),ipos1,ipos2
    newl=line(ipos1:ipos2)
@@ -526,23 +526,23 @@ end subroutine doop
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
 subroutine logic(line,ipos1,ipos2)           !@(#)logic(3f): process .OP. operator strings
-character(len=*)              :: line
-integer,intent(in)            :: ipos1, ipos2
-                                  
-logical                       :: left, right
-character(len=7)              :: temp
-character(len=G_line_length)  :: newl
-integer                       :: i,j,k,l
-character(len=6),parameter    :: ops(6)= (/'.NOT. ','.AND. ','.OR.  ','.EQV. ','.NEQV.','.DEF. '/)
-integer,parameter             :: opl(6)= [(len_trim(ops(i)),i=1,size(ops))]
-integer                       :: ieqv
-integer                       :: ineqv
-integer                       :: i1
-integer                       :: iop
-integer                       :: chrs
-integer                       :: len1
-integer                       :: len2
-logical                       :: answer
+character(len=*)             :: line
+integer,intent(in)           :: ipos1, ipos2
+
+logical                      :: left, right
+character(len=7)             :: temp
+character(len=G_line_length) :: newl
+integer                      :: i,j,k,l
+character(len=6),parameter   :: ops(6)= (/'.NOT. ','.AND. ','.OR.  ','.EQV. ','.NEQV.','.DEF. '/)
+integer,parameter            :: opl(6)= [(len_trim(ops(i)),i=1,size(ops))]
+integer                      :: ieqv
+integer                      :: ineqv
+integer                      :: i1
+integer                      :: iop
+integer                      :: chrs
+integer                      :: len1
+integer                      :: len2
+logical                      :: answer
 
    newl=line(ipos1:ipos2)
    len1=0
