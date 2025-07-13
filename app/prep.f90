@@ -44,8 +44,8 @@
 !===================================================================================================================================
 module prep__internal                                                             !@(#)prep__internal(3f): module used by prep program
 USE ISO_FORTRAN_ENV, ONLY : STDERR=>ERROR_UNIT, STDOUT=>OUTPUT_UNIT,STDIN=>INPUT_UNIT
-use M_io,        only : get_tmp, dirname, uniq, fileopen, filedelete, get_env       ! Fortran file I/O routines
-use M_CLI2,      only : set_args, sget, iget, lget, unnamed, specified !,print_dictionary ! load command argument parsing module
+use M_io,        only : get_tmp, dirname, uniq, fileopen, filedelete, get_env, filebyte       ! Fortran file I/O routines
+use M_CLI2,      only : set_args, sget, iget, lget, unnamed, specified ! ,print_dictionary ! load command argument parsing module
 use M_strings,   only : nospace, v2s, substitute, upper, lower, isalpha, split, delim, str_replace=>replace, sep, pad, unquote
 use M_strings,   only : glob, encode_base64
 use M_list,      only : dictionary
@@ -67,16 +67,16 @@ character(len=G_line_length),public  :: G_outline                      ! message
 type(dictionary),save                :: macro
 
 type file_stack
-   integer                           ::  unit_number
-   integer                           ::  line_number=0
-   character(len=G_line_length)      ::  filename
+   integer                           :: unit_number
+   integer                           :: line_number=0
+   character(len=G_line_length)      :: filename
 end type
-type(file_stack),public              ::  G_file_dictionary(250)
+type(file_stack),public              :: G_file_dictionary(250)
 
 type parcel_stack
-   integer                           ::  unit_number
-   integer                           ::  line_number=0
-   character(len=G_line_length)      ::  name
+   integer                           :: unit_number
+   integer                           :: line_number=0
+   character(len=G_line_length)      :: name
 end type
 type(parcel_stack),public            :: G_parcel_dictionary(500)
 
@@ -204,7 +204,7 @@ character(len=G_var_len)     :: value
       case('REDEFINE','REDEF');   call expr(upopts,value,ierr,def=.true.) ! only process REDEFINE if not skipping data lines
       case('UNDEF','UNDEFINE','DELETE'); call undef(upper(options))       ! only process UNDEF if not skipping data lines
 
-      case('INCLUDE','READ');     call include(options,50+G_iocount)      ! Filenames can be case sensitive
+      case('INCLUDE','READ');     call include_cmd(options,50+G_iocount)  ! Filenames can be case sensitive
       case('OUTPUT','ENDOUTPUT','OPEN','CLOSE'); call output_cmd(options) ! Filenames can be case sensitive
 
       case('PARCEL');             call parcel_case(upopts)
@@ -328,7 +328,7 @@ character(len=*)             :: opts
 character(len=G_line_length) :: filename                   ! filename on $OUTPUT command
 character(len=20)            :: position
 integer                      :: ios
-   call dissect2('output','-oo --append .false.',opts)     ! parse options and inline comment on input line
+   call dissect2('output','-oo --append F',opts)     ! parse options and inline comment on input line
 
    if(size(unnamed) > 0.and.opts /= '')then
       filename=unnamed(1)
@@ -835,7 +835,7 @@ character(len=:),allocatable :: name
    endif
 
    ! parse options on input line
-   call dissect2('block','--file --cmd sh --varname textblock --length 128 --width 0 --style "#N#" --append .false.',opts)
+   call dissect2('block','--file --cmd sh --varname textblock --length 128 --width 0 --style "#N#" --append F',opts)
    ! if a previous command has opened a --file FILENAME flush it, because a new one is being opened or this is an END command
    ! and if a --file FILENAME has been selected open it
    call print_comment_block()
@@ -1230,6 +1230,50 @@ end subroutine write_arguments
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
+subroutine include_cmd(opts,iunit)                         !@(#)include_cmd(3f): process $INCLUDE directive
+character(len=*),intent(in)  :: opts
+integer,intent(in)           :: iunit
+character(len=G_line_length) :: filename                   ! filename on $INCLUDE command
+character(len=20)            :: position
+character(len=:),allocatable :: varname
+integer                      :: ios
+   call dissect2('include','--base64 F --varname " "',opts)              ! parse options and inline comment on input line
+   varname=sget('varname')
+
+   if(size(unnamed) > 0.and.opts /= '')then
+      filename=unnamed(1)
+   else
+      filename=' '
+   endif
+   if(lget('base64'))then
+      block
+      character(len=1),allocatable :: text(:)
+      integer :: length, lines, width, i, iend
+      filename=adjustl(unquote(trim(filename)))            ! remove " from filename using Fortran list-directed I/O rules
+      call findit(filename)
+      call filebyte(filename,text,length,lines)            ! allocate character array and copy file into it
+      if(.not.allocated(text))then
+         call stop_prep('77d265df-b299-4ab7-5649-b3f4ffda569e','failed to load file for base64 encoding:',filename)
+      else
+         text=encode_base64(text,width=0)
+         if(varname.ne.'')then
+            write(G_iout,'(*(g0))')varname,'= &'
+         endif
+         iend=size(text)
+         do i=1,iend,76
+            write(G_iout,'(*(g0))')"'",text(i:min(i+75,iend)),"' // &"
+         enddo
+         write(G_iout,'(*(a))')"''"
+      endif
+      endblock
+   else
+      call include(filename,iunit)
+   endif
+
+end subroutine include_cmd
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!===================================================================================================================================
 subroutine include(line,iunit)  !@(#)include(3f): add file to input file list
 implicit none
 character(len=G_line_length),intent(in)  :: line
@@ -1240,7 +1284,7 @@ character(len=G_line_length)             :: line_unquoted
 integer                                  :: iend
 
    line_unquoted=adjustl(unquote(line))                   ! remove " from filename using Fortran list-directed I/O rules
-   iend=len_trim(line_unquoted)
+   iend=max(len_trim(line_unquoted),1)
    if(len(line_unquoted) >= 2)then
       if(line_unquoted(1:1) == '<'.and.line_unquoted(iend:iend) == '>')then       ! remove < and > from filename
          line_unquoted=line_unquoted(2:iend-1)
@@ -1528,6 +1572,8 @@ case('4a60db0e-a8d2-4ee2-891f-7400b8cb5ae3');english='system command failed:'
 case('dc37d5a6-4a4f-40ef-8d7b-5073d8cf9a1d');english='system directive encountered but not enabled:'
 case('0a92956e-5b6a-459f-821a-7cda7a028995');english='expression invalid:'
 case('6b75c2fe-b897-44b4-afbc-cfe7cb32e1b6');english='failed to open output file:'
+case('e1f743a8-b1ad-45e3-943e-3e9e46e7af78');english='failed to open output file:'
+case('77d265df-b299-4ab7-5649-b3f4ffda569e');english='failed to load file for base64 encoding:'
 case('fb8ce648-6675-43e1-8210-90d245c03f75');english='failed to open parcel scratch file:'
 case('7f8de002-15dc-4eed-a851-38f5c14c533c');english='parcel name not defined for'
 case('f5a425ba-b9d8-4934-9ebe-e5b01f1f8bd5');english='error rewinding'
@@ -1561,7 +1607,6 @@ case('369a62cc-4e35-40af-a525-b8ad5e96d129');english='unexpected "BLOCK" value. 
 case('a1dde49d-722b-4811-abba-5867cf4018f9');english='expression invalid:'
 case('e1c05d6d-550b-4535-92ec-819453d6c99f');english='incomplete set:'
 case('efbbe046-065d-41ca-acef-115909b11bba');english='expression invalid:'
-case('e1f743a8-b1ad-45e3-943e-3e9e46e7af78');english='failed to open output file:'
 case('6f7e0453-4c1d-4040-9c7d-3adf5112b692');english='block not closed in'
 case('61a446d7-7e3e-418a-a2df-cd50dc89148a');english='unknown type:'//sget('type')
 case('cd883e90-894a-47ec-9c6f-644b99848ca6');english='Illegal stop pattern '//G_extract_stop
@@ -1650,7 +1695,8 @@ help_text=[ CHARACTER(LEN=128) :: &
 '     include variables defined on the command line or via the directives        ',&
 '     $DEFINE, and $UNDEFINE).                                                   ',&
 '                                                                                ',&
-'   * Include other files (provided by directive $INCLUDE).                      ',&
+'   * Include other files (provided by directive $INCLUDE). This includes        ',&
+'     converting the included file to a base64-encoded string.                   ',&
 '                                                                                ',&
 '   * Define parcels of text that may be replayed multiple times with            ',&
 '     expansion, allowing for basic templating (controlled by directives         ',&
@@ -2046,7 +2092,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '       $OUTPUT   filename  [--append]                          [! comment ]     ',&
 '       $ENDOUTPUT                                              [! comment ]     ',&
-'       $INCLUDE filename                                                        ',&
+'       $INCLUDE filename  [--base64]                           [! comment ]     ',&
 '                                                                                ',&
 '   Details ...                                                                  ',&
 '                                                                                ',&
@@ -2063,13 +2109,21 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   Ends writing to an alternate output file begun by a $OUTPUT directive.       ',&
 '                                                                                ',&
-'       $INCLUDE filename                                                        ',&
+'       $INCLUDE filename  [--base64]                                            ',&
 '                                                                                ',&
 '   Read in the specified input file. Fifty (50) nesting levels are allowed.     ',&
 '   Following the tradition of cpp(1) if "<filename>" is specified the file is   ',&
 '   only searched for relative to the search directories, otherwise it is        ',&
 '   searched for as specified first. Double-quotes in the filename are treated   ',&
 '   as in Fortran list-directed input.                                           ',&
+'                                                                                ',&
+'   If the --base64 option is specified, the file is converted to a              ',&
+'   base64-encoded string of the form                                            ',&
+'    "encoded_characters" // &                                                   ',&
+'    "encoded_characters" // &                                                   ',&
+'    "encoded_characters" // &                                                   ',&
+'    ""                                                                          ',&
+'   Various compilers may have limits on how many continuation lines are allowed.',&
 '                                                                                ',&
 ' TEXT BLOCK FILTERS                                                             ',&
 '   (--file is ignored unless $PREP_DOCUMENT_DIR is set)                         ',&
@@ -2488,7 +2542,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 "  $POST   blockname(s)  ! insert a defined parcel of text                       ",&
 "EXTERNAL FILES (see $BLOCK ... --file also)                                     ",&
 "  $OUTPUT filename [--append]                                                   ",&
-"  $INCLUDE filename                                                             ",&
+"  $INCLUDE filename [--base64]                                                  ",&
 "TEXT BLOCK FILTERS (--file writes to $PREP_DOCUMENT_DIR/doc/NAME)               ",&
 "  $BLOCK [comment|null|write|variable [--varname NAME]|set|system|message|      ",&
 "         define|help|version][--file NAME [--append]] ... $ENDBLOCK             ",&
@@ -2644,8 +2698,7 @@ character(len=*),intent(in)  :: verb             ! the name of the command to be
 character(len=*),intent(in)  :: init             ! used to define or reset command options; usually hard-set in the program.
 character(len=*),intent(in)  :: pars             ! defines the command options to be set, usually from a user input file
    !call dissect(verb,init,pars,len(pars),error_return)
-   call set_args(init,string=pars//'--')
-   !call print_dictionary()
+   call set_args(init,string=trim(pars)//' --')
 end subroutine dissect2
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!

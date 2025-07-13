@@ -1,0 +1,51 @@
+program testit
+#define HAS_M_STRINGS
+#undef HAS_M_STRINGS
+#ifdef HAS_M_STRINGS
+use M_strings, only : decode_base64
+#endif
+implicit none
+character(len=256)           :: iomsg
+integer                      :: iostat
+!======================================================================================
+! ifx does not allow a parameter value over a fixed length
+!character(len=*),parameter   :: encoded_file= &
+! xx.F90(106): error #6258: The CHARACTER string result is greater than 7198 characters.
+!======================================================================================
+character(len=:),allocatable :: encoded_file
+encoded_file = &
+!======================================================================================
+$include /bin/ls --base64 
+   write(*,*)'LEN=',len(encoded_file)
+#ifdef HAS_M_STRINGS
+   ! this would write out the decoded data
+   block
+   integer                      :: unit_binary
+      open(newunit=unit_binary, file='clone.bin', action="write", iomsg=iomsg,&
+     &form="unformatted", access="stream",status='new',iostat=iostat)
+      if(iostat.ne.0)then
+         write(*,*)trim(iomsg)
+      else
+         write(unit_binary)decode_base64(transfer(encoded_file,['A']))
+      endif
+   endblock
+#else
+   ! this would write out the data where "base64 -d <infile >outfile"
+   ! or similar utilities could decode it
+   block
+   integer                      :: iend
+   integer                      :: i
+   integer                      :: unit_text, unit_binary
+      open(newunit=unit_text, file='clone.base64', action="write", iomsg=iomsg,&
+     &form="formatted", access="stream",status='new',iostat=iostat)
+      if(iostat.ne.0)then
+         write(*,*)trim(iomsg)
+      else
+         iend=len(encoded_file)
+         do i=1,iend,76
+            write(unit_text,'(*(g0))')encoded_file(i:min(i+75,iend))
+         enddo
+      endif
+   endblock
+#endif
+end program testit

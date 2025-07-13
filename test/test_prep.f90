@@ -151,7 +151,7 @@ data=[ character(len=132) :: &
 
 expected=[ character(len=132) :: &
 "write(*,*)'By  William Shakespeare'", &
-"write(*,*)'File _scratch.txt'      ", &
+"write(*,*)'File ._scratch.txt'     ", &
 "write(*,*)'Line 4'                 ", &
 "write(*,*)'By ${AUTHOR}'           ", &
 'last line']
@@ -263,15 +263,15 @@ integer             :: estat
    else
       estat=0
    endif
-   ierr=filewrite('_scratch.txt',data,status='replace')
-   !call execute_command_line ('fpm run prep -- --verbose --debug -i _scratch.txt -o _out.txt')
+   ierr=filewrite('._scratch.txt',data,status='replace')
+   !call execute_command_line ('fpm run prep -- --verbose --debug -i ._scratch.txt -o ._out.txt')
    exitstat=0
    cmdstat=0
-   call execute_command_line ('fpm run prep -- F90 TESTPRG90 CMD=30/2 -i _scratch.txt -o _out.txt', &
+   call execute_command_line ('fpm run prep -- F90 TESTPRG90 CMD=30/2 -i ._scratch.txt -o ._out.txt', &
    & exitstat=exitstat,cmdstat=cmdstat,cmdmsg=cmdmsg)
    write(*,*)'exitstat=',exitstat,'cmdstat=',cmdstat
    if(cmdstat.ne.0)write(stderr,*)trim(cmdmsg)
-   call gulp('_out.txt',result)
+   call gulp('._out.txt',result)
    CHECK : block
       if(size(expected).eq.size(result).and.exitstat.eq.estat)then
          if( all(expected.eq.result) )then
@@ -287,8 +287,8 @@ integer             :: estat
       write(*,'(/,a)')'EXPECTED'
       if(allocated(expected))write(*,'(i3.3,1x,a)')(i,trim(expected(i)),i=1,size(expected))
    endblock CHECK
-   ierr=filedelete('_scratch.txt')
-   ierr=filedelete('_out.txt')
+   ierr=filedelete('._scratch.txt')
+   ierr=filedelete('._out.txt')
    call flushit()
    !write(*,'(a)',advance='no')'Use RETURN to continue'
    !read(*,'(a)',iostat=iostat)paws
@@ -779,11 +779,11 @@ end subroutine ident
 subroutine output()
 integer :: ios, lun
 data=[ character(len=132) :: &
-"$OUTPUT _scratch_output                                                 ", &
+"$OUTPUT ._scratch_output                                                 ", &
 "This should be placed in an external file                               ", &
 "that is subsequently read back in                                       ", &
 "$OUTPUT                                                                 ", &
-"$INCLUDE _scratch_output                                                ", &
+"$INCLUDE ._scratch_output                                                ", &
 "last line"]
 
 expected=[ character(len=132) :: &
@@ -793,7 +793,7 @@ expected=[ character(len=132) :: &
 
 call teardown('output')
 
-open(file='_scratch_output',newunit=lun,iostat=ios)
+open(file='._scratch_output',newunit=lun,iostat=ios)
 close(unit=lun,iostat=ios,status='delete')
 
 end subroutine output

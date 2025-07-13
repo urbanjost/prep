@@ -74,4 +74,3 @@ homepage = "https://github.com/urbanjost"
    M_history  =  {  path  =  "GLINKS/M_history"  }
    M_match    =  {  path  =  "GLINKS/M_match"    }
    M_attr     =  {  path  =  "GLINKS/M_attr"     }
-   
