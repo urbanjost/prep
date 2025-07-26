@@ -328,7 +328,7 @@ character(len=*)             :: opts
 character(len=G_line_length) :: filename                   ! filename on $OUTPUT command
 character(len=20)            :: position
 integer                      :: ios
-   call dissect2('output','-oo --append F',opts)     ! parse options and inline comment on input line
+   call dissect2('output',' --append F',opts)     ! parse options and inline comment on input line
 
    if(size(unnamed) > 0.and.opts /= '')then
       filename=unnamed(1)
@@ -372,7 +372,7 @@ character(len=256)            :: message
       G_inparcel=.false.
       G_iout=G_iout_init
    else
-      call dissect2('parcel','-oo ',opts)             ! parse options and inline comment on input line
+      call dissect2('parcel',' ',opts)             ! parse options and inline comment on input line
       if(size(unnamed) > 0.and.opts /= '')then
          name=unnamed(1)
       else
@@ -835,7 +835,7 @@ character(len=:),allocatable :: name
    endif
 
    ! parse options on input line
-   call dissect2('block','--file --cmd sh --varname textblock --length 128 --width 0 --style "#N#" --append F',opts)
+   call dissect2('block','--file " " --cmd sh --varname textblock --length 128 --width 0 --style "#N#" --append F',opts)
    ! if a previous command has opened a --file FILENAME flush it, because a new one is being opened or this is an END command
    ! and if a --file FILENAME has been selected open it
    call print_comment_block()
