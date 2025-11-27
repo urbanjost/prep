@@ -3056,8 +3056,8 @@ logical                      :: isscratch
          G_extract_start=' *<[xX][mM][pP]>'
          G_extract_stop=' *</[xX][mM][pP]>'
       case('tex')
-         G_extract_start='\begin{minted}{Fortran}'
-         G_extract_stop='\end{minted}'
+         G_extract_start='^ *\\begin{minted}{Fortran}'
+         G_extract_stop='^ *\\end{minted}'
       case('auto')
          G_extract_start=''
          G_extract_stop=''
@@ -3180,8 +3180,8 @@ subroutine auto()
          G_extract_stop='^ *~~~~* *$'
          !NOT WORKING G_extract_stop='^ *[~`][~`][~`][~`]* *$'
       case('tex')
-         G_extract_start='\begin{minted}{Fortran}'
-         G_extract_stop='\end{minted}'
+         G_extract_start='^ *\\begin{minted}{Fortran}'
+         G_extract_stop='^ *\\end{minted}'
       case('html','.html','htm','.htm')
          G_extract_start=' *<[xX][mM][pP]>'
          G_extract_stop=' *</[xX][mM][pP]>'
