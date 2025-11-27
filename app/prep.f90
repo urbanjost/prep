@@ -1769,12 +1769,16 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   --start STRING   Along with --stop allows for custom delimiter strings to be ',&
 '                    specified. The string is a BRE (Basic Regular Expression).  ',&
 '                    Match the entire line to prevent inadvertent matches.       ',&
-'                    Note --type overrides --start and --stop.                   ',&
+'                    Note --type overrides --start and --stop. For example:      ',&
+'                                                                                ',&
+"                         --start '^ *\\begin{minted}{Fortran} *$'               ",&
 '                                                                                ',&
 '   --stop STRING    Along with --start allows for custom delimiter strings to be',&
 '                    specified. The string is a BRE (Basic Regular Expression).  ',&
 '                    Match the entire line to prevent inadvertent matches.       ',&
-'                    Note --type overrides --start and --stop.                   ',&
+'                    Note --type overrides --start and --stop. For example:      ',&
+'                                                                                ',&
+"                         --stop '^ *\\end{minted} *$'                           ",&
 '                                                                                ',&
 '   --comment        Try to style comments generated in $BLOCK COMMENT blocks    ',&
 '                    for other utilities such as doxygen. Default is to          ',&
@@ -2293,8 +2297,8 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   commands can be executed for such tasks as creating files to be read or to   ',&
 '   further process documents created by $BLOCK. $SYSTEM directives are errors   ',&
 '   by default; as you clearly need to ensure the input file is trusted before   ',&
-'   before allowing commands to be executed. Commands that are system-specific   ',&
-'   may need to be executed conditionally as well.                               ',&
+'   allowing commands to be executed. Commands that are system-specific may need ',&
+'   to be executed conditionally as well.                                        ',&
 '                                                                                ',&
 '   Examples:                                                                    ',&
 '                                                                                ',&
