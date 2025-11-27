@@ -3,13 +3,14 @@ USE ISO_FORTRAN_ENV, ONLY : STDERR=>ERROR_UNIT, STDOUT=>OUTPUT_UNIT,STDIN=>INPUT
 use M_io, only : filewrite, filedelete, gulp
 use M_strings, only : upper
 implicit none
-character(len=:),allocatable :: data(:)
-character(len=:),allocatable :: expected(:)
-character(len=:),allocatable :: result(:)
+character(len=:),allocatable :: G_data(:)
+character(len=:),allocatable :: G_expected(:)
+character(len=:),allocatable :: G_result(:)
 integer                      :: i
 integer                      :: ierr
-logical,allocatable          :: tally(:)
-allocate(tally(0))
+logical,allocatable          :: G_tally(:)
+allocate(G_tally(0))
+
 !>>    > numeric operators are +,-,*,/,**, () are supported, logical operators are
 !>>    >  | .EQ.| .NE.| .GE.| .GT.| .LE.| .LT.|.NOT.|.AND.| .OR.| .EQV.|.NEQV.|
 !>>    >  |  == |  /= |  >= |  >  |  <= |  <  |  !  |  && |  || |  ==  |  !=  |
@@ -45,7 +46,7 @@ allocate(tally(0))
    call set()
 
 !>>   $PARCEL [blockname]  ! create a reuseable parcel of text that can be expanded
-!>>   $POST   blockname  ! insert a defined parcel of text
+!>>   $POST   blockname    ! insert a defined parcel of text
    call parcel()
 
 !>> EXTERNAL FILES (see $BLOCK ... --file also)
@@ -81,16 +82,19 @@ allocate(tally(0))
    call stop()
    call quit()
 
-   if(all(tally))then
+!>> OPTIONS
+   call type()
+
+   if(all(G_tally))then
       write(*,'(a)')'ALL PREP TESTS PASSED'
    else
-      write(*,'(a,*(l2))')'PREP TESTS FAILED',tally
+      write(*,'(a,*(l2))')'PREP TESTS FAILED',G_tally
       stop 1
    endif
 contains
 !===============================================================================
 subroutine sample()
-data=[ character(len=132) :: &
+G_data=[ character(len=132) :: &
 "                                                                        ", &
 "                                                                        ", &
 "                                                                        ", &
@@ -98,7 +102,7 @@ data=[ character(len=132) :: &
 "                                                                        ", &
 "last line"]
 
-expected=[ character(len=132) :: &
+G_expected=[ character(len=132) :: &
 "                                                                        ", &
 "                                                                        ", &
 "                                                                        ", &
@@ -106,13 +110,13 @@ expected=[ character(len=132) :: &
 "                                                                        ", &
 'last line']
 
-call teardown('sample')
+call run_and_verify_output('sample')
 
 end subroutine sample
 !===============================================================================
 subroutine conditionals()
 
-data=[ character(len=132) :: &
+G_data=[ character(len=132) :: &
 '$! set value of variable "a" if it is not specified on the prep(1) command. ', &
 '$if .not.defined(a)                                                         ', &
 '$   define a=1  ! so only define the following first version of sub(3f)     ', &
@@ -131,16 +135,16 @@ data=[ character(len=132) :: &
 '$endif                                                                      ', &
 'last line']
 
-expected=[ character(len=132) :: &
+G_expected=[ character(len=132) :: &
 'unfiltered                                                                  ', &
 '   a is 1                                                                   ', &
 'last line']
 
-call teardown('CONDITIONALS')
+call run_and_verify_output('CONDITIONALS')
 end subroutine conditionals
 !===============================================================================
 subroutine set()
-data=[ character(len=132) :: &
+G_data=[ character(len=132) :: &
 "$set author  William Shakespeare", &
 "write(*,*)'By ${AUTHOR}'        ", &
 "write(*,*)'File ${FILE}'        ", &
@@ -149,19 +153,85 @@ data=[ character(len=132) :: &
 "write(*,*)'By ${AUTHOR}'        ", &
 "last line"]
 
-expected=[ character(len=132) :: &
+G_expected=[ character(len=132) :: &
 "write(*,*)'By  William Shakespeare'", &
 "write(*,*)'File ._scratch.txt'     ", &
 "write(*,*)'Line 4'                 ", &
 "write(*,*)'By ${AUTHOR}'           ", &
 'last line']
 
-call teardown('SET')
+call run_and_verify_output('SET')
 
 end subroutine set
 !===============================================================================
+subroutine type()
+G_data=[ character(len=132) :: &
+"0000000000                        ", &
+"aaa                               ", &
+"ZZZZZZZZZZZZZZZZZZZ               ", &
+"bbb                               ", &
+"aaa                               ", &
+"from aaa to bbbb                  ", &
+"bbb                               ", &
+"BBBBBBBBBB                        ", &
+"CCCCCCCCCC                        ", &
+"<xmp>                             ", &
+"html                              ", &
+"</xmp>                            ", &
+"```fortran                        ", &
+"program                           ", &
+"end program                       ", &
+"```                               ", &
+"\begin{minted}{Fortran}           ", &
+"tex                               ", &
+"\end{minted}                      ", &
+"0000000000                        ", &
+"aaa                               ", &
+"second from aaa to bbbb           ", &
+"bbb                               ", &
+"BBBBBBBBBB                        ", &
+"CCCCCCCCCC                        ", &
+"<xmp>                             ", &
+"second html                       ", &
+"</xmp>                            ", &
+"```fortran                        ", &
+"second program                    ", &
+"end program                       ", &
+"```                               ", &
+"\begin{minted}{Fortran}           ", &
+"second tex                        ", &
+"\end{minted}                      ", &
+"last line"]
+
+G_expected=[ character(len=132) :: &
+"html                              ", &
+"second html                       " ]
+call run_and_verify_output('TYPE HTML',options=' -type html')
+
+G_expected=[ character(len=132) :: &
+"program                           ", &
+"end program                       ", &
+"second program                    ", &
+"end program                       " ]
+call run_and_verify_output('TYPE MD',options=' -type md')
+
+G_expected=[ character(len=132) :: &
+"tex                               ", &
+"second tex                        " ]
+call run_and_verify_output('TYPE TEX',options=' -type tex')
+
+G_expected=G_data
+call run_and_verify_output('TYPE NONE',options=' -type none')
+
+G_expected=[ character(len=132) :: &
+"ZZZZZZZZZZZZZZZZZZZ               ", &
+"from aaa to bbbb                  ", &
+"second from aaa to bbbb           "]
+call run_and_verify_output('START and STOP',options=' -start "^aaa$" -stop "^bbb$" ')
+end subroutine type
+!===============================================================================
 subroutine block()
-data=[ character(len=132) :: &
+G_data=[ character(len=132) :: &
 "$!                                                                      ", &
 "$! basic $block usage                                                   ", &
 "$!                                                                      ", &
@@ -213,7 +283,7 @@ data=[ character(len=132) :: &
 "endblock                                                                ", &
 'last line                                                               ']
 
-expected=[ character(len=132) :: &
+G_expected=[ character(len=132) :: &
 "                                                                                ", &
 "!   These lines will be converted to Fortran comments.                          ", &
 "!   It is easier to reformat comments this way instead of having                ", &
@@ -245,57 +315,71 @@ expected=[ character(len=132) :: &
 "endblock                                                                        ", &
 'last line                                                                       ']
 
-call teardown('BLOCK')
+call run_and_verify_output('BLOCK')
 
 end subroutine block
 !===============================================================================
-subroutine teardown(name,expected_exitstat)
+subroutine run_and_verify_output(name,expected_exitstat,options)
 character(len=*),intent(in) :: name
 integer,optional    :: expected_exitstat
+character(len=*),intent(in),optional :: options
 character(len=1)    :: paws
 integer             :: iostat
 character(len=256)  :: cmdmsg
 integer             :: exitstat
 integer             :: cmdstat
 integer             :: estat
+! write global G_DATA(:) to file ._scratch.txt
+! run prep(1) on ._scratch.txt and generate ._out.txt
+! read ._out.txt into global G_RESULT(:)
+! compare size of G_RESULT(:) and global G_EXPECTED(:) and exitstatus expected for prep(1) command
+! if passed cursory examination compare G_EXPECTED(:) and G_RESULT(:) 
+! show the G_EXPECTED(:) and G_RESULT(:) arrays if not the same
+! remove scratch files ._scratch.txt and ._out.txt
+
    if(present(expected_exitstat))then
       estat=expected_exitstat
    else
       estat=0
    endif
-   ierr=filewrite('._scratch.txt',data,status='replace')
+   ierr=filewrite('._scratch.txt',G_data,status='replace')
    !call execute_command_line ('fpm run prep -- --verbose --debug -i ._scratch.txt -o ._out.txt')
    exitstat=0
    cmdstat=0
-   call execute_command_line ('fpm run prep -- F90 TESTPRG90 CMD=30/2 -i ._scratch.txt -o ._out.txt', &
-   & exitstat=exitstat,cmdstat=cmdstat,cmdmsg=cmdmsg)
+   if(present(options))then
+      call execute_command_line ('fpm run prep -- F90 TESTPRG90 CMD=30/2 '//options//' -i ._scratch.txt -o ._out.txt', &
+      & exitstat=exitstat,cmdstat=cmdstat,cmdmsg=cmdmsg)
+   else
+      call execute_command_line ('fpm run prep -- F90 TESTPRG90 CMD=30/2 -i ._scratch.txt -o ._out.txt', &
+      & exitstat=exitstat,cmdstat=cmdstat,cmdmsg=cmdmsg)
+   endif
    write(*,*)'exitstat=',exitstat,'cmdstat=',cmdstat
    if(cmdstat.ne.0)write(stderr,*)trim(cmdmsg)
-   call gulp('._out.txt',result)
+   call gulp('._out.txt',G_result)
    CHECK : block
-      if(size(expected).eq.size(result).and.exitstat.eq.estat)then
-         if( all(expected.eq.result) )then
+      if(size(G_expected).eq.size(G_result).and.exitstat.eq.estat)then
+         if( all(G_expected.eq.G_result) )then
             write(*,'("....................",T1,(a,T21,a))')trim(upper(name)),'PASSED'
-            tally=[tally,.true.]
+            G_tally=[G_tally,.true.]
             exit CHECK
          endif
       endif
-      tally=[tally,.false.]
+      G_tally=[G_tally,.false.]
       write(*,'("....................",T1,*(a,T21,a))')upper(name),'FAILED'
       write(*,'(/,a)')'RESULT'
-      if(allocated(result))write(*,'(i3.3,1x,a)')(i,trim(result(i)),i=1,size(result))
+      if(allocated(G_result))write(*,'(i3.3,1x,a)')(i,trim(G_result(i)),i=1,size(G_result))
       write(*,'(/,a)')'EXPECTED'
-      if(allocated(expected))write(*,'(i3.3,1x,a)')(i,trim(expected(i)),i=1,size(expected))
+      if(allocated(G_expected))write(*,'(i3.3,1x,a)')(i,trim(G_expected(i)),i=1,size(G_expected))
    endblock CHECK
    ierr=filedelete('._scratch.txt')
    ierr=filedelete('._out.txt')
    call flushit()
    !write(*,'(a)',advance='no')'Use RETURN to continue'
    !read(*,'(a)',iostat=iostat)paws
-end subroutine teardown
+end subroutine run_and_verify_output
 !===============================================================================
 subroutine expressions()
-data=[ character(len=132) :: &
+G_data=[ character(len=132) :: &
 '$DEFINE A=10', &
 '$IF .NOT.a.EQ.5*2 ! Note space after exclamation ', &
 '$define A=A+1', &
@@ -323,7 +407,7 @@ data=[ character(len=132) :: &
 '$endif', &
 'last line']
 
-expected=[ character(len=132) :: &
+G_expected=[ character(len=132) :: &
 'good', &
 ' ', &
 'good', &
@@ -332,12 +416,12 @@ expected=[ character(len=132) :: &
 ' ', &
 'last line']
 
-call teardown('EXPRESSIONS')
+call run_and_verify_output('EXPRESSIONS')
 
 end subroutine expressions
 !===============================================================================
 subroutine expressions_2()
-data=[ character(len=132) :: &
+G_data=[ character(len=132) :: &
 '$!> numeric operators are +,-,*,/,**, () are supported, logical operators are ',&
 '$!>  | .EQ.| .NE.| .GE.| .GT.| .LE.| .LT.|.NOT.|.AND.| .OR.| .EQV.|.NEQV.|    ',&
 '$!>  |  == |  /= |  >= |  >  |  <= |  <  |  !  |  && |  || |  ==  |  !=  |    ',&
@@ -362,16 +446,16 @@ data=[ character(len=132) :: &
 '$show A                                                                       ',&
 'last line']
 
-expected=[ character(len=132) :: &
+G_expected=[ character(len=132) :: &
 '! VARIABLE:  A  =  .TRUE.                                                     ',&
 'last line']
 
-call teardown('expressions_2')
+call run_and_verify_output('expressions_2')
 
 end subroutine expressions_2
 !===============================================================================
 subroutine define()
-data=[ character(len=132) :: &
+G_data=[ character(len=132) :: &
 '                                                    ', &
 '$DEFINE A=10                                        ', &
 '$DEFINE A=A+1                                       ', &
@@ -409,7 +493,7 @@ data=[ character(len=132) :: &
 '$endif                                              ', &
 'last line                                           ']
 
-expected=[ character(len=132) :: &
+G_expected=[ character(len=132) :: &
 ' ', &
 '! VARIABLE:  A  =  12', &
 '! VARIABLE:  SUM  =  3', &
@@ -418,12 +502,12 @@ expected=[ character(len=132) :: &
 '! VARIABLE:  AB_  =  1', &
 'last line']
 
-call teardown('define')
+call run_and_verify_output('define')
 
 end subroutine define
 !===============================================================================
 subroutine block_2()
-data=[ character(len=132) :: &
+G_data=[ character(len=132) :: &
 '$BLOCK comment', &
 '  This is a block of text that should be                       ', &
 '  converted to standard Fortran comments                       ', &
@@ -453,7 +537,7 @@ data=[ character(len=132) :: &
 '$!------------------------------------------------             ', &
 'last line']
 
-expected=[ character(len=132) :: &
+G_expected=[ character(len=132) :: &
 "!   This is a block of text that should be",&
 "!   converted to standard Fortran comments",&
 "write(io,'(a)')'  Convert this paragraph of text describing'",&
@@ -469,12 +553,12 @@ expected=[ character(len=132) :: &
 "'']",&
 "last line"]
 
-call teardown('block_2')
+call run_and_verify_output('block_2')
 
 end subroutine block_2
 !===============================================================================
 subroutine block_3()
-data=[ character(len=132) :: &
+G_data=[ character(len=132) :: &
 '$!-------------------------------',&
 '$BLOCK set                       ',&
 'one   This is the one            ',&
@@ -505,7 +589,7 @@ data=[ character(len=132) :: &
 '$!-------------------------------',&
 'last line']
 
-expected=[ character(len=132) :: &
+G_expected=[ character(len=132) :: &
 '   This is the one               ',&
 "  two plus two is four           ",&
 "pennies                          ",&
@@ -515,12 +599,12 @@ expected=[ character(len=132) :: &
 "  This is the onepennies  pennies",&
 "last line"]
 
-call teardown('block_3')
+call run_and_verify_output('block_3')
 
 end subroutine block_3
 !===============================================================================
 subroutine logics()
-data=[ character(len=132) :: &
+G_data=[ character(len=132) :: &
 '$!-------------------------------',&
 '$define a=.true.                 ',&
 '$define b=.true.                 ',&
@@ -545,19 +629,19 @@ data=[ character(len=132) :: &
 '$!-------------------------------',&
 'last line']
 
-expected=[ character(len=132) :: &
+G_expected=[ character(len=132) :: &
 "GOOD EQV                         ",&
 "GOOD NEQV                        ",&
 "GOOD A                           ",&
 "last line"]
 
-call teardown('logics')
+call run_and_verify_output('logics')
 
 end subroutine logics
 !===============================================================================
 subroutine conditionals_2()
 
-data=[ character(len=132) :: &
+G_data=[ character(len=132) :: &
 '$! set variable "a" if not specified on the prep(1) command.         ', &
 '$IF .NOT.DEFINED(A)                                                  ', &
 '$   DEFINE a=1  ! so only define the first version of SUB(3f) below  ', &
@@ -581,7 +665,7 @@ data=[ character(len=132) :: &
 '$ENDIF                                                               ', &
 'last line']
 
-expected=[ character(len=132) :: &
+G_expected=[ character(len=132) :: &
 '   program conditional_compile                                       ', &
 '      call sub()                                                     ', &
 '   end program conditional_compile                                   ', &
@@ -590,11 +674,11 @@ expected=[ character(len=132) :: &
 '   end subroutine sub                                                ', &
 'last line']
 
-call teardown('CONDITIONALS_2')
+call run_and_verify_output('CONDITIONALS_2')
 end subroutine conditionals_2
 !===============================================================================
 subroutine parcel()
-data=[ character(len=132) :: &
+G_data=[ character(len=132) :: &
 '$! write a generic function ".                   ',&
 '$!==============================                 ',&
 '$PARCEL SWAP                                     ',&
@@ -645,7 +729,7 @@ data=[ character(len=132) :: &
 'end module M_swap                                ',&
 ""]
 
-expected=[ character(len=132) :: &
+G_expected=[ character(len=132) :: &
 'module M_swap                                    ',&
 'implicit none                                    ',&
 'private                                          ',&
@@ -696,40 +780,40 @@ expected=[ character(len=132) :: &
 'end module M_swap                                ',&
 '']
 
-call teardown('parcel')
+call run_and_verify_output('parcel')
 
 end subroutine parcel
 !===============================================================================
 subroutine stop()
-data=[ character(len=132) :: &
+G_data=[ character(len=132) :: &
 "PRINT THIS               ", &
 "$stop 10 Exit Here !     ", &
 "NOT THIS                 ", &
 "last line"]
 
-expected=[ character(len=132) :: &
+G_expected=[ character(len=132) :: &
 'PRINT THIS']
 
-call teardown('stop',10)
+call run_and_verify_output('stop',10)
 
 end subroutine stop
 !===============================================================================
 subroutine quit()
-data=[ character(len=132) :: &
+G_data=[ character(len=132) :: &
 "PRINT THIS               ", &
 "$QUIT                    ", &
 "NOT THIS                 ", &
 "last line"]
 
-expected=[ character(len=132) :: &
+G_expected=[ character(len=132) :: &
 'PRINT THIS']
 
-call teardown('quit')
+call run_and_verify_output('quit')
 
 end subroutine quit
 !===============================================================================
 subroutine message()
-data=[ character(len=132) :: &
+G_data=[ character(len=132) :: &
 "$show *E*                           ", &
 "$IMPORT USER                        ", &
 "$import HOME                        ", &
@@ -750,35 +834,35 @@ data=[ character(len=132) :: &
 "$endblock                           ", &
 "last line"]
 
-expected=[ character(len=132) :: &
+G_expected=[ character(len=132) :: &
 '! VARIABLE:  TESTPRG90  =  1        ', &
 '! VARIABLE:  SYSTEMON  =  .FALSE.   ', &
 '! VARIABLE:  OPENBSD  =  7          ', &
 '! VARIABLE:  FREEBSD  =  6          ', &
 'last line']
 
-call teardown('message')
+call run_and_verify_output('message')
 
 end subroutine message
 !===============================================================================
 subroutine ident()
-data=[ character(len=132) :: &
+G_data=[ character(len=132) :: &
 "$@(#) M_module::procedure: my procedure", &
 "$IDENT M_module::procedure:    my  procedure   ", &
 "last line"]
 
-expected=[ character(len=132) :: &
+G_expected=[ character(len=132) :: &
 '! ident_1="@(#) M_module procedure my procedure"', &
 '! ident_2="@(#) M_module procedure my procedure"', &
 'last line']
 
-call teardown('message')
+call run_and_verify_output('message')
 
 end subroutine ident
 !===============================================================================
 subroutine output()
 integer :: ios, lun
-data=[ character(len=132) :: &
+G_data=[ character(len=132) :: &
 "$OUTPUT ._scratch_output                                                 ", &
 "This should be placed in an external file                               ", &
 "that is subsequently read back in                                       ", &
@@ -786,12 +870,12 @@ data=[ character(len=132) :: &
 "$INCLUDE ._scratch_output                                                ", &
 "last line"]
 
-expected=[ character(len=132) :: &
+G_expected=[ character(len=132) :: &
 "This should be placed in an external file                               ", &
 "that is subsequently read back in                                       ", &
 'last line']
 
-call teardown('output')
+call run_and_verify_output('output')
 
 open(file='._scratch_output',newunit=lun,iostat=ios)
 close(unit=lun,iostat=ios,status='delete')
@@ -802,15 +886,15 @@ subroutine env()
 character(len=4096)       :: home_value
 integer                   :: istatus
 
-data=[ character(len=132) :: &
+G_data=[ character(len=132) :: &
 "$IMPORT HOME             ", &
 "${HOME}"]
 
 home_value=''
 call get_environment_variable('HOME',home_value,status=istatus)
-expected=[ character(len=132) :: home_value]
+G_expected=[ character(len=132) :: home_value]
 
-call teardown('env')
+call run_and_verify_output('env')
 
 end subroutine env
 !===============================================================================
@@ -818,7 +902,7 @@ subroutine misc()
 character(len=4096)       :: home_value
 integer                   :: istatus
 
-data=[ character(len=132) :: &
+G_data=[ character(len=132) :: &
 '$if ( 3 .eq. 2+1 ) then                                                         ',&
 'OK A                                                                            ',&
 '$else                                                                           ',&
@@ -872,7 +956,7 @@ data=[ character(len=132) :: &
 '$!======================                                                        ',&
 "last line"]
 
-expected=[ character(len=132) :: &
+G_expected=[ character(len=132) :: &
 'OK A',&
 'OK B',&
 'OK C',&
@@ -883,13 +967,13 @@ expected=[ character(len=132) :: &
 'GOOD: CMD                                                                       ',&
 "last line"]
 
-call teardown('misc')
+call run_and_verify_output('misc')
 
 end subroutine misc
 !===============================================================================
 subroutine conditionals_3()
 
-data=[ character(len=132) :: &
+G_data=[ character(len=132) :: &
 '$define a;b;c;d;e;f;g;h                                                      ',&
 '$                                                                            ',&
 '$if defined(a,b,c,d,e,f,g).and.defined(h,g,f,e,d,c,b,a).and..not.defined(i,j)',&
@@ -930,7 +1014,7 @@ data=[ character(len=132) :: &
 '$                                                                            ',&
 'last line']
 
-expected=[ character(len=132) :: &
+G_expected=[ character(len=132) :: &
 'GOOD 1                                                                  ', &
 'GOOD 2                                                                  ', &
 'GOOD 3                                                                  ', &
@@ -939,7 +1023,7 @@ expected=[ character(len=132) :: &
 'GOOD 6                                                                  ', &
 'last line']
 
-call teardown('CONDITIONALS_3')
+call run_and_verify_output('CONDITIONALS_3')
 end subroutine conditionals_3
 !===============================================================================
 subroutine flushit()
