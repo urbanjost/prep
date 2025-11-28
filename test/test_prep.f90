@@ -11,6 +11,7 @@ integer                      :: ierr
 logical,allocatable          :: G_tally(:)
 allocate(G_tally(0))
 
+   call width()
    call keeptabs()
 !>>    > numeric operators are +,-,*,/,**, () are supported, logical operators are
 !>>    >  | .EQ.| .NE.| .GE.| .GT.| .LE.| .LT.|.NOT.|.AND.| .OR.| .EQV.|.NEQV.|
@@ -86,6 +87,7 @@ allocate(G_tally(0))
 !>> OPTIONS
    call type()
    call keeptabs()
+   call width()
 
    if(all(G_tally))then
       write(*,'(a)')'ALL PREP TESTS PASSED'
@@ -239,11 +241,6 @@ repeat(char(9),2)//"bbbb     ", &
 "cccc                        ", &
 "last line"]
 
-G_data=[ character(len=132) :: &
-"aaaa                        ", &
-repeat(char(9),2)//"bbbb     ", &
-"cccc                        ", &
-"last line"]
 G_expected=G_data
 call run_and_verify_output('--keeptabs',options=' --keeptabs')
 
@@ -255,6 +252,25 @@ G_expected=[ character(len=132) :: &
 call run_and_verify_output('no --keeptabs',options=' ')
 
 end subroutine keeptabs
+!===============================================================================
+subroutine width()
+G_data=[ character(len=132) :: &
+"AaaaaABCcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccCDdddddddddddddddddddd", &
+"AaaaaABCcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccCDdddddddddddddddddddd", &
+"AaaaaABCcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccCDdddddddddddddddddddd", &
+"last line"]
+
+G_expected=[ character(len=132) :: &
+"AaaaaABCcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccC", &
+"AaaaaABCcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccC", &
+"AaaaaABCcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccC", &
+"last line"]
+call run_and_verify_output('--width 72',options='-width 72 ')
+
+G_expected=G_data
+call run_and_verify_output('no --width',options=' ')
+
+end subroutine width
 !===============================================================================
 subroutine block()
 G_data=[ character(len=132) :: &
