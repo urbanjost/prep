@@ -11,6 +11,7 @@ integer                      :: ierr
 logical,allocatable          :: G_tally(:)
 allocate(G_tally(0))
 
+   call keeptabs()
 !>>    > numeric operators are +,-,*,/,**, () are supported, logical operators are
 !>>    >  | .EQ.| .NE.| .GE.| .GT.| .LE.| .LT.|.NOT.|.AND.| .OR.| .EQV.|.NEQV.|
 !>>    >  |  == |  /= |  >= |  >  |  <= |  <  |  !  |  && |  || |  ==  |  !=  |
@@ -84,6 +85,7 @@ allocate(G_tally(0))
 
 !>> OPTIONS
    call type()
+   call keeptabs()
 
    if(all(G_tally))then
       write(*,'(a)')'ALL PREP TESTS PASSED'
@@ -229,6 +231,30 @@ G_expected=[ character(len=132) :: &
 "second from aaa to bbbb           "]
 call run_and_verify_output('START and STOP',options=' -start "^aaa$" -stop "^bbb$" ')
 end subroutine type
+!===============================================================================
+subroutine keeptabs()
+G_data=[ character(len=132) :: &
+"aaaa                        ", &
+repeat(char(9),2)//"bbbb     ", &
+"cccc                        ", &
+"last line"]
+
+G_data=[ character(len=132) :: &
+"aaaa                        ", &
+repeat(char(9),2)//"bbbb     ", &
+"cccc                        ", &
+"last line"]
+G_expected=G_data
+call run_and_verify_output('--keeptabs',options=' --keeptabs')
+
+G_expected=[ character(len=132) :: &
+"aaaa                        ", &
+"                bbbb        ", &
+"cccc                        ", &
+"last line"]
+call run_and_verify_output('no --keeptabs',options=' ')
+
+end subroutine keeptabs
 !===============================================================================
 subroutine block()
 G_data=[ character(len=132) :: &
@@ -1031,4 +1057,5 @@ integer :: ios
       flush(unit=stdout,iostat=ios)
       flush(unit=stderr,iostat=ios)
 end subroutine flushit
+!===============================================================================
 end program test_prep

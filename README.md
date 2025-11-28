@@ -95,21 +95,22 @@ contains
 end module M_testit
 ```
 ## Building
-To build it requires `git`, `fpm`(Fortran Package Manager), a modern
+To build it requires `fpm`(Fortran Package Manager), a modern
 Fortran compiler and WWW access or you will need to compile the single-file
-[bootstrap version](https://raw.githubusercontent.com/urbanjost/prep/main/standalone/prep.f90).
+[bootstrap version](https://raw.githubusercontent.com/lockstockandbarrel/mars/refs/heads/main/bootstrap/prep.F90).
+
 It was tested with
 
-
-   + GNU Fortran (GCC) 8.3.1         on 20191121
-   + GNU Fortran 9.3.0               on 20210612
-   + GNU Fortran 10.3.0              on 20220804
-   + GNU Fortran 11.1.0              on 20230120
-   + ifort (IFORT) 19.1.3.304        on 20200925
-   + ifort (IFORT) 2021.3.0 20210609 on 20220305
-   + ifort (IFORT) 2021.3.0 20210609 on 20220804
-   + ifort (IFORT) 2021.8.0 20221119 on 20230120
-   + nvfortran 21.5-0                on 20220804
+   + GNU Fortran (GCC) 8.3.1         on 2019-11-21
+   + GNU Fortran 9.3.0               on 2021-06-12
+   + GNU Fortran 10.3.0              on 2022-08-04
+   + GNU Fortran 11.1.0              on 2023-01-20
+   + GNU Fortran 16.0.0              on 2025-11-27
+   + ifort (IFORT) 19.1.3.304        on 2020-09-25
+   + ifort (IFORT) 2021.3.0 20210609 on 2022-03-05
+   + ifort (IFORT) 2021.3.0 20210609 on 2022-08-04
+   + ifort (IFORT) 2021.8.0 20221119 on 2023-01-20
+   + nvfortran 21.5-0                on 2022-08-04
 
 ## Accessing
 ```bash
