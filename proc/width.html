@@ -10,7 +10,7 @@
     <meta name="author" content="John S. Urban" >
     <link rel="icon" href="../favicon.png">
 
-    <title>keeptabs &ndash; prep</title>
+    <title>width &ndash; prep</title>
 
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -80,7 +80,7 @@
 
     <div class="container">
   <div class="row">
-    <h1>keeptabs
+    <h1>width
       <small>Subroutine</small>
       
     </h1>
@@ -105,7 +105,7 @@
           <ol class="breadcrumb justify-content-end mb-0">
                 <li class="breadcrumb-item"><a href='../sourcefile/test_prep.f90.html'>test_prep.f90</a></li>
                 <li class="breadcrumb-item"><a href='../program/test_prep.html'>test_prep</a></li>
-            <li class="breadcrumb-item active" aria-current="page">keeptabs</li>
+            <li class="breadcrumb-item active" aria-current="page">width</li>
           </ol>
         </nav>
       </div>
@@ -148,7 +148,7 @@
     <div class="card card-primary">
       <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
       <div class="list-group">
-        <a class="list-group-item" href="../proc/keeptabs.html#src">keeptabs</a>
+        <a class="list-group-item" href="../proc/width.html#src">width</a>
       </div>
     </div>
 
@@ -158,7 +158,7 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2> subroutine keeptabs()  
+    <h2> subroutine width()  
 </h2>
     
 
@@ -181,24 +181,24 @@
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="hl codehilite"><pre><span></span><span class="k">subroutine </span><span class="n">keeptabs</span><span class="p">()</span>
+    <div class="hl codehilite"><pre><span></span><span class="k">subroutine </span><span class="n">width</span><span class="p">()</span>
 <span class="n">G_data</span><span class="o">=</span><span class="p">[</span><span class="w"> </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">132</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="s2">&quot;aaaa                        &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="nb">repeat</span><span class="p">(</span><span class="nb">char</span><span class="p">(</span><span class="mi">9</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span><span class="o">//</span><span class="s2">&quot;bbbb     &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="s2">&quot;cccc                        &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;AaaaaABCcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccCDdddddddddddddddddddd&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;AaaaaABCcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccCDdddddddddddddddddddd&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;AaaaaABCcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccCDdddddddddddddddddddd&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
 <span class="s2">&quot;last line&quot;</span><span class="p">]</span>
-
-<span class="n">G_expected</span><span class="o">=</span><span class="n">G_data</span>
-<span class="k">call </span><span class="n">run_and_verify_output</span><span class="p">(</span><span class="s1">&#39;--keeptabs&#39;</span><span class="p">,</span><span class="k">options</span><span class="o">=</span><span class="s1">&#39; --keeptabs&#39;</span><span class="p">)</span>
 
 <span class="n">G_expected</span><span class="o">=</span><span class="p">[</span><span class="w"> </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">132</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="s2">&quot;aaaa                        &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="s2">&quot;                bbbb        &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="s2">&quot;cccc                        &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;AaaaaABCcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccC&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;AaaaaABCcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccC&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;AaaaaABCcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccC&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
 <span class="s2">&quot;last line&quot;</span><span class="p">]</span>
-<span class="k">call </span><span class="n">run_and_verify_output</span><span class="p">(</span><span class="s1">&#39;no --keeptabs&#39;</span><span class="p">,</span><span class="k">options</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+<span class="k">call </span><span class="n">run_and_verify_output</span><span class="p">(</span><span class="s1">&#39;--width 72&#39;</span><span class="p">,</span><span class="k">options</span><span class="o">=</span><span class="s1">&#39;-width 72 &#39;</span><span class="p">)</span>
 
-<span class="k">end subroutine </span><span class="n">keeptabs</span>
+<span class="n">G_expected</span><span class="o">=</span><span class="n">G_data</span>
+<span class="k">call </span><span class="n">run_and_verify_output</span><span class="p">(</span><span class="s1">&#39;no --width&#39;</span><span class="p">,</span><span class="k">options</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+
+<span class="k">end subroutine </span><span class="n">width</span>
 </pre></div>
 
     </section>
