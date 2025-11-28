@@ -11,8 +11,6 @@ integer                      :: ierr
 logical,allocatable          :: G_tally(:)
 allocate(G_tally(0))
 
-   call width()
-   call keeptabs()
 !>>    > numeric operators are +,-,*,/,**, () are supported, logical operators are
 !>>    >  | .EQ.| .NE.| .GE.| .GT.| .LE.| .LT.|.NOT.|.AND.| .OR.| .EQV.|.NEQV.|
 !>>    >  |  == |  /= |  >= |  >  |  <= |  <  |  !  |  && |  || |  ==  |  !=  |
