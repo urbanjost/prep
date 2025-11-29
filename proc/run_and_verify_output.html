@@ -91,7 +91,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 2.6% of total for procedures.">45 statements</a>
+                 title=" 2.7% of total for procedures.">47 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
@@ -193,7 +193,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-name~8"></span>
+              <span class="anchor" id="variable-name~9"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -385,9 +385,10 @@
 <span class="c">! write global G_DATA(:) to file ._scratch.txt</span>
 <span class="c">! run prep(1) on ._scratch.txt and generate ._out.txt</span>
 <span class="c">! read ._out.txt into global G_RESULT(:)</span>
-<span class="c">! compare size of G_RESULT(:) and global G_EXPECTED(:) and exitstatus expected for prep(1) command</span>
-<span class="c">! if passed cursory examination compare G_EXPECTED(:) and G_RESULT(:) </span>
-<span class="c">! show the G_EXPECTED(:) and G_RESULT(:) arrays if not the same</span>
+<span class="c">! if name not blank then </span>
+<span class="c">!    compare size of G_RESULT(:) and global G_EXPECTED(:) and exitstatus expected for prep(1) command</span>
+<span class="c">!    if passed cursory examination compare G_EXPECTED(:) and G_RESULT(:) </span>
+<span class="c">!    show the G_EXPECTED(:) and G_RESULT(:) arrays if not the same</span>
 <span class="c">! remove scratch files ._scratch.txt and ._out.txt</span>
 
 <span class="w">   </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">expected_exitstat</span><span class="p">))</span><span class="k">then</span>
@@ -396,11 +397,11 @@
 <span class="k">      </span><span class="n">estat</span><span class="o">=</span><span class="mi">0</span>
 <span class="w">   </span><span class="k">endif</span>
 <span class="k">   </span><span class="n">ierr</span><span class="o">=</span><span class="n">filewrite</span><span class="p">(</span><span class="s1">&#39;._scratch.txt&#39;</span><span class="p">,</span><span class="n">G_data</span><span class="p">,</span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;replace&#39;</span><span class="p">)</span>
-<span class="w">   </span><span class="c">!call execute_command_line (&#39;fpm run prep -- --verbose --debug -i ._scratch.txt -o ._out.txt&#39;)</span>
 <span class="w">   </span><span class="n">exitstat</span><span class="o">=</span><span class="mi">0</span>
 <span class="w">   </span><span class="n">cmdstat</span><span class="o">=</span><span class="mi">0</span>
 <span class="w">   </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="k">options</span><span class="p">))</span><span class="k">then</span>
-<span class="k">      call </span><span class="nb">execute_command_line</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;fpm run prep -- F90 TESTPRG90 CMD=30/2 &#39;</span><span class="o">//</span><span class="k">options</span><span class="o">//</span><span class="s1">&#39; -i ._scratch.txt -o ._out.txt&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">      </span><span class="c">! --verbose --debug</span>
+<span class="w">      </span><span class="k">call </span><span class="nb">execute_command_line</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;fpm run prep -- F90 TESTPRG90 CMD=30/2 &#39;</span><span class="o">//</span><span class="k">options</span><span class="o">//</span><span class="s1">&#39; -i ._scratch.txt -o ._out.txt&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
 <span class="w">      </span><span class="p">&amp;</span><span class="w"> </span><span class="n">exitstat</span><span class="o">=</span><span class="n">exitstat</span><span class="p">,</span><span class="n">cmdstat</span><span class="o">=</span><span class="n">cmdstat</span><span class="p">,</span><span class="n">cmdmsg</span><span class="o">=</span><span class="n">cmdmsg</span><span class="p">)</span>
 <span class="w">   </span><span class="k">else</span>
 <span class="k">      call </span><span class="nb">execute_command_line</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;fpm run prep -- F90 TESTPRG90 CMD=30/2 -i ._scratch.txt -o ._out.txt&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
@@ -409,22 +410,24 @@
 <span class="k">   write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;exitstat=&#39;</span><span class="p">,</span><span class="n">exitstat</span><span class="p">,</span><span class="s1">&#39;cmdstat=&#39;</span><span class="p">,</span><span class="n">cmdstat</span>
 <span class="w">   </span><span class="k">if</span><span class="p">(</span><span class="n">cmdstat</span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="k">write</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="nb">trim</span><span class="p">(</span><span class="n">cmdmsg</span><span class="p">)</span>
 <span class="w">   </span><span class="k">call </span><span class="n">gulp</span><span class="p">(</span><span class="s1">&#39;._out.txt&#39;</span><span class="p">,</span><span class="n">G_result</span><span class="p">)</span>
-<span class="w">   </span><span class="n">CHECK</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="k">block</span>
-<span class="k">      if</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">G_expected</span><span class="p">).</span><span class="n">eq</span><span class="p">.</span><span class="n">size</span><span class="p">(</span><span class="n">G_result</span><span class="p">).</span><span class="nb">and</span><span class="p">.</span><span class="n">exitstat</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="n">estat</span><span class="p">)</span><span class="k">then</span>
-<span class="k">         if</span><span class="p">(</span><span class="w"> </span><span class="k">all</span><span class="p">(</span><span class="n">G_expected</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="n">G_result</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="k">then</span>
-<span class="k">            write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(&quot;....................&quot;,T1,(a,T21,a))&#39;</span><span class="p">)</span><span class="nb">trim</span><span class="p">(</span><span class="n">upper</span><span class="p">(</span><span class="n">name</span><span class="p">)),</span><span class="s1">&#39;PASSED&#39;</span>
-<span class="w">            </span><span class="n">G_tally</span><span class="o">=</span><span class="p">[</span><span class="n">G_tally</span><span class="p">,.</span><span class="n">true</span><span class="p">.]</span>
-<span class="w">            </span><span class="k">exit </span><span class="n">CHECK</span>
-<span class="w">         </span><span class="k">endif</span>
-<span class="k">      endif</span>
-<span class="k">      </span><span class="n">G_tally</span><span class="o">=</span><span class="p">[</span><span class="n">G_tally</span><span class="p">,.</span><span class="n">false</span><span class="p">.]</span>
-<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(&quot;....................&quot;,T1,*(a,T21,a))&#39;</span><span class="p">)</span><span class="n">upper</span><span class="p">(</span><span class="n">name</span><span class="p">),</span><span class="s1">&#39;FAILED&#39;</span>
-<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(/,a)&#39;</span><span class="p">)</span><span class="s1">&#39;RESULT&#39;</span>
-<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">G_result</span><span class="p">))</span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(i3.3,1x,a)&#39;</span><span class="p">)(</span><span class="n">i</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">G_result</span><span class="p">(</span><span class="n">i</span><span class="p">)),</span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">G_result</span><span class="p">))</span>
-<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(/,a)&#39;</span><span class="p">)</span><span class="s1">&#39;EXPECTED&#39;</span>
-<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">G_expected</span><span class="p">))</span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(i3.3,1x,a)&#39;</span><span class="p">)(</span><span class="n">i</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">G_expected</span><span class="p">(</span><span class="n">i</span><span class="p">)),</span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">G_expected</span><span class="p">))</span>
-<span class="w">   </span><span class="k">endblock </span><span class="n">CHECK</span>
-<span class="w">   </span><span class="n">ierr</span><span class="o">=</span><span class="n">filedelete</span><span class="p">(</span><span class="s1">&#39;._scratch.txt&#39;</span><span class="p">)</span>
+<span class="w">   </span><span class="k">if</span><span class="p">(</span><span class="n">name</span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="k">then</span>
+<span class="k">      </span><span class="n">CHECK</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="k">block</span>
+<span class="k">         if</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">G_expected</span><span class="p">).</span><span class="n">eq</span><span class="p">.</span><span class="n">size</span><span class="p">(</span><span class="n">G_result</span><span class="p">).</span><span class="nb">and</span><span class="p">.</span><span class="n">exitstat</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="n">estat</span><span class="p">)</span><span class="k">then</span>
+<span class="k">            if</span><span class="p">(</span><span class="w"> </span><span class="k">all</span><span class="p">(</span><span class="n">G_expected</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="n">G_result</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="k">then</span>
+<span class="k">               write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(&quot;....................&quot;,T1,(a,T21,a))&#39;</span><span class="p">)</span><span class="nb">trim</span><span class="p">(</span><span class="n">upper</span><span class="p">(</span><span class="n">name</span><span class="p">)),</span><span class="s1">&#39;PASSED&#39;</span>
+<span class="w">               </span><span class="n">G_tally</span><span class="o">=</span><span class="p">[</span><span class="n">G_tally</span><span class="p">,.</span><span class="n">true</span><span class="p">.]</span>
+<span class="w">               </span><span class="k">exit </span><span class="n">CHECK</span>
+<span class="w">            </span><span class="k">endif</span>
+<span class="k">         endif</span>
+<span class="k">         </span><span class="n">G_tally</span><span class="o">=</span><span class="p">[</span><span class="n">G_tally</span><span class="p">,.</span><span class="n">false</span><span class="p">.]</span>
+<span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(&quot;....................&quot;,T1,*(a,T21,a))&#39;</span><span class="p">)</span><span class="n">upper</span><span class="p">(</span><span class="n">name</span><span class="p">),</span><span class="s1">&#39;FAILED&#39;</span>
+<span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(/,a)&#39;</span><span class="p">)</span><span class="s1">&#39;RESULT&#39;</span>
+<span class="w">         </span><span class="k">if</span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">G_result</span><span class="p">))</span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(i3.3,1x,a)&#39;</span><span class="p">)(</span><span class="n">i</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">G_result</span><span class="p">(</span><span class="n">i</span><span class="p">)),</span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">G_result</span><span class="p">))</span>
+<span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(/,a)&#39;</span><span class="p">)</span><span class="s1">&#39;EXPECTED&#39;</span>
+<span class="w">         </span><span class="k">if</span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">G_expected</span><span class="p">))</span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(i3.3,1x,a)&#39;</span><span class="p">)(</span><span class="n">i</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">G_expected</span><span class="p">(</span><span class="n">i</span><span class="p">)),</span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">G_expected</span><span class="p">))</span>
+<span class="w">      </span><span class="k">endblock </span><span class="n">CHECK</span>
+<span class="w">   </span><span class="k">endif</span>
+<span class="k">   </span><span class="n">ierr</span><span class="o">=</span><span class="n">filedelete</span><span class="p">(</span><span class="s1">&#39;._scratch.txt&#39;</span><span class="p">)</span>
 <span class="w">   </span><span class="n">ierr</span><span class="o">=</span><span class="n">filedelete</span><span class="p">(</span><span class="s1">&#39;._out.txt&#39;</span><span class="p">)</span>
 <span class="w">   </span><span class="k">call </span><span class="n">flushit</span><span class="p">()</span>
 <span class="w">   </span><span class="c">!write(*,&#39;(a)&#39;,advance=&#39;no&#39;)&#39;Use RETURN to continue&#39;</span>
@@ -453,7 +456,7 @@
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2025-11-28 21:59 +0000             </p>
+ on 2025-11-29 12:22 +0000             </p>
           </div>
         </div>
         <br>
