@@ -86,6 +86,8 @@ allocate(G_tally(0))
    call type()
    call keeptabs()
    call width()
+   call prefix()
+   call underscore()
 
    if(all(G_tally))then
       write(*,'(a)')'ALL PREP TESTS PASSED'
@@ -144,6 +146,35 @@ G_expected=[ character(len=132) :: &
 
 call run_and_verify_output('CONDITIONALS')
 end subroutine conditionals
+!===============================================================================
+subroutine prefix()
+
+G_data=[ character(len=132) :: &
+'#! set value of variable "a" if it is not specified on the prep(1) command. ', &
+'#if .not.defined(a)                                                         ', &
+'#   define a=1  ! so only define the following first version of sub(3f)     ', &
+'#endif                                                                      ', &
+'unfiltered                                                                  ', &
+'#! select a line depending on the value of variable "a"                     ', &
+'#if a .eq. 1                                                                ', &
+'   a is 1                                                                   ', &
+'#elseif a .eq. 2                                                            ', &
+'   a is 2                                                                   ', &
+'#else                                                                       ', &
+'   a is not 1 or 2                                                          ', &
+'#endif                                                                      ', &
+'#if SYSTEMON                                                                ', &
+'BAD                                                                         ', &
+'#endif                                                                      ', &
+'last line']
+
+G_expected=[ character(len=132) :: &
+'unfiltered                                                                  ', &
+'   a is 1                                                                   ', &
+'last line']
+
+call run_and_verify_output('prefix',options='-prefix "#"' )
+end subroutine prefix
 !===============================================================================
 subroutine set()
 G_data=[ character(len=132) :: &
@@ -270,6 +301,46 @@ call run_and_verify_output('no --width',options=' ')
 
 end subroutine width
 !===============================================================================
+subroutine underscore()
+integer                      :: i
+integer                      :: e1
+integer                      :: e2
+character(len=:),allocatable :: first, second
+character(len=*),parameter   :: name='underscore'
+G_data=[ character(len=132)  :: &
+'__FILE__      |${FILE}      | name of file being processed ', &
+'__LINE__      |${LINE}      | line number of current file  ', &
+'__DATE__      |${DATE}      | YYYY-MM-DD                   ', &
+'__TIME__      |${TIME}      | HH:MM:SS                     ', &
+'__TIMESTAMP__ |${TIMESTAMP} | MMM DD YYYY hh:mm:ss         ']
+
+call run_and_verify_output('',options='-underscore') ! just return with G_result set
+ERRORED: block 
+
+do i=1,size(G_data)
+   e1=index(G_result(i),'|')
+   first=trim(adjustl(G_result(i)(1:e1-1)))
+   e2=index(G_result(i)(e2+1:),'|')
+   second=trim(adjustl(G_result(i)(1:e1-1)))
+   if(first.ne.second)then
+      G_tally=[G_tally,.false.]
+      write(*,'("....................",T1,*(a,T21,a))')upper(name),'FAILED'
+      write(*,'(/,a)')'RESULT'
+      write(*,'(a)')first
+      write(*,'(/,a)')'EXPECTED'
+      write(*,'(a)')second
+      exit ERRORED
+   endif
+enddo
+
+write(*,'("....................",T1,(a,T21,a))')trim(upper(name)),'PASSED'
+G_tally=[G_tally,.true.]
+
+end block ERRORED
+
+end subroutine underscore
+!===============================================================================
+!===============================================================================
 subroutine block()
 G_data=[ character(len=132) :: &
 "$!                                                                      ", &
@@ -372,9 +443,10 @@ integer             :: estat
 ! write global G_DATA(:) to file ._scratch.txt
 ! run prep(1) on ._scratch.txt and generate ._out.txt
 ! read ._out.txt into global G_RESULT(:)
-! compare size of G_RESULT(:) and global G_EXPECTED(:) and exitstatus expected for prep(1) command
-! if passed cursory examination compare G_EXPECTED(:) and G_RESULT(:) 
-! show the G_EXPECTED(:) and G_RESULT(:) arrays if not the same
+! if name not blank then 
+!    compare size of G_RESULT(:) and global G_EXPECTED(:) and exitstatus expected for prep(1) command
+!    if passed cursory examination compare G_EXPECTED(:) and G_RESULT(:) 
+!    show the G_EXPECTED(:) and G_RESULT(:) arrays if not the same
 ! remove scratch files ._scratch.txt and ._out.txt
 
    if(present(expected_exitstat))then
@@ -383,10 +455,10 @@ integer             :: estat
       estat=0
    endif
    ierr=filewrite('._scratch.txt',G_data,status='replace')
-   !call execute_command_line ('fpm run prep -- --verbose --debug -i ._scratch.txt -o ._out.txt')
    exitstat=0
    cmdstat=0
    if(present(options))then
+      ! --verbose --debug
       call execute_command_line ('fpm run prep -- F90 TESTPRG90 CMD=30/2 '//options//' -i ._scratch.txt -o ._out.txt', &
       & exitstat=exitstat,cmdstat=cmdstat,cmdmsg=cmdmsg)
    else
@@ -396,21 +468,23 @@ integer             :: estat
    write(*,*)'exitstat=',exitstat,'cmdstat=',cmdstat
    if(cmdstat.ne.0)write(stderr,*)trim(cmdmsg)
    call gulp('._out.txt',G_result)
-   CHECK : block
-      if(size(G_expected).eq.size(G_result).and.exitstat.eq.estat)then
-         if( all(G_expected.eq.G_result) )then
-            write(*,'("....................",T1,(a,T21,a))')trim(upper(name)),'PASSED'
-            G_tally=[G_tally,.true.]
-            exit CHECK
+   if(name.ne.'')then
+      CHECK : block
+         if(size(G_expected).eq.size(G_result).and.exitstat.eq.estat)then
+            if( all(G_expected.eq.G_result) )then
+               write(*,'("....................",T1,(a,T21,a))')trim(upper(name)),'PASSED'
+               G_tally=[G_tally,.true.]
+               exit CHECK
+            endif
          endif
-      endif
-      G_tally=[G_tally,.false.]
-      write(*,'("....................",T1,*(a,T21,a))')upper(name),'FAILED'
-      write(*,'(/,a)')'RESULT'
-      if(allocated(G_result))write(*,'(i3.3,1x,a)')(i,trim(G_result(i)),i=1,size(G_result))
-      write(*,'(/,a)')'EXPECTED'
-      if(allocated(G_expected))write(*,'(i3.3,1x,a)')(i,trim(G_expected(i)),i=1,size(G_expected))
-   endblock CHECK
+         G_tally=[G_tally,.false.]
+         write(*,'("....................",T1,*(a,T21,a))')upper(name),'FAILED'
+         write(*,'(/,a)')'RESULT'
+         if(allocated(G_result))write(*,'(i3.3,1x,a)')(i,trim(G_result(i)),i=1,size(G_result))
+         write(*,'(/,a)')'EXPECTED'
+         if(allocated(G_expected))write(*,'(i3.3,1x,a)')(i,trim(G_expected(i)),i=1,size(G_expected))
+      endblock CHECK
+   endif
    ierr=filedelete('._scratch.txt')
    ierr=filedelete('._out.txt')
    call flushit()
