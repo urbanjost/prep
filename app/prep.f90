@@ -120,6 +120,7 @@ logical,public                       :: G_llwrite=.true.               ! whether
 
 integer,public                       :: G_comment_count=0
 character(len=10),public             :: G_comment_style=' '
+character(len=10),public             :: G_comment_style_block
 character(len=:),allocatable         :: G_comment_prefix
 character(len=:),allocatable         :: G_comment_prefix_block
 character(len=:),allocatable,save    :: G_scratch_file
@@ -836,7 +837,9 @@ character(len=:),allocatable :: name
       G_MAN_PRINT=.true.
       G_MAN_COLLECT=.true.
       if(sget('style') /= '#N#')then
-         G_comment_style=lower(sget('style'))             ! allow formatting comments for particular post-processors
+         G_comment_style_block=lower(sget('style'))             ! allow formatting comments for particular post-processors
+      else
+         G_comment_style_block=G_comment_style
       endif
       if(sget('prefix') /= '#N#')then
          G_COMMENT_PREFIX_BLOCK=sget('prefix')
@@ -1008,7 +1011,7 @@ integer                      :: i
    ALL: block
       WRITEIT: block
 
-         select case(G_comment_style)
+         select case(G_comment_style_block)
 
          case('doxygen')                 ! convert plain text to doxygen comment blocks with some automatic markdown highlights
             if(len(G_MAN) > 1)then      ! the way the string is built it starts with a newline
@@ -2964,11 +2967,11 @@ logical                      :: isscratch
    & --noenv .false.      &
    & --comment "'//get_env('PREP_COMMENT_STYLE','default')//'" &
    & --comment_style "'//get_env('PREP_COMMENT_STYLE','default')//'" &
+   & --comment_prefix "!" &
    & --ident .false.      &
    & --width 1024         &
    & --start " "          &
    & --stop " "           &
-   & --comment_prefix "!" &
    & --type auto          &
    & --lang "'//get_env('PREP_LANGUAGE','en')//'" &
    & '
