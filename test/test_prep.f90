@@ -9,6 +9,10 @@ character(len=:),allocatable :: G_result(:)
 integer                      :: i
 integer                      :: ierr
 logical,allocatable          :: G_tally(:)
+
+! very slow to look up executable and verify build is recent if do not install
+call execute_command_line ('fpm install -prefix . -bindir build/bin ')
+
 allocate(G_tally(0))
 
 !>>    > numeric operators are +,-,*,/,**, () are supported, logical operators are
@@ -218,6 +222,15 @@ G_data=[ character(len=132) :: &
 "\begin{minted}{Fortran}           ", &
 "tex                               ", &
 "\end{minted}                      ", &
+"                                  ", &
+"~~~ {: lang=fortran}              ", &
+"markdownMML                       ", &
+"~~~                               ", &
+"                                  ", &
+"~~~ {: lang=fortran}              ", &
+"second markdownMML                ", &
+"~~~                               ", &
+"                                  ", &
 "0000000000                        ", &
 "aaa                               ", &
 "second from aaa to bbbb           ", &
@@ -247,6 +260,11 @@ G_expected=[ character(len=132) :: &
 "second program                    ", &
 "end program                       " ]
 call run_and_verify_output('TYPE MD',options=' -type md')
+
+G_expected=[ character(len=132) :: &
+"markdownMML                    ", &
+"second markdownMML             "]
+call run_and_verify_output('TYPE markdownMML',options=' -type markdownMML')
 
 G_expected=[ character(len=132) :: &
 "tex                               ", &
@@ -305,6 +323,7 @@ subroutine underscore()
 integer                      :: i
 integer                      :: e1
 integer                      :: e2
+integer                      :: smallest
 character(len=:),allocatable :: first, second
 character(len=*),parameter   :: name='underscore'
 G_data=[ character(len=132)  :: &
@@ -316,8 +335,8 @@ G_data=[ character(len=132)  :: &
 
 call run_and_verify_output('',options='-underscore') ! just return with G_result set
 ERRORED: block 
-
-do i=1,size(G_data)
+smallest=min(size(G_data),size(G_result))
+do i=1,smallest
    e1=index(G_result(i),'|')
    first=trim(adjustl(G_result(i)(1:e1-1)))
    e2=index(G_result(i)(e2+1:),'|')
@@ -332,6 +351,15 @@ do i=1,size(G_data)
       exit ERRORED
    endif
 enddo
+if(size(G_data).ne.size(G_result))then
+      G_tally=[G_tally,.false.]
+      write(*,'("....................",T1,*(a,T21,a))')upper(name),'FAILED'
+      write(*,'(/,a)')'RESULT'
+      write(*,'(a)')first
+      write(*,'(/,a)')'EXPECTED'
+      write(*,'(a)')second
+      exit ERRORED
+endif
 
 write(*,'("....................",T1,(a,T21,a))')trim(upper(name)),'PASSED'
 G_tally=[G_tally,.true.]
@@ -459,10 +487,12 @@ integer             :: estat
    cmdstat=0
    if(present(options))then
       ! --verbose --debug
-      call execute_command_line ('fpm run prep -- F90 TESTPRG90 CMD=30/2 '//options//' -i ._scratch.txt -o ._out.txt', &
+!      call execute_command_line ('fpm run prep -- F90 TESTPRG90 CMD=30/2 '//options//' -i ._scratch.txt -o ._out.txt', &
+      call execute_command_line ('build/bin/prep F90 TESTPRG90 CMD=30/2 '//options//' -i ._scratch.txt -o ._out.txt', &
       & exitstat=exitstat,cmdstat=cmdstat,cmdmsg=cmdmsg)
    else
-      call execute_command_line ('fpm run prep -- F90 TESTPRG90 CMD=30/2 -i ._scratch.txt -o ._out.txt', &
+!      call execute_command_line ('fpm run prep -- F90 TESTPRG90 CMD=30/2 -i ._scratch.txt -o ._out.txt', &
+      call execute_command_line ('build/bin/prep F90 TESTPRG90 CMD=30/2 -i ._scratch.txt -o ._out.txt', &
       & exitstat=exitstat,cmdstat=cmdstat,cmdmsg=cmdmsg)
    endif
    write(*,*)'exitstat=',exitstat,'cmdstat=',cmdstat

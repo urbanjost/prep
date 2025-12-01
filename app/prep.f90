@@ -120,7 +120,8 @@ logical,public                       :: G_llwrite=.true.               ! whether
 
 integer,public                       :: G_comment_count=0
 character(len=10),public             :: G_comment_style=' '
-character(len=:),allocatable,public  :: G_comment
+character(len=:),allocatable         :: G_comment_prefix
+character(len=:),allocatable         :: G_comment_prefix_block
 character(len=:),allocatable,save    :: G_scratch_file
 integer,save                         :: G_scratch_lun=-1
 
@@ -158,11 +159,11 @@ character(len=G_var_len)     :: value
 
    line=adjustl(G_source(2:))                              ! remove leading prefix and spaces from directive line
 
-   if (index(line//' ',G_comment) /= 0) then               ! assume if directive contains G_comment comment is present
+   if (index(line//' ','! ') /= 0) then                    ! assume if directive contains prefix comment is present
                                                            ! LIMITATION: EVEN MESSAGES CANNOT CONTAIN COMMENTS
-      line=line(:index(line//' ',G_comment)-1)             ! trim trailing comment from directive
+      line=line(:index(line//' ','! ')-1)                  ! trim trailing comment from directive
    endif
-   if (line(1:1) == G_comment)line=''
+   if (line(1:1) == '! ')line=''
    if(line(1:4) == '@(#)')then
       verblen=5
    else
@@ -762,42 +763,6 @@ end subroutine endif
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-logical function true_or_false(line,ipos1,ipos2) !@(#)true_or_false(3f): convert variable name or .TRUE./.FALSE. to a logical value
-character(len=G_line_length),intent(in) :: line              ! line containing string to interpret as a logical value
-integer,intent(in)                      :: ipos1             ! starting column of substring in LINE
-integer,intent(in)                      :: ipos2             ! ending column of substring in LINE
-
-character(len=G_var_len)                :: value
-character(len=G_var_len)                :: substring
-integer                                 :: ios               ! error code returned by an internal READ
-
-   true_or_false=.false.                                     ! initialize return value
-   substring=line(ipos1:ipos2)                               ! extract substring from LINE to interpret
-
-   select case (substring)                                   ! if string is not a logical string assume it is a variable name
-   case ('.FALSE.','.F.')
-      true_or_false=.false.                                  ! set appropriate return value
-   case ('.TRUE.','.T.')
-      true_or_false=.true.                                   ! set appropriate return value
-   case default                                              ! assume this is a variable name, find name in dictionary
-      value=table%get(substring)
-
-      if (value == '') then                                  ! if not a defined variable name stop program
-         call stop_prep('c759de9e-33a9-41d7-a959-a5ff30e0f0f2',&
-                 & 'undefined variable.',' DIRECTIVE='//trim(G_source)//' VARIABLE='//trim(substring))
-      else
-         read(value,'(l4)',iostat=ios) true_or_false         ! try to read a logical from the value for the variable name
-         if(ios /= 0)then                                    ! not successful in reading string as a logical value
-            call stop_prep('b56bc1be-7600-4bd5-9fe5-8196b0d9bd7e','constant logical expression required.',trim(G_source))
-         endif
-      endif
-
-   end select
-
-end function true_or_false
-!===================================================================================================================================
-!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
-!===================================================================================================================================
 subroutine document(opts)                    !@(#)document(3f): process BLOCK command to start or stop special processing
 character(len=*),intent(in)  :: opts
 integer                      :: ierr
@@ -834,7 +799,8 @@ character(len=:),allocatable :: name
    endif
 
    ! parse options on input line
-   call dissect2('block','--file " " --cmd sh --varname textblock --length 128 --width 0 --style "#N#" --append F',opts)
+   call dissect2('block','--file " " --cmd sh --varname textblock --length 128 --width 0 &
+   & --prefix "#N#" --style "#N#" --append F',opts)
    ! if a previous command has opened a --file FILENAME flush it, because a new one is being opened or this is an END command
    ! and if a --file FILENAME has been selected open it
    call print_comment_block()
@@ -871,6 +837,11 @@ character(len=:),allocatable :: name
       G_MAN_COLLECT=.true.
       if(sget('style') /= '#N#')then
          G_comment_style=lower(sget('style'))             ! allow formatting comments for particular post-processors
+      endif
+      if(sget('prefix') /= '#N#')then
+         G_COMMENT_PREFIX_BLOCK=sget('prefix')
+      else
+         G_COMMENT_PREFIX_BLOCK=G_COMMENT_PREFIX
       endif
    case('NULL')
       G_outtype='null'
@@ -934,11 +905,14 @@ character(len=:),allocatable :: name
          select case(G_comment_style)  ! duplicate help text as a comment for some code documentation utilities
          case('doxygen')               ! convert plain text to doxygen comment blocks with some automatic markdown highlights
             G_MAN_PRINT=.true.
-         case('fort')                  ! convert plain text to ford  comment blocks with some automatic markdown highlights
+         case('ford')                  ! convert plain text to ford  comment blocks with some automatic markdown highlights
+            G_MAN_PRINT=.true.
+         case('c')                     ! C code
             G_MAN_PRINT=.true.
          case('none')                  ! do not print comment lines from block
             G_MAN_PRINT=.false.
          case default
+            G_MAN_PRINT=.true.
          end select
 
    case('VERSION')
@@ -1069,7 +1043,7 @@ integer                      :: i
             endif
             !x!write(G_iout,'("!",131("="))')
 
-         case('ford')                    ! convert plain text to doxygen comment blocks with some automatic markdown highlights
+         case('ford')                    ! convert plain text to ford comment blocks with some automatic markdown highlights
             if(len(G_MAN) > 1)then      ! the way the string is built it starts with a newline
                CALL split(G_MAN,array1,delimiters=new_line('N'),nulls='return') ! parse string to an array parsing on delimiters
                !======================================================================================== nvfortran bug
@@ -1104,18 +1078,36 @@ integer                      :: i
 
             endif
             !x!write(G_iout,'("!>",131("="))')
+         case('c')                    ! convert plain text to C block comment
+            if(len(G_MAN) > 1)then      ! the way the string is built it starts with a newline
+               CALL split(G_MAN,array,delimiters=new_line('N'),nulls='return') ! parse string to an array parsing on delimiters
+
+               select case(size(array))
+               case(:1)
+               case(2)
+                write(G_iout,'("/* ",a," */")')trim(array(2))
+               case(3:)
+                write(G_iout,'("/*")')
+                do i=2,size(array)
+                   write(G_iout,'("",a)',iostat=ios)trim(array(i))
+                   if(ios /= 0)exit WRITEIT
+                enddo
+                write(G_iout,'("*/")')
+               case default
+                call write_err('*format_g_man* internal eror')
+               end select
+            endif
 
          case('none')                    ! ignore comment block
 
          case default
-            if(len(G_MAN) > 1)then                       ! the way the string is built it starts with a newline
+            if(len(G_MAN) > 1)then                        ! the way the string is built it starts with a newline
                G_MAN=G_MAN(2:)//repeat(' ',2*len(G_MAN))  ! make sure the white-space exists
-               call substitute(G_MAN,NEW_LINE('A'),NEW_LINE('A')//'! ')
-               G_MAN='! '//trim(G_MAN)
+               call substitute(G_MAN,NEW_LINE('A'),NEW_LINE('A')//G_comment_prefix_block//' ')
+               G_MAN=G_comment_prefix_block//' '//trim(G_MAN)
             endif
             write(G_iout,'(a)',iostat=ios) G_MAN
             if(ios /= 0)exit WRITEIT
-            !x!write(G_iout,'("!",131("="))')
          end select
 
          exit ALL
@@ -1654,7 +1646,8 @@ help_text=[ CHARACTER(LEN=128) :: &
 '        [--underscore]                                                          ',&
 '        [--width n]                                                             ',&
 '        [-d ignore|remove|blank]                                                ',&
-'        [--comment default|doxygen|ford|none]                                   ',&
+'        [--comment_style default|doxygen|ford|none|c]                           ',&
+'        [--comment_prefix STRING]                                               ',&
 '        [--ident]                                                               ',&
 '        [--verbose]                                                             ',&
 '        [--help| --usage| --crib| --version]                                    ',&
@@ -1780,11 +1773,14 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 "                         --stop '^ *\\end{minted} *$'                           ",&
 '                                                                                ',&
-'   --comment        Try to style comments generated in $BLOCK COMMENT blocks    ',&
+'   --comment_style  Try to style comments generated in $BLOCK COMMENT blocks    ',&
 '                    for other utilities such as doxygen. Default is to          ',&
 '                    prefix lines with ''! ''. Allowed keywords are              ',&
-'                    currently "default", "doxygen","none","ford".               ',&
+'                    currently "default", "doxygen","none","ford", "C".          ',&
 '                    THIS IS AN ALPHA FEATURE AND NOT FULLY IMPLEMENTED.         ',&
+'                                                                                ',&
+'   --comment_prefix  The prefix to place before each comment line when          ',&
+'                     --comment_style=default. Defaults to "!".                  ',&
 '                                                                                ',&
 '   --prefix ADE|letter  The directive prefix character. The default is "$".     ',&
 '                        If the value is numeric it is assumed to be an ASCII    ',&
@@ -2131,31 +2127,45 @@ help_text=[ CHARACTER(LEN=128) :: &
 ' TEXT BLOCK FILTERS                                                             ',&
 '   (--file is ignored unless $PREP_DOCUMENT_DIR is set)                         ',&
 '                                                                                ',&
-'      $BLOCK   [null|comment|write|variable [--varname NAME]|                   ',&
-'               set|system|message|define                                        ',&
-'               help|version] [--file NAME [--append]]      [! comment ]         ',&
+'    A block of text may be converted into several formats or ignored or used    ',&
+'    to generate a block of directives or even optionally permitted to be        ',&
+'    executed as system commands. In all cases one acts on a simple block of     ',&
+'    text.                                                                       ',&
+'                                                                                ',&
+'      $BLOCK   [null|write|set|system|message|define|                           ',&
+'               [variable [--varname NAME]|                                      ',&
+'               [comment [--style NAME|--prefix STR]|                            ',&
+'               help|version]                                                    ',&
+'               [--file NAME [--append]]                    [! comment ]         ',&
 '      $ENDBLOCK                                            [! comment ]         ',&
 '                                                                                ',&
 '   Details ...                                                                  ',&
 '                                                                                ',&
-'   $BLOCK has several forms but in all cases operates on a block of lines:      ',&
+'   What happens to the text between the $BLOCK and $ENDBLOCK direcitves is      ',&
+'   controlled by the modifiers that follow the $BLOCK keyword:                  ',&
 '                                                                                ',&
 '     basic filtering:                                                           ',&
-'      $BLOCK [comment|null|write                 [--file NAME [--append]]       ',&
+'      $BLOCK NULL|WRITE                          [--file NAME [--append]]       ',&
+'      $BLOCK COMMENT [--style NAME|--prefix STR] [--file NAME [--append]]       ',&
+'                                                                                ',&
 '     creating a CHARACTER array:                                                ',&
 '      $BLOCK VARIABLE --varname NAME             [--file NAME [--append]]       ',&
-'     block versions of prep(1) commands:                                        ',&
-'      $BLOCK set|system|message|define           [--file NAME [--append]]       ',&
-'     specialized procedure construction:                                        ',&
-'      $BLOCK help|version                        [--file NAME [--append]]       ',&
 '                                                                                ',&
-'      NULL:      Do not write into current output file                          ',&
+'     block versions of prep(1) commands:                                        ',&
+'      $BLOCK SET|SYSTEM|MESSAGE|DEFINE           [--file NAME [--append]]       ',&
+'                                                                                ',&
+'     specialized procedure construction:                                        ',&
+'      $BLOCK HELP|VERSION                        [--file NAME [--append]]       ',&
+'                                                                                ',&
+'      NULL:      Do not write to current output file                            ',&
 '      COMMENT:   write text prefixed by an exclamation and a space or according ',&
-'                 to the style selected by the --comment style selected on the   ',&
-'                 command line.                                                  ',&
+'                 to the style selected by the --comment_style selected on the   ',&
+'                 command line unless overridden by --style or --prefix          ',&
+'                  --style :  default, doxygen, ford, C, none                    ',&
+'                  --prefix:  If style is default, specify prefix instead of "!" ',&
 '      WRITE:     write text as Fortran WRITE(3f) statements                     ',&
 '                 The Fortran generated is free-format. It is assumed the        ',&
-'                 output will not generate lines over 132 columns.               ',&
+'                 output will not generate lines over the allowed line length.   ',&
 '      VARIABLE:  write as a text variable. The name may be defined using        ',&
 '                 the --varname switch. Default name is "textblock".             ',&
 '      MESSAGE:   All the lines in the block are treated as options to $MESSAGE  ',&
@@ -2163,7 +2173,9 @@ help_text=[ CHARACTER(LEN=128) :: &
 '      DEFINE:    All the lines in the block are treated as options to $DEFINE   ',&
 '      SYSTEM:    The lines are gathered into a file and executed by the shell   ',&
 '                 with the stdout being written to a scratch file and then read  ',&
-'      END:       End block of specially processed text                          ',&
+'                 Will cause a failure unless --systemon is specified on the     ',&
+'                 command line.                                                  ',&
+'      END:       End block of specially processed text. $ENDBLOCK is preferred. ',&
 '                                                                                ',&
 '   special-purpose modes primarily for use with the M_kracken module:           ',&
 '                                                                                ',&
@@ -2949,18 +2961,18 @@ logical                      :: isscratch
    & --crib .false.       &
    & --debug .false.      &
    & --underscore .false. &
-   & --noenv .false.     &
+   & --noenv .false.      &
    & --comment "'//get_env('PREP_COMMENT_STYLE','default')//'" &
+   & --comment_style "'//get_env('PREP_COMMENT_STYLE','default')//'" &
    & --ident .false.      &
    & --width 1024         &
    & --start " "          &
    & --stop " "           &
+   & --comment_prefix "!" &
    & --type auto          &
    & --lang "'//get_env('PREP_LANGUAGE','en')//'" &
    & '
    ! allow formatting comments for particular post-processors
-   G_comment='! '
-   !JSUkracken_comment=G_comment
    call setup(help_text,version_text)
    call set_args(cmd,help_text,version_text)                ! define command arguments, default values and crack command line
 !  cpp>=========================================================================
@@ -2979,6 +2991,7 @@ logical                      :: isscratch
       endif
    endif
 !  cpp<=========================================================================
+   G_comment_prefix=sget('comment_prefix')
    string=adjustl(trim(sget('prefix')))
    if ( all( isdigit(switch(string)) ) ) then               ! if all characters are numeric digits
       prefix = char(iget('prefix'))                         ! assume this is an ADE
@@ -3028,7 +3041,10 @@ logical                      :: isscratch
    if(G_verbose)then
       call write_err('+ verbose mode on ')
    endif
-   G_comment_style=lower(sget('comment'))             ! allow formatting comments for particular post-processors
+
+   G_comment_style=lower(sget('comment_style'))       ! allow formatting comments for particular post-processors
+   if(specified('comment'))G_comment_style=lower(sget('comment'))  ! old name kept for backward compatibility
+
    G_system_on = lget('system')                       ! allow system commands on $SYSTEM directives
    if(G_system_on)then
       call put('SYSTEMON=.TRUE.')
@@ -3041,7 +3057,7 @@ logical                      :: isscratch
       G_extract_start='```fortran'
       G_extract_stop='```'
    case('markdownMML','.markdownMML','MML','.MML','mml','.mml')
-      G_extract_start='^ *~~~~* *{: *lang=fortran *}[ ~]*$'
+      G_extract_start='^ *~~~~* *{ *: *lang=fortran *}[ ~]*$'
       G_extract_stop='^ *~~~~* *$'
    case('html','.html','htm','.htm')
       ! flaw is HTML is not case sensitive
@@ -3172,7 +3188,7 @@ subroutine auto()
          G_extract_start='```fortran'
          G_extract_stop='```'
       case('markdownMML','.markdownMML','MML','mml')
-         G_extract_start='^ *~~~~* *{: *lang=fortran *}[ ~]*$'
+         G_extract_start='^ *~~~~* *{ *: *lang=fortran *}[ ~]*$'
          !NOT WORKING G_extract_start='^ *[~`][~`][~`][~`]* *{: *lang=fortran *} *[~`]* *'
          G_extract_stop='^ *~~~~* *$'
          !NOT WORKING G_extract_stop='^ *[~`][~`][~`][~`]* *$'
