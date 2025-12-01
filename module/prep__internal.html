@@ -91,7 +91,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title="100.0% of total for modules and submodules.">1596 statements</a>
+                 title="100.0% of total for modules and submodules.">1599 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
@@ -142,6 +142,7 @@
             <a class="list-group-item" href="../module/prep__internal.html#variable-g_comment_prefix">G_comment_prefix</a>
             <a class="list-group-item" href="../module/prep__internal.html#variable-g_comment_prefix_block">G_comment_prefix_block</a>
             <a class="list-group-item" href="../module/prep__internal.html#variable-g_comment_style">G_comment_style</a>
+            <a class="list-group-item" href="../module/prep__internal.html#variable-g_comment_style_block">G_comment_style_block</a>
             <a class="list-group-item" href="../module/prep__internal.html#variable-g_condop">G_condop</a>
             <a class="list-group-item" href="../module/prep__internal.html#variable-g_cpp">G_cpp</a>
             <a class="list-group-item" href="../module/prep__internal.html#variable-g_dc">G_dc</a>
@@ -247,10 +248,10 @@
             <a class="list-group-item" href="../module/prep__internal.html#proc-exe">exe</a>
             <a class="list-group-item" href="../module/prep__internal.html#proc-expand_variables">expand_variables</a>
             <a class="list-group-item" href="../module/prep__internal.html#proc-findit">findit</a>
-            <a class="list-group-item" href="../module/prep__internal.html#proc-flushit~2">flushit</a>
+            <a class="list-group-item" href="../module/prep__internal.html#proc-flushit">flushit</a>
             <a class="list-group-item" href="../module/prep__internal.html#proc-format_g_man">format_g_man</a>
             <a class="list-group-item" href="../module/prep__internal.html#proc-get_os_type">get_os_type</a>
-            <a class="list-group-item" href="../module/prep__internal.html#proc-ident~2">ident</a>
+            <a class="list-group-item" href="../module/prep__internal.html#proc-ident">ident</a>
             <a class="list-group-item" href="../module/prep__internal.html#proc-if">if</a>
             <a class="list-group-item" href="../module/prep__internal.html#proc-import">import</a>
             <a class="list-group-item" href="../module/prep__internal.html#proc-include">include</a>
@@ -263,10 +264,10 @@
             <a class="list-group-item" href="../module/prep__internal.html#proc-prepost">prepost</a>
             <a class="list-group-item" href="../module/prep__internal.html#proc-print_comment_block">print_comment_block</a>
             <a class="list-group-item" href="../module/prep__internal.html#proc-put">put</a>
-            <a class="list-group-item" href="../module/prep__internal.html#proc-set~2">set</a>
+            <a class="list-group-item" href="../module/prep__internal.html#proc-set">set</a>
             <a class="list-group-item" href="../module/prep__internal.html#proc-setup">setup</a>
             <a class="list-group-item" href="../module/prep__internal.html#proc-show_state">show_state</a>
-            <a class="list-group-item" href="../module/prep__internal.html#proc-stop~2">stop</a>
+            <a class="list-group-item" href="../module/prep__internal.html#proc-stop">stop</a>
             <a class="list-group-item" href="../module/prep__internal.html#proc-stop_prep">stop_prep</a>
             <a class="list-group-item" href="../module/prep__internal.html#proc-undef">undef</a>
             <a class="list-group-item" href="../module/prep__internal.html#proc-unset">unset</a>
@@ -303,13 +304,13 @@
             <li class="list-group-item">
               <ul class="list-inline">
                   <li class="list-inline-item"><a href='http://fortranwiki.org/fortran/show/iso_fortran_env'>iso_fortran_env</a></li>
-                  <li class="list-inline-item">M_expr</li>
-                  <li class="list-inline-item">M_match</li>
-                  <li class="list-inline-item">M_attr</li>
-                  <li class="list-inline-item">M_CLI2</li>
-                  <li class="list-inline-item">M_io</li>
                   <li class="list-inline-item">M_strings</li>
+                  <li class="list-inline-item">M_match</li>
+                  <li class="list-inline-item">M_io</li>
+                  <li class="list-inline-item">M_attr</li>
+                  <li class="list-inline-item">M_expr</li>
                   <li class="list-inline-item">M_list</li>
+                  <li class="list-inline-item">M_CLI2</li>
               </ul>
             </li>
         </ul>
@@ -498,6 +499,23 @@
             <td><strong>G_comment_style</strong></td>
 <td> =</td>
                 <td>&#39; &#39;</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-g_comment_style_block"></span>
+              character(len=10),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>G_comment_style_block</strong></td>
+                <td></td>
+                <td></td>
             <td>
                 
             </td>
@@ -1437,7 +1455,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-name~3"></span>
+              <span class="anchor" id="variable-name"></span>
               character(len=G_line_length),
             </td>
               <td>public</td>
@@ -1608,7 +1626,7 @@ parameter
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-name~5"></span>
+              <span class="anchor" id="variable-name~3"></span>
               character(len=*),
             </td>
 <td>intent(in),</td>
@@ -1711,7 +1729,7 @@ parameter
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-lun~4"></span>
+              <span class="anchor" id="variable-lun~3"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -2174,7 +2192,7 @@ parameter
   </div>
 
               <div class="card">
-    <div class="card-header codesum"><span class="anchor" id="proc-flushit~2"></span> <h3>public  subroutine <a href='../proc/flushit~2.html'>flushit</a>()  
+    <div class="card-header codesum"><span class="anchor" id="proc-flushit"></span> <h3>public  subroutine <a href='../proc/flushit.html'>flushit</a>()  
 </h3></div>
     <div class="card-body">
           
@@ -2213,7 +2231,7 @@ parameter
   </div>
 
               <div class="card">
-    <div class="card-header codesum"><span class="anchor" id="proc-ident~2"></span> <h3>public  subroutine <a href='../proc/ident~2.html'>ident</a>(opts)  
+    <div class="card-header codesum"><span class="anchor" id="proc-ident"></span> <h3>public  subroutine <a href='../proc/ident.html'>ident</a>(opts)  
 </h3></div>
     <div class="card-body">
           
@@ -2712,7 +2730,7 @@ parameter
   </div>
 
               <div class="card">
-    <div class="card-header codesum"><span class="anchor" id="proc-set~2"></span> <h3>public  subroutine <a href='../proc/set~2.html'>set</a>(line)  
+    <div class="card-header codesum"><span class="anchor" id="proc-set"></span> <h3>public  subroutine <a href='../proc/set.html'>set</a>(line)  
 </h3></div>
     <div class="card-body">
           
@@ -2862,7 +2880,7 @@ parameter
   </div>
 
               <div class="card">
-    <div class="card-header codesum"><span class="anchor" id="proc-stop~2"></span> <h3>public  subroutine <a href='../proc/stop~2.html'>stop</a>(opts)  
+    <div class="card-header codesum"><span class="anchor" id="proc-stop"></span> <h3>public  subroutine <a href='../proc/stop.html'>stop</a>(opts)  
 </h3></div>
     <div class="card-body">
           
@@ -3315,7 +3333,7 @@ parameter
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2025-12-01 12:40 +0000             </p>
+ on 2025-12-01 12:50 +0000             </p>
           </div>
         </div>
         <br>
