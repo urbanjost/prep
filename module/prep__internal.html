@@ -91,7 +91,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title="100.0% of total for modules and submodules.">1595 statements</a>
+                 title="100.0% of total for modules and submodules.">1596 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
@@ -138,8 +138,9 @@
             <a class="list-group-item" href="../module/prep__internal.html#variable-g_man_file_position">G_MAN_FILE_POSITION</a>
             <a class="list-group-item" href="../module/prep__internal.html#variable-g_man_print">G_MAN_PRINT</a>
             <a class="list-group-item" href="../module/prep__internal.html#variable-g_cmd">G_cmd</a>
-            <a class="list-group-item" href="../module/prep__internal.html#variable-g_comment">G_comment</a>
             <a class="list-group-item" href="../module/prep__internal.html#variable-g_comment_count">G_comment_count</a>
+            <a class="list-group-item" href="../module/prep__internal.html#variable-g_comment_prefix">G_comment_prefix</a>
+            <a class="list-group-item" href="../module/prep__internal.html#variable-g_comment_prefix_block">G_comment_prefix_block</a>
             <a class="list-group-item" href="../module/prep__internal.html#variable-g_comment_style">G_comment_style</a>
             <a class="list-group-item" href="../module/prep__internal.html#variable-g_condop">G_condop</a>
             <a class="list-group-item" href="../module/prep__internal.html#variable-g_cpp">G_cpp</a>
@@ -223,7 +224,6 @@
             <a class="list-group-item" href="../module/prep__internal.html#proc-en">en</a>
             <a class="list-group-item" href="../module/prep__internal.html#proc-ends_in">ends_in</a>
             <a class="list-group-item" href="../module/prep__internal.html#proc-getdate">getdate</a>
-            <a class="list-group-item" href="../module/prep__internal.html#proc-true_or_false">true_or_false</a>
         </div>
       </div>
     </div>
@@ -247,10 +247,10 @@
             <a class="list-group-item" href="../module/prep__internal.html#proc-exe">exe</a>
             <a class="list-group-item" href="../module/prep__internal.html#proc-expand_variables">expand_variables</a>
             <a class="list-group-item" href="../module/prep__internal.html#proc-findit">findit</a>
-            <a class="list-group-item" href="../module/prep__internal.html#proc-flushit">flushit</a>
+            <a class="list-group-item" href="../module/prep__internal.html#proc-flushit~2">flushit</a>
             <a class="list-group-item" href="../module/prep__internal.html#proc-format_g_man">format_g_man</a>
             <a class="list-group-item" href="../module/prep__internal.html#proc-get_os_type">get_os_type</a>
-            <a class="list-group-item" href="../module/prep__internal.html#proc-ident">ident</a>
+            <a class="list-group-item" href="../module/prep__internal.html#proc-ident~2">ident</a>
             <a class="list-group-item" href="../module/prep__internal.html#proc-if">if</a>
             <a class="list-group-item" href="../module/prep__internal.html#proc-import">import</a>
             <a class="list-group-item" href="../module/prep__internal.html#proc-include">include</a>
@@ -263,10 +263,10 @@
             <a class="list-group-item" href="../module/prep__internal.html#proc-prepost">prepost</a>
             <a class="list-group-item" href="../module/prep__internal.html#proc-print_comment_block">print_comment_block</a>
             <a class="list-group-item" href="../module/prep__internal.html#proc-put">put</a>
-            <a class="list-group-item" href="../module/prep__internal.html#proc-set">set</a>
+            <a class="list-group-item" href="../module/prep__internal.html#proc-set~2">set</a>
             <a class="list-group-item" href="../module/prep__internal.html#proc-setup">setup</a>
             <a class="list-group-item" href="../module/prep__internal.html#proc-show_state">show_state</a>
-            <a class="list-group-item" href="../module/prep__internal.html#proc-stop">stop</a>
+            <a class="list-group-item" href="../module/prep__internal.html#proc-stop~2">stop</a>
             <a class="list-group-item" href="../module/prep__internal.html#proc-stop_prep">stop_prep</a>
             <a class="list-group-item" href="../module/prep__internal.html#proc-undef">undef</a>
             <a class="list-group-item" href="../module/prep__internal.html#proc-unset">unset</a>
@@ -303,13 +303,13 @@
             <li class="list-group-item">
               <ul class="list-inline">
                   <li class="list-inline-item"><a href='http://fortranwiki.org/fortran/show/iso_fortran_env'>iso_fortran_env</a></li>
-                  <li class="list-inline-item">M_list</li>
                   <li class="list-inline-item">M_expr</li>
                   <li class="list-inline-item">M_match</li>
-                  <li class="list-inline-item">M_CLI2</li>
-                  <li class="list-inline-item">M_strings</li>
                   <li class="list-inline-item">M_attr</li>
+                  <li class="list-inline-item">M_CLI2</li>
                   <li class="list-inline-item">M_io</li>
+                  <li class="list-inline-item">M_strings</li>
+                  <li class="list-inline-item">M_list</li>
               </ul>
             </li>
         </ul>
@@ -436,23 +436,6 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-g_comment"></span>
-              character(len=:),
-            </td>
-              <td>public,</td>
-            <td>
-              allocatable
-            </td>
-            <td>::</td>
-            <td><strong>G_comment</strong></td>
-                <td></td>
-                <td></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
               <span class="anchor" id="variable-g_comment_count"></span>
               integer,
             </td>
@@ -464,6 +447,40 @@
             <td><strong>G_comment_count</strong></td>
 <td> =</td>
                 <td>0</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-g_comment_prefix"></span>
+              character(len=:),
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>G_comment_prefix</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-g_comment_prefix_block"></span>
+              character(len=:),
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>G_comment_prefix_block</strong></td>
+                <td></td>
+                <td></td>
             <td>
                 
             </td>
@@ -1420,7 +1437,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-name"></span>
+              <span class="anchor" id="variable-name~3"></span>
               character(len=G_line_length),
             </td>
               <td>public</td>
@@ -1591,7 +1608,7 @@ parameter
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-name~3"></span>
+              <span class="anchor" id="variable-name~5"></span>
               character(len=*),
             </td>
 <td>intent(in),</td>
@@ -1610,81 +1627,6 @@ parameter
     <h4>
     Return Value
     <small>character(len=:), allocatable</small>
-    </h4>
-    
-
-    </div>
-  </div>
-
-              <div class="card">
-    <div class="card-header codesum"><span class="anchor" id="proc-true_or_false"></span> <h3>public  function <a href='../proc/true_or_false.html'>true_or_false</a>(line, ipos1, ipos2)  
-</h3></div>
-    <div class="card-body">
-          
-  
-
-  <h4>Arguments</h4>
-      <table class="table table-striped varlist">
-    <thead>
-      <tr>
-        <th scope="col">Type</th>
-<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
-        <th scope="col"></th>
-        <th scope="col">Name</th>
-        <th scope="col"></th>
-    </thead>
-    <tbody>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-line~4"></span>
-              character(len=G_line_length),
-            </td>
-<td>intent(in)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>line</strong></td>
-            <td>
-
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-ipos1"></span>
-              integer,
-            </td>
-<td>intent(in)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>ipos1</strong></td>
-            <td>
-
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-ipos2"></span>
-              integer,
-            </td>
-<td>intent(in)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>ipos2</strong></td>
-            <td>
-
-            </td>
-        </tr>
-    </tbody>
-  </table>
-
-    <h4>
-    Return Value
-    <small>logical</small>
     </h4>
     
 
@@ -1769,7 +1711,7 @@ parameter
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-lun~3"></span>
+              <span class="anchor" id="variable-lun~4"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -2171,7 +2113,7 @@ parameter
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-line~12"></span>
+              <span class="anchor" id="variable-line~11"></span>
               character(len=*)
             </td>
 <td></td>
@@ -2211,7 +2153,7 @@ parameter
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-line~6"></span>
+              <span class="anchor" id="variable-line~5"></span>
               character(len=G_line_length)
             </td>
 <td></td>
@@ -2232,7 +2174,7 @@ parameter
   </div>
 
               <div class="card">
-    <div class="card-header codesum"><span class="anchor" id="proc-flushit"></span> <h3>public  subroutine <a href='../proc/flushit.html'>flushit</a>()  
+    <div class="card-header codesum"><span class="anchor" id="proc-flushit~2"></span> <h3>public  subroutine <a href='../proc/flushit~2.html'>flushit</a>()  
 </h3></div>
     <div class="card-body">
           
@@ -2271,7 +2213,7 @@ parameter
   </div>
 
               <div class="card">
-    <div class="card-header codesum"><span class="anchor" id="proc-ident"></span> <h3>public  subroutine <a href='../proc/ident.html'>ident</a>(opts)  
+    <div class="card-header codesum"><span class="anchor" id="proc-ident~2"></span> <h3>public  subroutine <a href='../proc/ident~2.html'>ident</a>(opts)  
 </h3></div>
     <div class="card-body">
           
@@ -2400,7 +2342,7 @@ parameter
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-line~10"></span>
+              <span class="anchor" id="variable-line~9"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -2440,7 +2382,7 @@ parameter
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-line~5"></span>
+              <span class="anchor" id="variable-line~4"></span>
               character(len=G_line_length),
             </td>
 <td>intent(in)</td>
@@ -2770,7 +2712,7 @@ parameter
   </div>
 
               <div class="card">
-    <div class="card-header codesum"><span class="anchor" id="proc-set"></span> <h3>public  subroutine <a href='../proc/set.html'>set</a>(line)  
+    <div class="card-header codesum"><span class="anchor" id="proc-set~2"></span> <h3>public  subroutine <a href='../proc/set~2.html'>set</a>(line)  
 </h3></div>
     <div class="card-body">
           
@@ -2789,7 +2731,7 @@ parameter
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-line~11"></span>
+              <span class="anchor" id="variable-line~10"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -2920,7 +2862,7 @@ parameter
   </div>
 
               <div class="card">
-    <div class="card-header codesum"><span class="anchor" id="proc-stop"></span> <h3>public  subroutine <a href='../proc/stop.html'>stop</a>(opts)  
+    <div class="card-header codesum"><span class="anchor" id="proc-stop~2"></span> <h3>public  subroutine <a href='../proc/stop~2.html'>stop</a>(opts)  
 </h3></div>
     <div class="card-body">
           
@@ -3197,7 +3139,7 @@ parameter
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-line~9"></span>
+              <span class="anchor" id="variable-line~8"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -3290,7 +3232,7 @@ parameter
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-line~7"></span>
+              <span class="anchor" id="variable-line~6"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -3330,7 +3272,7 @@ parameter
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-line~8"></span>
+              <span class="anchor" id="variable-line~7"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -3373,7 +3315,7 @@ parameter
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2025-11-29 12:22 +0000             </p>
+ on 2025-12-01 12:40 +0000             </p>
           </div>
         </div>
         <br>
