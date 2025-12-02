@@ -59,9 +59,10 @@ allocate(G_tally(0))
    call output()
 
 !>> TEXT BLOCK FILTERS
-!>>   $BLOCK [comment|null|write|variable [-varname NAME]]|help|version
+!>>   $BLOCK [comment[--style {doxygen,ford,C,none,default}|--prefix STR]|null|write|variable [-varname NAME]]|help|version
 !>>          [-file NAME [-append]]
    call block()
+   call block_style()
    call block_2()
    call block_3()
 
@@ -368,7 +369,6 @@ end block ERRORED
 
 end subroutine underscore
 !===============================================================================
-!===============================================================================
 subroutine block()
 G_data=[ character(len=132) :: &
 "$!                                                                      ", &
@@ -457,6 +457,137 @@ G_expected=[ character(len=132) :: &
 call run_and_verify_output('BLOCK')
 
 end subroutine block
+!===============================================================================
+subroutine block_style()
+G_data=[ CHARACTER(LEN=128) :: &
+'$BLOCK COMMENT',&
+'NAME',&
+'   yes-(1f) - [FUNIX] output string repeatedly until killed or limit',&
+'   is reached (LICENSE:PD)                                          ',&
+'SYNOPSIS                                                            ',&
+'   yes- [STRING[ -repeat N]]|[ --help| --version]                   ',&
+'DESCRIPTION                                                         ',&
+'   yes-(1) prints the command line arguments, separated by spaces and',&
+'   followed by a newline until the repeat count is reached or endlessly',&
+'   until it is killed. If no arguments are given, it prints "y" followed',&
+'   by a newline endlessly until killed. Upon a write error, yes-(1)     ',&
+'   exits with status "1".                                               ',&
+'OPTIONS                                                                 ',&
+'   --repeat N  specify number of times to display string                ',&
+'   --help      display this help and exit                               ',&
+'   --version   output version information and exit                      ',&
+'EXAMPLES                                                                ',&
+'   Sample commands                                                      ',&
+'                                                                        ',&
+'      # repeat a command 20 times                                       ',&
+'      yes-  date --repeat 20 |xargs                                     ',&
+'SEE ALSO                                                                ',&
+'   yes(1), repeat(1), xargs(1)                                          ',&
+'AUTHOR                                                                  ',&
+'   John S. Urban                                                        ',&
+'LICENSE                                                                 ',&
+'   Public Domain                                                        ',&
+'$ENDBLOCK']
+
+G_expected=[ CHARACTER(LEN=128) :: &
+'!>',&
+'!!##NAME',&
+'!!    yes-(1f) - [FUNIX] output string repeatedly until killed or limit',&
+'!!    is reached (LICENSE:PD)                                          ',&
+'!!##SYNOPSIS                                                           ',&
+'!!                                                                     ',&
+'!!    yes- [STRING[ -repeat N]]|[ --help| --version]                   ',&
+'!!##DESCRIPTION                                                        ',&
+'!!    yes-(1) prints the command line arguments, separated by spaces and',&
+'!!    followed by a newline until the repeat count is reached or endlessly',&
+'!!    until it is killed. If no arguments are given, it prints "y" followed',&
+'!!    by a newline endlessly until killed. Upon a write error, yes-(1)     ',&
+'!!    exits with status "1".                                               ',&
+'!!##OPTIONS                                                                ',&
+'!!    --repeat N  specify number of times to display string                ',&
+'!!    --help      display this help and exit                               ',&
+'!!    --version   output version information and exit                      ',&
+'!!##EXAMPLES                                                               ',&
+'!!                                                                         ',&
+'!!    Sample commands                                                      ',&
+'!!                                                                         ',&
+'!!       # repeat a command 20 times                                       ',&
+'!!       yes-  date --repeat 20 |xargs                                     ',&
+'!!##SEE ALSO                                                               ',&
+'!!    yes(1), repeat(1), xargs(1)                                          ',&
+'!!##AUTHOR                                                                 ',&
+'!!    John S. Urban                                                        ',&
+'!!##LICENSE                                                                ',&
+'!!    Public Domain                                                        ']
+
+call run_and_verify_output('BLOCK_STYLE_DOXYGEN',options='--comment_style=doxygen')
+
+G_expected=[ CHARACTER(LEN=128) :: &
+'!>',&
+'!>## NAME',&
+'!>    yes-(1f) - [FUNIX] output string repeatedly until killed or limit',&
+'!>    is reached (LICENSE:PD)                                          ',&
+'!>## SYNOPSIS                                                          ',&
+'!>                                                                     ',&
+'!>    yes- [STRING[ -repeat N]]|[ --help| --version]                   ',&
+'!>## DESCRIPTION                                                       ',&
+'!>    yes-(1) prints the command line arguments, separated by spaces and',&
+'!>    followed by a newline until the repeat count is reached or endlessly',&
+'!>    until it is killed. If no arguments are given, it prints "y" followed',&
+'!>    by a newline endlessly until killed. Upon a write error, yes-(1)     ',&
+'!>    exits with status "1".                                               ',&
+'!>## OPTIONS                                                               ',&
+'!>    --repeat N  specify number of times to display string                ',&
+'!>    --help      display this help and exit                               ',&
+'!>    --version   output version information and exit                      ',&
+'!>## EXAMPLES                                                              ',&
+'!>                                                                         ',&
+'!>    Sample commands                                                      ',&
+'!>                                                                         ',&
+'!>       # repeat a command 20 times                                       ',&
+'!>       yes-  date --repeat 20 |xargs                                     ',&
+'!>## SEE ALSO                                                              ',&
+'!>    yes(1), repeat(1), xargs(1)                                          ',&
+'!>## AUTHOR                                                                ',&
+'!>    John S. Urban                                                        ',&
+'!>## LICENSE                                                               ',&
+'!>    Public Domain                                                        ']
+call run_and_verify_output('BLOCK_STYLE_FORD',options='--comment_style=ford')
+
+G_data=[ CHARACTER(LEN=128) :: &
+'$BLOCK COMMENT                                                             ',&
+'NAME                                                                       ',&
+'   yes-(1f) - [FUNIX] output string repeatedly until killed or limit       ',&
+'   is reached (LICENSE:PD)                                                 ',&
+'$ENDBLOCK                                                                  ',&
+'last line']
+G_expected=[ CHARACTER(LEN=128) :: 'last line'] 
+call run_and_verify_output('BLOCK_STYLE_NONE',options='--comment_style=none')
+
+G_expected=[ CHARACTER(LEN=128) :: &
+'/*                                                                         ',&
+'NAME                                                                       ',&
+'   yes-(1f) - [FUNIX] output string repeatedly until killed or limit       ',&
+'   is reached (LICENSE:PD)                                                 ',&
+'*/                                                                         ',&
+'last line']
+call run_and_verify_output('BLOCK_STYLE_C',options='--comment_style=C')
+
+G_expected=[ CHARACTER(LEN=128) :: &
+'! NAME                                                                     ',&
+'!    yes-(1f) - [FUNIX] output string repeatedly until killed or limit     ',&
+'!    is reached (LICENSE:PD)                                               ',&
+'last line']
+call run_and_verify_output('BLOCK_STYLE_DEFAULT',options='')
+
+G_expected=[ CHARACTER(LEN=128) :: &
+'# NAME                                                                     ',&
+'#    yes-(1f) - [FUNIX] output string repeatedly until killed or limit     ',&
+'#    is reached (LICENSE:PD)                                               ',&
+'last line']
+call run_and_verify_output('BLOCK_STYLE_PREFIX',options='--comment_prefix="#" --comment_style=default')
+
+end subroutine block_style
 !===============================================================================
 subroutine run_and_verify_output(name,expected_exitstat,options)
 character(len=*),intent(in) :: name

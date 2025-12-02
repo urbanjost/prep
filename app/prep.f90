@@ -2562,14 +2562,15 @@ help_text=[ CHARACTER(LEN=128) :: &
 "  $OUTPUT filename [--append]                                                   ",&
 "  $INCLUDE filename [--base64]                                                  ",&
 "TEXT BLOCK FILTERS (--file writes to $PREP_DOCUMENT_DIR/doc/NAME)               ",&
-"  $BLOCK [comment|null|write|variable [--varname NAME]|set|system|message|      ",&
-"         define|help|version][--file NAME [--append]] ... $ENDBLOCK             ",&
+"  $BLOCK [comment [--style {doxygen,ford,C,none,default}|--prefix STR]]|        ",&
+"         null|write|set|system|message|define|help|version|                     ",&
+"         variable [--varname NAME][--file NAME [--append]] ... $ENDBLOCK        ",&
 "INFORMATION                                                                     ",&
 "  $MESSAGE message_to_stderr                                                    ",&
 "  $SHOW [defined_variable_name][;...]                                           ",&
 "SYSTEM COMMANDS (see also: $BLOCK SYSTEM)                                       ",&
 "  $SYSTEM command                                                               ",&
-"  $STOP [stop_value[ ""message""]] | $QUIT [""message""]| $ERROR [""message""]        "]
+"  $STOP [stop_value[ ""message""]] | $QUIT [""message""]| $ERROR [""message""]  "]
    WRITE(lun,'(a)')(trim(help_text(i)),i=1,size(help_text))
 end subroutine crib_help
 !===================================================================================================================================
