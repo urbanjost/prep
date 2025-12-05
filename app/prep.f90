@@ -120,19 +120,20 @@ logical,public                       :: G_llwrite=.true.               ! whether
 
 integer,public                       :: G_comment_count=0
 character(len=10),public             :: G_comment_style=' '
-character(len=:),allocatable,public  :: G_comment
+character(len=10),public             :: G_comment_style_block
+character(len=:),allocatable         :: G_comment_prefix
+character(len=:),allocatable         :: G_comment_prefix_block
 character(len=:),allocatable,save    :: G_scratch_file
 integer,save                         :: G_scratch_lun=-1
 
 type(regex_pattern)                  :: G_pattern_start
 type(regex_pattern)                  :: G_pattern_stop
-logical,save                         :: G_extract
+logical,save                         :: G_extract                      ! flag to only process delimited sections
 character(len=:),allocatable,save    :: G_extract_start
 character(len=:),allocatable,save    :: G_extract_stop
-character(len=:),allocatable,save    :: G_extract_start0
-character(len=:),allocatable,save    :: G_extract_stop0
-logical,save                         :: G_extract_auto
+logical,save                         :: G_extract_auto                 ! start and end are selected based on file suffix
 logical,save                         :: G_extract_writeflag=.false.
+
 logical,save                         :: G_underscore=.false.
 character(len=:),allocatable,save    :: G_cmd
 character(len=:),allocatable,save    :: G_file
@@ -159,11 +160,11 @@ character(len=G_var_len)     :: value
 
    line=adjustl(G_source(2:))                              ! remove leading prefix and spaces from directive line
 
-   if (index(line//' ',G_comment) /= 0) then               ! assume if directive contains G_comment comment is present
+   if (index(line//' ','! ') /= 0) then                    ! assume if directive contains prefix comment is present
                                                            ! LIMITATION: EVEN MESSAGES CANNOT CONTAIN COMMENTS
-      line=line(:index(line//' ',G_comment)-1)             ! trim trailing comment from directive
+      line=line(:index(line//' ','! ')-1)                  ! trim trailing comment from directive
    endif
-   if (line(1:1) == G_comment)line=''
+   if (line(1:1) == '! ')line=''
    if(line(1:4) == '@(#)')then
       verblen=5
    else
@@ -328,7 +329,7 @@ character(len=*)             :: opts
 character(len=G_line_length) :: filename                   ! filename on $OUTPUT command
 character(len=20)            :: position
 integer                      :: ios
-   call dissect2('output',' --append F',opts)     ! parse options and inline comment on input line
+   call dissect2('output','-oo --append F',opts)     ! parse options and inline comment on input line
 
    if(size(unnamed) > 0.and.opts /= '')then
       filename=unnamed(1)
@@ -372,7 +373,7 @@ character(len=256)            :: message
       G_inparcel=.false.
       G_iout=G_iout_init
    else
-      call dissect2('parcel',' ',opts)             ! parse options and inline comment on input line
+      call dissect2('parcel','-oo ',opts)             ! parse options and inline comment on input line
       if(size(unnamed) > 0.and.opts /= '')then
          name=unnamed(1)
       else
@@ -763,42 +764,6 @@ end subroutine endif
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-logical function true_or_false(line,ipos1,ipos2) !@(#)true_or_false(3f): convert variable name or .TRUE./.FALSE. to a logical value
-character(len=G_line_length),intent(in) :: line              ! line containing string to interpret as a logical value
-integer,intent(in)                      :: ipos1             ! starting column of substring in LINE
-integer,intent(in)                      :: ipos2             ! ending column of substring in LINE
-
-character(len=G_var_len)                :: value
-character(len=G_var_len)                :: substring
-integer                                 :: ios               ! error code returned by an internal READ
-
-   true_or_false=.false.                                     ! initialize return value
-   substring=line(ipos1:ipos2)                               ! extract substring from LINE to interpret
-
-   select case (substring)                                   ! if string is not a logical string assume it is a variable name
-   case ('.FALSE.','.F.')
-      true_or_false=.false.                                  ! set appropriate return value
-   case ('.TRUE.','.T.')
-      true_or_false=.true.                                   ! set appropriate return value
-   case default                                              ! assume this is a variable name, find name in dictionary
-      value=table%get(substring)
-
-      if (value == '') then                                  ! if not a defined variable name stop program
-         call stop_prep('c759de9e-33a9-41d7-a959-a5ff30e0f0f2',&
-                 & 'undefined variable.',' DIRECTIVE='//trim(G_source)//' VARIABLE='//trim(substring))
-      else
-         read(value,'(l4)',iostat=ios) true_or_false         ! try to read a logical from the value for the variable name
-         if(ios /= 0)then                                    ! not successful in reading string as a logical value
-            call stop_prep('b56bc1be-7600-4bd5-9fe5-8196b0d9bd7e','constant logical expression required.',trim(G_source))
-         endif
-      endif
-
-   end select
-
-end function true_or_false
-!===================================================================================================================================
-!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
-!===================================================================================================================================
 subroutine document(opts)                    !@(#)document(3f): process BLOCK command to start or stop special processing
 character(len=*),intent(in)  :: opts
 integer                      :: ierr
@@ -835,7 +800,8 @@ character(len=:),allocatable :: name
    endif
 
    ! parse options on input line
-   call dissect2('block','--file " " --cmd sh --varname textblock --length 128 --width 0 --style "#N#" --append F',opts)
+   call dissect2('block','--file " " --cmd sh --varname textblock --length 128 --width 0 &
+   & --prefix "#N#" --style "#N#" --append F',opts)
    ! if a previous command has opened a --file FILENAME flush it, because a new one is being opened or this is an END command
    ! and if a --file FILENAME has been selected open it
    call print_comment_block()
@@ -871,7 +837,14 @@ character(len=:),allocatable :: name
       G_MAN_PRINT=.true.
       G_MAN_COLLECT=.true.
       if(sget('style') /= '#N#')then
-         G_comment_style=lower(sget('style'))             ! allow formatting comments for particular post-processors
+         G_comment_style_block=lower(sget('style'))             ! allow formatting comments for particular post-processors
+      else
+         G_comment_style_block=G_comment_style
+      endif
+      if(sget('prefix') /= '#N#')then
+         G_COMMENT_PREFIX_BLOCK=sget('prefix')
+      else
+         G_COMMENT_PREFIX_BLOCK=G_COMMENT_PREFIX
       endif
    case('NULL')
       G_outtype='null'
@@ -935,11 +908,14 @@ character(len=:),allocatable :: name
          select case(G_comment_style)  ! duplicate help text as a comment for some code documentation utilities
          case('doxygen')               ! convert plain text to doxygen comment blocks with some automatic markdown highlights
             G_MAN_PRINT=.true.
-         case('fort')                  ! convert plain text to ford  comment blocks with some automatic markdown highlights
+         case('ford')                  ! convert plain text to ford  comment blocks with some automatic markdown highlights
+            G_MAN_PRINT=.true.
+         case('c')                     ! C code
             G_MAN_PRINT=.true.
          case('none')                  ! do not print comment lines from block
             G_MAN_PRINT=.false.
          case default
+            G_MAN_PRINT=.true.
          end select
 
    case('VERSION')
@@ -997,7 +973,6 @@ integer                      :: ios,iend,lun
       else
          filename=trim(varvalue)//'doc/'//trim(G_MAN_FILE)
       endif
-
       open(newunit=lun,file=filename,iostat=ios,action='write',position=G_MAN_FILE_POSITION)
 
       if(ios /= 0)then
@@ -1036,7 +1011,7 @@ integer                      :: i
    ALL: block
       WRITEIT: block
 
-         select case(G_comment_style)
+         select case(G_comment_style_block)
 
          case('doxygen')                 ! convert plain text to doxygen comment blocks with some automatic markdown highlights
             if(len(G_MAN) > 1)then      ! the way the string is built it starts with a newline
@@ -1071,7 +1046,7 @@ integer                      :: i
             endif
             !x!write(G_iout,'("!",131("="))')
 
-         case('ford')                    ! convert plain text to doxygen comment blocks with some automatic markdown highlights
+         case('ford')                    ! convert plain text to ford comment blocks with some automatic markdown highlights
             if(len(G_MAN) > 1)then      ! the way the string is built it starts with a newline
                CALL split(G_MAN,array1,delimiters=new_line('N'),nulls='return') ! parse string to an array parsing on delimiters
                !======================================================================================== nvfortran bug
@@ -1106,18 +1081,36 @@ integer                      :: i
 
             endif
             !x!write(G_iout,'("!>",131("="))')
+         case('c')                    ! convert plain text to C block comment
+            if(len(G_MAN) > 1)then      ! the way the string is built it starts with a newline
+               CALL split(G_MAN,array,delimiters=new_line('N'),nulls='return') ! parse string to an array parsing on delimiters
+
+               select case(size(array))
+               case(:1)
+               case(2)
+                write(G_iout,'("/* ",a," */")')trim(array(2))
+               case(3:)
+                write(G_iout,'("/*")')
+                do i=2,size(array)
+                   write(G_iout,'("",a)',iostat=ios)trim(array(i))
+                   if(ios /= 0)exit WRITEIT
+                enddo
+                write(G_iout,'("*/")')
+               case default
+                call write_err('*format_g_man* internal eror')
+               end select
+            endif
 
          case('none')                    ! ignore comment block
 
          case default
-            if(len(G_MAN) > 1)then                       ! the way the string is built it starts with a newline
+            if(len(G_MAN) > 1)then                        ! the way the string is built it starts with a newline
                G_MAN=G_MAN(2:)//repeat(' ',2*len(G_MAN))  ! make sure the white-space exists
-               call substitute(G_MAN,NEW_LINE('A'),NEW_LINE('A')//'! ')
-               G_MAN='! '//trim(G_MAN)
+               call substitute(G_MAN,NEW_LINE('A'),NEW_LINE('A')//G_comment_prefix_block//' ')
+               G_MAN=G_comment_prefix_block//' '//trim(G_MAN)
             endif
             write(G_iout,'(a)',iostat=ios) G_MAN
             if(ios /= 0)exit WRITEIT
-            !x!write(G_iout,'("!",131("="))')
          end select
 
          exit ALL
@@ -1656,7 +1649,8 @@ help_text=[ CHARACTER(LEN=128) :: &
 '        [--underscore]                                                          ',&
 '        [--width n]                                                             ',&
 '        [-d ignore|remove|blank]                                                ',&
-'        [--comment default|doxygen|ford|none]                                   ',&
+'        [--comment_style default|doxygen|ford|none|c]                           ',&
+'        [--comment_prefix STRING]                                               ',&
 '        [--ident]                                                               ',&
 '        [--verbose]                                                             ',&
 '        [--help| --usage| --crib| --version]                                    ',&
@@ -1749,8 +1743,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   --type FILETYPE  This flag indicates to skip input lines until after a       ',&
 '                    specific start string is encountered and to stop once a     ',&
-'                    specific end string is found, left-justified on lines by    ',&
-'                    themselves.                                                 ',&
+'                    specific end string is found  on lines by themselves.       ',&
 '                        FileType     Start_String              Stop_String      ',&
 '                        --------     ------------              -----------      ',&
 '                        md           ```fortran                ```              ',&
@@ -1769,19 +1762,28 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                    file suffix, treating supported file suffixes               ',&
 '                    ("md","markdownMML","html","tex") appropriately.            ',&
 '                                                                                ',&
-'   --start STRING   Same as --type except along with --stop allows for custom   ',&
-'                    strings to be specified. The string is a BRE (Basic Regular ',&
-'                    Expression).                                                ',&
+'   --start STRING   Along with --stop allows for custom delimiter strings to be ',&
+'                    specified. The string is a BRE (Basic Regular Expression).  ',&
+'                    Match the entire line to prevent inadvertent matches.       ',&
+'                    Note --type overrides --start and --stop. For example:      ',&
 '                                                                                ',&
-'   --stop STRING    Same as --type except along with --start allows for custom  ',&
-'                    strings to be specified. The string is a BRE (Basic Regular ',&
-'                    Expression).                                                ',&
+"                         --start '^ *\\begin{minted}{Fortran} *$'               ",&
 '                                                                                ',&
-'   --comment        Try to style comments generated in $BLOCK COMMENT blocks    ',&
+'   --stop STRING    Along with --start allows for custom delimiter strings to be',&
+'                    specified. The string is a BRE (Basic Regular Expression).  ',&
+'                    Match the entire line to prevent inadvertent matches.       ',&
+'                    Note --type overrides --start and --stop. For example:      ',&
+'                                                                                ',&
+"                         --stop '^ *\\end{minted} *$'                           ",&
+'                                                                                ',&
+'   --comment_style  Try to style comments generated in $BLOCK COMMENT blocks    ',&
 '                    for other utilities such as doxygen. Default is to          ',&
 '                    prefix lines with ''! ''. Allowed keywords are              ',&
-'                    currently "default", "doxygen","none","ford".               ',&
+'                    currently "default", "doxygen","none","ford", "C".          ',&
 '                    THIS IS AN ALPHA FEATURE AND NOT FULLY IMPLEMENTED.         ',&
+'                                                                                ',&
+'   --comment_prefix  The prefix to place before each comment line when          ',&
+'                     --comment_style=default. Defaults to "!".                  ',&
 '                                                                                ',&
 '   --prefix ADE|letter  The directive prefix character. The default is "$".     ',&
 '                        If the value is numeric it is assumed to be an ASCII    ',&
@@ -2128,31 +2130,45 @@ help_text=[ CHARACTER(LEN=128) :: &
 ' TEXT BLOCK FILTERS                                                             ',&
 '   (--file is ignored unless $PREP_DOCUMENT_DIR is set)                         ',&
 '                                                                                ',&
-'      $BLOCK   [null|comment|write|variable [--varname NAME]|                   ',&
-'               set|system|message|define                                        ',&
-'               help|version] [--file NAME [--append]]      [! comment ]         ',&
+'    A block of text may be converted into several formats or ignored or used    ',&
+'    to generate a block of directives or even optionally permitted to be        ',&
+'    executed as system commands. In all cases one acts on a simple block of     ',&
+'    text.                                                                       ',&
+'                                                                                ',&
+'      $BLOCK   [null|write|set|system|message|define|                           ',&
+'               [variable [--varname NAME]|                                      ',&
+'               [comment [--style NAME|--prefix STR]|                            ',&
+'               help|version]                                                    ',&
+'               [--file NAME [--append]]                    [! comment ]         ',&
 '      $ENDBLOCK                                            [! comment ]         ',&
 '                                                                                ',&
 '   Details ...                                                                  ',&
 '                                                                                ',&
-'   $BLOCK has several forms but in all cases operates on a block of lines:      ',&
+'   What happens to the text between the $BLOCK and $ENDBLOCK direcitves is      ',&
+'   controlled by the modifiers that follow the $BLOCK keyword:                  ',&
 '                                                                                ',&
 '     basic filtering:                                                           ',&
-'      $BLOCK [comment|null|write                 [--file NAME [--append]]       ',&
+'      $BLOCK NULL|WRITE                          [--file NAME [--append]]       ',&
+'      $BLOCK COMMENT [--style NAME|--prefix STR] [--file NAME [--append]]       ',&
+'                                                                                ',&
 '     creating a CHARACTER array:                                                ',&
 '      $BLOCK VARIABLE --varname NAME             [--file NAME [--append]]       ',&
-'     block versions of prep(1) commands:                                        ',&
-'      $BLOCK set|system|message|define           [--file NAME [--append]]       ',&
-'     specialized procedure construction:                                        ',&
-'      $BLOCK help|version                        [--file NAME [--append]]       ',&
 '                                                                                ',&
-'      NULL:      Do not write into current output file                          ',&
+'     block versions of prep(1) commands:                                        ',&
+'      $BLOCK SET|SYSTEM|MESSAGE|DEFINE           [--file NAME [--append]]       ',&
+'                                                                                ',&
+'     specialized procedure construction:                                        ',&
+'      $BLOCK HELP|VERSION                        [--file NAME [--append]]       ',&
+'                                                                                ',&
+'      NULL:      Do not write to current output file                            ',&
 '      COMMENT:   write text prefixed by an exclamation and a space or according ',&
-'                 to the style selected by the --comment style selected on the   ',&
-'                 command line.                                                  ',&
+'                 to the style selected by the --comment_style selected on the   ',&
+'                 command line unless overridden by --style or --prefix          ',&
+'                  --style :  default, doxygen, ford, C, none                    ',&
+'                  --prefix:  If style is default, specify prefix instead of "!" ',&
 '      WRITE:     write text as Fortran WRITE(3f) statements                     ',&
 '                 The Fortran generated is free-format. It is assumed the        ',&
-'                 output will not generate lines over 132 columns.               ',&
+'                 output will not generate lines over the allowed line length.   ',&
 '      VARIABLE:  write as a text variable. The name may be defined using        ',&
 '                 the --varname switch. Default name is "textblock".             ',&
 '      MESSAGE:   All the lines in the block are treated as options to $MESSAGE  ',&
@@ -2160,7 +2176,9 @@ help_text=[ CHARACTER(LEN=128) :: &
 '      DEFINE:    All the lines in the block are treated as options to $DEFINE   ',&
 '      SYSTEM:    The lines are gathered into a file and executed by the shell   ',&
 '                 with the stdout being written to a scratch file and then read  ',&
-'      END:       End block of specially processed text                          ',&
+'                 Will cause a failure unless --systemon is specified on the     ',&
+'                 command line.                                                  ',&
+'      END:       End block of specially processed text. $ENDBLOCK is preferred. ',&
 '                                                                                ',&
 '   special-purpose modes primarily for use with the M_kracken module:           ',&
 '                                                                                ',&
@@ -2294,8 +2312,8 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   commands can be executed for such tasks as creating files to be read or to   ',&
 '   further process documents created by $BLOCK. $SYSTEM directives are errors   ',&
 '   by default; as you clearly need to ensure the input file is trusted before   ',&
-'   before allowing commands to be executed. Commands that are system-specific   ',&
-'   may need to be executed conditionally as well.                               ',&
+'   allowing commands to be executed. Commands that are system-specific may need ',&
+'   to be executed conditionally as well.                                        ',&
 '                                                                                ',&
 '   Examples:                                                                    ',&
 '                                                                                ',&
@@ -2544,14 +2562,15 @@ help_text=[ CHARACTER(LEN=128) :: &
 "  $OUTPUT filename [--append]                                                   ",&
 "  $INCLUDE filename [--base64]                                                  ",&
 "TEXT BLOCK FILTERS (--file writes to $PREP_DOCUMENT_DIR/doc/NAME)               ",&
-"  $BLOCK [comment|null|write|variable [--varname NAME]|set|system|message|      ",&
-"         define|help|version][--file NAME [--append]] ... $ENDBLOCK             ",&
+"  $BLOCK [comment [--style {doxygen,ford,C,none,default}|--prefix STR]]|        ",&
+"         null|write|set|system|message|define|help|version|                     ",&
+"         variable [--varname NAME][--file NAME [--append]] ... $ENDBLOCK        ",&
 "INFORMATION                                                                     ",&
 "  $MESSAGE message_to_stderr                                                    ",&
 "  $SHOW [defined_variable_name][;...]                                           ",&
 "SYSTEM COMMANDS (see also: $BLOCK SYSTEM)                                       ",&
 "  $SYSTEM command                                                               ",&
-"  $STOP [stop_value[ ""message""]] | $QUIT [""message""]| $ERROR [""message""]        "]
+"  $STOP [stop_value[ ""message""]] | $QUIT [""message""]| $ERROR [""message""]  "]
    WRITE(lun,'(a)')(trim(help_text(i)),i=1,size(help_text))
 end subroutine crib_help
 !===================================================================================================================================
@@ -2906,7 +2925,7 @@ end module prep__internal
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
 program prep                                              !@(#)prep(1f): preprocessor for Fortran/Fortran source code
-use M_CLI2,    only : set_args, lget, rget, iget, sget
+use M_CLI2,    only : set_args, lget, rget, iget, sget, specified
 use M_strings, only : notabs, isdigit, switch, sep, lower
 use M_io,      only : getname, basename
 use M_attr,    only : attr, attr_mode
@@ -2946,8 +2965,10 @@ logical                      :: isscratch
    & --crib .false.       &
    & --debug .false.      &
    & --underscore .false. &
-   & --noenv .false.     &
+   & --noenv .false.      &
    & --comment "'//get_env('PREP_COMMENT_STYLE','default')//'" &
+   & --comment_style "'//get_env('PREP_COMMENT_STYLE','default')//'" &
+   & --comment_prefix "!" &
    & --ident .false.      &
    & --width 1024         &
    & --start " "          &
@@ -2956,8 +2977,6 @@ logical                      :: isscratch
    & --lang "'//get_env('PREP_LANGUAGE','en')//'" &
    & '
    ! allow formatting comments for particular post-processors
-   G_comment='! '
-   !JSUkracken_comment=G_comment
    call setup(help_text,version_text)
    call set_args(cmd,help_text,version_text)                ! define command arguments, default values and crack command line
 !  cpp>=========================================================================
@@ -2976,6 +2995,7 @@ logical                      :: isscratch
       endif
    endif
 !  cpp<=========================================================================
+   G_comment_prefix=sget('comment_prefix')
    string=adjustl(trim(sget('prefix')))
    if ( all( isdigit(switch(string)) ) ) then               ! if all characters are numeric digits
       prefix = char(iget('prefix'))                         ! assume this is an ADE
@@ -3025,52 +3045,45 @@ logical                      :: isscratch
    if(G_verbose)then
       call write_err('+ verbose mode on ')
    endif
-   G_comment_style=lower(sget('comment'))             ! allow formatting comments for particular post-processors
+
+   G_comment_style=lower(sget('comment_style'))       ! allow formatting comments for particular post-processors
+   if(specified('comment'))G_comment_style=lower(sget('comment'))  ! old name kept for backward compatibility
+
    G_system_on = lget('system')                       ! allow system commands on $SYSTEM directives
    if(G_system_on)then
       call put('SYSTEMON=.TRUE.')
    else
       call put('SYSTEMON=.FALSE.')
    endif
-   G_extract_start0=''
-   G_extract_stop0=''
-   if(sget('type').eq.'')then
-      G_extract_auto=.true.  ! auto mode where start and end are selected based on file suffix
-      G_extract=.false.
+   G_extract_auto=.false. ! auto mode where start and end are selected based on file suffix
+   select case(sget('type'))
+   case('md','.md')
+      G_extract_start='```fortran'
+      G_extract_stop='```'
+   case('markdownMML','.markdownMML','MML','.MML','mml','.mml')
+      G_extract_start='^ *~~~~* *{ *: *lang=fortran *}[ ~]*$'
+      G_extract_stop='^ *~~~~* *$'
+   case('html','.html','htm','.htm')
+      ! flaw is HTML is not case sensitive
+      G_extract_start=' *<[xX][mM][pP]>'
+      G_extract_stop=' *</[xX][mM][pP]>'
+   case('tex')
+      G_extract_start='^\\begin{minted}{Fortran}$'
+      G_extract_stop='^\\end{minted}$'
+   case('auto')
       ! if these are set use them instead of auto mode
       G_extract_start=trim(sget('start'))
       G_extract_stop=trim(sget('stop'))
-      G_extract_start0=G_extract_start
-      G_extract_stop0=G_extract_stop
-   else
-      G_extract_auto=.false.
-      G_extract=.true.
-      select case(sget('type'))
-      case('md','.md')
-         G_extract_start='```fortran'
-         G_extract_stop='```'
-      case('markdownMML','.markdownMML','MML','.MML','mml','.mml')
-         G_extract_start='^ *~~~~* *{: *lang=fortran *}[ ~]*$'
-         G_extract_stop='^ *~~~~* *$'
-      case('html','.html','htm','.htm')
-         ! flaw is HTML is not case sensitive
-         G_extract_start=' *<[xX][mM][pP]>'
-         G_extract_stop=' *</[xX][mM][pP]>'
-      case('tex')
-         G_extract_start='\begin{minted}{Fortran}'
-         G_extract_stop='\end{minted}'
-      case('auto')
-         G_extract_start=''
-         G_extract_stop=''
-         G_extract_auto=.true.
-      case('none')
-         G_extract_start=''
-         G_extract_stop=''
-         G_extract=.false.
-      case default
-         call stop_prep('61a446d7-7e3e-418a-a2df-cd50dc89148a','unknown type:',sget('type'))
-      end select
-   endif
+      G_extract_auto=.true.
+      if(specified('start'))G_extract_auto=.false.
+      if(specified('stop'))G_extract_auto=.false.
+   case('none')
+      G_extract_start=''
+      G_extract_stop=''
+   case default
+      call stop_prep('61a446d7-7e3e-418a-a2df-cd50dc89148a','unknown type:',sget('type'))
+   end select
+
    if(G_extract_start /= ''.or.G_extract_stop /= '')then
       G_extract=.true.
       if (getpat(trim(G_extract_start), G_pattern_start%pat) .eq. ERR) then
@@ -3079,6 +3092,8 @@ logical                      :: isscratch
       if (getpat(trim(G_extract_stop), G_pattern_stop%pat) .eq. ERR) then
          call stop_prep('f12d13a2-b397-4b59-a857-381994f47bc6','Illegal stop pattern ',G_extract_stop)
       endif
+   else
+      G_extract=.false.
    endif
 
    call get_os_type()
@@ -3089,7 +3104,7 @@ logical                      :: isscratch
 !cpp>==============================================================================
    call opens()                                            ! convert input filenames into $include directives
 !<cpp==============================================================================
-   if(G_extract) call auto()
+   call auto()
 
    READLINE: do                                            ! read loop to read input file
       read(G_file_dictionary(G_iocount)%unit_number,'(a)',end=7) line
@@ -3170,36 +3185,33 @@ logical                      :: isscratch
    contains
 
 subroutine auto()
+   ! if --type was not specified and --start and --stop are not specified
    if(G_extract_auto)then
       select case(ends_in(G_file_dictionary(G_iocount)%filename) )
       case('md','.md')
          G_extract_start='```fortran'
          G_extract_stop='```'
       case('markdownMML','.markdownMML','MML','mml')
-         G_extract_start='^ *~~~~* *{: *lang=fortran *}[ ~]*$'
+         G_extract_start='^ *~~~~* *{ *: *lang=fortran *}[ ~]*$'
          !NOT WORKING G_extract_start='^ *[~`][~`][~`][~`]* *{: *lang=fortran *} *[~`]* *'
          G_extract_stop='^ *~~~~* *$'
          !NOT WORKING G_extract_stop='^ *[~`][~`][~`][~`]* *$'
       case('tex')
-         G_extract_start='\begin{minted}{Fortran}'
-         G_extract_stop='\end{minted}'
+         G_extract_start='^\\begin{minted}{Fortran}$'
+         G_extract_stop='^\\end{minted}$'
       case('html','.html','htm','.htm')
          G_extract_start=' *<[xX][mM][pP]>'
          G_extract_stop=' *</[xX][mM][pP]>'
       case default
-         G_extract_start=G_extract_start0
-         G_extract_stop=G_extract_stop0
-      end select
-      if(G_extract_start == ''.and.G_extract_stop == '')then
          G_extract=.false.
-      else
-         G_extract=.true.
-         if (getpat(trim(G_extract_start), G_pattern_start%pat) .eq. ERR) then
-            call stop_prep('fd4cb3f6-1878-44bc-8ab6-f5ae33ef845e','Illegal start pattern ',G_extract_start)
-         endif
-         if (getpat(trim(G_extract_stop), G_pattern_stop%pat) .eq. ERR) then
-            call stop_prep('cd883e90-894a-47ec-9c6f-644b99848ca6','Illegal stop pattern ',G_extract_stop)
-         endif
+         return
+      end select
+      G_extract=.true.
+      if (getpat(trim(G_extract_start), G_pattern_start%pat) .eq. ERR) then
+         call stop_prep('fd4cb3f6-1878-44bc-8ab6-f5ae33ef845e','Illegal start pattern ',G_extract_start)
+      endif
+      if (getpat(trim(G_extract_stop), G_pattern_stop%pat) .eq. ERR) then
+         call stop_prep('cd883e90-894a-47ec-9c6f-644b99848ca6','Illegal stop pattern ',G_extract_stop)
       endif
    endif
 end subroutine auto
