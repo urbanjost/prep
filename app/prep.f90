@@ -801,7 +801,7 @@ character(len=:),allocatable :: name
 
    ! parse options on input line
    call dissect2('block','--file " " --cmd sh --varname textblock --length 128 --width 0 &
-   & --prefix "#N#" --style "#N#" --append F',opts)
+   & --prefix " " --style " " --append F',opts)
    ! if a previous command has opened a --file FILENAME flush it, because a new one is being opened or this is an END command
    ! and if a --file FILENAME has been selected open it
    call print_comment_block()
@@ -836,12 +836,12 @@ character(len=:),allocatable :: name
       G_outtype='comment'
       G_MAN_PRINT=.true.
       G_MAN_COLLECT=.true.
-      if(sget('style') /= '#N#')then
+      if(specified('style'))then
          G_comment_style_block=lower(sget('style'))             ! allow formatting comments for particular post-processors
       else
          G_comment_style_block=G_comment_style
       endif
-      if(sget('prefix') /= '#N#')then
+      if(specified('prefix'))then
          G_COMMENT_PREFIX_BLOCK=sget('prefix')
       else
          G_COMMENT_PREFIX_BLOCK=G_COMMENT_PREFIX
@@ -892,6 +892,18 @@ character(len=:),allocatable :: name
 
    case('HELP')
       G_outtype='help'
+      G_MAN_PRINT=.true.
+      G_MAN_COLLECT=.true.
+      if(specified('style'))then
+         G_comment_style_block=lower(sget('style'))             ! allow formatting comments for particular post-processors
+      else
+         G_comment_style_block=G_comment_style
+      endif
+      if(specified('prefix'))then
+         G_COMMENT_PREFIX_BLOCK=sget('prefix')
+      else
+         G_COMMENT_PREFIX_BLOCK=G_COMMENT_PREFIX
+      endif
       write(G_iout,'(a)')'subroutine help_usage(l_help)'
       write(G_iout,'(a)')'implicit none'
       write(G_iout,'(a)')'character(len=*),parameter     :: ident="@(#)help_usage(3f): prints help information"'
@@ -905,14 +917,14 @@ character(len=:),allocatable :: name
 ! NOTE: Without the type specification this constructor would have to specify all of the constants with the same character length.
       write(G_iout,'(a)')'help_text=[ CHARACTER(LEN=128) :: &'
 
-         select case(G_comment_style)  ! duplicate help text as a comment for some code documentation utilities
-         case('doxygen')               ! convert plain text to doxygen comment blocks with some automatic markdown highlights
+         select case(G_comment_style_block)  ! duplicate help text as a comment for some code documentation utilities
+         case('doxygen')                     ! convert plain text to doxygen comment blocks with some automatic markdown highlights
             G_MAN_PRINT=.true.
-         case('ford')                  ! convert plain text to ford  comment blocks with some automatic markdown highlights
+         case('ford')                        ! convert plain text to ford  comment blocks with some automatic markdown highlights
             G_MAN_PRINT=.true.
-         case('c')                     ! C code
+         case('c')                           ! C code
             G_MAN_PRINT=.true.
-         case('none')                  ! do not print comment lines from block
+         case('none')                        ! do not print comment lines from block
             G_MAN_PRINT=.false.
          case default
             G_MAN_PRINT=.true.
