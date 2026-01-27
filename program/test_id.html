@@ -90,7 +90,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 5.0% of total for programs.">28 statements</a>
+                 title="10.0% of total for programs.">59 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
@@ -124,34 +124,40 @@
       <div id="sidebar">
       <h3>Contents</h3>
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
       <div class="card mb-4">
-      <a data-bs-toggle="collapse" href="#vars-0"
-         aria-expanded="false" aria-controls="vars-0">
-         <h4 class="card-header bg-primary text-white">Variables</h4>
+      <a data-bs-toggle="collapse" href="#funcs-0"
+         aria-expanded="false" aria-controls="funcs-0">
+         <h4 class="card-header bg-primary text-white">Functions</h4>
       </a>
-      <div id="vars-0" class="collapse">
+      <div id="funcs-0" class="collapse">
         <div class="list-group list-group-flush">
-            <a class="list-group-item" href="../program/test_id.html#variable-break">break</a>
-            <a class="list-group-item" href="../program/test_id.html#variable-nl">nl</a>
-            <a class="list-group-item" href="../program/test_id.html#variable-options~4">options</a>
-            <a class="list-group-item" href="../program/test_id.html#variable-start">start</a>
-            <a class="list-group-item" href="../program/test_id.html#variable-version">version</a>
-            <a class="list-group-item" href="../program/test_id.html#variable-where">where</a>
+            <a class="list-group-item" href="../program/test_id.html#proc-inset">inset</a>
         </div>
       </div>
     </div>
 
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#subs-0"
+         aria-expanded="false" aria-controls="subs-0">
+         <h4 class="card-header bg-primary text-white">Subroutines</h4>
+      </a>
+      <div id="subs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../program/test_id.html#proc-platform">platform</a>
+        </div>
+      </div>
+    </div>
+
   
   
   
@@ -172,154 +178,100 @@
     </div>
     
     <div class="col-md-9" id='text'>
-        <div class="card mb-4">
-      <h3 class="card-header card-title bg-light">Uses</h3>
-      <div class="card-body">
-        <ul class="list-group list-group-flush">
-            <li class="list-group-item">
-              <ul class="list-inline">
-                  <li class="list-inline-item"><a href='http://fortranwiki.org/fortran/show/iso_fortran_env'>iso_fortran_env</a></li>
-              </ul>
-            </li>
-        </ul>
-      </div>
-    </div>
-
+    
     
 
 
+    
+    
+    
+
+    
+ 
     <section>
-    <h2>Variables</h2>
+    <h2>Functions</h2>
+      <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-inset"></span> <h3> function <a href='../proc/inset.html'>inset</a>(string) result(longer)  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
         <th scope="col">Type</th>
-        <th scope="col">Attributes</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
         <th scope="col"></th>
         <th scope="col">Name</th>
-<th></th><th scope="col">Initial</th>        <th scope="col"></th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-break"></span>
-              integer
-            </td>
-            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>break</strong></td>
-                <td></td>
-                <td></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-nl"></span>
+              <span class="anchor" id="variable-string"></span>
               character(len=*),
             </td>
-            <td>
-parameter               
-            </td>
-            <td>::</td>
-            <td><strong>nl</strong></td>
-<td> =</td>
-                <td>new_line(&#39;a&#39;)</td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-options~4"></span>
-              character(len=:),
-            </td>
-            <td>
-              allocatable
-            </td>
-            <td>::</td>
-            <td><strong>options</strong></td>
-                <td></td>
-                <td></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-start"></span>
-              integer
-            </td>
-            <td>
+<td>intent(in)</td>
+              <td></td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>start</strong></td>
-                <td></td>
-                <td></td>
+            <td><strong>string</strong></td>
             <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-version"></span>
-              character(len=:),
-            </td>
-            <td>
-              allocatable
-            </td>
-            <td>::</td>
-            <td><strong>version</strong></td>
-                <td></td>
-                <td></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-where"></span>
-              integer
-            </td>
-            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>where</strong></td>
-                <td></td>
-                <td></td>
-            <td>
-                
+
             </td>
         </tr>
     </tbody>
   </table>
 
+    <h4>
+    Return Value
+    <small>character(len=:), allocatable</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
     </section>
     <br>
-    
-    
-    
-
-    
 
 
+    <section>
+    <h2>Subroutines</h2>
+      <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-platform"></span> <h3> subroutine <a href='../proc/platform.html'>platform</a>()  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+    <em>None</em>
+
+    </div>
+  </div>
+
+    </section>    
     
 
     <section>
     <h2 id="src">Source Code</h2>
     <div class="hl codehilite"><pre><span></span><span class="k">program </span><span class="n">test_id</span>
+<span class="k">implicit none</span>
+<span class="k">   call </span><span class="n">platform</span><span class="p">()</span>
+<span class="k">contains</span>
+
+<span class="k">subroutine </span><span class="n">platform</span><span class="p">()</span>
 <span class="k">use</span><span class="p">,</span><span class="w"> </span><span class="k">intrinsic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iso_fortran_env</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">compiler_version</span>
 <span class="k">use</span><span class="p">,</span><span class="w"> </span><span class="k">intrinsic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iso_fortran_env</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">compiler_options</span>
 <span class="k">implicit none</span>
 <span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">version</span><span class="p">,</span><span class="w"> </span><span class="k">options</span>
 <span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="k">parameter</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">nl</span><span class="o">=</span><span class="nb">new_line</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">)</span>
-<span class="kt">integer</span><span class="w">                      </span><span class="kd">::</span><span class="w"> </span><span class="k">where</span><span class="p">,</span><span class="w"> </span><span class="n">start</span><span class="p">,</span><span class="w"> </span><span class="n">break</span>
-<span class="w">   </span><span class="n">version</span><span class="o">=</span><span class="n">compiler_version</span><span class="p">()</span>
+<span class="kt">integer</span><span class="w">                      </span><span class="kd">::</span><span class="w"> </span><span class="k">where</span><span class="p">,</span><span class="w"> </span><span class="n">start</span><span class="p">,</span><span class="w"> </span><span class="n">break</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">last</span><span class="p">,</span><span class="w"> </span><span class="n">col</span>
+<span class="w">   </span><span class="n">version</span><span class="o">=</span><span class="n">compiler_version</span><span class="p">()</span><span class="o">//</span><span class="s1">&#39; &#39;</span>
 <span class="w">   </span><span class="k">options</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="o">//</span><span class="n">compiler_options</span><span class="p">()</span>
 <span class="w">   </span><span class="n">start</span><span class="o">=</span><span class="mi">1</span>
 <span class="w">   </span><span class="k">do </span>
@@ -338,11 +290,36 @@ parameter
 <span class="w">         </span><span class="n">start</span><span class="o">=</span><span class="k">where</span>
 <span class="k">      enddo</span>
 <span class="k">   endif</span>
-<span class="k">   print</span><span class="w"> </span><span class="s1">&#39;(*(a))&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="w">    </span><span class="s1">&#39;This file was compiled by &#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="w">    </span><span class="n">version</span><span class="p">,</span><span class="n">nl</span><span class="p">,</span><span class="w">        </span><span class="p">&amp;</span>
-<span class="w">    </span><span class="s1">&#39;using the options &#39;</span><span class="p">,</span><span class="w">         </span><span class="p">&amp;</span>
-<span class="w">    </span><span class="k">options</span>
+<span class="k">   </span><span class="n">last</span><span class="o">=</span><span class="nb">len_trim</span><span class="p">(</span><span class="n">version</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">   </span><span class="n">col</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">   </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="nb">len_trim</span><span class="p">(</span><span class="n">version</span><span class="p">)</span>
+<span class="w">    </span><span class="n">col</span><span class="o">=</span><span class="n">col</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">version</span><span class="p">(</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="p">).</span><span class="n">eq</span><span class="p">.</span><span class="s1">&#39; &#39;</span><span class="p">)</span><span class="n">last</span><span class="o">=</span><span class="n">i</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">col</span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="mi">76</span><span class="p">)</span><span class="k">then</span>
+<span class="k">       </span><span class="n">version</span><span class="p">(</span><span class="n">last</span><span class="p">:</span><span class="n">last</span><span class="p">)</span><span class="o">=</span><span class="n">nl</span>
+<span class="w">       </span><span class="n">col</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">    </span><span class="k">endif</span>
+<span class="k">   enddo</span>
+<span class="k">   print</span><span class="w"> </span><span class="s1">&#39;(a,/,3x,*(a))&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;This file was compiled by :&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">inset</span><span class="p">(</span><span class="n">version</span><span class="p">)</span>
+<span class="w">   </span><span class="k">if</span><span class="p">(</span><span class="k">options</span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="k">then</span>
+<span class="k">      print</span><span class="w"> </span><span class="s1">&#39;(*(a))&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;using the options :&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">inset</span><span class="p">(</span><span class="k">options</span><span class="p">)</span>
+<span class="w">   </span><span class="k">endif</span>
+<span class="k">end subroutine </span><span class="n">platform</span>
+
+<span class="k">function </span><span class="n">inset</span><span class="p">(</span><span class="n">string</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">longer</span><span class="p">)</span>
+<span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">string</span>
+<span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">longer</span>
+<span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="k">parameter</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">nl</span><span class="o">=</span><span class="nb">new_line</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">)</span>
+<span class="kt">integer</span><span class="w">                      </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+<span class="w">   </span><span class="n">longer</span><span class="o">=</span><span class="s1">&#39;&#39;</span>
+<span class="w">   </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+<span class="w">      </span><span class="n">longer</span><span class="o">=</span><span class="n">longer</span><span class="o">//</span><span class="n">string</span><span class="p">(</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">string</span><span class="p">(</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="p">).</span><span class="n">eq</span><span class="p">.</span><span class="n">nl</span><span class="p">)</span><span class="k">then</span>
+<span class="k">         </span><span class="n">longer</span><span class="o">=</span><span class="n">longer</span><span class="o">//</span><span class="s1">&#39;   &#39;</span>
+<span class="w">      </span><span class="k">endif</span>
+<span class="k">   enddo</span>
+<span class="k">end function </span><span class="n">inset</span>
+
 <span class="k">end program </span><span class="n">test_id</span>
 </pre></div>
 
@@ -359,14 +336,14 @@ parameter
           <div class="col">
             <p>
               prep
- was developed by John S. Urban<br>              &copy; 2025 
+ was developed by John S. Urban<br>              &copy; 2026 
 </p>
           </div>
           <div class="col">
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2025-12-02 12:38 +0000             </p>
+ on 2026-01-27 07:00 +0000             </p>
           </div>
         </div>
         <br>
